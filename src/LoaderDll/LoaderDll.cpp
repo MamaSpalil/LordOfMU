@@ -98,7 +98,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	struct _stat st = {0};
 
-#if defined(__CLICKER_ELITE__) || defined(__ANTIHACK_STUFF__) || defined(__HACK_STUFF__)
+#if defined(__CLICKER_ELITE__) || defined(__ANTIHACK_STUFF__) || defined(__HACK_STUFF__) || defined(__CLICKER_STUFF__)
 
 	TCHAR szPath[_MAX_PATH+1] = {0};
 
