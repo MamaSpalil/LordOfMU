@@ -1,0 +1,398 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+ <html xmlns:msxsl="urn:schemas-microsoft-com:xslt"><head><meta content="en-us" http-equiv="Content-Language" /><meta content="text/html; charset=utf-16" http-equiv="Content-Type" /><title _locID="ConversionReport0">
+          Отчет о переносе
+        </title><style> 
+                    /* Body style, for the entire document */
+                    body
+                    {
+                        background: #F3F3F4;
+                        color: #1E1E1F;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    /* Header1 style, used for the main title */
+                    h1
+                    {
+                        padding: 10px 0px 10px 10px;
+                        font-size: 21pt;
+                        background-color: #E2E2E2;
+                        border-bottom: 1px #C1C1C2 solid; 
+                        color: #201F20;
+                        margin: 0;
+                        font-weight: normal;
+                    }
+
+                    /* Header2 style, used for "Overview" and other sections */
+                    h2
+                    {
+                        font-size: 18pt;
+                        font-weight: normal;
+                        padding: 15px 0 5px 0;
+                        margin: 0;
+                    }
+
+                    /* Header3 style, used for sub-sections, such as project name */
+                    h3
+                    {
+                        font-weight: normal;
+                        font-size: 15pt;
+                        margin: 0;
+                        padding: 15px 0 5px 0;
+                        background-color: transparent;
+                    }
+
+                    /* Color all hyperlinks one color */
+                    a
+                    {
+                        color: #1382CE;
+                    }
+
+                    /* Table styles */ 
+                    table
+                    {
+                        border-spacing: 0 0;
+                        border-collapse: collapse;
+                        font-size: 10pt;
+                    }
+
+                    table th
+                    {
+                        background: #E7E7E8;
+                        text-align: left;
+                        text-decoration: none;
+                        font-weight: normal;
+                        padding: 3px 6px 3px 6px;
+                    }
+
+                    table td
+                    {
+                        vertical-align: top;
+                        padding: 3px 6px 5px 5px;
+                        margin: 0px;
+                        border: 1px solid #E7E7E8;
+                        background: #F7F7F8;
+                    }
+
+                    /* Local link is a style for hyperlinks that link to file:/// content, there are lots so color them as 'normal' text until the user mouse overs */
+                    .localLink
+                    {
+                        color: #1E1E1F;
+                        background: #EEEEED;
+                        text-decoration: none;
+                    }
+
+                    .localLink:hover
+                    {
+                        color: #1382CE;
+                        background: #FFFF99;
+                        text-decoration: none;
+                    }
+
+                    /* Center text, used in the over views cells that contain message level counts */ 
+                    .textCentered
+                    {
+                        text-align: center;
+                    }
+
+                    /* The message cells in message tables should take up all avaliable space */
+                    .messageCell
+                    {
+                        width: 100%;
+                    }
+
+                    /* Padding around the content after the h1 */ 
+                    #content 
+                    {
+	                    padding: 0px 12px 12px 12px; 
+                    }
+
+                    /* The overview table expands to width, with a max width of 97% */ 
+                    #overview table
+                    {
+                        width: auto;
+                        max-width: 75%; 
+                    }
+
+                    /* The messages tables are always 97% width */
+                    #messages table
+                    {
+                        width: 97%;
+                    }
+
+                    /* All Icons */
+                    .IconSuccessEncoded, .IconInfoEncoded, .IconWarningEncoded, .IconErrorEncoded
+                    {
+                        min-width:18px;
+                        min-height:18px; 
+                        background-repeat:no-repeat;
+                        background-position:center;
+                    }
+
+                    /* Success icon encoded */
+                    .IconSuccessEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconSuccess#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABcElEQVR4Xq2TsUsCURzHv15g8ZJcBWlyiYYgCIWcb9DFRRwMW5TA2c0/QEFwFkxxUQdxVlBwCYWOi6IhWgQhBLHJUCkhLr/BW8S7gvrAg+N+v8/v+x68Z8MGy+XSCyABQAXgBgHGALoASkIIDWSLeLBetdHryMjd5IxQPWT4rn1c/P7+xxp72Cs9m5SZ0Bq2vPnbPFafK2zDvmNHypdC0BPkLlQhxJsCAhQoZwdZU5mwxh720qGo8MzTxTTKZDPCx2HoVzp6lz0Q9tKhyx0kGs8Ny+TkWRKk8lCROwEduhyg9l/6lunOPSfmH3NUH6uQ0KHLAe7JYvJjevm+DAMGJHToKtigE+vwvIidxLamb8IBY9e+C5LiXREkfho3TSd06HJA13/oh6T51MTsfQbHrsMynQ5dDihFjiK8JJAU9AKIWTp76dCVN7HWHrajmUEGvyF9nkbAE6gLIS7kTUyuf2gscLoJrElZo/Mvj+nPz/kLTmfnEwP3tB0AAAAASUVORK5CYII=);
+                    }
+
+                    /* Information icon encoded */
+                    .IconInfoEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconInformation#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHElEQVR4Xs2TsUoDQRRF7wwoziokjZUKadInhdhukR9YP8DMX1hYW+QvdsXa/QHBbcXC7W0CamWTQnclFutceIQJwwaWNLlwm5k5d94M76mmaeCrrmsLYOocY12FcxZFUeozCqKqqgYA8uevv1H6VuPxcwlfk5N92KHBxfFeCSAxxswlYAW/Xr989x/mv9gkhtyMDhcAxgzRsp7flj8B/HF1RsMXq+NZMkopaHe7lbKxQUEIGbKsYNoGn969060hZBkQex/W8oRQwsQaW2o3Ago2SVcJUzAgY3N0lTCZZm+zPS8HB51gMmS1DEYyOz9acKO1D8JWTlafKIMxdhvlfdyT94Vv5h7P8Ky7nQzACmhvKq3zk3PjW9asz9D/1oigecsioooAAAAASUVORK5CYII=);
+                    }
+
+                    /* Warning icon encoded */
+                    .IconWarningEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconWarning#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAx0lEQVR4XpWSMQ7CMAxFf4xAyBMLCxMrO8dhaBcuwdCJS3RJBw7SA/QGTCxdWJgiQYWKXJWKIXHIlyw5lqr34tQgEOdcBsCOx5yZK3hCCKdYXneQkh4pEfqzLfu+wVDSyyzFoJjfz9NB+pAF+eizx2Vruts0k15mPgvS6GYvpVtQhB61IB/dk6AF6fS4Ben0uIX5odtFe8Q/eW1KvFeH4e8khT6+gm5B+t3juyDt7n0jpe+CANTd+oTUjN/U3yVaABnSUjFz/gFq44JaVSCXeQAAAABJRU5ErkJggg==);
+                    }
+
+                    /* Error icon encoded */
+                    .IconErrorEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconError#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABQElEQVR4XqWTvUoEQRCE6wYPZUA80AfwAQz23uCMjA7MDRQEIzPBVEyNTQUFIw00vcQTTMzuAh/AxEQQT8HF/3G/oGGnEUGuoNnd6qoZuqltyKEsyzVJq5I6rnUp6SjGeGhESikzzlc1eL7opfuVbrqbU1Zw9NCgtQMaZpY0eNnaaL2fHusvTK5vKu7sjSS1Y4y3QUA6K3e3Mau5UFDyMP7tYF9o8cAHZv68vipoIJg971PZIZ5HiwdvYGGvFVFHmGmZ2MxwmQYPXubPl9Up0tfoMQGetXd6mRbvhBw+boZ6WF7Mbv1+GsHRk0fQmPAH1GfmZirbCfDJ61tw3Px8/8pZsPAG4jlVhcPgZ7adwNWBB68lkRQWFiTgFlbnLY3DGGM7izIJIyT/jjIvEJw6fdJTc6krDzh6aMwMP9bvDH4ADSsa9uSWVJkAAAAASUVORK5CYII=);
+                    }
+                 </style><script type="text/javascript" language="javascript"> 
+          
+            // Startup 
+            // Hook up the the loaded event for the document/window, to linkify the document content
+            var startupFunction = function() { linkifyElement("messages"); };
+            
+            if(window.attachEvent)
+            {
+              window.attachEvent('onload', startupFunction);
+            }
+            else if (window.addEventListener) 
+            {
+              window.addEventListener('load', startupFunction, false);
+            }
+            else 
+            {
+              document.addEventListener('load', startupFunction, false);
+            } 
+            
+            // Toggles the visibility of table rows with the specified name 
+            function toggleTableRowsByName(name)
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  if(!!currentName && currentName.indexOf(name) == 0)
+                  {
+                      var isVisible = allRows[i].style.display == ''; 
+                      isVisible ? allRows[i].style.display = 'none' : allRows[i].style.display = '';
+                  }
+               }
+            }
+            
+            function scrollToFirstVisibleRow(name) 
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  var isVisible = allRows[i].style.display == ''; 
+                  if(!!currentName && currentName.indexOf(name) == 0 && isVisible)
+                  {
+                     allRows[i].scrollIntoView(true); 
+                     return true; 
+                  }
+               }
+               
+               return false;
+            }
+            
+            // Linkifies the specified text content, replaces candidate links with html links 
+            function linkify(text)
+            {
+                 if(!text || 0 === text.length)
+                 {
+                     return text; 
+                 }
+
+                 // Find http, https and ftp links and replace them with hyper links 
+                 var urlLink = /(http|https|ftp)\:\/\/[a-zA-Z0-9\-\.]+(:[a-zA-Z0-9]*)?\/?([a-zA-Z0-9\-\._\?\,\/\\\+&%\$#\=~;\{\}])*/gi;
+                 
+                 return text.replace(urlLink, '<a href="$&">$&</a>') ;
+            }
+            
+            // Linkifies the specified element by ID
+            function linkifyElement(id)
+            {
+                var element = document.getElementById(id);
+                if(!!element)
+                {
+                  element.innerHTML = linkify(element.innerHTML); 
+                }
+            }
+            
+            function ToggleMessageVisibility(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              toggleTableRowsByName("MessageRowClass" + projectName);
+              toggleTableRowsByName('MessageRowHeaderShow' + projectName);
+              toggleTableRowsByName('MessageRowHeaderHide' + projectName); 
+            }
+            
+            function ScrollToFirstVisibleMessage(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              // First try the 'Show messages' row
+              if(!scrollToFirstVisibleRow('MessageRowHeaderShow' + projectName))
+              {
+                // Failed to find a visible row for 'Show messages', try an actual message row 
+                scrollToFirstVisibleRow('MessageRowClass' + projectName); 
+              }
+            }
+           </script></head><body><h1 _locID="ConversionReport">
+          Отчет о миграции - </h1><div id="content"><h2 _locID="OverviewTitle">Обзор</h2><div id="overview"><table><tr><th></th><th _locID="ProjectTableHeader">Проект</th><th _locID="PathTableHeader">Путь</th><th _locID="ErrorsTableHeader">Ошибки</th><th _locID="WarningsTableHeader">Предупреждения</th><th _locID="MessagesTableHeader">Сообщения</th></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#LordOfMUdll">LordOfMUdll</a></strong></td><td>src\LordOfMUdll\LordOfMUdll.vcproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#LordOfMUdllWarning">21</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('LordOfMUdll'); return false;">4</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#AutoClicker">AutoClicker</a></strong></td><td>src\LordOfClicker\AutoClicker.vcproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#AutoClickerWarning">18</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('AutoClicker'); return false;">4</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#LoaderDll">LoaderDll</a></strong></td><td>src\LoaderDll\LoaderDll.vcproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#LoaderDllWarning">18</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('LoaderDll'); return false;">3</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#LordOfMU">LordOfMU</a></strong></td><td>src\LordOfMU\LordOfMU.vcproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#LordOfMUWarning">15</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('LordOfMU'); return false;">4</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#Bootstrapper">Bootstrapper</a></strong></td><td>src\Bootstrapper\Bootstrapper.vcproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#BootstrapperWarning">13</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('Bootstrapper'); return false;">4</a></td></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#Solution"><span _locID="OverviewSolutionSpan">Решение</span></a></strong></td><td>LordOfMU.sln</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#SolutionWarning">1</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('Solution'); return false;">2</a></td></tr></table></div><h2 _locID="SolutionAndProjectsTitle">Решение и проекты</h2><div id="messages"><a name="LordOfMUdll" /><h3>LordOfMUdll</h3><table><tr id="LordOfMUdllHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>This application has been updated to include settings related to the User Account Control (UAC) feature of Windows Vista. By default, when run on Windows Vista with UAC enabled, this application is marked to run with the same privileges as the process that launched it. This marking also disables the application from running with virtualization. You can change UAC related settings from the Property Pages of the project.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'OptimizeForWindows98' of 'VCLinkerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'OptimizeForWindows98' of 'VCLinkerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Attribute 'OptimizeForWindows98' of 'VCLinkerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LordOfMUdll\LordOfMUdll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LordOfMUdll\LordOfMUdll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LordOfMUdll\LordOfMUdll.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LordOfMUdll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfMU.dll' ('LordOfMU') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LordOfMUdll\LordOfMUdll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfMU.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfMU.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LordOfMUdll\LordOfMUdll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LordOfMUdll\LordOfMUdll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LordOfMUdll\LordOfMUdll.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LordOfMUdll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUEliteClicker.dll' ('MUEliteClicker') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LordOfMUdll\LordOfMUdll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUEliteClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUEliteClicker.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LordOfMUdll\LordOfMUdll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LordOfMUdll\LordOfMUdll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LordOfMUdll\LordOfMUdll.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LordOfMUdll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfMU.dll' ('LordOfMU') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LordOfMUdll\LordOfMUdll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfMU.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfMU.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LordOfMUdll\LordOfMUdll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LordOfMUdll\LordOfMUdll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LordOfMUdll\LordOfMUdll.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LordOfMUdll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfMU.dll' ('LordOfMU') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMUdll"><td class="IconWarningEncoded"><a name="LordOfMUdllWarning" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LordOfMUdll\LordOfMUdll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfMU.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfMU.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="MessageRowHeaderShowLordOfMUdll"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="LordOfMUdllMessage" onclick="ToggleMessageVisibility('LordOfMUdll'); return false;">
+          Показать 4 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassLordOfMUdll" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUdllMessage" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Converting project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfMUdll\LordOfMUdll.vcproj'.</span></td></tr><tr name="MessageRowClassLordOfMUdll" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUdllMessage" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>ATL Server support has been removed from this version of Visual Studio. In case your ATL Project uses any ATL Server functionality, your project may not build. Please consult the MSDN documentation for a list of alternatives.</span></td></tr><tr name="MessageRowClassLordOfMUdll" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUdllMessage" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Web deployment to the local IIS server is no longer supported. The Web Deployment build tool has been removed from your project settings.</span></td></tr><tr name="MessageRowClassLordOfMUdll" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUdllMessage" /></td><td class="messageCell"><strong>src\LordOfMUdll\LordOfMUdll.vcproj:
+        </strong><span>Done converting to new project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfMUdll\LordOfMUdll.vcxproj'.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideLordOfMUdll"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="LordOfMUdllMessage" onclick="ToggleMessageVisibility('LordOfMUdll'); return false;">
+          Скрыть 4 дополнительные сообщения
+        </a></td></tr></table><a name="AutoClicker" /><h3>AutoClicker</h3><table><tr id="AutoClickerHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>This application has been updated to include settings related to the User Account Control (UAC) feature of Windows Vista. By default, when run on Windows Vista with UAC enabled, this application is marked to run with the same privileges as the process that launched it. This marking also disables the application from running with virtualization. You can change UAC related settings from the Property Pages of the project.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\AutoClicker\AutoClicker.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\AutoClicker\AutoClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\AutoClicker\AutoClicker.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('AutoClicker') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfClicker.dll' ('LordOfClicker') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\AutoClicker\AutoClicker.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfClicker.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\AutoClicker\AutoClicker.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\AutoClicker\AutoClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\AutoClicker\AutoClicker.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('AutoClicker') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.dll' ('MUAutoClicker') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\AutoClicker\AutoClicker.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\AutoClicker\AutoClicker.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\AutoClicker\AutoClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\AutoClicker\AutoClicker.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('AutoClicker') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfClicker.dll' ('LordOfClicker') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\AutoClicker\AutoClicker.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfClicker.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\AutoClicker\AutoClicker.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\AutoClicker\AutoClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\AutoClicker\AutoClicker.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('AutoClicker') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfClicker.dll' ('LordOfClicker') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassAutoClicker"><td class="IconWarningEncoded"><a name="AutoClickerWarning" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\AutoClicker\AutoClicker.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfClicker.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfClicker.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="MessageRowHeaderShowAutoClicker"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="AutoClickerMessage" onclick="ToggleMessageVisibility('AutoClicker'); return false;">
+          Показать 4 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassAutoClicker" style="display: none"><td class="IconInfoEncoded"><a name="AutoClickerMessage" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Converting project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfClicker\AutoClicker.vcproj'.</span></td></tr><tr name="MessageRowClassAutoClicker" style="display: none"><td class="IconInfoEncoded"><a name="AutoClickerMessage" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>ATL Server support has been removed from this version of Visual Studio. In case your ATL Project uses any ATL Server functionality, your project may not build. Please consult the MSDN documentation for a list of alternatives.</span></td></tr><tr name="MessageRowClassAutoClicker" style="display: none"><td class="IconInfoEncoded"><a name="AutoClickerMessage" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Web deployment to the local IIS server is no longer supported. The Web Deployment build tool has been removed from your project settings.</span></td></tr><tr name="MessageRowClassAutoClicker" style="display: none"><td class="IconInfoEncoded"><a name="AutoClickerMessage" /></td><td class="messageCell"><strong>src\LordOfClicker\AutoClicker.vcproj:
+        </strong><span>Done converting to new project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfClicker\AutoClicker.vcxproj'.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideAutoClicker"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="AutoClickerMessage" onclick="ToggleMessageVisibility('AutoClicker'); return false;">
+          Скрыть 4 дополнительные сообщения
+        </a></td></tr></table><a name="LoaderDll" /><h3>LoaderDll</h3><table><tr id="LoaderDllHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>This application has been updated to include settings related to the User Account Control (UAC) feature of Windows Vista. By default, when run on Windows Vista with UAC enabled, this application is marked to run with the same privileges as the process that launched it. This marking also disables the application from running with virtualization. You can change UAC related settings from the Property Pages of the project.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LoaderDll\LoaderDll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LoaderDll\LoaderDll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LoaderDll\LoaderDll.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LoaderDll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfLoader.dll' ('LordOfLoader') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LoaderDll\LoaderDll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfLoader.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfLoader.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LoaderDll\LoaderDll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LoaderDll\LoaderDll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LoaderDll\LoaderDll.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LoaderDll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoLoader.dll' ('MUAutoLoader') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LoaderDll\LoaderDll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoLoader.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoLoader.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LoaderDll\LoaderDll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LoaderDll\LoaderDll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LoaderDll\LoaderDll.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LoaderDll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfLoader.dll' ('LordOfLoader') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LoaderDll\LoaderDll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfLoader.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfLoader.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LoaderDll\LoaderDll.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LoaderDll\LoaderDll.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LoaderDll\LoaderDll.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LoaderDll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfLoader.dll' ('LordOfLoader') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLoaderDll"><td class="IconWarningEncoded"><a name="LoaderDllWarning" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LoaderDll\LoaderDll.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfLoader.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfLoader.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="MessageRowHeaderShowLoaderDll"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="LoaderDllMessage" onclick="ToggleMessageVisibility('LoaderDll'); return false;">
+          Показать 3 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassLoaderDll" style="display: none"><td class="IconInfoEncoded"><a name="LoaderDllMessage" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Converting project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LoaderDll\LoaderDll.vcproj'.</span></td></tr><tr name="MessageRowClassLoaderDll" style="display: none"><td class="IconInfoEncoded"><a name="LoaderDllMessage" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Web deployment to the local IIS server is no longer supported. The Web Deployment build tool has been removed from your project settings.</span></td></tr><tr name="MessageRowClassLoaderDll" style="display: none"><td class="IconInfoEncoded"><a name="LoaderDllMessage" /></td><td class="messageCell"><strong>src\LoaderDll\LoaderDll.vcproj:
+        </strong><span>Done converting to new project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LoaderDll\LoaderDll.vcxproj'.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideLoaderDll"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="LoaderDllMessage" onclick="ToggleMessageVisibility('LoaderDll'); return false;">
+          Скрыть 3 дополнительные сообщения
+        </a></td></tr></table><a name="LordOfMU" /><h3>LordOfMU</h3><table><tr id="LordOfMUHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>This application has been updated to include settings related to the User Account Control (UAC) feature of Windows Vista. By default, when run on Windows Vista with UAC enabled, this application is marked to run with the same privileges as the process that launched it. This marking also disables the application from running with virtualization. You can change UAC related settings from the Property Pages of the project.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LordOfMU\LordOfMU.exe') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LordOfMU\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\LordOfMU\LordOfMU.exe') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\LordOfMU\LordOfMU.exe') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\LordOfMU.exe') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LordOfMU\LordOfMU.exe') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LordOfMU\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Clicker]\LordOfMU\LordOfMU.exe') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetName) ('LordOfMU') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.exe' ('MUAutoClicker') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetName) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\LordOfMU\LordOfMU.exe') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\MUAutoClicker.exe') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LordOfMU\LordOfMU.exe') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LordOfMU\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\LordOfMU\LordOfMU.exe') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\LordOfMU\LordOfMU.exe') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\LordOfMU.exe') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LordOfMU\LordOfMU.exe') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LordOfMU\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\LordOfMU\LordOfMU.exe') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassLordOfMU"><td class="IconWarningEncoded"><a name="LordOfMUWarning" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\LordOfMU\LordOfMU.exe') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfMU.exe' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\LordOfMU.exe') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="MessageRowHeaderShowLordOfMU"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="LordOfMUMessage" onclick="ToggleMessageVisibility('LordOfMU'); return false;">
+          Показать 4 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassLordOfMU" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUMessage" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Converting project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfMU\LordOfMU.vcproj'.</span></td></tr><tr name="MessageRowClassLordOfMU" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUMessage" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>ATL Server support has been removed from this version of Visual Studio. In case your ATL Project uses any ATL Server functionality, your project may not build. Please consult the MSDN documentation for a list of alternatives.</span></td></tr><tr name="MessageRowClassLordOfMU" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUMessage" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Web deployment to the local IIS server is no longer supported. The Web Deployment build tool has been removed from your project settings.</span></td></tr><tr name="MessageRowClassLordOfMU" style="display: none"><td class="IconInfoEncoded"><a name="LordOfMUMessage" /></td><td class="messageCell"><strong>src\LordOfMU\LordOfMU.vcproj:
+        </strong><span>Done converting to new project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\LordOfMU\LordOfMU.vcxproj'.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideLordOfMU"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="LordOfMUMessage" onclick="ToggleMessageVisibility('LordOfMU'); return false;">
+          Скрыть 4 дополнительные сообщения
+        </a></td></tr></table><a name="Bootstrapper" /><h3>Bootstrapper</h3><table><tr id="BootstrapperHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>This application has been updated to include settings related to the User Account Control (UAC) feature of Windows Vista. By default, when run on Windows Vista with UAC enabled, this application is marked to run with the same privileges as the process that launched it. This marking also disables the application from running with virtualization. You can change UAC related settings from the Property Pages of the project.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Attribute 'Detect64BitPortabilityProblems' of 'VCCLCompilerTool' is not supported in this version and has been removed during conversion.</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\Bootstrapper\Bootstrapper.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\Bootstrapper\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Hacker]\Bootstrapper\Bootstrapper.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Hacker]\Bootstrapper\Bootstrapper.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Hacker]\Bootstrapper.dll') in project configuration 'Release [Hacker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Clicker]\Bootstrapper\Bootstrapper.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Clicker]\Bootstrapper.dll') in project configuration 'Release [Clicker]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\Bootstrapper\Bootstrapper.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\Bootstrapper\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Debug\Bootstrapper\Bootstrapper.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Debug\Bootstrapper\Bootstrapper.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Debug\Bootstrapper.dll') in project configuration 'Debug|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\Bootstrapper\Bootstrapper.dll') does not match the Librarian's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\Bootstrapper\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\build\Release [Antihack]\Bootstrapper\Bootstrapper.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Lib.OutputFile).</span></td></tr><tr name="WarningRowClassBootstrapper"><td class="IconWarningEncoded"><a name="BootstrapperWarning" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>MSB8012: $(TargetPath) ('C:\Users\Home\Desktop\LordOfMU2_Public\build\Release [Antihack]\Bootstrapper\Bootstrapper.dll') does not match the Linker's OutputFile property value 'C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\Bootstrapper.dll' ('C:\Users\Home\Desktop\LordOfMU2_Public\\bin\Release [Antihack]\Bootstrapper.dll') in project configuration 'Release [Antihack]|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).</span></td></tr><tr name="MessageRowHeaderShowBootstrapper"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="BootstrapperMessage" onclick="ToggleMessageVisibility('Bootstrapper'); return false;">
+          Показать 4 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassBootstrapper" style="display: none"><td class="IconInfoEncoded"><a name="BootstrapperMessage" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Converting project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\Bootstrapper\Bootstrapper.vcproj'.</span></td></tr><tr name="MessageRowClassBootstrapper" style="display: none"><td class="IconInfoEncoded"><a name="BootstrapperMessage" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>ATL Server support has been removed from this version of Visual Studio. In case your ATL Project uses any ATL Server functionality, your project may not build. Please consult the MSDN documentation for a list of alternatives.</span></td></tr><tr name="MessageRowClassBootstrapper" style="display: none"><td class="IconInfoEncoded"><a name="BootstrapperMessage" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Web deployment to the local IIS server is no longer supported. The Web Deployment build tool has been removed from your project settings.</span></td></tr><tr name="MessageRowClassBootstrapper" style="display: none"><td class="IconInfoEncoded"><a name="BootstrapperMessage" /></td><td class="messageCell"><strong>src\Bootstrapper\Bootstrapper.vcproj:
+        </strong><span>Done converting to new project file 'C:\Users\Home\Desktop\LordOfMU2_Public\src\Bootstrapper\Bootstrapper.vcxproj'.</span></td></tr><tr style="display: none" name="MessageRowHeaderHideBootstrapper"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="BootstrapperMessage" onclick="ToggleMessageVisibility('Bootstrapper'); return false;">
+          Скрыть 4 дополнительные сообщения
+        </a></td></tr></table><a name="Solution" /><h3 _locID="ProjectDisplayNameHeader">Решение</h3><table><tr id="SolutionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Сообщение</th></tr><tr name="WarningRowClassSolution"><td class="IconWarningEncoded"><a name="SolutionWarning" /></td><td class="messageCell"><strong>LordOfMU.sln:
+        </strong><span>Среде Visual Studio требуется внести в этот проект нефункциональные изменения, чтобы его можно было открывать в выпущенных версиях Visual Studio, которые новее Visual Studio 2010 с пакетом обновления 1 (SP1), без ущерба для поведения проекта.</span></td></tr><tr name="MessageRowHeaderShowSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Показать 2 дополнительные сообщения
+        </a></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>LordOfMU.sln:
+        </strong><span>Для файла была успешно создана резервная копия C:\Users\Home\Desktop\LordOfMU2_Public\Backup\LordOfMU.sln</span></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>LordOfMU.sln:
+        </strong><span>Перенос решения успешно завершен</span></td></tr><tr style="display: none" name="MessageRowHeaderHideSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Скрыть 2 дополнительные сообщения
+        </a></td></tr></table></div></div></body></html>

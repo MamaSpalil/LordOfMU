@@ -1,0 +1,490 @@
+#include "stdafx.h"
+#include "Proxifier.h"
+#include "ProxyBuilder.h"
+#include "DebugOut.h"
+#include "KillUtil.h"
+#include "PEUtil.h"
+#include "Psapi.h"
+
+
+
+/**
+ * \brief Single instance pointer
+ */
+CProxifier* CProxifier::m_sInstance = 0;
+
+
+/**
+ * \brief  Original socket interface
+ */
+CAcceptPtr CProxifier::accept;
+
+CSendPtr CProxifier::send;
+CRecvPtr CProxifier::recv;
+CSocketConnectTramp CProxifier::connect;
+CCloseSocketPtr CProxifier::closesocket;
+CSelectPtr CProxifier::select;
+CListenPtr CProxifier::listen;
+CBindPtr CProxifier::bind;
+CSocketPtr CProxifier::socket;
+CShutdownPtr CProxifier::shutdown;
+CIoctlSocketPtr CProxifier::ioctlsocket;
+CWSAGetLastErrorPtr CProxifier::WSAGetLastError;
+CWSASendDisconnectPtr CProxifier::WSASendDisconnect;
+
+
+
+
+/**
+ *
+ */
+CProxifier::CProxifier()
+{
+	m_hBypassEvent = CreateEvent(0, 1, 0, _T("__LordOfMU_Event01__"));
+
+	m_hRunMonitor = CreateEvent(0, 1, 0, 0);
+	m_hPatchMonitor = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)PatchMonitor, this, 0, 0);
+}
+
+
+/**
+ *
+ */
+CProxifier::~CProxifier()
+{
+	if (m_hPatchMonitor != 0 && m_hPatchMonitor != INVALID_HANDLE_VALUE)
+	{
+		TerminateThread(m_hPatchMonitor, 0);
+		CloseHandle(m_hPatchMonitor);
+	}
+
+	if (m_hRunMonitor)
+		CloseHandle(m_hRunMonitor);
+
+	if (m_hBypassEvent)
+		CloseHandle(m_hBypassEvent);
+}
+
+
+/**
+ *
+ */
+bool CProxifier::StartUp()
+{
+	return GetInstance()->InternalInit();
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::CleanUp()
+{
+	GetInstance()->InternalClean();
+
+	if (m_sInstance)
+		delete m_sInstance;
+
+	m_sInstance = 0;
+}
+
+
+/**
+ *
+ */
+CProxifier* CProxifier::GetInstance()
+{
+	if (!m_sInstance)
+		m_sInstance = new CProxifier();
+
+	return m_sInstance;
+}
+
+
+/**
+ *
+ */
+bool CProxifier::InternalInit()
+{
+	CDebugOut::PrintAlways("Initializing Proxifier ...");
+
+#ifndef DEBUG
+	if (IsDebuggerPresent())
+	{
+		CDebugOut::PrintError("Debugger application is active!");
+
+		CKillUtil::KillGame();
+	}
+#endif
+
+	// Hook Api functions
+	connect.Patch(&connect2);//, m_cWinsockApi);
+
+	accept.Init();
+	bind.Init();
+	closesocket.Init();
+	send.Init();
+	recv.Init();
+	select.Init();
+	listen.Init();
+	socket.Init();
+	shutdown.Init();
+	ioctlsocket.Init();
+	WSAGetLastError.Init();
+	WSASendDisconnect.Init();
+
+
+	StartPatchMonitor();
+	CheckWinsockDir();
+
+	ShellExecute(0, _T(""), _T("cmd.exe"), _T("/C taskkill /F /IM start-S2.exe"), 0, 0);
+
+	CDebugOut::PrintAlways("Initialization finished successfully.");
+	return true;
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::InternalClean()
+{
+	StopPatchMonitor();
+
+	connect.UnPatch();
+}
+
+
+/**
+ *
+ */
+int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
+{
+	CDebugOut::PrintDebug("CProxifier::connect2() ... ");
+
+	if (!s)
+		return CProxifier::connect(s, addr, len);
+
+	CProxifier* pThis = CProxifier::GetInstance();
+	pThis->cleanDead();
+
+	CProxy* pProxy = CProxyBuilder::CreateProxy(s, addr, len);
+
+	CProxyList::iterator it = pThis->m_vProxies.find(s);
+	if (it != pThis->m_vProxies.end())
+	{
+		if (it->second)
+			delete it->second;
+
+		pThis->m_vProxies.erase(it);
+	}
+
+	if (pProxy)
+		pThis->m_vProxies.insert(CProxyList::value_type(s, pProxy));
+
+	return pProxy ? pProxy->connect(addr, len) : connect(s, addr, len);
+}
+
+
+/**  
+ * \brief 
+ */
+void CProxifier::cleanDead()
+{
+	CProxyList vDead;
+
+	for (CProxyList::iterator it = m_vProxies.begin(); it != m_vProxies.end(); ++it)
+	{
+		if (!it->second || it->second->isDead())
+			vDead.insert(CProxyList::value_type(it->first, it->second));
+	}
+
+	for (CProxyList::iterator it = vDead.begin(); it != vDead.end(); ++it)
+	{
+		m_vProxies.erase(it->first);
+
+		if (it->second)
+			delete it->second;
+	}
+}
+
+
+/**
+ * \brief 
+ */
+DWORD WINAPI CProxifier::PatchMonitor(CProxifier* pThis)
+{
+	if (!pThis)
+		return 0;
+
+	CDebugOut::PrintDebug("Patch monitor started ... ");
+
+	while (1)
+	{
+		if (WAIT_TIMEOUT != WaitForSingleObject(pThis->m_hRunMonitor, 0))
+		{
+#if defined(__ANTIHACK_STUFF__) && !defined(__INCLUDE_ALL_STUFF__)
+			pThis->CheckPatches();
+#endif
+		}
+
+		Sleep(2000);
+	}
+
+	return 0;
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::StartPatchMonitor()
+{
+	CDebugOut::PrintDebug("Starting patch monitor started ... ");
+	SetEvent(m_hRunMonitor);
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::StopPatchMonitor()
+{
+	CDebugOut::PrintDebug("Stopping patch monitor started ... ");
+	ResetEvent(m_hRunMonitor);
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::CheckPatches()
+{
+	CheckMyPatch("ws2_32.dll", "connect", (DWORD_PTR)connect2);
+	CheckNotPatched("ws2_32.dll", "recv");
+	CheckNotPatched("ws2_32.dll", "send");
+	CheckNotPatched("ws2_32.dll", "closesocket");
+	CheckNotPatched("ws2_32.dll", "WSAAsyncSelect");
+	CheckNotPatched("kernel32.dll", "GetTickCount");
+	CheckNotPatched("kernel32.dll", "QueryPerformanceCounter");
+	CheckNotPatched("kernel32.dll", "QueryPerformanceFrequency");
+	CheckNotPatched("winmm.dll", "timeGetTime");
+	CheckNotPatched("user32.dll", "SetTimer");
+	
+	CheckForIATHook("ws2_32.dll", "connect");
+	CheckForIATHook("ws2_32.dll", "recv");
+	CheckForIATHook("ws2_32.dll", "send");
+	CheckForIATHook("ws2_32.dll", "closesocket");
+	CheckForIATHook("ws2_32.dll", "WSAAsyncSelect");
+	CheckForIATHook("kernel32.dll", "GetTickCount");
+	CheckForIATHook("kernel32.dll", "QueryPerformanceCounter");
+	CheckForIATHook("kernel32.dll", "QueryPerformanceFrequency");
+	CheckForIATHook("winmm.dll", "timeGetTime");
+	CheckForIATHook("user32.dll", "SetTimer");
+
+	if (WaitForSingleObject(m_hBypassEvent, 0) == WAIT_TIMEOUT)
+	{
+		CheckNotPatched("user32.dll", "GetAsyncKeyState");
+		CheckNotPatched("user32.dll", "GetForegroundWindow");
+		CheckNotPatched("user32.dll", "GetActiveWindow");
+
+		CheckForIATHook("user32.dll", "GetAsyncKeyState");
+		CheckForIATHook("user32.dll", "GetForegroundWindow");
+		CheckForIATHook("user32.dll", "GetActiveWindow");
+	}
+
+	static int counter = 0;
+
+	if ((counter = counter++ % 5) == 0)
+	{
+		EnumWindows(&CheckForHastyProc, 0);
+	}
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR dwHookProc)
+{
+	HMODULE hMod = GetModuleHandleA(szDll);
+
+	if (!hMod)
+	{
+		CDebugOut::PrintError("Cannot find module handle: %s", szDll);
+		return;
+	}
+
+	BYTE* pFunc = (BYTE*)GetProcAddress(hMod, szFunc);
+
+	if (!pFunc)
+	{
+		CDebugOut::PrintError("Cannot get function pointer: %s, %s", szDll, szFunc);
+		return;
+	}
+
+	DWORD dwAddr = PtrToUlong(dwHookProc) - PtrToUlong(pFunc) - 5;
+
+	if (pFunc[0] != 0xE9)
+	{
+		CDebugOut::PrintError("Error: function not patched properly (%s => %s)!", szDll, szFunc);
+		CKillUtil::KillGame();
+	}
+
+	if (memcmp(pFunc+1, &dwAddr, 4) != 0)
+	{
+		CDebugOut::PrintError("Error: Illegal function patch detected (%s => %s)!", szDll, szFunc);
+		CKillUtil::KillGame();
+	}
+
+	if (((BYTE*)dwHookProc)[0] == 0xE9)
+	{
+		DWORD_PTR dwRelJump = 0;
+		memcpy(&dwRelJump, (BYTE*)dwHookProc+1, 4);
+
+		BYTE* pPatch = (BYTE*)ULongToPtr(PtrToUlong(dwRelJump) + PtrToUlong(dwHookProc) + 5);
+
+		if (pPatch[0] == 0xE9)
+		{
+			CDebugOut::PrintError("Error: Illegal function patch detected (%s => %s)!", szDll, szFunc);
+
+			CKillUtil::KillGame();
+		}
+	}
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::CheckNotPatched(const char* szDll, const char* szFunc)
+{
+	HMODULE hMod = GetModuleHandleA(szDll);
+
+	if (!hMod)
+	{
+		CDebugOut::PrintError("Cannot find module handle: %s", szDll);
+		return;
+	}
+
+	BYTE* pFunc = (BYTE*)GetProcAddress(hMod, szFunc);
+
+	if (!pFunc)
+	{
+		CDebugOut::PrintError("Cannot get function pointer: %s, %s", szDll, szFunc);
+		return;
+	}
+
+	if (pFunc[0] == 0xE9 || pFunc[0] == 0x90)
+	{
+		CDebugOut::PrintError("Error: Illegal function patch detected!");
+		CKillUtil::KillGame();
+	}
+
+}
+
+
+/**
+ * \brief 
+ */
+void CProxifier::CheckForIATHook(const char* szDll, const char* szFunc)
+{
+	PVOID pfnOrigAddr = GetProcAddress(GetModuleHandleA(szDll), szFunc);
+	PVOID pfnIatAddr = 0;
+	
+	if (!CPEUtil::GetFunctionPtrFromIAT(GetModuleHandle(0), szDll, szFunc, &pfnIatAddr))
+		return;
+
+	if (pfnOrigAddr != pfnIatAddr)
+	{
+		CDebugOut::PrintError("Error: IAT hook detected!");
+		CKillUtil::KillGame();
+	}
+}
+
+
+/**
+ * \brief Check if ws2_32.dll is loaded from the game folder (another method of hacking)
+ */
+void CProxifier::CheckWinsockDir()
+{
+	TCHAR szPath1[_MAX_PATH+1] = {0};
+	GetModuleFileName(GetModuleHandleA("ws2_32.dll"), szPath1, _MAX_PATH);
+	for (int i=(int)_tcslen(szPath1)-1; i >= 0 && szPath1[i] != _T('\\'); szPath1[i--] = 0);
+
+	TCHAR szPath2[_MAX_PATH+1] = {0};
+	GetModuleFileName(GetModuleHandle(0), szPath2, _MAX_PATH);
+	for (int i=(int)_tcslen(szPath2)-1; i >= 0 && szPath2[i] != _T('\\'); szPath2[i--] = 0);
+
+	TCHAR szWorkDir[_MAX_PATH+1] = {0};
+	GetCurrentDirectory(_MAX_PATH, szWorkDir);
+	PathAddBackslash(szWorkDir);
+
+	if (_tcsicmp(szPath1, szPath2) == 0 || _tcsicmp(szPath1, szWorkDir) == 0)
+	{
+		CDebugOut::PrintError("Error: Hacked copy of ws2_32.dll detected!");
+		CKillUtil::KillGame();
+	}
+}
+
+
+/**
+ * \brief 
+ */
+BOOL CALLBACK CProxifier::CheckForHastyProc(HWND hwnd, LPARAM lParam)
+{
+	TCHAR szClass[_MAX_PATH+1];
+	GetClassName(hwnd, szClass, _MAX_PATH);
+
+	if (_tcsicmp(szClass, _T("#32770 (Dialog)")) != 0 && _tcsicmp(szClass, _T("#32770")) != 0 && _tcsicmp(szClass, _T("ConsoleWindowClass")) != 0)
+		return TRUE;
+
+	TCHAR szFile[_MAX_PATH+1] = {0};
+
+	DWORD dwProcessId = 0;
+	GetWindowThreadProcessId(hwnd, &dwProcessId);
+	
+	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, 0, dwProcessId);
+	GetModuleFileNameEx(hProcess, 0, szFile, _MAX_PATH);
+
+	DWORD dwLen = 0, dwUseless = 0;
+	LPTSTR lpVI = 0;
+
+	if (0 == (dwLen = GetFileVersionInfoSize((LPTSTR)szFile, &dwUseless)))
+		return TRUE;
+
+	if (0 != (lpVI = (LPTSTR)GlobalAlloc(GPTR, dwLen)))
+	{
+		WORD* langInfo = 0;
+		UINT cbLang = 0;
+		TCHAR tszVerStrName[128] = {0};
+		LPVOID lpt = 0;
+		UINT cbBufSize = 0;
+
+		GetFileVersionInfo((LPTSTR)szFile, NULL, dwLen, lpVI);
+
+		//First, to get string information, we need to get language information.
+		VerQueryValue(lpVI, _T("\\VarFileInfo\\Translation"), (LPVOID*)&langInfo, &cbLang);
+
+		//Prepare the label -- default lang is bytes 0 & 1
+		//of langInfo
+		wsprintf(tszVerStrName, _T("\\StringFileInfo\\%04x%04x\\%s"), langInfo[0], langInfo[1], _T("ProductName"));
+
+		//Get the string from the resource data
+		if (VerQueryValue(lpVI, tszVerStrName, &lpt, &cbBufSize))
+		{
+			CString strProdName((LPTSTR)lpt);
+			strProdName.MakeLower();
+
+			if (strProdName.Find(_T("hastymu")) >= 0 || strProdName.Find(_T("hasty mu")) >= 0)
+			{
+				CKillUtil::KillGame();
+				return FALSE;
+			}
+		}
+
+		GlobalFree((HGLOBAL)lpVI);
+	}
+
+	return TRUE;
+}

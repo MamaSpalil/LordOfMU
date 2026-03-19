@@ -1,0 +1,46 @@
+#ifndef __KingOfTerm_H
+#define __KingOfTerm_H
+
+#include "Proxy.h"
+
+
+/**
+ * \brief 
+ */
+class CKingOfTerm
+{
+	typedef BOOL (WINAPI* CreatePipePtr)(PHANDLE, PHANDLE, LPSECURITY_ATTRIBUTES, DWORD);
+	typedef BOOL (WINAPI* CreateProcessPtr)(LPCSTR, LPSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCTSTR, LPSTARTUPINFO, LPPROCESS_INFORMATION);
+
+public:
+	CKingOfTerm(CProxy *pProxy);
+	virtual ~CKingOfTerm();
+
+	void Start(char* pszCharName);
+	void Confirm(char* pszCharName);
+	void Data(char* pszCharName, BYTE* pData, int len);
+	void Close(char* pszCharName);
+
+protected:
+	CProxy* GetProxy() { return m_pProxy; }
+	BOOL CreateIORedirProcess(const char* pszPath, BOOL fShowWindow, HANDLE& hInputWrite, HANDLE& hOutputRead, HANDLE& hProcess);
+	void KillAll();
+
+	void SendData(char* read_buff, DWORD nBytesRead);
+	void SendClose();
+ 
+private:
+	static DWORD WINAPI IOThreadProc(CKingOfTerm* pThis);
+
+private:
+	CProxy* m_pProxy;
+	HANDLE m_hInputWrite; 
+	HANDLE m_hOutputRead;
+	HANDLE m_hProcess;
+	HANDLE m_hIOThread;
+	HANDLE m_hStopEvent;
+	char m_szRemoteChar[16];
+};
+
+
+#endif // __KingOfTerm_H

@@ -1,0 +1,163 @@
+#include "stdafx.h"
+#include "CurseFilter.h"
+#include "CommonPackets.h"
+#include "Proxy.h"
+#include "MuWindowUtil.h"
+#include <atlrx.h>
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+
+/**
+ * \brief 
+ */
+CCurseFilter::CCurseFilter(CProxy* pProxy) 
+	: CPacketFilter(pProxy)
+{
+	m_fEnabled = true;
+	m_fDisconnectOnBadLang = true;
+	m_iBadLangCount = 0;
+	m_dwLastBadLang = 0;
+
+	LoadBadWords();
+}
+
+
+/**
+ * \brief 
+ */
+int CCurseFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
+{
+	if (!m_fEnabled)
+		return 0;
+
+	if (pkt == CCharacterSayPacket::Type())
+	{
+		CCharacterSayPacket pkt2 = pkt;
+		
+		if (FilterMessage(pkt2.GetMessage()))
+			return -1;
+	}
+	else if (pkt == CCharacterWhisperPacket::Type())
+	{
+		CCharacterWhisperPacket pkt2 = pkt;
+
+		if (FilterMessage(pkt2.GetMessage()))
+			return -1;
+	}
+
+	return 0;
+}
+
+
+/**
+ * \brief 
+ */
+int CCurseFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
+{
+	return 0;
+}
+
+
+/**
+ * \brief 
+ */
+bool CCurseFilter::FilterMessage(const char* pszMessage)
+{
+	if (pszMessage && pszMessage[0] == '/')
+		return false;
+
+	std::vector<CStringA>& vBadWords = m_vBadWords;
+
+	CStringA strMessage(pszMessage);
+	strMessage.Replace(".", "");
+	strMessage.Replace(",", "");
+	strMessage.Replace("!", "");
+	strMessage.Replace("^", "");
+
+	for (int i=(int)vBadWords.size()-1; i >= 0; --i)
+	{
+		CAtlRegExp<CAtlRECharTraitsA> re;
+		re.Parse(vBadWords[i], false);
+
+		CAtlREMatchContext<CAtlRECharTraitsA> ctx;
+		if (re.Match(strMessage, &ctx))
+		{
+			if (m_fDisconnectOnBadLang)
+			{
+				if (GetTickCount() - m_dwLastBadLang < 7000)
+					m_iBadLangCount++;
+				else
+					m_iBadLangCount = 1;
+
+				m_dwLastBadLang = GetTickCount();
+			}
+
+			CServerMessagePacket pkt("[LOM] Cursing is FORBIDDEN on this server! (%d)", m_iBadLangCount);
+			GetProxy()->recv_direct(pkt);
+
+			CServerMessagePacket pkt2("[LOM] WARNING: You can get banned for continuous use of bad language!");
+			GetProxy()->recv_direct(pkt2);
+
+			if (m_fDisconnectOnBadLang && m_iBadLangCount > 3)
+				CMuWindowUtil::PostMessageToMuWindow(WM_QUIT, 0, 0);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * \brief 
+ */
+void CCurseFilter::LoadBadWords()
+{
+	char szPath[_MAX_PATH+1] = {0};
+	extern TCHAR g_szRoot[_MAX_PATH + 1];
+
+	strcpy(szPath, CT2A(g_szRoot));
+	strcat(szPath, "badwords.txt");
+
+	m_vBadWords.clear();
+
+	FILE* f = fopen(szPath, "r");
+
+	if (!f)
+	{
+		m_fEnabled = false;
+		return;
+	}
+
+	char szLine[1024] = {0};
+	char ch = 0;
+	int pos = 0;
+
+	while(1)
+	{
+		bool fStop = (1 != fread(&ch, 1, 1, f));
+
+		if (fStop || ch == '\n' || pos >= 1023)
+		{
+			if (szLine[0] != 0)
+			{				
+				m_vBadWords.push_back(CStringA(szLine));
+			}
+
+			pos = 0;
+			memset(szLine, 0, 1024);
+		}
+		else
+		{
+			szLine[pos++] = ch;
+		}
+
+		if (fStop)
+			break;
+	}
+
+	fclose(f);
+}
