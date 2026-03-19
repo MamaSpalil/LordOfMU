@@ -3,6 +3,7 @@
 #include "MuWindow.h"
 #include "CommonPackets.h"
 #include "EncDec.h"
+#include "ClickerLogger.h"
 
 
 /**
@@ -276,6 +277,7 @@ void CClickerJob::DoClicker()
  */
 void CClickerJob::DoHeal()
 {
+	WriteClickerLog("Auto-heal triggered");
 	CKeySender::SendAsync('Q');
 }
 
@@ -285,6 +287,7 @@ void CClickerJob::DoHeal()
  */
 void CClickerJob::DoPickUp()
 {
+	WriteClickerLog("Auto-pickup triggered");
 	CKeySender::SendAsync(VK_SPACE);
 }
 
@@ -294,6 +297,7 @@ void CClickerJob::DoPickUp()
  */
 void CClickerJob::DoRepair()
 {
+	WriteClickerLog("Auto-repair triggered");
 	CKeySender::PressKey(VK_LSHIFT);
 
 	if (!CKeySender::SendAsync('V', TRUE, 3000))

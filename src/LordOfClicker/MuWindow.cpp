@@ -5,6 +5,7 @@
 #include "AsyncKeyQueue.h"
 #include "MuWindowUtil.h"
 #include "version.h"
+#include "ClickerLogger.h"
 #include <map>
 
 CMuWindow* CMuWindow::s_pInstance = NULL;
@@ -199,6 +200,9 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	}
 
 	SetTimer(1011, 100, 0);
+
+	WriteClickerLog("DLL successfully hooked into main.exe, clicker initialized");
+
 	return 0;
 }
 
@@ -277,6 +281,20 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		else
 		{
 			SayToServer("//autokill toggle");
+		}
+
+		return TRUE;
+	}
+#else
+	if (vkCode == VK_F5 && uMsg == WM_KEYUP)
+	{
+		if (m_pClicker != NULL)
+		{
+			PostMessage(WM_STOP_CLICKER, 0, 0);
+		}
+		else
+		{
+			PostMessage(WM_START_CLICKER, 0, 0);
 		}
 
 		return TRUE;
@@ -616,6 +634,7 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 		if (m_pClicker->Start())
 		{
 			m_fBlockInput = (fNoMouseMove == 0);
+			WriteClickerLog("Clicker started");
 		}
 		else
 		{
@@ -640,6 +659,7 @@ LRESULT CMuWindow::OnStopClicker(UINT, WPARAM, LPARAM, BOOL&)
 	if (m_pClicker != NULL)
 	{
 		m_pClicker->Stop();
+		WriteClickerLog("Clicker stop requested");
 	}
 
 	m_fBlockInput = FALSE;
@@ -657,6 +677,8 @@ LRESULT CMuWindow::OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&)
 		delete m_pClicker;
 		m_pClicker = NULL;
 	}
+
+	WriteClickerLog("Clicker stopped");
 
 	m_fBlockInput = FALSE;
 	return 0;

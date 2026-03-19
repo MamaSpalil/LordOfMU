@@ -298,6 +298,7 @@
     <ClInclude Include="BKSettings.h" />
     <ClInclude Include="ClickerJob.h" />
     <ClInclude Include="ClickerJobFactory.h" />
+    <ClInclude Include="ClickerLogger.h" />
     <ClInclude Include="DarkLordClickerJob.h" />
     <ClInclude Include="DarkLordSettings.h" />
     <ClInclude Include="EElfClickerJob.h" />
