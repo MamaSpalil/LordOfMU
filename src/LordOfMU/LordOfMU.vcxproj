@@ -126,6 +126,7 @@
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateManifest>false</GenerateManifest>
     </Link>
     <PostBuildEvent>
       <Message>Post build step</Message>
@@ -168,6 +169,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateManifest>false</GenerateManifest>
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
@@ -210,6 +212,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateManifest>false</GenerateManifest>
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
@@ -252,6 +255,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateManifest>false</GenerateManifest>
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>

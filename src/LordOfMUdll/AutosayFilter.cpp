@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "AutosayFilter.h"
 #include "CommonPackets.h"
-#include <atlrx.h>
+#include "atlrx.h"
 
 /**
  * \brief 
