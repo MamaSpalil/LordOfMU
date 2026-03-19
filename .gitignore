@@ -1,0 +1,40 @@
+# Visual Studio generated files
+*.sdf
+*.suo
+*.ncb
+*.user
+*.aps
+*.opensdf
+*.sln.docstates
+.vs/
+UpgradeLog.htm
+UpgradeLog.XML
+
+# Build output
+bin/
+build/
+Debug/
+Release/
+Release [Clicker]/
+Release [Hacker]/
+Release [Antihack]/
+*.obj
+*.pch
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.lib
+*.dll
+*.exe
+
+# SVN directories
+.svn/
+
+# Archives (already extracted)
+*.rar
+
+# Temporary files
+*.tmp
+*.log
+~$*
