@@ -1,0 +1,70 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LordOfMU", "src\LordOfMU\LordOfMU.vcxproj", "{0131CADA-7113-4E5E-AECF-7819ED3B6981}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LordOfMUdll", "src\LordOfMUdll\LordOfMUdll.vcxproj", "{E5E165AE-73E7-4150-BE2F-802BB52B458B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoaderDll", "src\LoaderDll\LoaderDll.vcxproj", "{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoClicker", "src\LordOfClicker\AutoClicker.vcxproj", "{9B1D84D8-4CDE-4881-A669-8813DC01530B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bootstrapper", "src\Bootstrapper\Bootstrapper.vcxproj", "{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release [Antihack]|Win32 = Release [Antihack]|Win32
+		Release [Clicker]|Win32 = Release [Clicker]|Win32
+		Release [Hacker]|Win32 = Release [Hacker]|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Debug|Win32.Build.0 = Debug|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Antihack]|Win32.ActiveCfg = Release [Antihack]|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Antihack]|Win32.Build.0 = Release [Antihack]|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Clicker]|Win32.ActiveCfg = Release [Clicker]|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
+		{0131CADA-7113-4E5E-AECF-7819ED3B6981}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Debug|Win32.Build.0 = Debug|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Antihack]|Win32.ActiveCfg = Release [Antihack]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Antihack]|Win32.Build.0 = Release [Antihack]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Clicker]|Win32.ActiveCfg = Release [Clicker]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
+		{E5E165AE-73E7-4150-BE2F-802BB52B458B}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Debug|Win32.Build.0 = Debug|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Antihack]|Win32.ActiveCfg = Release [Antihack]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Antihack]|Win32.Build.0 = Release [Antihack]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Clicker]|Win32.ActiveCfg = Release [Clicker]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
+		{786D4F1B-CB76-43D1-9B79-1076C5E1A53A}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Debug|Win32.Build.0 = Debug|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Release [Antihack]|Win32.ActiveCfg = Release [Antihack]|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Release [Clicker]|Win32.ActiveCfg = Release [Clicker]|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
+		{9B1D84D8-4CDE-4881-A669-8813DC01530B}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Debug|Win32.Build.0 = Debug|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Antihack]|Win32.ActiveCfg = Release [Antihack]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Antihack]|Win32.Build.0 = Release [Antihack]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Clicker]|Win32.ActiveCfg = Release [Clicker]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
+		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6D06EDD9-B7E4-4329-A661-08E07AFDA692}
+	EndGlobalSection
+EndGlobal
