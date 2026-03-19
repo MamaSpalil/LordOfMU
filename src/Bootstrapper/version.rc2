@@ -1,0 +1,18 @@
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+#include "version.h"
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+#if defined(__CLICKER_STUFF__)
+IDI_ICON1               ICON                    "icon2.ico"
+#elif defined(__ANTIHACK_STUFF__)
+IDI_ICON1               ICON                    "icon1.ico"
+#elif defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__)
+IDI_ICON1               ICON                    "icon3.ico"
+#else
+	#error "Undefined version"
+#endif
+
