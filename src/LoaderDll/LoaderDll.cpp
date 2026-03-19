@@ -228,7 +228,7 @@ static LRESULT CALLBACK CBTProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nCode < 0)
 	{
-		CallNextHookEx(g_hHook, nCode, wParam, lParam);
+		return CallNextHookEx(g_hHook, nCode, wParam, lParam);
 	}
 
 	if (nCode == HCBT_CREATEWND)

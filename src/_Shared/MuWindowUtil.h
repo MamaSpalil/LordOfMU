@@ -33,7 +33,10 @@ public:
 		return szClass != 0 && (0 == _stricmp(szClass, "MU")
 			|| 0 == _stricmp(szClass, "DIEmWin")
 			|| 0 == _stricmp(szClass, "MU Online")
-			|| 0 == _stricmp(szClass, "MU BLUE"));
+			|| 0 == _stricmp(szClass, "MU BLUE")
+			|| 0 == _stricmp(szClass, "MuOnline")
+			|| 0 == _stricmp(szClass, "Mu_Online")
+			|| 0 == _stricmp(szClass, "MUONLINE"));
 	}
 
 
