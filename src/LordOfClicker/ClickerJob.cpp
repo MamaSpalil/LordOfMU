@@ -377,6 +377,8 @@ void CClickerJob::SetAdvancedAutopickOptions()
 	SetAutopickOption("zen", m_tSettings.all.fAdvPickZen, m_tSettings.all.fAdvPickZenMove);
 	SetAutopickOption("custom", m_tSettings.all.fAdvPickCustom, m_tSettings.all.fAdvPickCustomMove);
 
+	CMuWindow::GetInstance()->SayToServer("//pick clear");
+
 	if (m_tSettings.all.fAdvPickCustom && m_tSettings.all.wPickCustomCode != 0)
 	{
 		char szMsg[256] = {0};

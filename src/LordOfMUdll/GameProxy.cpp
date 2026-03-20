@@ -26,7 +26,7 @@ extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 	CCharacterSayPacket pkt(pszCharName, buf);
 	g_pGameProxy->send_packet(pkt);
 
-	return false;
+	return true;
 }
 
 
