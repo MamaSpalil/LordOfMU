@@ -139,7 +139,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -192,7 +192,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -245,7 +245,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -298,7 +298,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

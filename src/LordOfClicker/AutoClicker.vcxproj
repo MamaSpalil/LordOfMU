@@ -134,7 +134,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release [Antihack]|Win32'">
@@ -176,7 +176,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release [Hacker]|Win32'">
@@ -218,7 +218,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release [Clicker]|Win32'">
@@ -260,7 +260,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
