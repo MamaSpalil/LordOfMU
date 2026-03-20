@@ -130,7 +130,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		MessageBox(0, _T("MU Anti-hack module not found!"), _T("Error"), MB_OK);
 #endif
 
-		CKillUtil::KillGame();
+		CKillUtil::KillGame("RunDllWndProc: module DLL not found");
 	}
 
 	if (0 == (g_hInjected = LoadLibrary(szPath)))
@@ -141,7 +141,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			MessageBox(0, _T("Cannot load Lord of MU Anti-hack!"), _T("Error"), MB_OK);
 		#endif
 
-		CKillUtil::KillGame();
+		CKillUtil::KillGame("RunDllWndProc: LoadLibrary failed for module DLL");
 	}
 	else
 	{
@@ -324,7 +324,7 @@ void Main()
 		|| 0 == (g_hInjected = LoadLibrary(szPath)))
 	{
 		MessageBox(0, _T("Cannot load Lord of MU Anti-hack!"), _T("Error"), MB_OK);
-		CKillUtil::KillGame();
+		CKillUtil::KillGame("Main: cannot load LordOfMU.dll");
 	}
 }
 

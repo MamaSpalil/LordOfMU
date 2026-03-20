@@ -112,6 +112,8 @@ DWORD CALLBACK CProxyConnection::ConnectionThread(CProxyConnection* pThis)
 	if (!pThis)
 		return 0;
 
+	CDebugOut::PrintAlways("[CONN] Communication handling thread started.");
+
 	Sleep(100);
 
 	while (WaitForSingleObject(pThis->m_hKillEvent, 0) == WAIT_TIMEOUT)
@@ -120,7 +122,7 @@ DWORD CALLBACK CProxyConnection::ConnectionThread(CProxyConnection* pThis)
 		Sleep(10);
 	}
 
-	CDebugOut::PrintInfo("Communication handling thread terminated ...");
+	CDebugOut::PrintAlways("[CONN] Communication handling thread terminated.");
 	return 0;
 }
 

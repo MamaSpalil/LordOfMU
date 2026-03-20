@@ -31,16 +31,19 @@ protected:
 	bool InternalInit()
 	{
 		CDebugOut::Init();
+		CDebugOut::PrintAlways("=== LordOfMU DLL initializing (InternalInit) ===");
 		CProxifier::StartUp();
 
-		CDebugOut::PrintDebug("InternalInit() OK.");
+		CDebugOut::PrintAlways("=== LordOfMU DLL initialization complete ===");
 		return true;
 	}
 
 	static int OnExit(void)
 	{
+		CDebugOut::PrintAlways("=== LordOfMU DLL shutting down (OnExit) ===");
 		// do clean-up here
 		CProxifier::CleanUp();
+		CDebugOut::PrintAlways("=== LordOfMU DLL cleanup complete ===");
 		CDebugOut::CleanUp();
 
 		return 0;
@@ -73,7 +76,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{
-		CDebugOut::PrintDebug("DLL_PROCESS_DETACH ... ");
+		CDebugOut::PrintAlways("[DLL] DLL_PROCESS_DETACH - game process unloading DLL.");
 		_AtlModule.TermClient();
 	}
 
