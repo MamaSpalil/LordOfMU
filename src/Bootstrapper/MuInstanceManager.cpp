@@ -105,6 +105,19 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 			InstallProc(guid, guid, (LPVOID*)szPath);
 	}
 
+	// Launch the game client (main.exe) after hooks are installed
+	{
+		TCHAR szMainExe[_MAX_PATH+1] = {0};
+		_tcscpy(szMainExe, szPath);
+		_tcscat(szMainExe, _T("main.exe"));
+
+		struct _stat stMain = {0};
+		if (0 == _tstat(szMainExe, &stMain))
+		{
+			ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
+		}
+	}
+
 	_tcscat(szPath, _T("LordOfServer.dll"));
 
 	struct _stat st = {0};
