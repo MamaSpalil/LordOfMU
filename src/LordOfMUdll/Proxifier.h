@@ -65,6 +65,8 @@ protected:
 	void cleanDead();
 
 protected:
+	CWinsockApiMirror m_cWinsockApi;
+
 	HANDLE m_hPatchMonitor;
 	HANDLE m_hRunMonitor;
 

@@ -29,6 +29,7 @@ protected:
 	DWORD m_dwPatchSize;
 	DWORD_PTR m_dwHookProc;
 	void* m_pfnApi;
+	bool m_fPatched;
 };
 
 
