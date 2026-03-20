@@ -206,7 +206,15 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	}
 	else if (pkt == CWarpReplyPacket::Type())
 	{
-		m_fEnabled = FALSE;
+		// Clear stale pickup queues from previous map, but keep m_fEnabled
+		// so auto-pickup continues working after warp
+		{
+			CAutoLockQueue autoCS(&m_csQueue);
+			m_vPickQueue.clear();
+			ResetEvent(m_hPickEvent);
+		}
+		m_vNoMovePickQueue.clear();
+		m_vDropQueue.clear();
 	}
 
 
