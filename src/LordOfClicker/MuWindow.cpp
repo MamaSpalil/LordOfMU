@@ -471,11 +471,6 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
 	{
 		dlg = m_cAdvSettingsDlg;
-
-#ifdef __CLICKER_AVANTA__
-		Beep(1000, 70);
-		return 0;
-#endif
 	}
 
 	if (m_fGuiActive || !dlg.IsWindow())
