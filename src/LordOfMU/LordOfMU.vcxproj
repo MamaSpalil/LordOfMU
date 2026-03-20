@@ -126,11 +126,8 @@
       <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateManifest>false</GenerateManifest>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
-    <Manifest>
-      <EmbedManifest>false</EmbedManifest>
-    </Manifest>
     <PostBuildEvent>
       <Message>Post build step</Message>
       <Command />
@@ -172,11 +169,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateManifest>false</GenerateManifest>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
-    <Manifest>
-      <EmbedManifest>false</EmbedManifest>
-    </Manifest>
     <PostBuildEvent>
       <Message>Performing registration</Message>
       <Command />
@@ -218,11 +212,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateManifest>false</GenerateManifest>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
-    <Manifest>
-      <EmbedManifest>false</EmbedManifest>
-    </Manifest>
     <PostBuildEvent>
       <Message>Performing registration</Message>
       <Command />
@@ -264,11 +255,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateManifest>false</GenerateManifest>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
-    <Manifest>
-      <EmbedManifest>false</EmbedManifest>
-    </Manifest>
     <PostBuildEvent>
       <Message>Performing registration</Message>
       <Command />
