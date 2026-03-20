@@ -114,7 +114,20 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		struct _stat stMain = {0};
 		if (0 == _tstat(szMainExe, &stMain))
 		{
-			ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
+			HINSTANCE hResult = ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
+
+			if ((INT_PTR)hResult <= 32)
+			{
+				TCHAR szErr[512] = {0};
+				wsprintf(szErr, _T("Failed to launch main.exe (error %d).\nPath: %s"), (int)(INT_PTR)hResult, szMainExe);
+				MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
+			}
+		}
+		else
+		{
+			TCHAR szErr[512] = {0};
+			wsprintf(szErr, _T("main.exe not found.\nExpected path: %s"), szMainExe);
+			MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
 		}
 	}
 
