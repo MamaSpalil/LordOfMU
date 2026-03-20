@@ -391,6 +391,8 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 	if (pPatchPoint[0] == 0x90 && pPatchPoint[1] == 0x90 && pPatchPoint[2] == 0xE9)
 	{
 		// Verify the JMP target matches our hook function
+		// Offset calculation: hookProc - (patchPoint + NOP_PREFIX_SIZE + JMP_INSN_SIZE)
+		// where NOP_PREFIX_SIZE=2 (two 0x90 bytes) and JMP_INSN_SIZE=5 (0xE9 + 4-byte rel32)
 		DWORD dwAddr = PtrToUlong(dwHookProc) - PtrToUlong(pPatchPoint) - 5 - 2;
 		if (memcmp(pPatchPoint+3, &dwAddr, 4) != 0)
 		{
@@ -455,8 +457,10 @@ void CProxifier::CheckNotPatched(const char* szDll, const char* szFunc)
 	// Follow legitimate OS-level JMP forwarding (E9 long JMP, EB short JMP)
 	// to reach the real function body before checking for illegal patches.
 	// Windows may use JMP stubs for hotpatching, CFG, or DLL forwarding.
+	// Limit to 8 follows to prevent infinite loops from malformed JMP chains.
+	static const int MAX_JMP_CHAIN_DEPTH = 8;
 	BYTE* pRealFunc = pFunc;
-	int maxFollows = 8;
+	int maxFollows = MAX_JMP_CHAIN_DEPTH;
 	while (maxFollows-- > 0 && (pRealFunc[0] == 0xE9 || pRealFunc[0] == 0xEB))
 	{
 		if (pRealFunc[0] == 0xEB)

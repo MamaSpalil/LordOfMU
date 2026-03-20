@@ -177,16 +177,19 @@ bool CApiHooker::PatchFunction(BYTE* pFunc, DWORD_PTR dwHookProc)
 			DWORD dwInsnSize = fixupDisasm.OpcodeSize + fixupDisasm.PrefixSize;
 			BYTE opcode = pFunc[dwPos + fixupDisasm.PrefixSize];
 
-			// E8 = CALL rel32, E9 = JMP rel32 (5-byte instructions)
-			if ((opcode == 0xE8 || opcode == 0xE9) && dwInsnSize == 5)
+			// E8 = CALL rel32, E9 = JMP rel32 (opcode + 4-byte offset = 5 bytes)
+			if ((opcode == 0xE8 || opcode == 0xE9) && dwInsnSize == 5
+				&& dwPos + fixupDisasm.PrefixSize + 5 <= sizeof(m_abTrampBuff))
 			{
 				DWORD dwOldRel = 0;
 				memcpy(&dwOldRel, &m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 1], 4);
 				DWORD dwNewRel = dwOldRel + (DWORD)dwDisplacement;
 				memcpy(&m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 1], &dwNewRel, 4);
 			}
-			// 0F 80-8F = conditional JMP rel32 (6-byte instructions)
-			else if (opcode == 0x0F && dwInsnSize == 6 && dwPos + fixupDisasm.PrefixSize + 1 < dwIdx)
+			// 0F 80-8F = conditional JMP rel32 (2-byte opcode + 4-byte offset = 6 bytes)
+			else if (opcode == 0x0F && dwInsnSize == 6
+				&& dwPos + fixupDisasm.PrefixSize + 6 <= sizeof(m_abTrampBuff)
+				&& dwPos + fixupDisasm.PrefixSize + 1 < dwIdx)
 			{
 				BYTE opcode2 = pFunc[dwPos + fixupDisasm.PrefixSize + 1];
 				if (opcode2 >= 0x80 && opcode2 <= 0x8F)
