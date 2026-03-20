@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AutoPickupFilter.h"
 #include "CommonPackets.h"
+#include "DebugOut.h"
 #include <math.h>
 
 /**
@@ -411,18 +412,43 @@ void CAutoPickupFilter::GoPickNextItem()
 
 		Sleep(350);
 
-		// Teleport to item
-		TeleportTo(wPlayerId, x, y);
+		CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
+			(int)x, (int)y, (int)xOld, (int)yOld, wItem);
 
-		Sleep(850);
+		// Walk to item instead of teleporting
+		WalkTo(wPlayerId, x, y);
+
+		// Wait for character to reach the item position
+		int xdiff = abs((int)xOld - (int)x);
+		int ydiff = abs((int)yOld - (int)y);
+		int dist = (xdiff > ydiff) ? xdiff : ydiff;
+		DWORD dwWalkTime = (DWORD)(dist * 150) + 500;
+
+		if (dwWalkTime > 5000)
+			dwWalkTime = 5000;
+
+		Sleep(dwWalkTime);
 	}
 
 	PickItem(wItem);
 
 	if (!fSuspended || !fSuspMove)
 	{
-		Sleep(700);
-		TeleportTo(wPlayerId, xOld, yOld);
+		Sleep(500);
+
+		// Walk back to original position
+		CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
+		WalkTo(wPlayerId, xOld, yOld);
+
+		int xdiff = abs((int)xOld - (int)x);
+		int ydiff = abs((int)yOld - (int)y);
+		int dist = (xdiff > ydiff) ? xdiff : ydiff;
+		DWORD dwWalkTime = (DWORD)(dist * 150) + 500;
+
+		if (dwWalkTime > 5000)
+			dwWalkTime = 5000;
+
+		Sleep(dwWalkTime);
 
 		bool fTemp = false;
 		if (pScript && !fSuspended)
@@ -436,6 +462,7 @@ void CAutoPickupFilter::GoPickNextItem()
  */
 void CAutoPickupFilter::PickItem(WORD wId)
 {
+	CDebugOut::PrintAlways("[AUTOPICK] Picking up item ID=0x%04X", wId);
 	CPickItemPacket pkt(wId);
 	GetProxy()->send_packet(pkt);
 }
@@ -464,7 +491,27 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 
 
 /**
- * \brief 
+ * \brief Moves character to position by sending walk/move packets
+ *        instead of teleporting. The character walks to the target
+ *        coordinates and the server sees a legitimate movement.
+ */
+void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE x, BYTE y)
+{
+	// Send position update from server to client (update visual position)
+	CUpdatePosSTCPacket pktMoveSTC(wPlayerId, x, y);
+	GetProxy()->recv_packet(pktMoveSTC);
+	Sleep(10);
+
+	// Send movement request from client to server (legitimate walk)
+	CUpdatePosCTSPacket pktMoveCTS(x, y);
+	GetProxy()->send_packet(pktMoveCTS);
+	Sleep(50);
+}
+
+
+/**
+ * \brief Teleports character to position instantly (legacy method,
+ *        kept for compatibility but no longer used by GoPickNextItem)
  */
 void CAutoPickupFilter::TeleportTo(WORD wPlayerId, BYTE x, BYTE y)
 {

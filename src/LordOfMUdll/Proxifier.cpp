@@ -5,6 +5,7 @@
 #include "KillUtil.h"
 #include "PEUtil.h"
 #include "Psapi.h"
+#include "ClickerLogger.h"
 
 
 
@@ -107,6 +108,7 @@ CProxifier* CProxifier::GetInstance()
 bool CProxifier::InternalInit()
 {
 	CDebugOut::PrintAlways("Initializing Proxifier ...");
+	WriteHookLog("Proxifier initialization started");
 
 #ifndef DEBUG
 	if (IsDebuggerPresent())
@@ -137,6 +139,7 @@ bool CProxifier::InternalInit()
 	WSAGetLastError.Init();
 	WSASendDisconnect.Init();
 	CDebugOut::PrintAlways("Winsock API hooks installed successfully.");
+	WriteHookLog("All Winsock API hooks installed successfully");
 
 
 	StartPatchMonitor();
@@ -155,6 +158,7 @@ bool CProxifier::InternalInit()
 	CDebugOut::PrintAlways("Skipping start-S2.exe termination to prevent game closure.");
 
 	CDebugOut::PrintAlways("Initialization finished successfully.");
+	WriteHookLog("Proxifier initialization completed successfully");
 	return true;
 }
 
@@ -164,9 +168,11 @@ bool CProxifier::InternalInit()
  */
 void CProxifier::InternalClean()
 {
+	WriteHookLog("Proxifier cleanup started - removing hooks");
 	StopPatchMonitor();
 
 	connect.UnPatch();
+	WriteHookLog("Proxifier cleanup complete - all hooks removed");
 }
 
 
@@ -179,6 +185,27 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 
 	if (!s)
 		return CProxifier::connect(s, addr, len);
+
+	// Log socket connection details
+	if (addr && addr->sa_family == AF_INET)
+	{
+		const struct sockaddr_in* pAddr = (const struct sockaddr_in*)addr;
+		CDebugOut::PrintAlways("[SOCKET] connect() called: socket=%d, IP=%d.%d.%d.%d, port=%d",
+			(int)s,
+			pAddr->sin_addr.S_un.S_un_b.s_b1,
+			pAddr->sin_addr.S_un.S_un_b.s_b2,
+			pAddr->sin_addr.S_un.S_un_b.s_b3,
+			pAddr->sin_addr.S_un.S_un_b.s_b4,
+			ntohs(pAddr->sin_port));
+
+		WriteSocketLog("connect() socket=%d IP=%d.%d.%d.%d port=%d",
+			(int)s,
+			pAddr->sin_addr.S_un.S_un_b.s_b1,
+			pAddr->sin_addr.S_un.S_un_b.s_b2,
+			pAddr->sin_addr.S_un.S_un_b.s_b3,
+			pAddr->sin_addr.S_un.S_un_b.s_b4,
+			ntohs(pAddr->sin_port));
+	}
 
 	CProxifier* pThis = CProxifier::GetInstance();
 	pThis->cleanDead();

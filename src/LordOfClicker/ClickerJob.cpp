@@ -114,13 +114,17 @@ DWORD WINAPI CClickerJob::ThreadProc(void* pData)
  */
 void CClickerJob::InitClicker()
 {
+	WriteClickerLogFmt("CLICKER", "=== Auto-clicker starting ===");
+
 	if (m_tSettings.all.fAutoReOff)
 	{
+		WriteClickerLog("Sending /request off");
 		CMuWindow::GetInstance()->SayToServer("/request off");
 	}
 
 	if (m_tSettings.all.fAntiAFKProtect & 1)
 	{
+		WriteClickerLog("Anti-AFK autosay enabled");
 		CMuWindow::GetInstance()->SayToServer("//autosay on");
 	}
 	else
@@ -130,6 +134,7 @@ void CClickerJob::InitClicker()
 
 	if (m_tSettings.all.fAntiAFKProtect & 2)
 	{
+		WriteClickerLog("Stealth option: susp_zen_pick enabled");
 		CMuWindow::GetInstance()->SayToServer("//set_stealth_opt susp_zen_pick on");
 	}
 	else
@@ -139,6 +144,7 @@ void CClickerJob::InitClicker()
 
 	if (m_tSettings.all.fAntiAFKProtect & 4)
 	{
+		WriteClickerLog("Stealth option: susp_move_pick enabled");
 		CMuWindow::GetInstance()->SayToServer("//set_stealth_opt susp_move_pick on");
 	}
 	else
@@ -148,6 +154,7 @@ void CClickerJob::InitClicker()
 
 	if (m_tSettings.all.fAntiAFKProtect & 8)
 	{
+		WriteClickerLog("Stealth option: susp_pick enabled");
 		CMuWindow::GetInstance()->SayToServer("//set_stealth_opt susp_pick on");
 	}
 	else
@@ -157,12 +164,14 @@ void CClickerJob::InitClicker()
 
 	if (m_tSettings.all.fAdvAutoPick)
 	{
+		WriteClickerLog("Advanced auto-pickup enabled - setting options");
 		SetAdvancedAutopickOptions();
 		CMuWindow::GetInstance()->SayToServer("//autopick on");
 	}
 
 	if (m_tSettings.all.fExitAtLvl400)
 	{
+		WriteClickerLog("Exit at level 400 enabled");
 		CMuWindow::GetInstance()->SayToServer("//exit400 on");
 	}
 
@@ -191,28 +200,36 @@ void CClickerJob::InitClicker()
  */
 void CClickerJob::TermClicker()
 {
+	WriteClickerLogFmt("CLICKER", "=== Auto-clicker stopping ===");
+
 	if (m_tSettings.all.fAntiAFKProtect)
 	{
+		WriteClickerLog("Anti-AFK autosay disabled");
 		CMuWindow::GetInstance()->SayToServer("//autosay off");
 	}
 
 	if (m_tSettings.all.fAutoReOff)
 	{
+		WriteClickerLog("Sending /request on");
 		CMuWindow::GetInstance()->SayToServer("/request on");
 	}
 
 	if (m_tSettings.all.fAdvAutoPick)
 	{
+		WriteClickerLog("Advanced auto-pickup disabled");
 		CMuWindow::GetInstance()->SayToServer("//autopick off");
 	}
 
 	if (m_tSettings.all.fExitAtLvl400)
 	{
+		WriteClickerLog("Exit at level 400 disabled");
 		CMuWindow::GetInstance()->SayToServer("//exit400 off");
 	}
 
 	if (IsWindow(m_hWnd))
 		SendMessage(m_hWnd, WM_RBUTTONUP, (WPARAM)0, (LPARAM)MAKELONG(m_ptMouseStartPos.x, m_ptMouseStartPos.y));
+
+	WriteClickerLogFmt("CLICKER", "=== Auto-clicker stopped ===");
 }
 
 
