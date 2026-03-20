@@ -106,8 +106,6 @@ END
 IDI_ICON2               ICON                    "ico00001.ico"
 IDI_ICON3               ICON                    "ico00002.ico"
 
-MANIFEST_RESOURCE_ID RT_MANIFEST "muautoclicker.exe.manifest"
-
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
