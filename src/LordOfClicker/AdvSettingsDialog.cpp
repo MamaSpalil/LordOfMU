@@ -97,7 +97,7 @@ LRESULT CAdvSettingsDialog::ApplyState(WORD, WORD, HWND, BOOL&)
 
 	GetDlgItem(IDC_CUSTOM2).EnableWindow(fEnable && (IsDlgButtonChecked(IDC_CUSTOM1) == BST_CHECKED));
 
-	GetDlgItem(IDC_EDIT_CUSTOM).EnableWindow(FALSE);
+	GetDlgItem(IDC_EDIT_CUSTOM).EnableWindow(fEnable && (IsDlgButtonChecked(IDC_CUSTOM1) == BST_CHECKED));
 	return 0;
 }
 

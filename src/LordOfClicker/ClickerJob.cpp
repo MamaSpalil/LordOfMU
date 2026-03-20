@@ -376,6 +376,13 @@ void CClickerJob::SetAdvancedAutopickOptions()
 	SetAutopickOption("exl", m_tSettings.all.fAdvPickExl, m_tSettings.all.fAdvPickExlMove);
 	SetAutopickOption("zen", m_tSettings.all.fAdvPickZen, m_tSettings.all.fAdvPickZenMove);
 	SetAutopickOption("custom", m_tSettings.all.fAdvPickCustom, m_tSettings.all.fAdvPickCustomMove);
+
+	if (m_tSettings.all.fAdvPickCustom && m_tSettings.all.wPickCustomCode != 0)
+	{
+		char szMsg[256] = {0};
+		_snprintf(szMsg, 255, "//pick %d %d", HIBYTE(m_tSettings.all.wPickCustomCode), LOBYTE(m_tSettings.all.wPickCustomCode));
+		CMuWindow::GetInstance()->SayToServer(szMsg);
+	}
 }
 
 

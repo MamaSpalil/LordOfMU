@@ -1147,6 +1147,9 @@ void CMuWindow::SayToServer(const char* buf)
 		hMod = GetModuleHandle(_T("LordOfMU.dll"));
 
 	if (!hMod)
+		hMod = GetModuleHandle(_T(__LORDOFMU_DLL_NAME));
+
+	if (!hMod)
 		return;
 
 	bool (*SendCommandPtr)(const char*) = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
