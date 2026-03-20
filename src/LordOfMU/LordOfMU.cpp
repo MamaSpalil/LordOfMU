@@ -70,13 +70,21 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/
 
 		SHELLEXECUTEINFO shexecnfo = {0};
 		shexecnfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		shexecnfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 		shexecnfo.lpVerb = _T("open");
 		shexecnfo.lpFile = szRdllDir;
 		shexecnfo.lpParameters = _T("Bootstrapper.dll,Load2");
 		shexecnfo.lpDirectory = szDir;
 		shexecnfo.nShow = SW_SHOWNORMAL;
 		
-		ShellExecuteEx(&shexecnfo);
+		if (!ShellExecuteEx(&shexecnfo))
+		{
+			MessageBox(NULL, _T("Failed to launch Bootstrapper module."), _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
+			return -1;
+		}
+
+		if (shexecnfo.hProcess)
+			CloseHandle(shexecnfo.hProcess);
 	}
 	else
 	{

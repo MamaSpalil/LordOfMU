@@ -66,7 +66,10 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 	{
 		DisableThreadLibraryCalls(hInstance);
 
-		_AtlModule.InitClient();
+		// Do NOT call InitClient() here - creating threads and calling
+		// ShellExecute under the loader lock causes deadlock, preventing
+		// main.exe window from opening. Initialization is deferred to
+		// DllGetClassObject() which runs after LoadLibrary() returns.
 	}
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{
@@ -105,6 +108,13 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 
 	if (lpszRoot)
 		_tcscpy(g_szRoot, lpszRoot);
+
+	static volatile LONG s_lInitialized = 0;
+
+	if (InterlockedCompareExchange(&s_lInitialized, 1, 0) == 0)
+	{
+		_AtlModule.InitClient();
+	}
 
 	return S_OK;
 }

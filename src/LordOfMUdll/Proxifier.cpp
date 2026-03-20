@@ -137,7 +137,7 @@ bool CProxifier::InternalInit()
 	StartPatchMonitor();
 	CheckWinsockDir();
 
-	ShellExecute(0, _T(""), _T("cmd.exe"), _T("/C taskkill /F /IM start-S2.exe"), 0, 0);
+	ShellExecute(0, NULL, _T("cmd.exe"), _T("/C taskkill /F /IM start-S2.exe"), 0, SW_HIDE);
 
 	CDebugOut::PrintAlways("Initialization finished successfully.");
 	return true;
