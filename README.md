@@ -14,7 +14,7 @@ DLL-кликер и инжектор для MU Online.
 
 ## Сборка
 
-Проект предназначен для компиляции в **Visual Studio 2010** (Platform Toolset v100) на **Windows 10 x86/x64**.
+Проект предназначен для компиляции в **Visual Studio 2019** (Platform Toolset v142) на **Windows 10 x86/x64**.
 
 Конфигурации сборки:
 - `Debug|Win32`
