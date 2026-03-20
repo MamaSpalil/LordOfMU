@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUAutoClicker — Полное руководство пользователя</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --accent: #ff6f00;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #212121;
+            --text-light: #757575;
+            --border: #e0e0e0;
+            --code-bg: #263238;
+            --code-text: #eeffff;
+            --success: #2e7d32;
+            --warning: #e65100;
+            --info: #0277bd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        .header .version {
+            margin-top: 10px;
+            font-size: 0.95em;
+            opacity: 0.7;
+        }
+
+        /* ============ NAVIGATION ============ */
+        .nav {
+            background: #263238;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #b0bec5;
+            text-decoration: none;
+            padding: 12px 18px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .nav a:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* ============ SECTIONS ============ */
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 35px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary);
+        }
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section h3 {
+            color: var(--primary-light);
+            font-size: 1.3em;
+            margin: 25px 0 12px 0;
+        }
+        .section h4 {
+            color: var(--text);
+            font-size: 1.1em;
+            margin: 18px 0 8px 0;
+        }
+        .section p {
+            margin-bottom: 12px;
+        }
+
+        /* ============ STEP BLOCKS ============ */
+        .step {
+            background: #e8eaf6;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-light);
+        }
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.95em;
+        }
+        .step-title {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        /* ============ CODE BLOCKS ============ */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 8px;
+            padding: 18px 22px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #eceff1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.92em;
+            color: #c62828;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--code-text);
+        }
+
+        /* ============ TABLES ============ */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:nth-child(even) { background: #f5f5f5; }
+        tr:hover { background: #e8eaf6; }
+
+        /* ============ ALERTS ============ */
+        .alert {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        .alert-info {
+            background: #e1f5fe;
+            border-left: 4px solid var(--info);
+            color: #01579b;
+        }
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--warning);
+            color: #bf360c;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            color: #1b5e20;
+        }
+        .alert strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ============ IMAGES ============ */
+        .img-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .img-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+        }
+        .img-caption {
+            font-size: 0.9em;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* ============ DIAGRAMS ============ */
+        .diagram {
+            background: #fafafa;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .diagram-box {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: 600;
+            font-size: 0.95em;
+            min-width: 180px;
+        }
+        .diagram-box.secondary {
+            background: var(--primary-light);
+        }
+        .diagram-box.accent {
+            background: var(--accent);
+        }
+        .diagram-box.success {
+            background: var(--success);
+        }
+        .diagram-arrow {
+            display: block;
+            font-size: 1.8em;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        /* ============ FLOW LINES ============ */
+        .flow-horizontal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 15px 0;
+        }
+        .flow-horizontal .arrow-right {
+            font-size: 1.5em;
+            color: var(--accent);
+        }
+
+        /* ============ GRID LAYOUT ============ */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* ============ LIST STYLES ============ */
+        ul, ol {
+            margin: 10px 0 10px 25px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* ============ BADGE ============ */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .badge-hex {
+            background: #fce4ec;
+            color: #c62828;
+        }
+        .badge-cmd {
+            background: #e8eaf6;
+            color: var(--primary);
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: #263238;
+            color: #b0bec5;
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        /* ============ TOC ============ */
+        .toc {
+            background: #e8eaf6;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .toc ol {
+            margin-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        .toc a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .toc a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* ============ HEX HIGHLIGHT ============ */
+        .hex {
+            font-family: 'Consolas', monospace;
+            background: #fce4ec;
+            color: #c62828;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .cmd {
+            font-family: 'Consolas', monospace;
+            background: #e8eaf6;
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<div class="header">
+    <h1>🎮 MUAutoClicker</h1>
+    <div class="subtitle">Полное руководство пользователя — Автокликер для MU Online</div>
+    <div class="version">Версия 2.0600 (Elite) • MUAutoClicker.dll + MUEliteClicker.dll</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- NAVIGATION -->
+<!-- ============================================================ -->
+<div class="nav">
+    <div class="nav-inner">
+        <a href="#overview">Обзор</a>
+        <a href="#architecture">Архитектура</a>
+        <a href="#injection">Внедрение</a>
+        <a href="#settings">Настройки</a>
+        <a href="#hex-codes">HEX-коды</a>
+        <a href="#autopickup">Автоподбор</a>
+        <a href="#pick-example">Пример //pick</a>
+        <a href="#commands">Команды</a>
+        <a href="#packet-flow">Пакеты</a>
+        <a href="#scripts">Скрипты</a>
+        <a href="#faq">FAQ</a>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ============================================================ -->
+<div class="toc">
+    <h3>📋 Содержание</h3>
+    <ol>
+        <li><a href="#overview">Общий обзор программы</a></li>
+        <li><a href="#architecture">Архитектура и компоненты</a></li>
+        <li><a href="#injection">Инструкция по внедрению в игровой клиент main.exe</a></li>
+        <li><a href="#settings">Настройки программы (F9 / Shift+F9)</a></li>
+        <li><a href="#hex-codes">Вычисление HEX-кодов вещей</a></li>
+        <li><a href="#autopickup">Система автоподбора вещей</a></li>
+        <li><a href="#pick-example">Подробный пример: как работает <code>//pick 12 4</code></a></li>
+        <li><a href="#commands">Полный справочник команд</a></li>
+        <li><a href="#packet-flow">Перехват и обработка пакетов</a></li>
+        <li><a href="#scripts">Система скриптов</a></li>
+        <li><a href="#faq">Часто задаваемые вопросы</a></li>
+    </ol>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 1. OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+    <h2>1. Общий обзор программы</h2>
+
+    <p><strong>MUAutoClicker</strong> — это программа-автокликер для игры MU Online, которая автоматизирует рутинные действия персонажа: атаку монстров, подбор предметов, лечение и ремонт экипировки.</p>
+
+    <h3>Что умеет программа?</h3>
+
+    <div class="grid-2">
+        <div>
+            <h4>🎯 Автокликер</h4>
+            <ul>
+                <li>Автоматическая атака монстров</li>
+                <li>Поддержка разных классов персонажей</li>
+                <li>Настраиваемые слоты навыков</li>
+                <li>Автоматическое лечение</li>
+                <li>Автоматический ремонт</li>
+            </ul>
+        </div>
+        <div>
+            <h4>📦 Автоподбор</h4>
+            <ul>
+                <li>Автоматический подбор нужных вещей</li>
+                <li>Фильтр по типам предметов (Bless, Soul, Chaos и др.)</li>
+                <li>Настройка пользовательских кодов предметов</li>
+                <li>Телепортация к предмету и обратно</li>
+                <li>Автосброс ненужных предметов</li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>Из чего состоит программа</h3>
+    <p>MUAutoClicker состоит из нескольких файлов (модулей), каждый выполняет свою роль:</p>
+
+    <table>
+        <tr>
+            <th>Файл</th>
+            <th>Назначение</th>
+        </tr>
+        <tr>
+            <td><code>LordOfMU.exe</code></td>
+            <td><strong>Лаунчер</strong> — запускает программу, определяет версию Windows, загружает модули</td>
+        </tr>
+        <tr>
+            <td><code>Bootstrapper.dll</code></td>
+            <td><strong>Загрузчик</strong> — устанавливает системный хук для обнаружения окна игры</td>
+        </tr>
+        <tr>
+            <td><code>MUAutoLoader.dll</code></td>
+            <td><strong>Загрузчик DLL</strong> — перехватывает создание окна игры и внедряет основные модули</td>
+        </tr>
+        <tr>
+            <td><code>MUAutoClicker.dll</code></td>
+            <td><strong>Автокликер</strong> — управляет кликами, настройками, GUI диалогами</td>
+        </tr>
+        <tr>
+            <td><code>MUEliteClicker.dll</code></td>
+            <td><strong>Ядро системы</strong> — перехватывает сетевые пакеты, фильтрует предметы, обрабатывает команды</td>
+        </tr>
+    </table>
+
+    <div class="alert alert-info">
+        <strong>💡 Принцип работы</strong>
+        Программа внедряется в процесс игрового клиента <code>main.exe</code> и перехватывает сетевые пакеты между клиентом и сервером. Это позволяет автоматически реагировать на события в игре (появление предметов, получение урона) и отправлять команды от имени игрока (подбор предмета, перемещение).
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 2. ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+    <h2>2. Архитектура и компоненты</h2>
+
+    <h3>Схема взаимодействия модулей</h3>
+
+    <div class="diagram">
+        <div class="diagram-box">LordOfMU.exe</div>
+        <div class="diagram-arrow">⬇</div>
+        <div class="diagram-box secondary">Bootstrapper.dll</div>
+        <div class="diagram-arrow">⬇</div>
+        <div class="diagram-box secondary">MUAutoLoader.dll</div>
+        <div class="diagram-arrow">⬇ Устанавливает хук WH_CBT</div>
+        <div class="diagram-box accent">main.exe (игра MU Online)</div>
+        <div class="diagram-arrow">⬇ Хук обнаруживает окно игры</div>
+        <div class="diagram-box success">MUEliteClicker.dll + MUAutoClicker.dll</div>
+        <div class="diagram-arrow">⬇ Перехват WinSock (send/recv)</div>
+        <div style="font-size: 0.95em; color: var(--text-light); margin-top: 10px;">
+            Все сетевые пакеты проходят через цепочку фильтров
+        </div>
+    </div>
+
+    <h3>Цепочка фильтров пакетов</h3>
+    <p>После внедрения в игровой клиент, все сетевые пакеты проходят через цепочку фильтров. Каждый фильтр может анализировать, изменять или генерировать пакеты:</p>
+
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block;">
+            <div class="flow-horizontal">
+                <div class="diagram-box" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Сервер MU</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box secondary" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Расшифровка</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box secondary" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Логгер</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box secondary" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Инфо персонажа</div>
+            </div>
+            <div class="flow-horizontal">
+                <span class="arrow-right">→</span>
+                <div class="diagram-box accent" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Команды (//)  </div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box success" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Автоподбор</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box secondary" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Скрипты</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box secondary" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Шифрование</div>
+                <span class="arrow-right">→</span>
+                <div class="diagram-box" style="min-width: auto; padding: 8px 14px; font-size: 0.85em;">Клиент</div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Поддерживаемые классы персонажей</h3>
+    <table>
+        <tr><th>Класс</th><th>Модуль</th><th>Особенности</th></tr>
+        <tr><td>Dark Lord</td><td>DarkLordClickerJob</td><td>Поддержка призыва и конной атаки</td></tr>
+        <tr><td>Energy Elf</td><td>EElfClickerJob</td><td>Атака молнией</td></tr>
+        <tr><td>Agility Elf</td><td>AElfClickerJob</td><td>Дальнобойная атака</td></tr>
+        <tr><td>Blade Knight</td><td>BKClickerJob</td><td>Атака копьём</td></tr>
+        <tr><td>Dark Wizard</td><td>SMClickerJob</td><td>Магические атаки</td></tr>
+        <tr><td>Magic Gladiator</td><td>MGClickerJob</td><td>Комбинированные атаки</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 3. INJECTION -->
+<!-- ============================================================ -->
+<div class="section" id="injection">
+    <h2>3. Инструкция по внедрению в игровой клиент main.exe</h2>
+
+    <div class="alert alert-warning">
+        <strong>⚠ Важно!</strong>
+        Перед запуском убедитесь, что все файлы программы находятся в одной папке. Программа запускается <strong>от имени администратора</strong>.
+    </div>
+
+    <h3>Необходимые файлы</h3>
+    <p>Убедитесь, что в папке программы присутствуют все файлы:</p>
+    <pre><code>📁 Папка программы/
+├── LordOfMU.exe          ← Основной лаунчер (запускайте его!)
+├── Bootstrapper.dll       ← Загрузчик хуков
+├── MUAutoLoader.dll       ← Загрузчик DLL в игру
+├── MUAutoClicker.dll      ← Автокликер (настройки, GUI)
+├── MUEliteClicker.dll     ← Ядро системы (пакеты, команды)
+└── main.exe               ← Игровой клиент MU Online</code></pre>
+
+    <h3>Пошаговая инструкция запуска</h3>
+
+    <div class="step">
+        <span class="step-number">1</span>
+        <span class="step-title">Поместите файлы программы в папку с игрой</span>
+        <p style="margin-top: 8px;">Скопируйте все DLL файлы и <code>LordOfMU.exe</code> в ту же папку, где находится <code>main.exe</code> (игровой клиент MU Online).</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">2</span>
+        <span class="step-title">Запустите LordOfMU.exe от имени администратора</span>
+        <p style="margin-top: 8px;">Щёлкните правой кнопкой мыши по <code>LordOfMU.exe</code> → «Запуск от имени администратора». Программа автоматически определит версию Windows и выберет способ внедрения.</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">3</span>
+        <span class="step-title">Программа запустит игровой клиент main.exe</span>
+        <p style="margin-top: 8px;">Лаунчер автоматически загрузит <code>Bootstrapper.dll</code>, который установит системный хук и затем запустит <code>main.exe</code> через <code>ShellExecute</code>.</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">4</span>
+        <span class="step-title">Автоматическое внедрение DLL</span>
+        <p style="margin-top: 8px;">Когда игра создаёт своё окно, хук <code>WH_CBT</code> обнаруживает его и автоматически внедряет <code>MUEliteClicker.dll</code> и <code>MUAutoClicker.dll</code> в процесс игры.</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">5</span>
+        <span class="step-title">Готово! Откройте настройки</span>
+        <p style="margin-top: 8px;">Нажмите <strong>F9</strong> в игре для открытия главных настроек или <strong>Shift+F9</strong> для расширенных настроек автоподбора.</p>
+    </div>
+
+    <h3>Как происходит внедрение (техническая деталь)</h3>
+    <p>Для продвинутых пользователей — последовательность действий при запуске:</p>
+
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block; line-height: 2.5;">
+            <strong>Этап 1:</strong> <code>LordOfMU.exe</code> вызывает <code>rundll32.exe Bootstrapper.dll,Load2</code> (Windows Vista+)<br>
+            <strong>Этап 2:</strong> <code>Bootstrapper.dll</code> загружает <code>MUAutoLoader.dll</code> и вызывает <code>DllGetClassObject()</code><br>
+            <strong>Этап 3:</strong> <code>MUAutoLoader.dll</code> устанавливает хук <code>SetWindowsHookEx(WH_CBT, ...)</code><br>
+            <strong>Этап 4:</strong> <code>Bootstrapper.dll</code> запускает <code>main.exe</code> (через <code>ShellExecute</code>)<br>
+            <strong>Этап 5:</strong> Хук <code>CBTProc</code> перехватывает создание окна игры (<code>HCBT_CREATEWND</code>)<br>
+            <strong>Этап 6:</strong> Функция <code>RunClient()</code> подменяет оконную процедуру (<code>SetWindowLongPtr</code>)<br>
+            <strong>Этап 7:</strong> При получении <code>WM_NULL</code> загружает <code>MUEliteClicker.dll</code> через <code>LoadLibrary()</code><br>
+            <strong>Этап 8:</strong> <code>MUEliteClicker.dll</code> перехватывает WinSock функции (<code>WSASend</code>, <code>WSARecv</code>)
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>💡 Подсказка</strong>
+        На Windows XP/x86 используется прямая загрузка <code>Bootstrapper.dll</code> через <code>LoadLibrary()</code>, а на Windows Vista и новее — через <code>rundll32.exe</code> для обхода ограничений UAC.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 4. SETTINGS -->
+<!-- ============================================================ -->
+<div class="section" id="settings">
+    <h2>4. Настройки программы (F9 / Shift+F9)</h2>
+
+    <h3>Главное окно настроек — клавиша F9</h3>
+
+    <div class="img-container">
+        <img src="../help/images/SettingsWindow.jpg" alt="Окно основных настроек MUAutoClicker">
+        <div class="img-caption">Рис. 1 — Главное окно настроек MUAutoClicker (вызывается клавишей F9)</div>
+    </div>
+
+    <h4>Раздел «General Settings» (Общие настройки)</h4>
+    <table>
+        <tr><th>Параметр</th><th>Описание</th></tr>
+        <tr>
+            <td><strong>Enable auto-pick-up (press 'SPACE')</strong></td>
+            <td>Включает автоподбор предметов. Активируется при нажатии клавиши <strong>SPACE</strong> (пробел) в игре. Когда включено, программа автоматически подбирает предметы по настроенным фильтрам.</td>
+        </tr>
+        <tr>
+            <td><strong>Enable auto-repair</strong></td>
+            <td>Автоматический ремонт экипировки. Программа периодически отправляет команду ремонта, чтобы предметы не сломались.</td>
+        </tr>
+        <tr>
+            <td><strong>Enable auto-heal (press 'Q')</strong></td>
+            <td>Автоматическое лечение персонажа. Активируется клавишей <strong>Q</strong>. Использует зелья лечения с заданным интервалом.</td>
+        </tr>
+        <tr>
+            <td><strong>Auto-heal time</strong></td>
+            <td>Интервал автолечения в секундах (0, 1, 3, 5, 7, 10, 15 сек).</td>
+        </tr>
+        <tr>
+            <td><strong>Auto-type '/re off' command</strong></td>
+            <td>Автоматически отправляет команду <code>/request off</code> при запуске кликера для отключения запросов на торговлю.</td>
+        </tr>
+        <tr>
+            <td><strong>Exit game at level 400</strong></td>
+            <td>Автоматически завершает игру при достижении уровня 400.</td>
+        </tr>
+    </table>
+
+    <h4>Раздел «Stealth Options» (Опции скрытности)</h4>
+    <p>Эти опции активируются, когда к вашему персонажу приближается другой игрок:</p>
+    <table>
+        <tr><th>Параметр</th><th>Описание</th></tr>
+        <tr>
+            <td><strong>Auto-speak</strong></td>
+            <td>Автоматические ответы на сообщения (чтобы казалось, что вы онлайн).</td>
+        </tr>
+        <tr>
+            <td><strong>Stop zen pick-up</strong></td>
+            <td>Приостановить подбор дзен (золота), когда рядом другой игрок.</td>
+        </tr>
+        <tr>
+            <td><strong>Stop move-to-pick</strong></td>
+            <td>Приостановить телепортацию к предметам (подбирать только рядом).</td>
+        </tr>
+        <tr>
+            <td><strong>Stop all pick-up</strong></td>
+            <td>Полностью приостановить автоподбор.</td>
+        </tr>
+    </table>
+
+    <h4>Раздел «Class Settings» (Настройки класса)</h4>
+    <p>Выберите класс вашего персонажа из списка. Настройки атаки зависят от выбранного класса:</p>
+    <ul>
+        <li><strong>Character Class</strong> — выбор класса (Dark Lord, Energy Elf, Agility Elf, Blade Knight, Dark Wizard, Magic Gladiator)</li>
+        <li><strong>Attack skill slot</strong> — слот навыка атаки (1-9)</li>
+        <li><strong>No-click margin from screen edge</strong> — отступ от края экрана в пикселях, куда клик не будет отправлен (по умолчанию 70px)</li>
+    </ul>
+
+    <h3>Расширенные настройки автоподбора — клавиши Shift+F9</h3>
+
+    <div class="img-container">
+        <img src="../help/images/AdvancedSettings.png" alt="Окно расширенных настроек автоподбора">
+        <div class="img-caption">Рис. 2 — Расширенные настройки автоподбора (вызывается Shift+F9)</div>
+    </div>
+
+    <h4>Настройка фильтров автоподбора</h4>
+    <p>Каждый тип предмета имеет <strong>два флажка</strong>:</p>
+    <ul>
+        <li><strong>Первый флажок (Pick)</strong> — включить/выключить подбор этого типа предмета</li>
+        <li><strong>Второй флажок (Move)</strong> — разрешить телепортацию к предмету для подбора</li>
+    </ul>
+
+    <table>
+        <tr><th>Тип предмета</th><th>HEX код</th><th>Описание</th></tr>
+        <tr><td>Jewel of Bless (Бласс)</td><td><span class="hex">0x0E0D</span></td><td>Камень благословения — улучшение предметов</td></tr>
+        <tr><td>Jewel of Soul (Соул)</td><td><span class="hex">0x0E0E</span></td><td>Камень души — улучшение предметов с шансом разрушения</td></tr>
+        <tr><td>Jewel of Chaos (Хаос)</td><td><span class="hex">0x0C0F</span></td><td>Камень хаоса — создание предметов</td></tr>
+        <tr><td>Jewel of Life (Лайф)</td><td><span class="hex">0x0E10</span></td><td>Камень жизни — добавление опций</td></tr>
+        <tr><td>Jewel of Creation (Криэйшн)</td><td><span class="hex">0x0E16</span></td><td>Камень создания</td></tr>
+        <tr><td>Jewel of Guardian (Гуардиан)</td><td><span class="hex">0x0E1F</span></td><td>Камень хранителя</td></tr>
+        <tr><td>Excellent (Экселент)</td><td><span class="hex">Особый</span></td><td>Любой предмет с опцией Excellent</td></tr>
+        <tr><td>Zen (Золото)</td><td><span class="hex">0x0E0F</span></td><td>Золотые монеты</td></tr>
+        <tr><td>Custom (Пользовательский)</td><td><span class="hex">Настраиваемый</span></td><td>Задаётся вручную командой <code>//pick</code></td></tr>
+    </table>
+
+    <div class="alert alert-info">
+        <strong>💡 Как это работает</strong>
+        Когда вы ставите галочку «Pick» для Bless и «Move» для Bless, программа при запуске кликера автоматически отправит команду: <code>//set_pick_opt bless on on</code>. Это означает: «подбирать бласс с перемещением к нему».
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 5. HEX CODES -->
+<!-- ============================================================ -->
+<div class="section" id="hex-codes">
+    <h2>5. Вычисление HEX-кодов вещей</h2>
+
+    <p>Каждый предмет в MU Online имеет уникальный <strong>числовой код</strong>, состоящий из двух байтов. Для работы с автоподбором важно понимать, как этот код формируется.</p>
+
+    <h3>Структура кода предмета</h3>
+
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block; font-family: 'Consolas', monospace; font-size: 1.1em;">
+            <div style="margin-bottom: 15px;">
+                <strong>Код предмета = (Старший_байт × 256) + Младший_байт</strong>
+            </div>
+            <div style="background: var(--code-bg); color: var(--code-text); padding: 15px 20px; border-radius: 8px;">
+                WORD wCode = (HighByte &lt;&lt; 8) | LowByte<br><br>
+                Где:<br>
+                &nbsp;&nbsp;HighByte = Категория предмета (группа)<br>
+                &nbsp;&nbsp;LowByte  = Номер предмета внутри группы
+            </div>
+        </div>
+    </div>
+
+    <h3>Как узнать HEX-код предмета</h3>
+
+    <h4>Способ 1: Команда <code>//itemcode on</code></h4>
+    <p>Самый простой способ — включить отображение кодов предметов в игре:</p>
+
+    <div class="step">
+        <span class="step-number">1</span>
+        <span class="step-title">Введите в чат игры: <code>//itemcode on</code></span>
+        <p style="margin-top: 8px;">Это включит отображение кодов. Теперь при подборе любого предмета в чате появится сообщение вида:<br>
+        <code>&gt;&gt; Item code: 14 13 0</code></p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">2</span>
+        <span class="step-title">Подберите нужный предмет</span>
+        <p style="margin-top: 8px;">В чате появится три числа: <strong>группа</strong>, <strong>номер</strong> и <strong>грейд</strong>.
+        Например: <code>&gt;&gt; Item code: 14 13 0</code> означает группу 14, номер 13, грейд 0.</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">3</span>
+        <span class="step-title">Используйте эти числа в команде <code>//pick</code></span>
+        <p style="margin-top: 8px;">Команда: <code>//pick 14 13</code> — теперь этот предмет будет подбираться автоматически.</p>
+    </div>
+
+    <div class="step">
+        <span class="step-number">4</span>
+        <span class="step-title">Чтобы отключить отображение кодов: <code>//itemcode off</code></span>
+    </div>
+
+    <h4>Способ 2: Расчёт из HEX-кода вручную</h4>
+    <p>Если вы знаете HEX-код предмета из документации игры:</p>
+
+    <pre><code>Пример: Jewel of Bless = 0x0E0D
+
+Шаг 1: Разделяем на байты
+  Старший байт (High): 0x0E = 14 (десятичное)
+  Младший байт (Low):  0x0D = 13 (десятичное)
+
+Шаг 2: Формируем команду
+  //pick 14 13
+
+Проверка: (14 &lt;&lt; 8) | 13 = (14 × 256) + 13 = 3584 + 13 = 3597 = 0x0E0D ✓</code></pre>
+
+    <h3>Таблица преобразования HEX ↔ Десятичные числа</h3>
+
+    <table>
+        <tr><th>Предмет</th><th>HEX-код</th><th>Старший байт (группа)</th><th>Младший байт (номер)</th><th>Команда //pick</th></tr>
+        <tr><td>Jewel of Bless</td><td><span class="hex">0x0E0D</span></td><td>0x0E = <strong>14</strong></td><td>0x0D = <strong>13</strong></td><td><code>//pick 14 13</code></td></tr>
+        <tr><td>Jewel of Soul</td><td><span class="hex">0x0E0E</span></td><td>0x0E = <strong>14</strong></td><td>0x0E = <strong>14</strong></td><td><code>//pick 14 14</code></td></tr>
+        <tr><td>Jewel of Chaos</td><td><span class="hex">0x0C0F</span></td><td>0x0C = <strong>12</strong></td><td>0x0F = <strong>15</strong></td><td><code>//pick 12 15</code></td></tr>
+        <tr><td>Jewel of Life</td><td><span class="hex">0x0E10</span></td><td>0x0E = <strong>14</strong></td><td>0x10 = <strong>16</strong></td><td><code>//pick 14 16</code></td></tr>
+        <tr><td>Jewel of Creation</td><td><span class="hex">0x0E16</span></td><td>0x0E = <strong>14</strong></td><td>0x16 = <strong>22</strong></td><td><code>//pick 14 22</code></td></tr>
+        <tr><td>Jewel of Guardian</td><td><span class="hex">0x0E1F</span></td><td>0x0E = <strong>14</strong></td><td>0x1F = <strong>31</strong></td><td><code>//pick 14 31</code></td></tr>
+        <tr><td>Zen (золото)</td><td><span class="hex">0x0E0F</span></td><td>0x0E = <strong>14</strong></td><td>0x0F = <strong>15</strong></td><td><code>//pick 14 15</code></td></tr>
+    </table>
+
+    <h3>Формула вычисления в коде программы</h3>
+    <p>Из исходного кода <code>GameCommands.cpp</code>, строка 550:</p>
+
+    <pre><code>// Из файла: src/LordOfMUdll/GameCommands.cpp
+// Функция: CPickCommandHandler::ProcessCommand()
+
+// Пользователь вводит: //pick 12 4
+//   szArg0 = "12"  (первый аргумент — старший байт)
+//   szArg1 = "4"   (второй аргумент — младший байт)
+
+WORD wCode = ((atoi(szArg0) &amp; 0xFF) &lt;&lt; 8) | (atoi(szArg1) &amp; 0xFF);
+
+// Пошаговое вычисление для //pick 12 4:
+//   atoi("12") = 12         →  12 &amp; 0xFF = 0x0C (12)
+//   Сдвиг влево на 8 бит   →  0x0C &lt;&lt; 8 = 0x0C00 (3072)
+//   atoi("4")  = 4          →  4 &amp; 0xFF  = 0x04 (4)
+//   Побитовое ИЛИ           →  0x0C00 | 0x04 = 0x0C04 (3076)
+//
+// Результат: wCode = 0x0C04 — код предмета для поиска</code></pre>
+
+    <div class="alert alert-success">
+        <strong>✅ Простое правило</strong>
+        Для команды <code>//pick X Y</code>: X — это категория/группа предмета, Y — номер предмета в группе. Эти два числа образуют уникальный код предмета. Используйте <code>//itemcode on</code> для автоматического определения кодов.
+    </div>
+
+    <h3>Третий аргумент — маска грейда (необязательный)</h3>
+    <p>Команда <code>//pick</code> поддерживает необязательный третий аргумент — <strong>грейд</strong> (уровень улучшения):</p>
+
+    <pre><code>// Формат: //pick &lt;группа&gt; &lt;номер&gt; [грейд]
+
+//pick 14 13        ← Подбирать ВСЕ Jewel of Bless (любого грейда)
+//pick 14 13 0      ← Подбирать только грейд 0 (маска = 1 &lt;&lt; 0 = 0x0001)
+//pick 14 13 5      ← Подбирать только грейд 5 (маска = 1 &lt;&lt; 5 = 0x0020)
+
+// В коде:
+WORD wMask = 0xFFFF;              // По умолчанию: все грейды
+if (szArg2[0] != 0)
+    wMask = 1 &lt;&lt; atoi(szArg2);   // Если указан грейд: только этот</code></pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 6. AUTO PICKUP -->
+<!-- ============================================================ -->
+<div class="section" id="autopickup">
+    <h2>6. Система автоподбора вещей</h2>
+
+    <h3>Принцип работы автоподбора</h3>
+    <p>Система автоподбора работает следующим образом:</p>
+
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block; max-width: 700px;">
+            <div class="step" style="background: #e3f2fd;">
+                <span class="step-number">1</span>
+                <span class="step-title">Сервер отправляет пакет «Предмет упал на землю»</span>
+                <p style="margin-top: 5px; font-size: 0.9em;">Пакет <code>CMeetItemPacket</code> содержит: ID предмета, тип, координаты X/Y</p>
+            </div>
+            <div class="step" style="background: #e8f5e9;">
+                <span class="step-number">2</span>
+                <span class="step-title">AutoPickupFilter перехватывает пакет</span>
+                <p style="margin-top: 5px; font-size: 0.9em;">Извлекает тип предмета из пакета и сравнивает с настроенными фильтрами</p>
+            </div>
+            <div class="step" style="background: #fff3e0;">
+                <span class="step-number">3</span>
+                <span class="step-title">Проверка соответствия фильтрам</span>
+                <p style="margin-top: 5px; font-size: 0.9em;">Сначала проверяет пользовательский список (<code>//pick</code>), затем встроенные типы (Bless, Soul и т.д.), затем Excellent-предметы</p>
+            </div>
+            <div class="step" style="background: #fce4ec;">
+                <span class="step-number">4</span>
+                <span class="step-title">Решение: подбирать с перемещением или без</span>
+                <p style="margin-top: 5px; font-size: 0.9em;">Если флаг «Move» включён: предмет добавляется в очередь подбора с телепортацией (отдельный поток). Если «Move» выключен: подбор без перемещения (с задержкой 2 сек).</p>
+            </div>
+            <div class="step" style="background: #e8eaf6;">
+                <span class="step-number">5</span>
+                <span class="step-title">Поток подбора выполняет действия</span>
+                <p style="margin-top: 5px; font-size: 0.9em;">
+                    <strong>С перемещением:</strong> Запомнить позицию → Телепорт к предмету (350мс) → Ожидание (850мс) → Отправка пакета подбора → Ожидание (700мс) → Телепорт обратно<br>
+                    <strong>Без перемещения:</strong> Ожидание 2 секунды → Отправка пакета подбора
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <h3>Два режима подбора</h3>
+
+    <div class="grid-2">
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+            <h4 style="color: #2e7d32;">📦 Подбор с перемещением (Move = ON)</h4>
+            <p>Программа телепортирует персонажа к предмету, подбирает его, и возвращает обратно.</p>
+            <pre style="font-size: 0.85em;"><code>Последовательность действий:
+1. Приостановить скрипт (если активен)
+2. Подождать 350 мс
+3. Телепортировать к предмету (x, y)
+4. Подождать 850 мс
+5. Отправить CPickItemPacket
+6. Подождать 700 мс
+7. Телепортировать обратно (xOld, yOld)
+8. Возобновить скрипт</code></pre>
+        </div>
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+            <h4 style="color: #0277bd;">📦 Подбор без перемещения (Move = OFF)</h4>
+            <p>Программа подбирает только предметы рядом с персонажем без телепортации.</p>
+            <pre style="font-size: 0.85em;"><code>Последовательность действий:
+1. Предмет попадает в очередь
+2. Через 2 секунды отправляет
+   пакет CPickItemPacket
+3. Персонаж не двигается
+
+Подходит для незаметного подбора,
+когда рядом другие игроки.</code></pre>
+        </div>
+    </div>
+
+    <h3>Как настроить автоподбор</h3>
+
+    <h4>Вариант A: Через GUI (Shift+F9)</h4>
+    <ol>
+        <li>Нажмите <strong>Shift+F9</strong> в игре</li>
+        <li>Отметьте галочками нужные типы предметов</li>
+        <li>Для каждого типа: первая галочка — подбирать, вторая — перемещаться к предмету</li>
+        <li>Нажмите <strong>OK</strong></li>
+        <li>Нажмите <strong>SPACE</strong> для запуска кликера — автоподбор включится автоматически</li>
+    </ol>
+
+    <h4>Вариант B: Через команды в чате</h4>
+    <pre><code>// Включить автоподбор
+//autopick on
+
+// Настроить подбор Bless с перемещением
+//set_pick_opt bless on on
+
+// Настроить подбор Soul без перемещения
+//set_pick_opt soul on off
+
+// Добавить пользовательский предмет
+//pick 14 13
+
+// Добавить ещё один предмет
+//pick 12 15
+
+// Очистить список пользовательских предметов
+//pick clear
+
+// Установить дистанцию подбора
+//pdist 10</code></pre>
+
+    <h3>Проверка расстояния до предмета</h3>
+    <p>Перед подбором программа проверяет расстояние между персонажем и предметом:</p>
+
+    <pre><code>// Из AutoPickupFilter.cpp, строки 104-105:
+int xdiff = abs((int)bPlX - (int)x);   // Разница по X
+int ydiff = abs((int)bPlY - (int)y);   // Разница по Y
+
+// Предмет подбирается только если:
+if (m_iDist &lt; 0 || (xdiff &lt;= m_iDist &amp;&amp; ydiff &lt;= m_iDist))
+// m_iDist &lt; 0 означает «без ограничения дистанции»
+// Иначе: обе координаты должны быть в пределах m_iDist клеток</code></pre>
+
+    <div class="alert alert-info">
+        <strong>💡 Команда //pdist</strong>
+        Используйте <code>//pdist 10</code> чтобы подбирать предметы только в радиусе 10 клеток. Значение <code>-1</code> (по умолчанию) отключает ограничение дистанции.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 7. PICK EXAMPLE -->
+<!-- ============================================================ -->
+<div class="section" id="pick-example">
+    <h2>7. Подробный пример: как работает <code>//pick 12 4</code></h2>
+
+    <p>Рассмотрим пошагово, что происходит, когда вы вводите команду <span class="cmd">//pick 12 4</span> в чат игры.</p>
+
+    <h3>Этап 1: Отправка команды</h3>
+    <div class="step">
+        <p>Вы вводите в чат: <code>//pick 12 4</code> и нажимаете Enter.</p>
+        <p>Клиент формирует пакет обычного чат-сообщения и отправляет его через WinSock.</p>
+    </div>
+
+    <h3>Этап 2: Перехват пакета</h3>
+    <div class="step">
+        <p><code>MUEliteClicker.dll</code> перехватывает вызов <code>WSASend()</code>. Пакет попадает в цепочку фильтров.</p>
+        <p>Фильтр <code>CGameCommands</code> проверяет: начинается ли сообщение с <code>//</code>?</p>
+        <p>Да! Обнаружена команда <code>pick</code> с аргументами <code>"12 4"</code>.</p>
+    </div>
+
+    <h3>Этап 3: Разбор аргументов</h3>
+    <pre><code>// CPickCommandHandler::ProcessCommand("pick", "12 4")
+
+// Парсинг аргументов:
+szArg0 = "12"   // Старший байт (категория)
+szArg1 = "4"    // Младший байт (номер предмета)
+szArg2 = ""     // Грейд не указан
+
+// Проверка: "12" != "clear" и szArg1 не пустой → это код предмета</code></pre>
+
+    <h3>Этап 4: Вычисление HEX-кода</h3>
+    <pre><code>// Формула вычисления:
+WORD wCode = ((atoi("12") &amp; 0xFF) &lt;&lt; 8) | (atoi("4") &amp; 0xFF);
+
+// Пошагово:
+//   atoi("12") = 12
+//   12 &amp; 0xFF  = 12 (0x0C)        — обрезка до одного байта
+//   12 &lt;&lt; 8    = 3072 (0x0C00)    — сдвиг: байт становится старшим
+//   atoi("4")  = 4
+//   4 &amp; 0xFF   = 4 (0x04)         — обрезка до одного байта
+//   0x0C00 | 0x04 = 0x0C04        — объединение двух байтов
+
+// Итоговый код предмета: 0x0C04
+
+// Маска грейда (грейд не указан):
+WORD wMask = 0xFFFF;               // Все грейды подходят
+
+// Упаковка в DWORD:
+DWORD dwData = (0xFFFF &lt;&lt; 16) | 0x0C04 = 0xFFFF0C04;</code></pre>
+
+    <h3>Этап 5: Регистрация в фильтре автоподбора</h3>
+    <pre><code>// Вызов: pPickFilter-&gt;SetParam("pick", &amp;dwData);
+
+// В AutoPickupFilter::SetParam():
+WORD wCode = LOWORD(0xFFFF0C04) = 0x0C04;   // Код предмета
+WORD wMask = HIWORD(0xFFFF0C04) = 0xFFFF;   // Маска грейда
+
+// Добавление в словарь m_vItemList:
+m_vItemList[0x0C04] = 0xFFFF;
+// Ключ: 0x0C04 (код предмета)
+// Значение: 0xFFFF (все грейды)</code></pre>
+
+    <h3>Этап 6: Подтверждение</h3>
+    <pre><code>// В чате появляется сообщение:
+"&gt;&gt; pick 12 4 [OK]."</code></pre>
+
+    <h3>Этап 7: Подбор при выпадении предмета</h3>
+    <p>Теперь, когда сервер сообщит о предмете с кодом <span class="hex">0x0C04</span> на земле:</p>
+
+    <pre><code>// Сервер отправляет CMeetItemPacket с информацией о предметах на земле
+// AutoPickupFilter::FilterRecvPacket() обрабатывает пакет:
+
+// Для каждого предмета в пакете:
+WORD wType = pktMItem.GetItemType(i);     // Например: 0xDC04
+WORD wMask = 1 &lt;&lt; (wType &gt;&gt; 12);         // 1 &lt;&lt; 0xD = 0x2000
+wType &amp;= 0x0FFF;                          // 0xDC04 &amp; 0x0FFF = 0x0C04
+
+// Поиск в словаре:
+std::map&lt;WORD, WORD&gt;::iterator it = m_vItemList.find(0x0C04);
+// Найдено! it-&gt;second = 0xFFFF
+
+// Проверка маски грейда:
+(wMask &amp; it-&gt;second) = (0x2000 &amp; 0xFFFF) = 0x2000 != 0  →  СОВПАДЕНИЕ!
+
+// Предмет будет подобран автоматически! ✓</code></pre>
+
+    <div class="alert alert-success">
+        <strong>✅ Итог</strong>
+        Команда <code>//pick 12 4</code> регистрирует код предмета <span class="hex">0x0C04</span> в фильтре автоподбора. Когда такой предмет появится на земле в зоне видимости, программа автоматически подберёт его. Если включён режим перемещения (Move), персонаж телепортируется к предмету, подберёт его и вернётся обратно.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 8. COMMANDS -->
+<!-- ============================================================ -->
+<div class="section" id="commands">
+    <h2>8. Полный справочник команд</h2>
+
+    <p>Все команды вводятся в чат игры с префиксом <code>//</code>.</p>
+
+    <h3>Команды автоподбора</h3>
+    <table>
+        <tr><th>Команда</th><th>Формат</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//autopick</code></td>
+            <td><code>//autopick &lt;on|off&gt;</code></td>
+            <td>Включить/выключить систему автоподбора. При запуске через GUI включается автоматически.</td>
+        </tr>
+        <tr>
+            <td><code>//pick</code></td>
+            <td><code>//pick &lt;группа&gt; &lt;номер&gt; [грейд]</code></td>
+            <td>Добавить предмет в список подбора. Пример: <code>//pick 14 13</code> (Bless).</td>
+        </tr>
+        <tr>
+            <td><code>//pick clear</code></td>
+            <td><code>//pick clear</code></td>
+            <td>Очистить весь пользовательский список подбора.</td>
+        </tr>
+        <tr>
+            <td><code>//set_pick_opt</code></td>
+            <td><code>//set_pick_opt &lt;тип&gt; &lt;pick&gt; &lt;move&gt;</code></td>
+            <td>Настроить подбор встроенного типа. Типы: <code>bless</code>, <code>soul</code>, <code>chaos</code>, <code>jol</code>, <code>joc</code>, <code>jog</code>, <code>exl</code>, <code>zen</code>, <code>custom</code>.<br>Пример: <code>//set_pick_opt bless on on</code></td>
+        </tr>
+        <tr>
+            <td><code>//pdist</code></td>
+            <td><code>//pdist &lt;дистанция&gt;</code></td>
+            <td>Максимальная дистанция подбора в клетках. <code>-1</code> = без ограничений.</td>
+        </tr>
+        <tr>
+            <td><code>//drop</code></td>
+            <td><code>//drop &lt;группа&gt; &lt;номер&gt; [грейд]</code></td>
+            <td>Добавить предмет в список автосброса (автоматически выбрасывать при получении).</td>
+        </tr>
+        <tr>
+            <td><code>//itemcode</code></td>
+            <td><code>//itemcode &lt;on|off&gt;</code></td>
+            <td>Показывать коды предметов при подборе.</td>
+        </tr>
+    </table>
+
+    <h3>Команды скрытности</h3>
+    <table>
+        <tr><th>Команда</th><th>Формат</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//set_stealth_opt</code></td>
+            <td><code>//set_stealth_opt &lt;опция&gt; &lt;on|off&gt;</code></td>
+            <td>Настройка скрытного подбора. Опции:<br>
+                <code>susp_zen_pick</code> — приостановить подбор дзен<br>
+                <code>susp_move_pick</code> — приостановить телепортацию к предметам<br>
+                <code>susp_pick</code> — приостановить весь автоподбор</td>
+        </tr>
+        <tr>
+            <td><code>//autosay</code></td>
+            <td><code>//autosay &lt;on|off&gt;</code></td>
+            <td>Автоматические ответы в чате при приближении игроков.</td>
+        </tr>
+    </table>
+
+    <h3>Команды навигации</h3>
+    <table>
+        <tr><th>Команда</th><th>Формат</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//gt</code></td>
+            <td><code>//gt &lt;x&gt; &lt;y&gt;</code></td>
+            <td>Телепортировать персонажа к указанным координатам.</td>
+        </tr>
+        <tr>
+            <td><code>//die</code></td>
+            <td><code>//die</code></td>
+            <td>Симуляция смерти персонажа (отображается локально).</td>
+        </tr>
+    </table>
+
+    <h3>Команды скриптов</h3>
+    <table>
+        <tr><th>Команда</th><th>Формат</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//script</code></td>
+            <td><code>//script &lt;load файл|on|off|toggle&gt;</code></td>
+            <td>Загрузка и управление скриптами автоматизации.</td>
+        </tr>
+        <tr>
+            <td><code>//run</code></td>
+            <td><code>//run &lt;имя_файла&gt;</code></td>
+            <td>Запуск файла скрипта.</td>
+        </tr>
+    </table>
+
+    <h3>Прочие команды</h3>
+    <table>
+        <tr><th>Команда</th><th>Формат</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//exit400</code></td>
+            <td><code>//exit400 &lt;on|off&gt;</code></td>
+            <td>Автовыход при достижении уровня 400.</td>
+        </tr>
+        <tr>
+            <td><code>//throw</code> / <code>//use</code></td>
+            <td><code>//throw &lt;x&gt; &lt;y&gt; [z]</code></td>
+            <td>Бросить или использовать предмет по координатам.</td>
+        </tr>
+        <tr>
+            <td><code>//help</code></td>
+            <td><code>//help</code></td>
+            <td>Показать список всех доступных команд.</td>
+        </tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 9. PACKET FLOW -->
+<!-- ============================================================ -->
+<div class="section" id="packet-flow">
+    <h2>9. Перехват и обработка пакетов</h2>
+
+    <h3>Что такое пакеты?</h3>
+    <p>Пакеты — это блоки данных, которые игровой клиент и сервер отправляют друг другу. Каждое действие в игре (перемещение, атака, подбор предмета) — это отправка пакета.</p>
+
+    <h3>Как программа перехватывает пакеты</h3>
+    <p>После внедрения в игровой клиент, <code>MUEliteClicker.dll</code> заменяет стандартные функции WinSock:</p>
+
+    <pre><code>// Перехваченные функции:
+WSASend()   → Перехват исходящих пакетов (клиент → сервер)
+WSARecv()   → Перехват входящих пакетов (сервер → клиент)
+connect()   → Перехват подключений к серверу
+
+// Все пакеты проходят через цепочку фильтров:
+// FilterSendPacket() — для исходящих
+// FilterRecvPacket() — для входящих</code></pre>
+
+    <h3>Структура ключевых пакетов</h3>
+
+    <h4>CMeetItemPacket — «Предмет появился на земле»</h4>
+    <p>Сервер отправляет этот пакет, когда предмет падает на землю:</p>
+    <pre><code>// Структура пакета CMeetItemPacket (Сервер → Клиент):
+// Формат: C2 [LenHi] [LenLo] 20 [Count] [Item1] [Item2] ...
+
+// Пример сырых данных:
+C2 00 1B 20 02           ← Заголовок: C2-пакет, длина 0x001B, тип 0x20, 2 предмета
+80 67 35 86 0D 0A A7 00 00 0D 00   ← Предмет 1
+80 68 35 88 20 08 60 00 00 B0 00   ← Предмет 2
+
+// Каждый предмет содержит:
+// - ID предмета (2 байта)    ← для отправки пакета подбора
+// - Координаты X, Y (2 байта) ← положение на карте
+// - Тип предмета (закодирован) ← для фильтрации
+// - Данные предмета (7 байт)  ← для проверки Excellent и т.д.</code></pre>
+
+    <h4>CPickItemPacket — «Подобрать предмет»</h4>
+    <p>Программа отправляет этот пакет серверу для подбора предмета:</p>
+    <pre><code>// Структура пакета CPickItemPacket (Клиент → Сервер):
+// Формат: C3 06 00 22 [ItemId_Lo] [ItemId_Hi]
+
+// Пример:
+C3 06 00 22 67 80       ← Подобрать предмет с ID 0x8067
+
+// Где:
+// C3     — тип пакета (зашифрованный C3)
+// 06     — длина пакета (6 байт)
+// 00 22  — код операции «подобрать предмет»
+// 67 80  — ID предмета (из CMeetItemPacket)</code></pre>
+
+    <h4>CUpdatePosSTCPacket — «Обновить позицию» (для телепортации)</h4>
+    <pre><code>// Используется для телепортации при автоподборе:
+// Формат: C1 07 DF [IdHi] [IdLo] [X] [Y]
+
+// Программа отправляет два пакета:
+// 1. Серверный пакет (recv) — «Я переместился»
+// 2. Клиентский пакет (send) — «Обновить позицию»
+
+// Это создаёт иллюзию мгновенного перемещения</code></pre>
+
+    <h3>Обнаружение Excellent-предметов</h3>
+    <p>Excellent предметы определяются по специальным битам в данных предмета:</p>
+
+    <pre><code>// Из AutoPickupFilter.cpp, строки 142-149:
+BYTE* pItemCode = pktMItem.GetItemData(i) + 4;
+
+// Проверка Excellent-битов:
+if ((pItemCode[3] &amp; 0x3F) || (pItemCode[4] &amp; 0x01))
+{
+    // Это Excellent предмет!
+    // pItemCode[3] биты 0-5: Excellent-опции
+    // pItemCode[4] бит 0:    Дополнительная Excellent-опция
+}</code></pre>
+
+    <div class="alert alert-info">
+        <strong>💡 Для чего это нужно?</strong>
+        Excellent-предметы не определяются по типу (коду). У обычного меча и Excellent-меча одинаковый код. Разница — в битовых флагах данных предмета. Поэтому для Excellent используется отдельная проверка.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 10. SCRIPTS -->
+<!-- ============================================================ -->
+<div class="section" id="scripts">
+    <h2>10. Система скриптов</h2>
+
+    <p>MUAutoClicker поддерживает систему скриптов для автоматизации сложных последовательностей действий.</p>
+
+    <h3>Формат файлов скриптов</h3>
+    <pre><code>; Строки, начинающиеся с ";" — комментарии
+
+; Определение констант
+#define $CharName = BloodyMary
+#define $StartedMsg = Скрипт запущен...
+
+; Доступные команды скриптов:
+:msg текст          — Показать системное сообщение в чате
+:say текст          — Отправить сообщение в чат (или //команду)
+:delay миллисекунды — Задержка выполнения
+:lock               — Заблокировать кликер (приостановить атаку)
+:unlock             — Разблокировать кликер
+:repeat             — Начало цикла
+:loop N             — Конец цикла (повторить N раз)</code></pre>
+
+    <h3>Пример скрипта: автоматический фарм с перемещением</h3>
+    <pre><code>; Скрипт фарма между двумя локациями
+; Файл: farm_route.txt
+
+#define $StartMsg = &gt;&gt; Начинаем фарм-маршрут
+
+:say //pick clear
+:say //pick 14 13            ; Подбирать Jewel of Bless
+:say //pick 14 14            ; Подбирать Jewel of Soul
+:say //pick 12 15            ; Подбирать Jewel of Chaos
+:say //set_pick_opt exl on on  ; Подбирать Excellent с перемещением
+:say //autopick on           ; Включить автоподбор
+
+:msg $StartMsg
+
+:repeat
+    :delay 5000              ; Подождать 5 секунд
+    :lock                    ; Приостановить кликер
+    :say /move Devias3       ; Переместиться в Devias3
+    :unlock                  ; Возобновить кликер
+    :delay 60000             ; Фармить 60 секунд
+
+    :lock
+    :say /move Devias2       ; Переместиться в Devias2
+    :unlock
+    :delay 60000             ; Фармить 60 секунд
+:loop 10                     ; Повторить 10 раз
+
+:msg &gt;&gt; Фарм-маршрут завершён!</code></pre>
+
+    <h3>Запуск скрипта</h3>
+    <pre><code>// Загрузить и запустить скрипт:
+//script load farm_route.txt
+//script on
+
+// Или одной командой:
+//run farm_route.txt
+
+// Остановить скрипт:
+//script off
+
+// Переключить (вкл/выкл):
+//script toggle</code></pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 11. FAQ -->
+<!-- ============================================================ -->
+<div class="section" id="faq">
+    <h2>11. Часто задаваемые вопросы</h2>
+
+    <h4>❓ Как узнать код предмета, который я хочу подбирать?</h4>
+    <p>Введите в чат <code>//itemcode on</code>, затем подберите предмет вручную. В чате появится сообщение с его кодом. Используйте эти числа в команде <code>//pick</code>.</p>
+
+    <h4>❓ Как добавить несколько предметов в автоподбор?</h4>
+    <p>Вводите команду <code>//pick</code> несколько раз — каждый новый предмет добавляется к списку, не заменяя предыдущие:</p>
+    <pre><code>//pick 14 13     ← Добавить Bless
+//pick 14 14     ← Добавить Soul (Bless остаётся в списке)
+//pick 12 15     ← Добавить Chaos (все три предмета подбираются)</code></pre>
+
+    <h4>❓ Как очистить список подбора?</h4>
+    <p>Используйте команду <code>//pick clear</code> — она удалит все пользовательские коды из списка. Встроенные типы (Bless, Soul через <code>//set_pick_opt</code>) не затрагиваются.</p>
+
+    <h4>❓ Почему автоподбор не работает после телепортации на другую карту?</h4>
+    <p>При телепортации (варпе) на другую карту программа автоматически очищает очереди подбора, чтобы не подбирать предметы со старой карты. Автоподбор остаётся включённым и продолжит работать с новыми предметами на новой карте.</p>
+
+    <h4>❓ Что означают числа в команде <code>//pick 14 13</code>?</h4>
+    <p>Первое число (14) — это <strong>группа/категория</strong> предмета (старший байт HEX-кода), второе число (13) — <strong>номер предмета</strong> внутри группы (младший байт). Вместе они образуют уникальный идентификатор: <span class="hex">0x0E0D</span> = Jewel of Bless.</p>
+
+    <h4>❓ Как подбирать только предметы определённого грейда?</h4>
+    <p>Используйте третий аргумент команды <code>//pick</code>:</p>
+    <pre><code>//pick 14 13 0     ← Только грейд 0
+//pick 14 13 5     ← Только грейд 5
+//pick 14 13       ← Все грейды (по умолчанию)</code></pre>
+
+    <h4>❓ Как скрыть автоподбор от других игроков?</h4>
+    <p>Используйте опции скрытности в настройках F9 (раздел «Stealth Options»):</p>
+    <ul>
+        <li><strong>Stop zen pick-up</strong> — не подбирать дзен (не бегать за золотом)</li>
+        <li><strong>Stop move-to-pick</strong> — не телепортироваться к предметам</li>
+        <li><strong>Stop all pick-up</strong> — полностью остановить подбор</li>
+    </ul>
+    <p>Эти опции активируются автоматически, когда к вашему персонажу приближается другой игрок.</p>
+
+    <h4>❓ Какие клавиши используются в игре?</h4>
+    <table>
+        <tr><th>Клавиша</th><th>Действие</th></tr>
+        <tr><td><strong>F9</strong></td><td>Открыть главные настройки</td></tr>
+        <tr><td><strong>Shift+F9</strong></td><td>Открыть расширенные настройки автоподбора</td></tr>
+        <tr><td><strong>SPACE</strong></td><td>Запустить/остановить автокликер</td></tr>
+        <tr><td><strong>Q</strong></td><td>Включить/выключить автолечение</td></tr>
+    </table>
+
+    <h4>❓ Какой формат HEX-кодов используется в программе?</h4>
+    <p>Программа использует 16-битные (2 байта, WORD) коды предметов:</p>
+    <pre><code>Формат WORD: 0xHHLL
+  HH = старший байт (High Byte) = группа/категория
+  LL = младший байт (Low Byte) = номер предмета
+
+Преобразование HEX → команда:
+  0x0E0D → //pick 14 13   (0x0E=14, 0x0D=13)
+  0x0C0F → //pick 12 15   (0x0C=12, 0x0F=15)
+
+Преобразование команда → HEX:
+  //pick 12 4 → (12 &lt;&lt; 8) | 4 = 0x0C04</code></pre>
+</div>
+
+
+</div><!-- /container -->
+
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
+<div class="footer">
+    <p><strong>MUAutoClicker v2.0600 (Elite)</strong> — Руководство пользователя</p>
+    <p>&copy; 2010 Kalin Temelkov &bull; Lord of MU Project</p>
+</div>
+
+</body>
+</html>
