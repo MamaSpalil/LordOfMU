@@ -1,5 +1,3 @@
-LIBRARY	"LoaderDll"
-
 EXPORTS
 	DllCanUnloadNow		PRIVATE
 	DllGetClassObject	PRIVATE

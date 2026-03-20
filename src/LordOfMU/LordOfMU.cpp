@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "MuInstanceManager.h"
+#include <VersionHelpers.h>
 
 
 bool IsVista();
@@ -102,23 +103,7 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/
  */
 bool IsVista()
 {
-	OSVERSIONINFO OSversion = {0};
-	OSversion.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	
-	::GetVersionEx(&OSversion);
-
-	switch(OSversion.dwPlatformId)
-	{
-	case VER_PLATFORM_WIN32s: 
-	case VER_PLATFORM_WIN32_WINDOWS:
-		return false;
-	case VER_PLATFORM_WIN32_NT:
-		if (OSversion.dwMajorVersion > 5)
-			return true;
-		break;
-	}
-
-	return false;
+	return IsWindowsVistaOrGreater();
 }
 
 
