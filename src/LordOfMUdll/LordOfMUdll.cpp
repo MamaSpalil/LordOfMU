@@ -109,11 +109,10 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 	if (lpszRoot)
 		_tcscpy(g_szRoot, lpszRoot);
 
-	static bool s_bInitialized = false;
+	static volatile LONG s_lInitialized = 0;
 
-	if (!s_bInitialized)
+	if (InterlockedCompareExchange(&s_lInitialized, 1, 0) == 0)
 	{
-		s_bInitialized = true;
 		_AtlModule.InitClient();
 	}
 
