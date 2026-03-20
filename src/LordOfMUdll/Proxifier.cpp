@@ -111,6 +111,11 @@ bool CProxifier::InternalInit()
 #ifndef DEBUG
 	if (IsDebuggerPresent())
 	{
+		// NOTE: Previously called CKillUtil::KillGame() here which terminated
+		// main.exe after 3 seconds. Changed to warning because this was one of
+		// the causes of the game window closing unexpectedly on startup.
+		// SECURITY: In production anti-cheat deployments, consider re-enabling
+		// this check or using a configuration flag to control behavior.
 		CDebugOut::PrintAlways("[WARNING] Debugger application detected - ignoring to keep game running.");
 	}
 #endif
@@ -140,9 +145,13 @@ bool CProxifier::InternalInit()
 	CheckWinsockDir();
 	CDebugOut::PrintAlways("Winsock directory check passed.");
 
-	// NOTE: Removed taskkill of start-S2.exe. Killing external processes
-	// from within the injected DLL can terminate processes that main.exe
-	// depends on, causing the game client to close unexpectedly.
+	// NOTE: Removed taskkill of start-S2.exe. The start-S2.exe is a MU Online
+	// game launcher/patcher process. Killing it from within the injected DLL 
+	// via ShellExecute("cmd.exe /C taskkill /F /IM start-S2.exe") was causing 
+	// main.exe to close within 2-3 seconds of startup, likely because the
+	// launcher process is a parent/dependency of the game client.
+	// If start-S2.exe termination is needed, it should be done by LordOfMU.exe
+	// (the launcher) before or after main.exe starts, not from inside main.exe.
 	CDebugOut::PrintAlways("Skipping start-S2.exe termination to prevent game closure.");
 
 	CDebugOut::PrintAlways("Initialization finished successfully.");
@@ -427,11 +436,15 @@ void CProxifier::CheckWinsockDir()
 
 	if (_tcsicmp(szPath1, szPath2) == 0 || _tcsicmp(szPath1, szWorkDir) == 0)
 	{
+		// NOTE: Previously called CKillUtil::KillGame() here which terminated
+		// main.exe. Changed to warning because some MU Online server setups
+		// legitimately place ws2_32.dll in the game folder, and this check was
+		// causing the game to close unexpectedly on startup.
+		// SECURITY: In production anti-cheat deployments, consider re-enabling
+		// this check with additional integrity verification of ws2_32.dll.
 		CDebugOut::PrintAlways("[WARNING] ws2_32.dll loaded from game folder - ignoring to keep game running.");
 		CDebugOut::PrintAlways("[WARNING] ws2_32.dll path: %s", szPath1);
 		CDebugOut::PrintAlways("[WARNING] Game exe path: %s", szPath2);
-		// NOTE: Previously this called CKillUtil::KillGame() which terminated main.exe.
-		// Changed to warning to prevent unexpected game closure.
 	}
 }
 
