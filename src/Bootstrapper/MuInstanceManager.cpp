@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MuInstanceManager.h"
 #include "version.h"
+#include "DebugMode.h"
 
 #include <string>
 using namespace std;
@@ -264,6 +265,10 @@ LRESULT CMuInstanceManager::OnShellIcon(UINT, WPARAM wParam, LPARAM lParam, BOOL
 
 		AppendMenu(hPopup, MF_STRING, 103, _T("Exit"));
 
+		// Debug mode toggle
+		AppendMenu(hPopup, MF_SEPARATOR, 0, 0);
+		AppendMenu(hPopup, MF_STRING | (CDebugMode::IsEnabled() ? MF_CHECKED : 0), 110, _T("Debug Mode"));
+
 		int nCmd = (int)TrackPopupMenu(hPopup, TPM_RETURNCMD, pt.x, pt.y, 0, m_hWnd, 0);
 		
 		if (nCmd == 102)
@@ -316,6 +321,19 @@ LRESULT CMuInstanceManager::OnShellIcon(UINT, WPARAM wParam, LPARAM lParam, BOOL
 			key.Create(key.m_hKey, _T("Config"));
 
 			key.SetDWORDValue(_T("ProtocolType"), (DWORD)(nCmd - 300));
+		}
+		else if (nCmd == 110)
+		{
+			// Toggle debug mode
+			bool fNewState = !CDebugMode::IsEnabled();
+			CDebugMode::SetEnabled(fNewState);
+
+			CDebugMode::LogDebugAction("Debug mode toggled %s by user from tray menu", fNewState ? "ON" : "OFF");
+
+			TCHAR szMsg[256] = {0};
+			_sntprintf(szMsg, 255, _T("Debug mode %s.\nAll actions will be logged to CrashDump.txt and ClickerLog.txt."), 
+					   fNewState ? _T("ENABLED") : _T("DISABLED"));
+			::MessageBox(m_hWnd, szMsg, _T("LordOfMU - Debug Mode"), MB_OK | MB_ICONINFORMATION);
 		}
 
 #if defined(__CLICKER_STUFF__)
