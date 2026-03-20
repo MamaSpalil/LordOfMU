@@ -121,6 +121,10 @@ private:
 	bool m_fSuspMove;
 	int	 m_iDist;
 
+	static const int WALK_MS_PER_TILE = 150;
+	static const int WALK_BASE_DELAY_MS = 500;
+	static const int WALK_MAX_TIME_MS = 5000;
+
 private:
 	HANDLE m_hThread;
 	HANDLE m_hPickEvent;

@@ -15,6 +15,8 @@ static volatile LONG g_lHookApplied = 0;
 /**
  * \brief Check if this DLL is already loaded (hooked) in the process.
  *        Returns TRUE if the DLL was previously injected.
+ *        Checks both "LordOfMU.dll" (standard build) and "MUEliteClicker.dll"
+ *        (Release [Clicker] build) as the DLL name varies by build configuration.
  */
 static BOOL CheckDllHookPresence()
 {

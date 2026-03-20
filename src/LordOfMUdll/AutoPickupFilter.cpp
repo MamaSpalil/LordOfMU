@@ -419,13 +419,13 @@ void CAutoPickupFilter::GoPickNextItem()
 		WalkTo(wPlayerId, x, y);
 
 		// Wait for character to reach the item position
-		int xdiff = abs((int)xOld - (int)x);
-		int ydiff = abs((int)yOld - (int)y);
-		int dist = (xdiff > ydiff) ? xdiff : ydiff;
-		DWORD dwWalkTime = (DWORD)(dist * 150) + 500;
+		int dist = abs((int)xOld - (int)x);
+		int ydist = abs((int)yOld - (int)y);
+		if (ydist > dist) dist = ydist;
 
-		if (dwWalkTime > 5000)
-			dwWalkTime = 5000;
+		DWORD dwWalkTime = (DWORD)(dist * WALK_MS_PER_TILE) + WALK_BASE_DELAY_MS;
+		if (dwWalkTime > WALK_MAX_TIME_MS)
+			dwWalkTime = WALK_MAX_TIME_MS;
 
 		Sleep(dwWalkTime);
 	}
@@ -440,13 +440,13 @@ void CAutoPickupFilter::GoPickNextItem()
 		CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
 		WalkTo(wPlayerId, xOld, yOld);
 
-		int xdiff = abs((int)xOld - (int)x);
-		int ydiff = abs((int)yOld - (int)y);
-		int dist = (xdiff > ydiff) ? xdiff : ydiff;
-		DWORD dwWalkTime = (DWORD)(dist * 150) + 500;
+		int dist = abs((int)xOld - (int)x);
+		int ydist = abs((int)yOld - (int)y);
+		if (ydist > dist) dist = ydist;
 
-		if (dwWalkTime > 5000)
-			dwWalkTime = 5000;
+		DWORD dwWalkTime = (DWORD)(dist * WALK_MS_PER_TILE) + WALK_BASE_DELAY_MS;
+		if (dwWalkTime > WALK_MAX_TIME_MS)
+			dwWalkTime = WALK_MAX_TIME_MS;
 
 		Sleep(dwWalkTime);
 
