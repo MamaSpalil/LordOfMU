@@ -18,7 +18,7 @@
 
 ## Целевая среда компиляции
 
-- **IDE:** Microsoft Visual Studio 2010 (Platform Toolset v100)
+- **IDE:** Microsoft Visual Studio 2019 (Platform Toolset v142)
 - **ОС:** Windows 10 x86 / x64
 - **Язык:** C++03/C++98 (без C++11 фич)
 - **Архитектура:** Win32 (x86)
@@ -34,130 +34,71 @@
 
 ### Задача
 
-Исправить все ошибки компиляции в проекте LordOfMU, чтобы он полностью собирался в Visual Studio 2010 (v100 toolset) на Windows 10 x86/x64 во всех четырёх конфигурациях (Debug, Release [Clicker], Release [Hacker], Release [Antihack]).
+Исправить все ошибки компиляции в проекте LordOfMU, чтобы он полностью собирался в Visual Studio 2019 (v142 toolset) на Windows 10 x86/x64 во всех четырёх конфигурациях (Debug, Release [Clicker], Release [Hacker], Release [Antihack]).
 
 ---
 
-### 1. КРИТИЧЕСКИЕ ОШИБКИ В .vcxproj ФАЙЛАХ
+### 1. НАСТРОЙКИ .vcxproj ФАЙЛОВ ДЛЯ VS2019
 
-#### 1.1. ToolsVersion="Current" → ToolsVersion="4.0"
+#### 1.1. ToolsVersion="Current"
 
-**Проблема:** Все 5 файлов `.vcxproj` содержат `ToolsVersion="Current"` (формат VS2022+), который не распознаётся Visual Studio 2010.
+Все 5 файлов `.vcxproj` должны содержать `ToolsVersion="Current"` для Visual Studio 2019.
 
-**Файлы для исправления (строка 2 в каждом файле):**
+**Файлы (строка 2 в каждом файле):**
 - `src/LordOfMUdll/LordOfMUdll.vcxproj`
 - `src/LordOfMU/LordOfMU.vcxproj`
 - `src/LoaderDll/LoaderDll.vcxproj`
 - `src/LordOfClicker/AutoClicker.vcxproj`
 - `src/Bootstrapper/Bootstrapper.vcxproj`
 
-**Было:**
 ```xml
 <Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 ```
 
-**Должно быть:**
-```xml
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-```
+#### 1.2. WindowsTargetPlatformVersion
 
-#### 1.2. VCProjectVersion 17.0 → убрать или поставить 10.0
+Все vcxproj файлы должны содержать `<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>` в PropertyGroup Globals.
 
-**Проблема:** Все vcxproj файлы содержат `<VCProjectVersion>17.0</VCProjectVersion>` (VS2022).
+#### 1.3. PlatformToolset v142
 
-**В каждом .vcxproj файле (строка ~22):**
-
-**Было:**
-```xml
-<VCProjectVersion>17.0</VCProjectVersion>
-```
-
-**Исправить на (или удалить целиком — VS2010 не использует этот тег):**
-```xml
-<!-- Удалить строку VCProjectVersion или заменить на: -->
-```
-
-#### 1.3. PlatformToolset v143 → v100
-
-**Проблема:** Ряд конфигураций используют `<PlatformToolset>v143</PlatformToolset>` (Visual Studio 2022), который недоступен в VS2010.
-
-**Нужно заменить все `v143` на `v100` в следующих файлах и конфигурациях:**
-
-| Файл | Конфигурация | Строка |
-|------|-------------|--------|
-| `src/LordOfMUdll/LordOfMUdll.vcxproj` | Release [Antihack] | ~36 |
-| `src/LordOfMU/LordOfMU.vcxproj` | Release [Antihack] | ~36 |
-| `src/LordOfMU/LordOfMU.vcxproj` | Release [Hacker] | ~42 |
-| `src/LoaderDll/LoaderDll.vcxproj` | Release [Antihack] | ~36 |
-| `src/LoaderDll/LoaderDll.vcxproj` | Release [Hacker] | ~42 |
-| `src/LordOfClicker/AutoClicker.vcxproj` | Release [Hacker] | ~36 |
-| `src/LordOfClicker/AutoClicker.vcxproj` | Release [Antihack] | ~42 |
-| `src/Bootstrapper/Bootstrapper.vcxproj` | Release [Antihack] | ~36 |
-| `src/Bootstrapper/Bootstrapper.vcxproj` | Release [Hacker] | ~42 |
-
-**Было:** `<PlatformToolset>v143</PlatformToolset>`
-**Должно быть:** `<PlatformToolset>v100</PlatformToolset>`
+Все конфигурации во всех файлах используют `<PlatformToolset>v142</PlatformToolset>` (Visual Studio 2019).
 
 ---
 
-### 2. КРИТИЧЕСКАЯ ОШИБКА В ФАЙЛЕ РЕШЕНИЯ (.sln)
+### 2. ФОРМАТ ФАЙЛА РЕШЕНИЯ (.sln) ДЛЯ VS2019
 
 **Файл:** `LordOfMU.sln`
 
-**Проблема:** Формат решения указан как VS2022 (Format Version 12.00, Visual Studio Version 17).
-
-**Было (строки 2-5):**
+**Формат решения для Visual Studio 2019:**
 ```
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33801.468
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 ```
 
-**Должно быть:**
-```
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-```
-
-> **Примечание:** В VS2010 в .sln файле НЕ используются строки `VisualStudioVersion` и `MinimumVisualStudioVersion` — их нужно удалить.
-
 ---
 
-### 3. ОБНОВЛЕНИЕ WINVER И _WIN32_WINNT ДЛЯ WINDOWS 10
+### 3. WINVER И _WIN32_WINNT
 
-**Проблема:** Во всех файлах `stdafx.h` определены `WINVER` и `_WIN32_WINNT` как `0x0501` (Windows XP). Для корректной работы на Windows 10 рекомендуется обновить.
+Во всех файлах `stdafx.h` определены `WINVER` и `_WIN32_WINNT` как `0x0601` (Windows 7 — минимально поддерживаемая ОС, совместимая с Windows 10).
 
-**Файлы для исправления:**
-- `src/LordOfMUdll/stdafx.h` (строки 22-27)
-- `src/LordOfMU/stdafx.h` (строки 13-18)
-- `src/LoaderDll/stdafx.h` (строки 12-17)
-- `src/LordOfClicker/stdafx.h` (строки 13-18)
-- `src/Bootstrapper/stdafx.h` (строки 13-18)
+**Файлы:**
+- `src/LordOfMUdll/stdafx.h`
+- `src/LordOfMU/stdafx.h`
+- `src/LoaderDll/stdafx.h`
+- `src/LordOfClicker/stdafx.h`
+- `src/Bootstrapper/stdafx.h`
 
-**Было:**
 ```cpp
 #ifndef WINVER
-#define WINVER 0x0501
-#endif
-
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-#endif
-```
-
-**Рекомендуемое значение для Windows 10:**
-```cpp
-#ifndef WINVER
-#define WINVER 0x0601          // Windows 7 (минимально поддерживаемая VS2010)
+#define WINVER 0x0601          // Windows 7 (совместимо с Windows 10)
 #endif
 
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601    // Windows 7
 #endif
 ```
-
-> **Важно:** VS2010 SDK не содержит заголовков для Windows 10 (0x0A00). Максимальное значение, поддерживаемое v100 toolset — `0x0601` (Windows 7). Значение `0x0501` (XP) тоже работает на Win10 благодаря обратной совместимости, но ограничивает доступные API.
 
 ---
 
@@ -194,7 +135,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 - `src/LoaderDll/LoaderDll.cpp` (строки ~12-18)
 - `src/Bootstrapper/Bootstrapper.cpp` (строки ~13-18)
 
-Используют `#pragma data_seg(".shared")` для разделяемой памяти между экземплярами DLL. Это работает в VS2010, но требует согласованности toolset между всеми DLL.
+Используют `#pragma data_seg(".shared")` для разделяемой памяти между экземплярами DLL. Это работает в VS2019, но требует согласованности toolset между всеми DLL.
 
 #### 5.2. API-хуки и x86 дизассемблер
 
@@ -203,15 +144,15 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 - `src/_Shared/Disasm.h/cpp` — x86 дизассемблер
 - `src/_Shared/Dsasm_Functions.cpp` — функции дизассемблера
 
-Содержат низкоуровневый код работы с памятью и патчинга функций. При компиляции v100 для x86 должно работать корректно.
+Содержат низкоуровневый код работы с памятью и патчинга функций. При компиляции v142 для x86 должно работать корректно.
 
 #### 5.3. ATL/MFC зависимости
 
 Проект использует ATL (Active Template Library):
 - `CAtlDllModuleT`, `CComObjectRootEx`, `CStringA`, `CStringW`
-- Требуется наличие ATL в установке Visual Studio 2010
+- Требуется наличие ATL в установке Visual Studio 2019
 
-> **Важно:** Необходимо установить Visual Studio 2010 с компонентом ATL/MFC.
+> **Важно:** Необходимо установить Visual Studio 2019 с компонентом ATL/MFC (C++ ATL for v142 build tools).
 
 ---
 
