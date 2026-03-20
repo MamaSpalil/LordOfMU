@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "DebugOut.h"
 
 /**
  * \brief 
@@ -11,11 +12,16 @@ class CKillUtil
 {
 public:
 	/**
-	 * \brief Kill the game client or crash it if impossible to kill.
+	 * \brief Log the reason and kill the game client or crash it if impossible to kill.
 	 */
-	static void KillGame()
+	static void KillGame(const char* reason = "Unknown reason")
 	{
+		CDebugOut::PrintAlways("[KILL] Game termination requested. Reason: %s", reason);
+		CDebugOut::PrintAlways("[KILL] Process will be terminated in 3 seconds ...");
+
 		Sleep(3000);
+
+		CDebugOut::PrintAlways("[KILL] Terminating process now.");
 
 		TerminateProcess(GetCurrentProcess(), 0);
 		ExitProcess(0);

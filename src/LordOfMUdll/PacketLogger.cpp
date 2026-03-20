@@ -9,6 +9,7 @@
 CPacketLogger::CPacketLogger(CProxy* pProxy)
 	: CPacketFilter(pProxy)
 {
+	CDebugOut::PrintAlways("[PACKET_LOG] Packet logger filter initialized.");
 }
 
 /**
@@ -16,6 +17,7 @@ CPacketLogger::CPacketLogger(CProxy* pProxy)
  */
 CPacketLogger::~CPacketLogger()
 {
+	CDebugOut::PrintAlways("[PACKET_LOG] Packet logger filter destroyed.");
 }
 
 /**
@@ -39,8 +41,9 @@ WORD CPacketLogger::GetLevel()
  */
 int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 {
-	CDebugOut::PrintInfo("[RECV] %s -> %s", 
+	CDebugOut::PrintAlways("[PACKET] SERVER -> CLIENT | %s | Len=%d | %s", 
 				pkt.GetType().GetDescription(),
+				pkt.GetDecryptedLen(),
 				CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen()));
 
 	return 0;
@@ -53,8 +56,9 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
 	BYTE* buf = pkt.GetDecryptedPacket();
 
-	CDebugOut::PrintInfo("[SEND] %s -> %s", 
+	CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s", 
 				pkt.GetType().GetDescription(),
+				pkt.GetDecryptedLen(),
 				CBufferUtil::BufferToHex((char*)buf, pkt.GetDecryptedLen()));
 
 	return 0;

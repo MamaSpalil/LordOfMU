@@ -21,8 +21,7 @@
 		#define __CONNECT_LOG
 	#else
 		#define __DEBUG_LOG
-		#define __LOG_LEVEL LOG_LEVEL_ERROR
-//		#define __LOG_LEVEL LOG_LEVEL_INFO
+		#define __LOG_LEVEL LOG_LEVEL_INFO
 		#define __MAX_LOG_SIZE 2000000
 	#endif
 #endif 

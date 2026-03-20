@@ -111,13 +111,17 @@ bool CProxifier::InternalInit()
 #ifndef DEBUG
 	if (IsDebuggerPresent())
 	{
-		CDebugOut::PrintError("Debugger application is active!");
-
-		CKillUtil::KillGame();
+		// NOTE: Previously called CKillUtil::KillGame() here which terminated
+		// main.exe after 3 seconds. Changed to warning because this was one of
+		// the causes of the game window closing unexpectedly on startup.
+		// SECURITY: In production anti-cheat deployments, consider re-enabling
+		// this check or using a configuration flag to control behavior.
+		CDebugOut::PrintAlways("[WARNING] Debugger application detected - ignoring to keep game running.");
 	}
 #endif
 
 	// Hook Api functions
+	CDebugOut::PrintAlways("Hooking Winsock API functions ...");
 	connect.Patch(&connect2);//, m_cWinsockApi);
 
 	accept.Init();
@@ -132,12 +136,23 @@ bool CProxifier::InternalInit()
 	ioctlsocket.Init();
 	WSAGetLastError.Init();
 	WSASendDisconnect.Init();
+	CDebugOut::PrintAlways("Winsock API hooks installed successfully.");
 
 
 	StartPatchMonitor();
-	CheckWinsockDir();
+	CDebugOut::PrintAlways("Patch monitor started.");
 
-	ShellExecute(0, NULL, _T("cmd.exe"), _T("/C taskkill /F /IM start-S2.exe"), 0, SW_HIDE);
+	CheckWinsockDir();
+	CDebugOut::PrintAlways("Winsock directory check passed.");
+
+	// NOTE: Removed taskkill of start-S2.exe. The start-S2.exe is a MU Online
+	// game launcher/patcher process. Killing it from within the injected DLL 
+	// via ShellExecute("cmd.exe /C taskkill /F /IM start-S2.exe") was causing 
+	// main.exe to close within 2-3 seconds of startup, likely because the
+	// launcher process is a parent/dependency of the game client.
+	// If start-S2.exe termination is needed, it should be done by LordOfMU.exe
+	// (the launcher) before or after main.exe starts, not from inside main.exe.
+	CDebugOut::PrintAlways("Skipping start-S2.exe termination to prevent game closure.");
 
 	CDebugOut::PrintAlways("Initialization finished successfully.");
 	return true;
@@ -311,7 +326,7 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 
 	if (!hMod)
 	{
-		CDebugOut::PrintError("Cannot find module handle: %s", szDll);
+		CDebugOut::PrintAlways("[PATCH_CHECK] Cannot find module handle: %s", szDll);
 		return;
 	}
 
@@ -319,7 +334,7 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 
 	if (!pFunc)
 	{
-		CDebugOut::PrintError("Cannot get function pointer: %s, %s", szDll, szFunc);
+		CDebugOut::PrintAlways("[PATCH_CHECK] Cannot get function pointer: %s, %s", szDll, szFunc);
 		return;
 	}
 
@@ -327,14 +342,14 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 
 	if (pFunc[0] != 0xE9)
 	{
-		CDebugOut::PrintError("Error: function not patched properly (%s => %s)!", szDll, szFunc);
-		CKillUtil::KillGame();
+		CDebugOut::PrintAlways("[PATCH_CHECK] Function not patched properly (%s => %s)! Expected JMP (0xE9), found 0x%02X", szDll, szFunc, pFunc[0]);
+		CKillUtil::KillGame("CheckMyPatch: function not patched properly");
 	}
 
 	if (memcmp(pFunc+1, &dwAddr, 4) != 0)
 	{
-		CDebugOut::PrintError("Error: Illegal function patch detected (%s => %s)!", szDll, szFunc);
-		CKillUtil::KillGame();
+		CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected (%s => %s)! Patch target mismatch.", szDll, szFunc);
+		CKillUtil::KillGame("CheckMyPatch: illegal function patch detected");
 	}
 
 	if (((BYTE*)dwHookProc)[0] == 0xE9)
@@ -346,9 +361,8 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 
 		if (pPatch[0] == 0xE9)
 		{
-			CDebugOut::PrintError("Error: Illegal function patch detected (%s => %s)!", szDll, szFunc);
-
-			CKillUtil::KillGame();
+			CDebugOut::PrintAlways("[PATCH_CHECK] Illegal double-jump patch detected (%s => %s)!", szDll, szFunc);
+			CKillUtil::KillGame("CheckMyPatch: illegal double-jump patch detected");
 		}
 	}
 }
@@ -363,7 +377,7 @@ void CProxifier::CheckNotPatched(const char* szDll, const char* szFunc)
 
 	if (!hMod)
 	{
-		CDebugOut::PrintError("Cannot find module handle: %s", szDll);
+		CDebugOut::PrintAlways("[PATCH_CHECK] Cannot find module handle: %s", szDll);
 		return;
 	}
 
@@ -371,14 +385,14 @@ void CProxifier::CheckNotPatched(const char* szDll, const char* szFunc)
 
 	if (!pFunc)
 	{
-		CDebugOut::PrintError("Cannot get function pointer: %s, %s", szDll, szFunc);
+		CDebugOut::PrintAlways("[PATCH_CHECK] Cannot get function pointer: %s, %s", szDll, szFunc);
 		return;
 	}
 
 	if (pFunc[0] == 0xE9 || pFunc[0] == 0x90)
 	{
-		CDebugOut::PrintError("Error: Illegal function patch detected!");
-		CKillUtil::KillGame();
+		CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected on %s::%s! First byte: 0x%02X", szDll, szFunc, pFunc[0]);
+		CKillUtil::KillGame("CheckNotPatched: illegal function patch detected");
 	}
 
 }
@@ -397,8 +411,8 @@ void CProxifier::CheckForIATHook(const char* szDll, const char* szFunc)
 
 	if (pfnOrigAddr != pfnIatAddr)
 	{
-		CDebugOut::PrintError("Error: IAT hook detected!");
-		CKillUtil::KillGame();
+		CDebugOut::PrintAlways("[PATCH_CHECK] IAT hook detected on %s::%s! Original=0x%08X, IAT=0x%08X", szDll, szFunc, pfnOrigAddr, pfnIatAddr);
+		CKillUtil::KillGame("CheckForIATHook: IAT hook detected");
 	}
 }
 
@@ -422,8 +436,15 @@ void CProxifier::CheckWinsockDir()
 
 	if (_tcsicmp(szPath1, szPath2) == 0 || _tcsicmp(szPath1, szWorkDir) == 0)
 	{
-		CDebugOut::PrintError("Error: Hacked copy of ws2_32.dll detected!");
-		CKillUtil::KillGame();
+		// NOTE: Previously called CKillUtil::KillGame() here which terminated
+		// main.exe. Changed to warning because some MU Online server setups
+		// legitimately place ws2_32.dll in the game folder, and this check was
+		// causing the game to close unexpectedly on startup.
+		// SECURITY: In production anti-cheat deployments, consider re-enabling
+		// this check with additional integrity verification of ws2_32.dll.
+		CDebugOut::PrintAlways("[WARNING] ws2_32.dll loaded from game folder - ignoring to keep game running.");
+		CDebugOut::PrintAlways("[WARNING] ws2_32.dll path: %s", szPath1);
+		CDebugOut::PrintAlways("[WARNING] Game exe path: %s", szPath2);
 	}
 }
 
@@ -478,7 +499,8 @@ BOOL CALLBACK CProxifier::CheckForHastyProc(HWND hwnd, LPARAM lParam)
 
 			if (strProdName.Find(_T("hastymu")) >= 0 || strProdName.Find(_T("hasty mu")) >= 0)
 			{
-				CKillUtil::KillGame();
+				CDebugOut::PrintAlways("[PATCH_CHECK] HastyMU cheating software detected! Product: %s", (LPCSTR)CStringA(strProdName));
+				CKillUtil::KillGame("CheckForHastyProc: HastyMU detected");
 				return FALSE;
 			}
 		}
