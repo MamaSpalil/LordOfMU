@@ -16,6 +16,7 @@ CApiHooker::CApiHooker()
 {
 	m_pfnApi = 0;
 	m_dwPatchSize = 0;
+	m_fPatched = false;
 	memset(m_abTrampBuff, 0, sizeof(m_abTrampBuff));
 }
 
@@ -65,17 +66,26 @@ BYTE* CApiHooker::FindPatchPoint(BYTE* pFuncAddress, DWORD_PTR dwHookProc)
 {
 	BYTE* pFunc = pFuncAddress;
 
-	while (pFunc[0] == 0xE9)
+	while (pFunc[0] == 0xE9 || pFunc[0] == 0xEB)
 	{
-		DWORD_PTR dwRelAddr = 0;
-		memcpy(&dwRelAddr, pFunc+1, 4);
+		if (pFunc[0] == 0xEB)
+		{
+			// Short JMP (rel8): follow the 1-byte signed offset
+			signed char offset = (signed char)pFunc[1];
+			pFunc = pFunc + 2 + offset;
+		}
+		else
+		{
+			DWORD_PTR dwRelAddr = 0;
+			memcpy(&dwRelAddr, pFunc+1, 4);
 
-		DWORD_PTR dwCurrHook = dwRelAddr + PtrToUlong(pFunc) + 5;
+			DWORD_PTR dwCurrHook = dwRelAddr + PtrToUlong(pFunc) + 5;
 
-		if (dwCurrHook == dwHookProc)
-			return 0;
+			if (dwCurrHook == dwHookProc)
+				return 0;
 
-		pFunc = (BYTE*)dwCurrHook;
+			pFunc = (BYTE*)dwCurrHook;
+		}
 	}
 
 	return pFunc;
@@ -89,17 +99,26 @@ BYTE* CApiHooker::FindPatchedAddress(BYTE* pFuncAddress, DWORD_PTR dwHookProc)
 {
 	BYTE* pFunc = pFuncAddress;
 
-	while (pFunc[0] == 0xE9)
+	while (pFunc[0] == 0xE9 || pFunc[0] == 0xEB)
 	{
-		DWORD_PTR dwRelAddr = 0;
-		memcpy(&dwRelAddr, pFunc+1, 4);
+		if (pFunc[0] == 0xEB)
+		{
+			// Short JMP (rel8): follow the 1-byte signed offset
+			signed char offset = (signed char)pFunc[1];
+			pFunc = pFunc + 2 + offset;
+		}
+		else
+		{
+			DWORD_PTR dwRelAddr = 0;
+			memcpy(&dwRelAddr, pFunc+1, 4);
 
-		DWORD_PTR dwCurrHook = dwRelAddr + PtrToUlong(pFunc) + 5;
+			DWORD_PTR dwCurrHook = dwRelAddr + PtrToUlong(pFunc) + 5;
 
-		if (dwCurrHook == dwHookProc)
-			return pFunc;
+			if (dwCurrHook == dwHookProc)
+				return pFunc;
 
-		pFunc = (BYTE*)dwCurrHook;
+			pFunc = (BYTE*)dwCurrHook;
+		}
 	}
 
 	return 0;
@@ -139,6 +158,52 @@ bool CApiHooker::PatchFunction(BYTE* pFunc, DWORD_PTR dwHookProc)
 	DWORD dwProtect = 0;
 
 	memcpy(m_abTrampBuff, pFunc, dwIdx);
+
+	// Fix up relative CALL (E8) and JMP (E9) instructions in the trampoline.
+	// When original code is copied to the trampoline buffer, relative offsets
+	// become invalid because the code is now at a different address.
+	// Adjustment: new_offset = old_offset + (original_addr - trampoline_addr)
+	{
+		DWORD_PTR dwDisplacement = PtrToUlong(pFunc) - PtrToUlong(m_abTrampBuff);
+		DISASSEMBLY fixupDisasm = {0};
+		fixupDisasm.Address = PtrToUlong(pFunc);
+		FlushDecoded(&fixupDisasm);
+
+		DWORD dwPos = 0;
+		while (dwPos < dwIdx)
+		{
+			DWORD dwTmp = 0;
+			Decode(&fixupDisasm, (char*)UlongToPtr(fixupDisasm.Address), &dwTmp);
+			DWORD dwInsnSize = fixupDisasm.OpcodeSize + fixupDisasm.PrefixSize;
+			BYTE opcode = pFunc[dwPos + fixupDisasm.PrefixSize];
+
+			// E8 = CALL rel32, E9 = JMP rel32 (5-byte instructions)
+			if ((opcode == 0xE8 || opcode == 0xE9) && dwInsnSize == 5)
+			{
+				DWORD dwOldRel = 0;
+				memcpy(&dwOldRel, &m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 1], 4);
+				DWORD dwNewRel = dwOldRel + (DWORD)dwDisplacement;
+				memcpy(&m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 1], &dwNewRel, 4);
+			}
+			// 0F 80-8F = conditional JMP rel32 (6-byte instructions)
+			else if (opcode == 0x0F && dwInsnSize == 6 && dwPos + fixupDisasm.PrefixSize + 1 < dwIdx)
+			{
+				BYTE opcode2 = pFunc[dwPos + fixupDisasm.PrefixSize + 1];
+				if (opcode2 >= 0x80 && opcode2 <= 0x8F)
+				{
+					DWORD dwOldRel = 0;
+					memcpy(&dwOldRel, &m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 2], 4);
+					DWORD dwNewRel = dwOldRel + (DWORD)dwDisplacement;
+					memcpy(&m_abTrampBuff[dwPos + fixupDisasm.PrefixSize + 2], &dwNewRel, 4);
+				}
+			}
+
+			fixupDisasm.Address += dwInsnSize;
+			dwPos += dwInsnSize;
+			FlushDecoded(&fixupDisasm);
+		}
+	}
+
 	m_abTrampBuff[dwIdx] = 0xE9;
 	memcpy(m_abTrampBuff + dwIdx + 1, &dwAddrBack, 4);
 
@@ -154,6 +219,7 @@ bool CApiHooker::PatchFunction(BYTE* pFunc, DWORD_PTR dwHookProc)
 	memcpy(pFunc+3, &dwAddr, 4);
 
 	m_dwHookProc = dwHookProc;
+	m_fPatched = true;
 
 	::VirtualProtect((PVOID)pFunc, 5, dwNewProtect, &dwProtect);
 
@@ -193,6 +259,7 @@ bool CApiHooker::UnPatchFunction(BYTE* pFunc)
 
 	m_dwHookProc = 0;
 	m_dwPatchSize = 0;
+	m_fPatched = false;
 	return true;
 }
 

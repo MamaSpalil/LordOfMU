@@ -124,7 +124,13 @@ bool CProxifier::InternalInit()
 
 	// Hook Api functions
 	CDebugOut::PrintAlways("Hooking Winsock API functions ...");
-	connect.Patch(&connect2);//, m_cWinsockApi);
+	if (!connect.Patch(&connect2, m_cWinsockApi))
+	{
+		CDebugOut::PrintAlways("[ERROR] Failed to patch ws2_32!connect - hook installation failed");
+		WriteHookLog("ERROR: Failed to patch ws2_32!connect");
+		return false;
+	}
+	CDebugOut::PrintAlways("ws2_32!connect hook installed successfully.");
 
 	accept.Init();
 	bind.Init();
@@ -365,18 +371,48 @@ void CProxifier::CheckMyPatch(const char* szDll, const char* szFunc, DWORD_PTR d
 		return;
 	}
 
-	DWORD dwAddr = PtrToUlong(dwHookProc) - PtrToUlong(pFunc) - 5;
-
-	if (pFunc[0] != 0xE9)
+	// Follow JMP chains (E9 long JMP, EB short JMP) to find the actual patched point.
+	// The patch format is: NOP (0x90) NOP (0x90) JMP rel32 (0xE9 xx xx xx xx)
+	BYTE* pPatchPoint = pFunc;
+	while (pPatchPoint[0] == 0xE9 || pPatchPoint[0] == 0xEB)
 	{
-		CDebugOut::PrintAlways("[PATCH_CHECK] Function not patched properly (%s => %s)! Expected JMP (0xE9), found 0x%02X", szDll, szFunc, pFunc[0]);
-		CKillUtil::KillGame("CheckMyPatch: function not patched properly");
+		if (pPatchPoint[0] == 0xEB)
+		{
+			signed char offset = (signed char)pPatchPoint[1];
+			pPatchPoint = pPatchPoint + 2 + offset;
+		}
+		else
+		{
+			break; // Found an E9 JMP - this could be our patch
+		}
 	}
 
-	if (memcmp(pFunc+1, &dwAddr, 4) != 0)
+	// Check for NOP NOP JMP pattern (our patch applies: 0x90 0x90 0xE9 rel32)
+	if (pPatchPoint[0] == 0x90 && pPatchPoint[1] == 0x90 && pPatchPoint[2] == 0xE9)
 	{
-		CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected (%s => %s)! Patch target mismatch.", szDll, szFunc);
-		CKillUtil::KillGame("CheckMyPatch: illegal function patch detected");
+		// Verify the JMP target matches our hook function
+		DWORD dwAddr = PtrToUlong(dwHookProc) - PtrToUlong(pPatchPoint) - 5 - 2;
+		if (memcmp(pPatchPoint+3, &dwAddr, 4) != 0)
+		{
+			CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected (%s => %s)! Patch target mismatch.", szDll, szFunc);
+			CKillUtil::KillGame("CheckMyPatch: illegal function patch detected");
+		}
+	}
+	else if (pPatchPoint[0] == 0xE9)
+	{
+		// Legacy check: direct E9 JMP at function start
+		DWORD dwAddr = PtrToUlong(dwHookProc) - PtrToUlong(pPatchPoint) - 5;
+		if (memcmp(pPatchPoint+1, &dwAddr, 4) != 0)
+		{
+			CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected (%s => %s)! Patch target mismatch.", szDll, szFunc);
+			CKillUtil::KillGame("CheckMyPatch: illegal function patch detected");
+		}
+	}
+	else
+	{
+		CDebugOut::PrintAlways("[PATCH_CHECK] Function not patched properly (%s => %s)! Expected NOP-NOP-JMP or JMP at 0x%p, found 0x%02X 0x%02X 0x%02X",
+			szDll, szFunc, pPatchPoint, pPatchPoint[0], pPatchPoint[1], pPatchPoint[2]);
+		CKillUtil::KillGame("CheckMyPatch: function not patched properly");
 	}
 
 	if (((BYTE*)dwHookProc)[0] == 0xE9)
@@ -416,10 +452,75 @@ void CProxifier::CheckNotPatched(const char* szDll, const char* szFunc)
 		return;
 	}
 
-	if (pFunc[0] == 0xE9 || pFunc[0] == 0x90)
+	// Follow legitimate OS-level JMP forwarding (E9 long JMP, EB short JMP)
+	// to reach the real function body before checking for illegal patches.
+	// Windows may use JMP stubs for hotpatching, CFG, or DLL forwarding.
+	BYTE* pRealFunc = pFunc;
+	int maxFollows = 8;
+	while (maxFollows-- > 0 && (pRealFunc[0] == 0xE9 || pRealFunc[0] == 0xEB))
 	{
-		CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected on %s::%s! First byte: 0x%02X", szDll, szFunc, pFunc[0]);
-		CKillUtil::KillGame("CheckNotPatched: illegal function patch detected");
+		if (pRealFunc[0] == 0xEB)
+		{
+			signed char offset = (signed char)pRealFunc[1];
+			BYTE* pNext = pRealFunc + 2 + offset;
+			// Only follow if target is within a known module
+			HMODULE hTargetMod = NULL;
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+								   GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+								   (LPCSTR)pNext, &hTargetMod) && hTargetMod)
+			{
+				pRealFunc = pNext;
+			}
+			else
+			{
+				break; // Target is not in a known module - suspicious
+			}
+		}
+		else // 0xE9
+		{
+			DWORD_PTR dwRelAddr = 0;
+			memcpy(&dwRelAddr, pRealFunc+1, 4);
+			BYTE* pNext = (BYTE*)(dwRelAddr + PtrToUlong(pRealFunc) + 5);
+			// Only follow if target is within a known module
+			HMODULE hTargetMod = NULL;
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+								   GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+								   (LPCSTR)pNext, &hTargetMod) && hTargetMod)
+			{
+				pRealFunc = pNext;
+			}
+			else
+			{
+				break; // Target is not in a known module - suspicious
+			}
+		}
+	}
+
+	// Check the real function body (after following OS JMP stubs) for illegal patches
+	if (pRealFunc[0] == 0xE9 || pRealFunc[0] == 0x90)
+	{
+		// Only flag if the target is NOT within a known system module
+		HMODULE hTargetMod = NULL;
+		bool bSuspicious = true;
+
+		if (pRealFunc[0] == 0xE9)
+		{
+			DWORD_PTR dwRelAddr = 0;
+			memcpy(&dwRelAddr, pRealFunc+1, 4);
+			BYTE* pTarget = (BYTE*)(dwRelAddr + PtrToUlong(pRealFunc) + 5);
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+								   GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+								   (LPCSTR)pTarget, &hTargetMod) && hTargetMod)
+			{
+				bSuspicious = false; // JMP to a known module - likely OS-level forwarding
+			}
+		}
+
+		if (bSuspicious)
+		{
+			CDebugOut::PrintAlways("[PATCH_CHECK] Illegal function patch detected on %s::%s! First byte: 0x%02X at 0x%p", szDll, szFunc, pRealFunc[0], pRealFunc);
+			CKillUtil::KillGame("CheckNotPatched: illegal function patch detected");
+		}
 	}
 
 }
