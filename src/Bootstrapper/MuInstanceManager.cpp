@@ -92,7 +92,7 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	memset(m_szLoaderPath, 0, (_MAX_PATH+1)*sizeof(TCHAR));
 	PrepareDll(m_szLoaderPath);
 
-	WriteHookLog("Loading hook DLL from: %s", CT2A(m_szLoaderPath));
+	WriteHookLog("Loading hook DLL from: %s", (LPCSTR)CT2A(m_szLoaderPath));
 	m_hHookDll = LoadLibrary(m_szLoaderPath);
 
 	ATLASSERT(m_hHookDll);
@@ -118,7 +118,7 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	}
 	else
 	{
-		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", CT2A(m_szLoaderPath), (int)GetLastError());
+		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", (LPCSTR)CT2A(m_szLoaderPath), (int)GetLastError());
 	}
 
 	// Launch the game client (main.exe) after hooks are installed
@@ -130,7 +130,7 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		struct _stat stMain = {0};
 		if (0 == _tstat(szMainExe, &stMain))
 		{
-			WriteHookLog("Launching main.exe: %s", CT2A(szMainExe));
+			WriteHookLog("Launching main.exe: %s", (LPCSTR)CT2A(szMainExe));
 			HINSTANCE hResult = ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
 
 			if ((INT_PTR)hResult <= 32)
@@ -147,7 +147,7 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		}
 		else
 		{
-			WriteHookLog("ERROR: main.exe not found at %s", CT2A(szMainExe));
+			WriteHookLog("ERROR: main.exe not found at %s", (LPCSTR)CT2A(szMainExe));
 			TCHAR szErr[512] = {0};
 			_sntprintf(szErr, 511, _T("main.exe not found.\nExpected path: %s"), szMainExe);
 			::MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
@@ -189,7 +189,7 @@ LRESULT CMuInstanceManager::OnDestroy(UINT, WPARAM, LPARAM, BOOL&)
 		WriteHookLog("Hook DLL unloaded via FreeLibrary");
 
 		DeleteFile(m_szLoaderPath);
-		WriteHookLog("Temporary hook DLL deleted: %s", CT2A(m_szLoaderPath));
+		WriteHookLog("Temporary hook DLL deleted: %s", (LPCSTR)CT2A(m_szLoaderPath));
 
 		TCHAR* pszFilename = PathFindFileName(m_szLoaderPath);
 
