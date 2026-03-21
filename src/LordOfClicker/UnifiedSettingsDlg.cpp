@@ -223,6 +223,9 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 	SubclassCheckboxes(m_hWnd);
 	SubclassSeparators(m_hWnd);
 
+	// Disable visual themes on controls so WM_CTLCOLORxxx colors take effect
+	DisableChildThemes(m_hWnd);
+
 	// Set version label
 	HWND hwndVersion = GetDlgItem(IDC_VERSION_LABEL);
 	if (hwndVersion != NULL)
@@ -776,6 +779,18 @@ LRESULT CUnifiedSettingsDlg::OnCtlColorEdit(UINT, WPARAM wParam, LPARAM lParam, 
 }
 
 
+LRESULT CUnifiedSettingsDlg::OnCtlColorListBox(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	HDC hDC = (HDC)wParam;
+	SetBkMode(hDC, OPAQUE);
+	SetBkColor(hDC, CMuTheme::ClrBtnBg());
+	SetTextColor(hDC, CMuTheme::ClrBodyText());
+
+	bHandled = TRUE;
+	return (LRESULT)m_hEditBrush;
+}
+
+
 LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	LPDRAWITEMSTRUCT lpDIS = (LPDRAWITEMSTRUCT)lParam;
@@ -939,6 +954,32 @@ void CUnifiedSettingsDlg::SubclassSeparators(HWND hwndParent)
 }
 
 
+static BOOL CALLBACK EnumDisableThemesProc(HWND hWnd, LPARAM)
+{
+	TCHAR szClass[64] = {0};
+	GetClassName(hWnd, szClass, 63);
+
+	if (_tcsicmp(szClass, _T("ComboBox")) == 0 ||
+		_tcsicmp(szClass, _T("Edit")) == 0 ||
+		_tcsicmp(szClass, _T("msctls_updown32")) == 0 ||
+		_tcsicmp(szClass, _T("Button")) == 0 ||
+		_tcsicmp(szClass, _T("Static")) == 0 ||
+		_tcsicmp(szClass, _T("ListBox")) == 0)
+	{
+		SetWindowTheme(hWnd, L"", L"");
+	}
+
+	return TRUE;
+}
+
+
+void CUnifiedSettingsDlg::DisableChildThemes(HWND hwndParent)
+{
+	if (hwndParent == NULL) return;
+	EnumChildWindows(hwndParent, EnumDisableThemesProc, 0);
+}
+
+
 // -----------------------------------------------------------------------
 // Separator subclass: paints gold line instead of white etched line
 // -----------------------------------------------------------------------
@@ -950,6 +991,9 @@ LRESULT CALLBACK CUnifiedSettingsDlg::SeparatorSubclassProc(
 
 	switch (uMsg)
 	{
+	case WM_ERASEBKGND:
+		return 1;
+
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
@@ -1074,6 +1118,20 @@ LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
 
 	switch (uMsg)
 	{
+	case WM_ERASEBKGND:
+		return 1;
+
+	case WM_SETCURSOR:
+		{
+			HCURSOR hCursor = pTheme->GetMuCursor();
+			if (hCursor != NULL)
+			{
+				SetCursor(hCursor);
+				return TRUE;
+			}
+		}
+		break;
+
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;

@@ -32,6 +32,13 @@ public:
 
 BEGIN_MSG_MAP(CMGSettings)
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+	MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORBTN, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLOREDIT, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORLISTBOX, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORDLG, OnForwardToParent)
+	MESSAGE_HANDLER(WM_SETCURSOR, OnForwardToParent)
+	MESSAGE_HANDLER(WM_ERASEBKGND, OnForwardToParent)
 END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
@@ -42,6 +49,15 @@ END_MSG_MAP()
 		SendDlgItemMessage(IDC_CHDIRSPIN, UDM_SETACCEL, (WPARAM)(sizeof(udAcc)/sizeof(udAcc[0])), (LPARAM)udAcc);
 
 		return 1;
+	}
+
+	LRESULT OnForwardToParent(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		HWND hParent = GetParent();
+		if (hParent != NULL)
+			return ::SendMessage(hParent, uMsg, wParam, lParam);
+		bHandled = FALSE;
+		return 0;
 	}
 
 protected:
