@@ -619,4 +619,20 @@ public:
 };
 
 
+/**
+ * \brief 
+ */
+class CPickRunModeCommandHandler
+	: public CCommandHandler
+{
+public:
+	CPickRunModeCommandHandler(CProxy* pProxy) : CCommandHandler(pProxy) {}
+	virtual ~CPickRunModeCommandHandler(){}
+
+public:
+	virtual bool ProcessCommand(const char* cmd, const char* args);
+	virtual const char* PrintUsage(){ return "//pickrunmode <on|off>"; }
+};
+
+
 #endif //__GameCommands_H

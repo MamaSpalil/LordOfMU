@@ -57,7 +57,10 @@ struct GeneralSettings
 	BOOL fAdvPickCustomMove;
 	WORD wPickCustomCode;
 
-	BYTE  arrReserved[906];
+	// v2.2 options
+	BOOL fPickRunMode;
+
+	BYTE  arrReserved[902];
 };
 
 struct DLSettings
@@ -172,6 +175,8 @@ public:
 		m_cSettings.all.fAdvPickCustom = TRUE;
 		m_cSettings.all.fAdvPickCustomMove = TRUE;
 		m_cSettings.all.wPickCustomCode = 0x0E33;
+
+		m_cSettings.all.fPickRunMode = FALSE;
 
 		m_cSettings.ae.dwChangeDirTime = 3000;
 		m_cSettings.ae.dwTShotSkillSlot = 4;

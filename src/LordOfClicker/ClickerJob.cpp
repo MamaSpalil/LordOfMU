@@ -167,6 +167,16 @@ void CClickerJob::InitClicker()
 		WriteClickerLog("Advanced auto-pickup enabled - setting options");
 		SetAdvancedAutopickOptions();
 		CMuWindow::GetInstance()->SayToServer("//autopick on");
+
+		if (m_tSettings.all.fPickRunMode)
+		{
+			WriteClickerLog("Pick-up run mode enabled");
+			CMuWindow::GetInstance()->SayToServer("//pickrunmode on");
+		}
+		else
+		{
+			CMuWindow::GetInstance()->SayToServer("//pickrunmode off");
+		}
 	}
 
 	if (m_tSettings.all.fExitAtLvl400)
