@@ -415,19 +415,8 @@ void CAutoPickupFilter::GoPickNextItem()
 		CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
 			(int)x, (int)y, (int)xOld, (int)yOld, wItem);
 
-		// Walk to item instead of teleporting
-		WalkTo(wPlayerId, x, y);
-
-		// Wait for character to reach the item position
-		int dist = abs((int)xOld - (int)x);
-		int ydist = abs((int)yOld - (int)y);
-		if (ydist > dist) dist = ydist;
-
-		DWORD dwWalkTime = (DWORD)(dist * WALK_MS_PER_TILE) + WALK_BASE_DELAY_MS;
-		if (dwWalkTime > WALK_MAX_TIME_MS)
-			dwWalkTime = WALK_MAX_TIME_MS;
-
-		Sleep(dwWalkTime);
+		// Walk to item step by step (emulates player walking)
+		WalkTo(wPlayerId, xOld, yOld, x, y);
 	}
 
 	PickItem(wItem);
@@ -436,19 +425,9 @@ void CAutoPickupFilter::GoPickNextItem()
 	{
 		Sleep(500);
 
-		// Walk back to original position
+		// Walk back to original position step by step
 		CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
-		WalkTo(wPlayerId, xOld, yOld);
-
-		int dist = abs((int)xOld - (int)x);
-		int ydist = abs((int)yOld - (int)y);
-		if (ydist > dist) dist = ydist;
-
-		DWORD dwWalkTime = (DWORD)(dist * WALK_MS_PER_TILE) + WALK_BASE_DELAY_MS;
-		if (dwWalkTime > WALK_MAX_TIME_MS)
-			dwWalkTime = WALK_MAX_TIME_MS;
-
-		Sleep(dwWalkTime);
+		WalkTo(wPlayerId, x, y, xOld, yOld);
 
 		bool fTemp = false;
 		if (pScript && !fSuspended)
@@ -491,21 +470,36 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 
 
 /**
- * \brief Moves character to position by sending walk/move packets
- *        instead of teleporting. The character walks to the target
- *        coordinates and the server sees a legitimate movement.
+ * \brief Moves character to position step-by-step (tile by tile),
+ *        emulating real player walking. The character walks diagonally
+ *        or straight towards the target one tile at a time.
  */
-void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE x, BYTE y)
+void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, BYTE yTo)
 {
-	// Send position update from server to client (update visual position)
-	CUpdatePosSTCPacket pktMoveSTC(wPlayerId, x, y);
-	GetProxy()->recv_packet(pktMoveSTC);
-	Sleep(10);
+	int currX = (int)xFrom;
+	int currY = (int)yFrom;
+	int destX = (int)xTo;
+	int destY = (int)yTo;
 
-	// Send movement request from client to server (legitimate walk)
-	CUpdatePosCTSPacket pktMoveCTS(x, y);
-	GetProxy()->send_packet(pktMoveCTS);
-	Sleep(50);
+	while (currX != destX || currY != destY)
+	{
+		int dx = (destX > currX) ? 1 : (destX < currX) ? -1 : 0;
+		int dy = (destY > currY) ? 1 : (destY < currY) ? -1 : 0;
+
+		currX += dx;
+		currY += dy;
+
+		// Update client position (emulate server telling client where character is)
+		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
+		GetProxy()->recv_packet(pktMoveSTC);
+
+		// Update server position (emulate client telling server where character moved)
+		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
+		GetProxy()->send_packet(pktMoveCTS);
+
+		// Wait per tile to emulate walking speed
+		Sleep(WALK_MS_PER_TILE);
+	}
 }
 
 
