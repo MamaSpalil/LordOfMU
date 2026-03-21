@@ -541,13 +541,8 @@ LRESULT CMuWindow::OnErasebkgnd(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
 	if (m_fGuiActive)
 	{
-		HDC hDC = (HDC)wParam;
-
-		RECT rc = {0};
-		GetClientRect(&rc);
-
-		SetBkColor(hDC, RGB(0,0,0));
-		ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &rc, 0, 0, 0);
+		// Do not fill the background -- keep it transparent so the
+		// game scene remains visible behind the settings dialog.
 	}
 	else
 	{
