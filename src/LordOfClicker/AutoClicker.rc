@@ -285,8 +285,8 @@ BEGIN
     LTEXT           "Advanced Pick-up Settings",IDC_STATIC,7,5,100,8
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,112,9,178,1
     CONTROL         "Enable advanced pick-up",IDC_ADV_PICKUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,18,130,10
-    LTEXT           "Pick",IDC_STATIC,206,32,16,8
-    LTEXT           "Move To",IDC_STATIC,243,32,35,8
+    LTEXT           "Pick",IDC_STATIC,207,32,16,8
+    LTEXT           "Move To",IDC_STATIC,244,32,35,8
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,42,262,1
     LTEXT           "Jewel of Bless",IDC_STATIC,18,48,120,10
     CONTROL         "",IDC_BLESS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,48,9,10
