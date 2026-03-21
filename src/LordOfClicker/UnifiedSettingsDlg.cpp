@@ -239,6 +239,25 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 {
 	if (wParam != 0)
 	{
+		// Re-center within parent each time the dialog is shown
+		CWindow wndParent = GetParent();
+		if (wndParent.IsWindow())
+		{
+			RECT rc = {0};
+			RECT rcParent = {0};
+
+			GetWindowRect(&rc);
+			wndParent.GetClientRect(&rcParent);
+
+			int width = rc.right - rc.left;
+			int height = rc.bottom - rc.top;
+
+			int xPos = ((rcParent.right - rcParent.left) - width) / 2;
+			int yPos = ((rcParent.bottom - rcParent.top) - height) / 2;
+
+			MoveWindow(xPos, yPos, width, height, TRUE);
+		}
+
 		InitGeneralValues();
 		InitClassValues();
 		InitPickupValues();
