@@ -352,7 +352,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	if (vkCode == VK_ESCAPE && uMsg == WM_KEYUP && m_fGuiActive)
 	{
 		m_cSettingsDlg.ShowWindow(SW_HIDE);
-		m_cAdvSettingsDlg.ShowWindow(SW_HIDE);
+		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
 		return TRUE;
 	}
 
@@ -422,8 +422,8 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cLaunchMuDlg.m_hWnd))
 		m_cLaunchMuDlg.DestroyWindow();
 
-	if (::IsWindow(m_cAdvSettingsDlg.m_hWnd))
-		m_cAdvSettingsDlg.DestroyWindow();
+	if (::IsWindow(m_cUnifiedSettingsDlg.m_hWnd))
+		m_cUnifiedSettingsDlg.DestroyWindow();
 
 	BOOL fHandled = FALSE;
 	OnStopClicker(0, 0, 0, fHandled);
