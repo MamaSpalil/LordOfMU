@@ -33,6 +33,7 @@ BEGIN_MSG_MAP(CUnifiedSettingsDlg)
 	MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
 	MESSAGE_HANDLER(WM_CTLCOLORBTN, OnCtlColorBtn)
 	MESSAGE_HANDLER(WM_CTLCOLORDLG, OnCtlColorDlg)
+	MESSAGE_HANDLER(WM_CTLCOLOREDIT, OnCtlColorEdit)
 	MESSAGE_HANDLER(WM_DRAWITEM, OnDrawItem)
 	NOTIFY_HANDLER(IDC_SETTINGS_TAB, TCN_SELCHANGE, OnTabSelChange)
 	COMMAND_HANDLER(IDOK, BN_CLICKED, OnClickedOK)
@@ -65,6 +66,7 @@ protected:
 	LRESULT OnCtlColorStatic(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCtlColorBtn(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCtlColorDlg(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnCtlColorEdit(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnTabSelChange(int, LPNMHDR pNMHDR, BOOL&);
 	LRESULT OnClickedOK(WORD, WORD, HWND, BOOL&);
@@ -84,7 +86,18 @@ protected:
 	void ApplyPickup();
 	void ApplyPickupState();
 
+	void ThemeTabControl(HWND hwndTab);
+	void SubclassCheckboxes(HWND hwndParent);
+	void SubclassSeparators(HWND hwndParent);
+	void DrawThemedTab(LPDRAWITEMSTRUCT lpDIS);
+
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK TabSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+		UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+	static LRESULT CALLBACK CheckboxSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+		UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+	static LRESULT CALLBACK SeparatorSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+		UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 protected:
 	CClickerSettings& m_cSettings;
@@ -93,6 +106,9 @@ protected:
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 	int m_nCurrentTab;
+
+	// Brushes for edit controls
+	HBRUSH m_hEditBrush;
 
 	// Child dialogs for class panels (reused from existing code)
 	CDarkLordSettings m_cDarkLordSettings;
