@@ -231,6 +231,117 @@ BEGIN
     LTEXT           "Custom Items (//pick xx yy)",IDC_STATIC,18,130,92,8
 END
 
+IDD_UNIFIED_SETTINGS DIALOGEX 0, 0, 320, 450
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CHILD | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_CONTROLPARENT
+CAPTION "MU AutoClicker Settings"
+FONT 8, "Tahoma", 0, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_SETTINGS_TAB,"SysTabControl32",0x0000,5,5,310,400
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,410,310,1
+    DEFPUSHBUTTON   "Apply",IDOK,95,418,60,16,BS_OWNERDRAW
+    PUSHBUTTON      "Cancel",IDCANCEL,165,418,60,16,BS_OWNERDRAW
+    LTEXT           "LordOfMU AutoClicker v2.x",IDC_VERSION_LABEL,5,438,310,10,SS_CENTER
+END
+
+IDD_TAB_GENERAL DIALOGEX 0, 0, 300, 370
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Auto Functions",IDC_STATIC,7,5,59,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,70,9,220,1
+    CONTROL         "Enable auto-pick-up (press 'SPACE')",IDC_AUTOPICK,
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,18,230,10
+    CONTROL         "Enable auto-repair",IDC_AUTOREPAIR,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,30,230,10
+    CONTROL         "Enable auto-heal (press 'Q')",IDC_AUTOHEAL,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,42,230,10
+    LTEXT           "Auto-heal time",IDC_STATIC,22,54,52,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_AUTOHEALTIME,210,54,42,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "sec.",IDC_STATIC,258,54,19,12,SS_CENTERIMAGE
+    CONTROL         "Auto-type '/re off' command",IDC_AUTOREOFF,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,68,230,10
+    CONTROL         "Exit game at level 400",IDC_EXITAT400,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,80,230,10
+    LTEXT           "Stealth Options (if s.o. approaches your character)",IDC_STATIC_STEALTH,7,98,200,12,SS_CENTERIMAGE
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,212,104,78,1
+    CONTROL         "Auto-speak",IDC_AUTOSPEAK,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,112,100,11
+    CONTROL         "Stop move-to-pick",IDC_STOPMOVE,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,22,124,100,10
+    CONTROL         "Stop zen pick-up",IDC_STOPZEN,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,150,112,100,10
+    CONTROL         "Stop all pick-up",IDC_STOPPICK,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,150,124,100,10
+END
+
+IDD_TAB_CLASS DIALOGEX 0, 0, 300, 370
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Character Class",IDC_STATIC,7,5,60,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,72,9,218,1
+    LTEXT           "Character Class",IDC_STATIC,23,20,60,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_CHARCLASS,120,20,120,139,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_STATIC_CLASS,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,0,40,300,96
+END
+
+IDD_TAB_PICKUP DIALOGEX 0, 0, 300, 370
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Advanced Pick-up Settings",IDC_STATIC,7,5,100,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,112,9,178,1
+    CONTROL         "Enable advanced pick-up",IDC_ADV_PICKUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,18,130,10
+    LTEXT           "Pick",IDC_STATIC,200,30,20,8
+    LTEXT           "Move To",IDC_STATIC,230,30,40,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,42,260,1
+    CONTROL         "Jewel of Bless",IDC_BLESS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,48,170,10
+    CONTROL         "",IDC_BLESS1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,48,9,10
+    CONTROL         "Jewel of Soul",IDC_SOUL,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,60,170,10
+    CONTROL         "",IDC_SOUL1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,60,9,10
+    CONTROL         "Jewel of Life",IDC_LIFE,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,72,170,10
+    CONTROL         "",IDC_LIFE1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,72,9,10
+    CONTROL         "Jewel of Guardian",IDC_JOG,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,84,170,10
+    CONTROL         "",IDC_JOG1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,84,9,10
+    CONTROL         "Jewel of Creation",IDC_JOC,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,96,170,10
+    CONTROL         "",IDC_JOC1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,96,9,10
+    CONTROL         "Jewel of Chaos",IDC_CHAOS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,108,170,10
+    CONTROL         "",IDC_CHAOS1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,108,9,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,122,260,1
+    CONTROL         "Excellent && Ancient Items",IDC_EXL,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,128,170,10
+    CONTROL         "",IDC_EXL1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,128,9,10
+    CONTROL         "Zen",IDC_ZEN,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,140,170,10
+    CONTROL         "",IDC_ZEN1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,140,9,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,154,260,1
+    LTEXT           "Custom Items (//pick xx yy)",IDC_STATIC,18,160,100,8
+    CONTROL         "",IDC_CUSTOM1,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_VCENTER | WS_TABSTOP,200,160,10,10
+    CONTROL         "",IDC_CUSTOM2,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,160,9,10
+    LTEXT           "Item code:",IDC_STATIC,30,174,40,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT_CUSTOM,75,174,60,12,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BG_PANEL            BITMAP  "res\\bg_panel.bmp"
+IDB_FRAME_TL            BITMAP  "res\\frame_tl.bmp"
+IDB_FRAME_TR            BITMAP  "res\\frame_tr.bmp"
+IDB_FRAME_BL            BITMAP  "res\\frame_bl.bmp"
+IDB_FRAME_BR            BITMAP  "res\\frame_br.bmp"
+IDB_FRAME_TOP           BITMAP  "res\\frame_top.bmp"
+IDB_FRAME_BOTTOM        BITMAP  "res\\frame_bottom.bmp"
+IDB_FRAME_LEFT          BITMAP  "res\\frame_left.bmp"
+IDB_FRAME_RIGHT         BITMAP  "res\\frame_right.bmp"
+IDB_BTN_NORMAL          BITMAP  "res\\btn_normal.bmp"
+IDB_BTN_HOVER           BITMAP  "res\\btn_hover.bmp"
+IDB_BTN_PRESSED         BITMAP  "res\\btn_pressed.bmp"
+IDB_TAB_ACTIVE          BITMAP  "res\\tab_active.bmp"
+IDB_TAB_INACTIVE        BITMAP  "res\\tab_inactive.bmp"
+IDB_CHK_UNCHECKED       BITMAP  "res\\chk_unchecked.bmp"
+IDB_CHK_CHECKED         BITMAP  "res\\chk_checked.bmp"
+IDB_CHK_UNCHECKED_DIS   BITMAP  "res\\chk_unchecked_dis.bmp"
+IDB_CHK_CHECKED_DIS     BITMAP  "res\\chk_checked_dis.bmp"
+IDB_TITLEBAR            BITMAP  "res\\titlebar.bmp"
+IDB_ICO_SWORD           BITMAP  "res\\ico_sword.bmp"
+IDB_ICO_HELM            BITMAP  "res\\ico_helm.bmp"
+IDB_ICO_JEWEL           BITMAP  "res\\ico_jewel.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -310,6 +421,38 @@ BEGIN
         RIGHTMARGIN, 160
         TOPMARGIN, 7
         BOTTOMMARGIN, 173
+    END
+
+    IDD_UNIFIED_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 315
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 445
+    END
+
+    IDD_TAB_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 365
+    END
+
+    IDD_TAB_CLASS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 365
+    END
+
+    IDD_TAB_PICKUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 365
     END
 END
 #endif    // APSTUDIO_INVOKED

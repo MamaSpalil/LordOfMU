@@ -40,6 +40,12 @@
     <ClCompile Include="MuWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MuTheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnifiedSettingsDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="SettingsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,6 +129,12 @@
     <ClInclude Include="MuWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MuTheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnifiedSettingsDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\_Shared\MuWindowUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -163,5 +175,73 @@
     <None Include="version.rc2">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bg_panel.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_tl.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_tr.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_bl.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_br.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_top.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_bottom.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_left.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\frame_right.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\btn_normal.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\btn_hover.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\btn_pressed.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\tab_active.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\tab_inactive.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\chk_unchecked.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\chk_checked.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\chk_unchecked_dis.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\chk_checked_dis.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\titlebar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ico_sword.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ico_helm.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ico_jewel.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -270,8 +270,10 @@
     <ClCompile Include="AdvSettingsDialog.cpp" />
     <ClCompile Include="AutoClicker.cpp" />
     <ClCompile Include="ClickerJob.cpp" />
+    <ClCompile Include="MuTheme.cpp" />
     <ClCompile Include="MuWindow.cpp" />
     <ClCompile Include="SettingsDlg.cpp" />
+    <ClCompile Include="UnifiedSettingsDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release [Antihack]|Win32'">Create</PrecompiledHeader>
@@ -309,6 +311,7 @@
     <ClInclude Include="MGClickerJob.h" />
     <ClInclude Include="MGSettings.h" />
     <ClInclude Include="MuWindow.h" />
+    <ClInclude Include="MuTheme.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SettingsDlg.h" />
@@ -316,12 +319,37 @@
     <ClInclude Include="SMClickerJob.h" />
     <ClInclude Include="SMSettings.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="UnifiedSettingsDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AutoClicker.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="version.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bg_panel.bmp" />
+    <Image Include="res\frame_tl.bmp" />
+    <Image Include="res\frame_tr.bmp" />
+    <Image Include="res\frame_bl.bmp" />
+    <Image Include="res\frame_br.bmp" />
+    <Image Include="res\frame_top.bmp" />
+    <Image Include="res\frame_bottom.bmp" />
+    <Image Include="res\frame_left.bmp" />
+    <Image Include="res\frame_right.bmp" />
+    <Image Include="res\btn_normal.bmp" />
+    <Image Include="res\btn_hover.bmp" />
+    <Image Include="res\btn_pressed.bmp" />
+    <Image Include="res\tab_active.bmp" />
+    <Image Include="res\tab_inactive.bmp" />
+    <Image Include="res\chk_unchecked.bmp" />
+    <Image Include="res\chk_checked.bmp" />
+    <Image Include="res\chk_unchecked_dis.bmp" />
+    <Image Include="res\chk_checked_dis.bmp" />
+    <Image Include="res\titlebar.bmp" />
+    <Image Include="res\ico_sword.bmp" />
+    <Image Include="res\ico_helm.bmp" />
+    <Image Include="res\ico_jewel.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

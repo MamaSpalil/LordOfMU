@@ -88,13 +88,45 @@
 #define IDC_CUSTOM2                     281
 #define IDC_STATIC_STEALTH              282
 
+// New dialog IDs for unified settings
+#define IDD_UNIFIED_SETTINGS            400
+#define IDD_TAB_GENERAL                 401
+#define IDD_TAB_CLASS                   402
+#define IDD_TAB_PICKUP                  403
+#define IDC_SETTINGS_TAB                404
+#define IDC_VERSION_LABEL               405
+
+// Bitmap resources for MU Online S3E1 themed UI
+#define IDB_BG_PANEL                    500
+#define IDB_FRAME_TL                    501
+#define IDB_FRAME_TR                    502
+#define IDB_FRAME_BL                    503
+#define IDB_FRAME_BR                    504
+#define IDB_FRAME_TOP                   505
+#define IDB_FRAME_BOTTOM                506
+#define IDB_FRAME_LEFT                  507
+#define IDB_FRAME_RIGHT                 508
+#define IDB_BTN_NORMAL                  509
+#define IDB_BTN_HOVER                   510
+#define IDB_BTN_PRESSED                 511
+#define IDB_TAB_ACTIVE                  512
+#define IDB_TAB_INACTIVE                513
+#define IDB_CHK_UNCHECKED               514
+#define IDB_CHK_CHECKED                 515
+#define IDB_CHK_UNCHECKED_DIS           516
+#define IDB_CHK_CHECKED_DIS             517
+#define IDB_TITLEBAR                    518
+#define IDB_ICO_SWORD                   519
+#define IDB_ICO_HELM                    520
+#define IDB_ICO_JEWEL                   521
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        284
+#define _APS_NEXT_RESOURCE_VALUE        522
 #define _APS_NEXT_COMMAND_VALUE         32768
-#define _APS_NEXT_CONTROL_VALUE         284
+#define _APS_NEXT_CONTROL_VALUE         406
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif
