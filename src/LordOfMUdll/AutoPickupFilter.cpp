@@ -31,6 +31,8 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fWalking = false;
 	m_fDebugMoveTo = false;
 	m_fRunMode = false;
+	m_fAutoRunMode = false;
+	m_bCharClass = 0xFF;
 
 	InitializeCriticalSection(&m_csQueue);
 
@@ -448,6 +450,14 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		m_fRunMode = *((bool*)pData);
 	}
+	else if (_stricmp(pszParam, "charclass") == 0)
+	{
+		m_bCharClass = *((BYTE*)pData);
+	}
+	else if (_stricmp(pszParam, "autorunmode") == 0)
+	{
+		m_fAutoRunMode = *((bool*)pData);
+	}
 
 	return true;
 }
@@ -552,6 +562,37 @@ void CAutoPickupFilter::GoPickNextItem()
 
 		m_fWalking = true;
 		Sleep(350);
+
+		// Auto-determine run mode based on boots enchantment level and character class
+		if (m_fAutoRunMode)
+		{
+			CPacketFilter* pInvFilter = GetProxy()->GetFilter("InventoryManagerFilter");
+			if (pInvFilter)
+			{
+				int iBootsLevel = -1;
+				if (pInvFilter->GetParam("boots_level", &iBootsLevel))
+				{
+					static const BYTE CLASS_DL = 0;
+					static const BYTE CLASS_MG = 5;
+
+					if (iBootsLevel >= 5)
+					{
+						// Boots +5 or higher: run mode for all classes
+						m_fRunMode = true;
+					}
+					else
+					{
+						// Boots level < 5 (or no boots): walk mode,
+						// except Magic Gladiator and Dark Lord always use run mode
+						m_fRunMode = (m_bCharClass == CLASS_MG || m_bCharClass == CLASS_DL);
+					}
+
+					if (m_fDebugMoveTo)
+						CDebugOut::PrintAlways("[MOVETO-DBG] Auto run mode: boots_level=%d, class=%d -> %s",
+							iBootsLevel, (int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
+				}
+			}
+		}
 
 		if (m_fRunMode)
 		{
