@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автоподбор предметов — Пошаговая инструкция по настройке</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --accent: #ff6f00;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #212121;
+            --text-light: #757575;
+            --border: #e0e0e0;
+            --code-bg: #263238;
+            --code-text: #eeffff;
+            --success: #2e7d32;
+            --warning: #e65100;
+            --info: #0277bd;
+            --danger: #c62828;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .header h1 {
+            font-size: 2.6em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        .header .version {
+            margin-top: 10px;
+            font-size: 0.95em;
+            opacity: 0.7;
+        }
+
+        /* ============ NAVIGATION ============ */
+        .nav {
+            background: #263238;
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #b0bec5;
+            text-decoration: none;
+            padding: 12px 18px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .nav a:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* ============ SECTIONS ============ */
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 35px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary);
+        }
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .section h3 {
+            color: var(--primary-light);
+            font-size: 1.3em;
+            margin: 25px 0 12px 0;
+        }
+        .section h4 {
+            color: var(--text);
+            font-size: 1.1em;
+            margin: 18px 0 8px 0;
+        }
+        .section p {
+            margin-bottom: 12px;
+        }
+
+        /* ============ STEP BLOCKS ============ */
+        .step {
+            background: #e8eaf6;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-light);
+        }
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.95em;
+        }
+        .step-title {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+        .step p {
+            margin-top: 8px;
+            margin-left: 42px;
+        }
+
+        /* ============ CODE BLOCKS ============ */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 8px;
+            padding: 18px 22px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #eceff1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.92em;
+            color: #c62828;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--code-text);
+        }
+
+        /* ============ TABLES ============ */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:nth-child(even) { background: #f5f5f5; }
+        tr:hover { background: #e8eaf6; }
+
+        /* ============ ALERTS ============ */
+        .alert {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        .alert-info {
+            background: #e1f5fe;
+            border-left: 4px solid var(--info);
+            color: #01579b;
+        }
+        .alert-warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--warning);
+            color: #bf360c;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            color: #1b5e20;
+        }
+        .alert-danger {
+            background: #ffebee;
+            border-left: 4px solid var(--danger);
+            color: #b71c1c;
+        }
+        .alert strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ============ DIAGRAMS ============ */
+        .diagram {
+            background: #fafafa;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .diagram-box {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: 600;
+            font-size: 0.95em;
+            min-width: 180px;
+        }
+        .diagram-box.secondary {
+            background: var(--primary-light);
+        }
+        .diagram-box.accent {
+            background: var(--accent);
+        }
+        .diagram-box.success {
+            background: var(--success);
+        }
+        .diagram-arrow {
+            display: block;
+            font-size: 1.8em;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        /* ============ GRID LAYOUT ============ */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* ============ CHECKBOX MOCK ============ */
+        .ui-mock {
+            background: #37474f;
+            color: #eceff1;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 15px 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 0.9em;
+            line-height: 2;
+            border: 2px solid #546e7a;
+        }
+        .ui-mock .mock-title {
+            font-size: 0.85em;
+            color: #90a4ae;
+            border-bottom: 1px solid #546e7a;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .ui-mock .cb {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #78909c;
+            border-radius: 2px;
+            margin-right: 6px;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 11px;
+            font-size: 10px;
+        }
+        .ui-mock .cb.checked {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+        .ui-mock .cb.unchecked {
+            background: transparent;
+        }
+        .ui-mock .item-row {
+            display: flex;
+            align-items: center;
+            padding: 2px 0;
+        }
+        .ui-mock .item-name {
+            flex: 1;
+            min-width: 160px;
+        }
+        .ui-mock .item-pick,
+        .ui-mock .item-move {
+            width: 60px;
+            text-align: center;
+        }
+        .ui-mock .header-row {
+            display: flex;
+            align-items: center;
+            padding: 2px 0;
+            color: #90a4ae;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .ui-mock .separator {
+            border-top: 1px solid #546e7a;
+            margin: 6px 0;
+        }
+        .ui-mock .highlight-row {
+            background: rgba(255, 152, 0, 0.15);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 4px -8px;
+            border: 1px dashed #ff9800;
+        }
+        .ui-mock .highlight-master {
+            background: rgba(76, 175, 80, 0.15);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 4px -8px;
+            border: 2px solid #4caf50;
+        }
+
+        /* ============ KEY BADGE ============ */
+        .key {
+            display: inline-block;
+            background: #37474f;
+            color: #eceff1;
+            padding: 3px 12px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            font-weight: bold;
+            border: 1px solid #546e7a;
+            box-shadow: 0 2px 0 #263238;
+            margin: 0 2px;
+        }
+
+        /* ============ COMPARISON ============ */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        .comparison .wrong {
+            background: #ffebee;
+            border: 2px solid #ef9a9a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .comparison .wrong h4 {
+            color: var(--danger);
+        }
+        .comparison .correct {
+            background: #e8f5e9;
+            border: 2px solid #a5d6a7;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .comparison .correct h4 {
+            color: var(--success);
+        }
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+        }
+
+        /* ============ TOC ============ */
+        .toc {
+            background: #e8eaf6;
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .toc ol {
+            margin-left: 20px;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        .toc a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .toc a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* ============ LIST STYLES ============ */
+        ul, ol {
+            margin: 10px 0 10px 25px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: #263238;
+            color: #b0bec5;
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        .cmd {
+            font-family: 'Consolas', monospace;
+            background: #e8eaf6;
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<div class="header">
+    <h1>📦 Настройка автоподбора предметов</h1>
+    <div class="subtitle">Пошаговая инструкция по включению и настройке автоподбора в MUAutoClicker</div>
+    <div class="version">MUAutoClicker • Инструкция по решению проблемы «автоподбор не работает»</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- NAVIGATION -->
+<!-- ============================================================ -->
+<div class="nav">
+    <div class="nav-inner">
+        <a href="#problem">Проблема</a>
+        <a href="#how-it-works">Как это работает</a>
+        <a href="#step-by-step">Пошаговая настройка</a>
+        <a href="#common-mistakes">Частые ошибки</a>
+        <a href="#modes">Режимы подбора</a>
+        <a href="#commands">Альтернатива: команды</a>
+        <a href="#troubleshooting">Диагностика</a>
+        <a href="#faq">FAQ</a>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ============================================================ -->
+<div class="toc">
+    <h3>📋 Содержание</h3>
+    <ol>
+        <li><a href="#problem">Описание проблемы</a></li>
+        <li><a href="#how-it-works">Как работает автоподбор: два режима</a></li>
+        <li><a href="#step-by-step">Пошаговая инструкция настройки</a></li>
+        <li><a href="#common-mistakes">Частые ошибки при настройке</a></li>
+        <li><a href="#modes">Режимы подбора: Pick и Move To</a></li>
+        <li><a href="#commands">Альтернативный способ: настройка через команды чата</a></li>
+        <li><a href="#troubleshooting">Диагностика: если автоподбор всё ещё не работает</a></li>
+        <li><a href="#faq">Часто задаваемые вопросы</a></li>
+    </ol>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 1. PROBLEM -->
+<!-- ============================================================ -->
+<div class="section" id="problem">
+    <h2>1. Описание проблемы</h2>
+
+    <div class="alert alert-danger">
+        <strong>⚠️ Проблема</strong>
+        При включении автокликера и установке флажков <strong>Pick</strong> и <strong>Move To</strong> на вкладке Pickup автоподбор предметов <strong>не работает</strong>.
+    </div>
+
+    <p>Эта инструкция объясняет, <strong>почему</strong> так происходит и как <strong>правильно настроить</strong> автоподбор, чтобы он заработал.</p>
+
+    <h3>Причина</h3>
+    <p>Автоподбор предметов в MUAutoClicker работает в двух режимах, и для расширенного режима (с фильтрами по типам предметов) необходимо выполнить <strong>все</strong> шаги настройки, а не только расставить галочки Pick/Move To.</p>
+
+    <p>Самая частая причина — пользователь <strong>не включает главный переключатель</strong> <code>Enable advanced pick-up</code> на вкладке <strong>Pickup</strong>. Без него расширенный автоподбор не активируется, даже если все остальные галочки установлены.</p>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 2. HOW IT WORKS -->
+<!-- ============================================================ -->
+<div class="section" id="how-it-works">
+    <h2>2. Как работает автоподбор: два режима</h2>
+
+    <p>В MUAutoClicker существуют <strong>два взаимоисключающих режима</strong> автоподбора:</p>
+
+    <div class="grid-2">
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+            <h4 style="color: #0277bd;">📦 Простой автоподбор</h4>
+            <p><strong>Где включается:</strong> вкладка General → <code>Enable auto-pick-up (press 'SPACE')</code></p>
+            <ul>
+                <li>Периодически нажимает клавишу <strong>SPACE</strong></li>
+                <li>Подбирает все предметы рядом с персонажем</li>
+                <li>Нет фильтрации по типам предметов</li>
+                <li>Нет перемещения к предметам</li>
+            </ul>
+        </div>
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px;">
+            <h4 style="color: #2e7d32;">🎯 Расширенный автоподбор</h4>
+            <p><strong>Где включается:</strong> вкладка Pickup → <code>Enable advanced pick-up</code></p>
+            <ul>
+                <li>Работает через перехват сетевых пакетов</li>
+                <li>Фильтрует предметы по типам (Bless, Soul и др.)</li>
+                <li>Может перемещаться к предметам (Move To)</li>
+                <li>Поддерживает пользовательские коды предметов</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="alert alert-warning">
+        <strong>⚡ Важно: режимы взаимоисключающие!</strong>
+        Если включён расширенный автоподбор (<code>Enable advanced pick-up</code>), простой автоподбор автоматически <strong>отключается</strong>.
+        Нельзя использовать оба режима одновременно. Галочки Pick и Move To работают <strong>только</strong> в расширенном режиме.
+    </div>
+
+    <h3>Схема принятия решения</h3>
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block; max-width: 600px; line-height: 2.2;">
+            <strong>Запуск кликера (F5 / F6)</strong><br>
+            &nbsp;&nbsp;&nbsp;└─ <code>Enable advanced pick-up</code> включён?<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ <strong style="color: #2e7d32;">ДА</strong> → Отправляются команды настройки (<code>//autopick on</code>, <code>//set_pick_opt ...</code>)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Расширенный автоподбор <strong>активен</strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Флажки Pick / Move To <strong>работают</strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <strong style="color: #c62828;">НЕТ</strong> → Проверяется <code>Enable auto-pick-up</code><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ <strong style="color: #2e7d32;">ДА</strong> → Простой подбор (SPACE)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <strong style="color: #c62828;">НЕТ</strong> → Автоподбор <strong>не работает</strong>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 3. STEP BY STEP -->
+<!-- ============================================================ -->
+<div class="section" id="step-by-step">
+    <h2>3. Пошаговая инструкция настройки</h2>
+
+    <p>Выполните <strong>все шаги по порядку</strong> для корректной настройки расширенного автоподбора:</p>
+
+    <!-- Step 1 -->
+    <div class="step">
+        <span class="step-number">1</span>
+        <span class="step-title">Запустите игру через лаунчер LordOfMU.exe</span>
+        <p>Убедитесь, что лаунчер запущен <strong>до</strong> запуска игры. Лаунчер внедряет необходимые модули (MUAutoClicker.dll и MUEliteClicker.dll) в игровой процесс.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+        <span class="step-number">2</span>
+        <span class="step-title">Войдите в игру персонажем</span>
+        <p>Зайдите в игру, выберите персонажа и войдите на сервер. Дождитесь полной загрузки игрового мира.</p>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" style="background: #fff3e0; border-left-color: var(--accent);">
+        <span class="step-number" style="background: var(--accent);">3</span>
+        <span class="step-title">Откройте окно настроек — нажмите <span class="key">F9</span></span>
+        <p>Откроется окно настроек MUAutoClicker с тремя вкладками: <strong>General</strong>, <strong>Class</strong> и <strong>Pickup</strong>.</p>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" style="background: #e8f5e9; border-left-color: var(--success);">
+        <span class="step-number" style="background: var(--success);">4</span>
+        <span class="step-title">Перейдите на вкладку General и выберите класс персонажа</span>
+        <p>На вкладке <strong>General</strong> в разделе «Class Settings» выберите класс вашего персонажа из выпадающего списка <strong>Character Class</strong>:</p>
+        <ul style="margin-left: 42px;">
+            <li><strong>Dark Lord</strong> — Тёмный Лорд</li>
+            <li><strong>Energy Elf</strong> — Эльф Энергии</li>
+            <li><strong>Agility Elf</strong> — Эльф Ловкости</li>
+            <li><strong>Blade Knight</strong> — Рыцарь Меча</li>
+            <li><strong>Soul Master</strong> — Мастер Душ (Тёмный Волшебник)</li>
+            <li><strong>Magic Gladiator</strong> — Магический Гладиатор</li>
+        </ul>
+        <p>Класс используется для определения режима перемещения (ходьба или бег) при подборе.</p>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step" style="background: #fce4ec; border-left-color: var(--danger);">
+        <span class="step-number" style="background: var(--danger);">5</span>
+        <span class="step-title">⭐ Перейдите на вкладку Pickup и включите «Enable advanced pick-up»</span>
+        <p><strong>ЭТО КЛЮЧЕВОЙ ШАГ!</strong> Перейдите на вкладку <strong>Pickup</strong> и поставьте галочку на <code>Enable advanced pick-up</code>. Без этого флажка расширенный автоподбор <strong>не будет работать</strong>, даже если все остальные галочки установлены.</p>
+    </div>
+
+    <div class="alert alert-danger">
+        <strong>❌ Самая частая ошибка</strong>
+        Пользователи устанавливают галочки Pick и Move To для отдельных предметов, но <strong>забывают включить</strong> главный переключатель <code>Enable advanced pick-up</code>. В результате автоподбор не активируется.
+    </div>
+
+    <!-- Mock UI: Step 5 detail -->
+    <h4>Как выглядит вкладка Pickup:</h4>
+
+    <div class="ui-mock">
+        <div class="mock-title">Вкладка Pickup — Правильная настройка</div>
+
+        <div class="highlight-master">
+            <div class="item-row">
+                <span class="cb checked">✓</span> <strong>Enable advanced pick-up</strong> ← ⭐ Обязательно включить!
+            </div>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <div class="header-row">
+                <span class="item-name"></span>
+                <span class="item-pick">Pick</span>
+                <span class="item-move">Move To</span>
+            </div>
+            <div class="separator"></div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Bless</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb checked">✓</span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Soul</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb checked">✓</span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Life</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb checked">✓</span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Guardian</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb unchecked"></span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Creation</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb unchecked"></span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Jewel of Chaos</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb unchecked"></span></span>
+            </div>
+            <div class="separator"></div>
+            <div class="item-row">
+                <span class="item-name">Excellent &amp; Ancient Items</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb checked">✓</span></span>
+            </div>
+            <div class="item-row">
+                <span class="item-name">Zen</span>
+                <span class="item-pick"><span class="cb checked">✓</span></span>
+                <span class="item-move"><span class="cb unchecked"></span></span>
+            </div>
+            <div class="separator"></div>
+            <div class="item-row">
+                <span class="item-name">Custom Items (//pick xx yy)</span>
+                <span class="item-pick"><span class="cb unchecked"></span></span>
+                <span class="item-move"><span class="cb unchecked"></span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step" style="background: #e8f5e9; border-left-color: var(--success);">
+        <span class="step-number" style="background: var(--success);">6</span>
+        <span class="step-title">Установите галочки Pick и Move To для нужных предметов</span>
+        <p>Для каждого типа предмета укажите:</p>
+        <ul style="margin-left: 42px;">
+            <li><strong>Pick</strong> — подбирать этот тип предметов</li>
+            <li><strong>Move To</strong> — перемещаться к предмету для подбора (если он далеко)</li>
+        </ul>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step">
+        <span class="step-number">7</span>
+        <span class="step-title">Нажмите OK для сохранения настроек</span>
+        <p>Настройки сохранятся и будут применены при следующем запуске кликера.</p>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step" style="background: #e3f2fd; border-left-color: var(--info);">
+        <span class="step-number" style="background: var(--info);">8</span>
+        <span class="step-title">Запустите кликер — нажмите <span class="key">F5</span> или <span class="key">F6</span></span>
+        <p>Автоподбор активируется автоматически при запуске кликера. Программа отправит серверу все необходимые команды для настройки фильтров предметов.</p>
+    </div>
+
+    <div class="alert alert-success">
+        <strong>✅ Готово!</strong>
+        Если все шаги выполнены правильно, при появлении предметов на земле программа будет автоматически их подбирать в соответствии с настроенными фильтрами.
+    </div>
+
+    <h3>Краткая сводка обязательных шагов</h3>
+    <table>
+        <tr><th>Шаг</th><th>Действие</th><th>Где</th></tr>
+        <tr><td>1</td><td>Выбрать класс персонажа</td><td>Вкладка General → Character Class</td></tr>
+        <tr><td>2</td><td>⭐ Включить <code>Enable advanced pick-up</code></td><td>Вкладка Pickup</td></tr>
+        <tr><td>3</td><td>Отметить нужные предметы (Pick / Move To)</td><td>Вкладка Pickup</td></tr>
+        <tr><td>4</td><td>Нажать OK</td><td>Окно настроек</td></tr>
+        <tr><td>5</td><td>Запустить кликер</td><td>Клавиша F5 или F6</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 4. COMMON MISTAKES -->
+<!-- ============================================================ -->
+<div class="section" id="common-mistakes">
+    <h2>4. Частые ошибки при настройке</h2>
+
+    <h3>Ошибка №1: Не включён «Enable advanced pick-up»</h3>
+
+    <div class="comparison">
+        <div class="wrong">
+            <h4>❌ Неправильно</h4>
+            <div class="ui-mock" style="background: #4a3030; border-color: #6b3a3a;">
+                <div class="mock-title" style="color: #ef9a9a;">Вкладка Pickup</div>
+                <div class="item-row">
+                    <span class="cb unchecked"></span> <strong>Enable advanced pick-up</strong>
+                </div>
+                <div style="margin-top: 6px; color: #90a4ae; font-size: 0.85em;">
+                    Jewel of Bless &nbsp;&nbsp; <span class="cb checked">✓</span> &nbsp; <span class="cb checked">✓</span><br>
+                    Jewel of Soul &nbsp;&nbsp;&nbsp; <span class="cb checked">✓</span> &nbsp; <span class="cb checked">✓</span>
+                </div>
+            </div>
+            <p style="margin-top: 10px; color: var(--danger); font-weight: 600;">Галочки Pick/Move To установлены, но главный переключатель выключен. Автоподбор НЕ работает.</p>
+        </div>
+        <div class="correct">
+            <h4>✅ Правильно</h4>
+            <div class="ui-mock" style="background: #2e3d2e; border-color: #3a6b3a;">
+                <div class="mock-title" style="color: #a5d6a7;">Вкладка Pickup</div>
+                <div class="item-row">
+                    <span class="cb checked">✓</span> <strong>Enable advanced pick-up</strong>
+                </div>
+                <div style="margin-top: 6px; color: #90a4ae; font-size: 0.85em;">
+                    Jewel of Bless &nbsp;&nbsp; <span class="cb checked">✓</span> &nbsp; <span class="cb checked">✓</span><br>
+                    Jewel of Soul &nbsp;&nbsp;&nbsp; <span class="cb checked">✓</span> &nbsp; <span class="cb checked">✓</span>
+                </div>
+            </div>
+            <p style="margin-top: 10px; color: var(--success); font-weight: 600;">Главный переключатель включён. Автоподбор работает корректно!</p>
+        </div>
+    </div>
+
+    <h3>Ошибка №2: Неправильно выбран класс персонажа</h3>
+
+    <p>Класс персонажа влияет на режим перемещения при подборе (ходьба или бег). Если класс указан неверно, персонаж может двигаться некорректно при подборе с перемещением (Move To).</p>
+
+    <div class="alert alert-warning">
+        <strong>⚡ Убедитесь</strong>
+        На вкладке <strong>General</strong> в поле <strong>Character Class</strong> выбран правильный класс вашего персонажа. Это влияет на скорость и способ перемещения при подборе предметов.
+    </div>
+
+    <h3>Ошибка №3: Включены оба режима подбора одновременно</h3>
+
+    <p>Если на вкладке <strong>General</strong> включён <code>Enable auto-pick-up (press 'SPACE')</code> и одновременно на вкладке <strong>Pickup</strong> включён <code>Enable advanced pick-up</code>, то простой подбор через SPACE будет <strong>автоматически отключён</strong>. Это нормальное поведение — расширенный режим имеет приоритет.</p>
+
+    <div class="alert alert-info">
+        <strong>💡 Рекомендация</strong>
+        Для использования расширенного автоподбора с фильтрами предметов и функцией Move To достаточно включить только <code>Enable advanced pick-up</code> на вкладке Pickup. Галочка простого автоподбора на вкладке General не требуется.
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 5. MODES -->
+<!-- ============================================================ -->
+<div class="section" id="modes">
+    <h2>5. Режимы подбора: Pick и Move To</h2>
+
+    <p>Для каждого типа предмета можно настроить <strong>два независимых флажка</strong>:</p>
+
+    <table>
+        <tr><th>Флажок</th><th>Назначение</th><th>Описание</th></tr>
+        <tr>
+            <td><strong>Pick</strong></td>
+            <td>Включить подбор</td>
+            <td>Предмет будет подбираться автоматически, когда появится рядом с персонажем</td>
+        </tr>
+        <tr>
+            <td><strong>Move To</strong></td>
+            <td>Перемещение к предмету</td>
+            <td>Персонаж переместится к предмету, подберёт его и вернётся на прежнюю позицию</td>
+        </tr>
+    </table>
+
+    <h3>Комбинации флажков</h3>
+
+    <table>
+        <tr><th>Pick</th><th>Move To</th><th>Результат</th></tr>
+        <tr>
+            <td>☐</td><td>☐</td>
+            <td>Предмет <strong>игнорируется</strong></td>
+        </tr>
+        <tr>
+            <td>☑</td><td>☐</td>
+            <td>Подбор <strong>без перемещения</strong> — предмет подбирается только если находится рядом с персонажем (с задержкой ~2 сек)</td>
+        </tr>
+        <tr>
+            <td>☑</td><td>☑</td>
+            <td>Подбор <strong>с перемещением</strong> — персонаж перемещается к предмету, подбирает его и возвращается обратно</td>
+        </tr>
+        <tr>
+            <td>☐</td><td>☑</td>
+            <td>Предмет <strong>игнорируется</strong> (Move To без Pick не имеет эффекта)</td>
+        </tr>
+    </table>
+
+    <h3>Как работает подбор с перемещением</h3>
+
+    <div class="diagram">
+        <div style="text-align: left; display: inline-block; max-width: 700px;">
+            <div class="step" style="background: #e3f2fd;">
+                <span class="step-number" style="background: #0277bd;">1</span>
+                <span class="step-title">Предмет появляется на земле</span>
+                <p>Сервер отправляет пакет о появлении предмета с его координатами</p>
+            </div>
+            <div class="step" style="background: #e8f5e9;">
+                <span class="step-number" style="background: #2e7d32;">2</span>
+                <span class="step-title">Фильтр определяет тип предмета</span>
+                <p>Тип предмета сравнивается с настроенными фильтрами (Bless, Soul и т.д.)</p>
+            </div>
+            <div class="step" style="background: #fff3e0;">
+                <span class="step-number" style="background: #e65100;">3</span>
+                <span class="step-title">Запоминается текущая позиция персонажа</span>
+                <p>Координаты (x, y) сохраняются для возврата</p>
+            </div>
+            <div class="step" style="background: #e8eaf6;">
+                <span class="step-number" style="background: #3949ab;">4</span>
+                <span class="step-title">Персонаж перемещается к предмету</span>
+                <p>Ходьба или бег в зависимости от уровня ботинок и класса персонажа</p>
+            </div>
+            <div class="step" style="background: #fce4ec;">
+                <span class="step-number" style="background: #c62828;">5</span>
+                <span class="step-title">Предмет подбирается</span>
+                <p>Отправляется команда подбора предмета на сервер</p>
+            </div>
+            <div class="step" style="background: #e8f5e9;">
+                <span class="step-number" style="background: #2e7d32;">6</span>
+                <span class="step-title">Персонаж возвращается на прежнюю позицию</span>
+                <p>Перемещение обратно к точке, откуда было начато движение</p>
+            </div>
+        </div>
+    </div>
+
+    <h3>Доступные типы предметов</h3>
+
+    <table>
+        <tr><th>Тип предмета</th><th>Описание</th></tr>
+        <tr><td>Jewel of Bless</td><td>Камень благословения — улучшение предметов без риска разрушения</td></tr>
+        <tr><td>Jewel of Soul</td><td>Камень души — улучшение предметов с шансом разрушения</td></tr>
+        <tr><td>Jewel of Life</td><td>Камень жизни — добавление опций к предметам</td></tr>
+        <tr><td>Jewel of Guardian</td><td>Камень хранителя</td></tr>
+        <tr><td>Jewel of Creation</td><td>Камень создания</td></tr>
+        <tr><td>Jewel of Chaos</td><td>Камень хаоса — создание и комбинирование предметов</td></tr>
+        <tr><td>Excellent &amp; Ancient Items</td><td>Все предметы с опцией Excellent или Ancient</td></tr>
+        <tr><td>Zen</td><td>Золотые монеты (дзен)</td></tr>
+        <tr><td>Custom Items</td><td>Пользовательский код предмета, указанный через команду <code>//pick xx yy</code></td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 6. COMMANDS -->
+<!-- ============================================================ -->
+<div class="section" id="commands">
+    <h2>6. Альтернативный способ: настройка через команды чата</h2>
+
+    <p>Вместо использования GUI-интерфейса можно настроить автоподбор через <strong>команды в игровом чате</strong>. Это полезно для точной настройки или отладки.</p>
+
+    <h3>Основные команды</h3>
+
+    <table>
+        <tr><th>Команда</th><th>Описание</th></tr>
+        <tr>
+            <td><code>//autopick on</code></td>
+            <td>Включить систему автоподбора</td>
+        </tr>
+        <tr>
+            <td><code>//autopick off</code></td>
+            <td>Выключить систему автоподбора</td>
+        </tr>
+        <tr>
+            <td><code>//set_pick_opt &lt;предмет&gt; &lt;pick&gt; &lt;move&gt;</code></td>
+            <td>Настроить фильтр для типа предмета. Пример: <code>//set_pick_opt bless on on</code></td>
+        </tr>
+        <tr>
+            <td><code>//pick &lt;high&gt; &lt;low&gt;</code></td>
+            <td>Добавить пользовательский код предмета. Пример: <code>//pick 14 13</code></td>
+        </tr>
+        <tr>
+            <td><code>//pick clear</code></td>
+            <td>Очистить список пользовательских предметов</td>
+        </tr>
+        <tr>
+            <td><code>//pickclass &lt;0-5&gt;</code></td>
+            <td>Установить класс персонажа (0=DL, 1=EElf, 2=AElf, 3=BK, 4=SM, 5=MG)</td>
+        </tr>
+        <tr>
+            <td><code>//pickautorunmode on</code></td>
+            <td>Автоматический выбор ходьба/бег по уровню ботинок</td>
+        </tr>
+        <tr>
+            <td><code>//pickrunmode on</code></td>
+            <td>Принудительно включить режим бега при подборе</td>
+        </tr>
+        <tr>
+            <td><code>//pdist &lt;число&gt;</code></td>
+            <td>Максимальная дистанция подбора в клетках (-1 = без ограничения)</td>
+        </tr>
+        <tr>
+            <td><code>//pickdebug on</code></td>
+            <td>Включить отладочные сообщения автоподбора</td>
+        </tr>
+    </table>
+
+    <h3>Пример: полная настройка через команды</h3>
+
+    <pre><code>// 1. Включить систему автоподбора
+//autopick on
+
+// 2. Настроить подбор Bless с перемещением
+//set_pick_opt bless on on
+
+// 3. Настроить подбор Soul с перемещением
+//set_pick_opt soul on on
+
+// 4. Настроить подбор Chaos без перемещения
+//set_pick_opt chaos on off
+
+// 5. Настроить подбор Excellent предметов с перемещением
+//set_pick_opt exl on on
+
+// 6. Настроить подбор Zen без перемещения
+//set_pick_opt zen on off
+
+// 7. Установить класс персонажа (3 = Blade Knight)
+//pickclass 3
+
+// 8. Включить авто-определение бег/ходьба
+//pickautorunmode on</code></pre>
+
+    <h3>Названия предметов для команды //set_pick_opt</h3>
+
+    <table>
+        <tr><th>Параметр</th><th>Предмет</th></tr>
+        <tr><td><code>bless</code></td><td>Jewel of Bless</td></tr>
+        <tr><td><code>soul</code></td><td>Jewel of Soul</td></tr>
+        <tr><td><code>chaos</code></td><td>Jewel of Chaos</td></tr>
+        <tr><td><code>jol</code></td><td>Jewel of Life</td></tr>
+        <tr><td><code>joc</code></td><td>Jewel of Creation</td></tr>
+        <tr><td><code>jog</code></td><td>Jewel of Guardian</td></tr>
+        <tr><td><code>exl</code></td><td>Excellent &amp; Ancient Items</td></tr>
+        <tr><td><code>zen</code></td><td>Zen (золото)</td></tr>
+        <tr><td><code>custom</code></td><td>Пользовательские предметы</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 7. TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+    <h2>7. Диагностика: если автоподбор всё ещё не работает</h2>
+
+    <p>Если после выполнения пошаговой инструкции автоподбор по-прежнему не работает, проверьте следующие моменты:</p>
+
+    <h3>Чек-лист проверки</h3>
+
+    <table>
+        <tr><th>№</th><th>Проверка</th><th>Решение</th></tr>
+        <tr>
+            <td>1</td>
+            <td>Включён ли <code>Enable advanced pick-up</code>?</td>
+            <td>Откройте <span class="key">F9</span> → вкладка Pickup → убедитесь, что галочка стоит</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Отмечен ли хотя бы один предмет в колонке Pick?</td>
+            <td>Поставьте галочки Pick для нужных предметов</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Правильно ли выбран класс персонажа?</td>
+            <td><span class="key">F9</span> → вкладка General → Character Class</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Запущен ли кликер?</td>
+            <td>Нажмите <span class="key">F5</span> или <span class="key">F6</span> для запуска</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Не включены ли опции скрытности, блокирующие подбор?</td>
+            <td><span class="key">F9</span> → вкладка General → Stealth Options → убедитесь, что <code>Stop all pick-up</code> не включён</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Был ли кликер перезапущен после изменения настроек?</td>
+            <td>Остановите кликер (<span class="key">F8</span>) и запустите заново (<span class="key">F5</span>)</td>
+        </tr>
+    </table>
+
+    <h3>Опции скрытности (Stealth Options)</h3>
+
+    <p>На вкладке <strong>General</strong> в разделе «Stealth Options» есть настройки, которые могут блокировать автоподбор:</p>
+
+    <table>
+        <tr><th>Опция</th><th>Влияние на автоподбор</th></tr>
+        <tr>
+            <td><code>Stop zen pick-up</code></td>
+            <td>Приостанавливает подбор дзен (золота) при появлении другого игрока рядом</td>
+        </tr>
+        <tr>
+            <td><code>Stop move-to-pick</code></td>
+            <td>Приостанавливает перемещение к предметам (подбирает только рядом)</td>
+        </tr>
+        <tr>
+            <td><code>Stop all pick-up</code></td>
+            <td><strong>Полностью</strong> приостанавливает весь автоподбор при приближении другого игрока</td>
+        </tr>
+    </table>
+
+    <div class="alert alert-info">
+        <strong>💡 Отладка через команды</strong>
+        Для диагностики проблем с подбором можно включить отладочный режим командой <code>//pickdebug on</code> в игровом чате. Это покажет подробные сообщения о процессе подбора.
+    </div>
+
+    <h3>Горячие клавиши</h3>
+
+    <table>
+        <tr><th>Клавиша</th><th>Действие</th></tr>
+        <tr><td><span class="key">F5</span></td><td>Запустить / остановить кликер (переключатель)</td></tr>
+        <tr><td><span class="key">F6</span></td><td>Запустить кликер</td></tr>
+        <tr><td><span class="key">F7</span></td><td>Запустить кликер без перемещения мыши</td></tr>
+        <tr><td><span class="key">F8</span></td><td>Остановить кликер</td></tr>
+        <tr><td><span class="key">F9</span></td><td>Открыть окно настроек</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 8. FAQ -->
+<!-- ============================================================ -->
+<div class="section" id="faq">
+    <h2>8. Часто задаваемые вопросы</h2>
+
+    <h4>❓ Я поставил галочки Pick и Move To, но автоподбор не работает. Почему?</h4>
+    <p>Необходимо также включить главный переключатель <code>Enable advanced pick-up</code> на вкладке <strong>Pickup</strong>. Без него расширенный автоподбор не активируется. Подробнее — <a href="#step-by-step">раздел 3</a>.</p>
+
+    <h4>❓ Нужно ли включать «Enable auto-pick-up (press SPACE)» на вкладке General?</h4>
+    <p>Нет. Это простой режим подбора через нажатие клавиши SPACE. Если вы используете расширенный автоподбор (<code>Enable advanced pick-up</code>), простой режим автоматически отключается. Используйте только <strong>один</strong> из двух режимов.</p>
+
+    <h4>❓ Что делает флажок «Move To»?</h4>
+    <p>Если включён Move To, персонаж автоматически переместится к предмету на земле, подберёт его и вернётся на исходную позицию. Без Move To предмет подбирается только если находится рядом с персонажем.</p>
+
+    <h4>❓ Можно ли подобрать предмет, которого нет в списке?</h4>
+    <p>Да. Используйте функцию «Custom Items»: включите галочки Pick (и при необходимости Move To) для строки «Custom Items», введите код предмета в поле «Item code» или используйте команду <code>//pick &lt;high&gt; &lt;low&gt;</code> в чате.</p>
+
+    <h4>❓ Как узнать код предмета для //pick?</h4>
+    <p>Код предмета состоит из двух байтов: <code>high</code> и <code>low</code>. Они вычисляются из типа и индекса предмета в игре. Подробное описание кодов предметов см. в <a href="MUAutoClicker_Guide.html#hex-codes">основном руководстве</a>.</p>
+
+    <h4>❓ Настройки сбрасываются после перезапуска. Что делать?</h4>
+    <p>Настройки автоподбора применяются при каждом запуске кликера (<span class="key">F5</span> / <span class="key">F6</span>). Убедитесь, что перед запуском кликера вы нажали OK в окне настроек (<span class="key">F9</span>).</p>
+
+    <h4>❓ Персонаж двигается слишком медленно при подборе с Move To. Как ускорить?</h4>
+    <p>Используйте команду <code>//pickrunmode on</code> в чате для включения принудительного режима бега. Также автоматический режим (<code>//pickautorunmode on</code>) выбирает бег, если уровень ботинок персонажа выше 5.</p>
+
+    <h4>❓ Автоподбор работал, но внезапно перестал. Что случилось?</h4>
+    <p>Возможные причины:</p>
+    <ul>
+        <li>Сработала опция скрытности (Stealth) — рядом появился другой игрок</li>
+        <li>Произошла телепортация на другую карту — после смены карты фильтры могут сброситься</li>
+        <li>Инвентарь заполнен — нет места для подбора новых предметов</li>
+    </ul>
+    <p>Попробуйте перезапустить кликер: <span class="key">F8</span> (стоп) → <span class="key">F5</span> (старт).</p>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
+<div class="footer">
+    <p>MUAutoClicker — Инструкция по настройке автоподбора предметов</p>
+    <p>Для полного руководства по программе см. <a href="MUAutoClicker_Guide.html" style="color: #90caf9;">Полное руководство MUAutoClicker</a></p>
+</div>
+
+</body>
+</html>
