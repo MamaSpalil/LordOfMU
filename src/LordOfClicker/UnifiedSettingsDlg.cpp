@@ -2,8 +2,10 @@
 #include "UnifiedSettingsDlg.h"
 #include "version.h"
 #include <commctrl.h>
+#include <uxtheme.h>
 
 #pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "uxtheme.lib")
 
 static const DWORD s_arrHealTimes[] = {0, 1000, 3000, 5000, 7000, 10000, 15000};
 
@@ -28,6 +30,9 @@ INT_PTR CALLBACK CUnifiedSettingsDlg::TabPageDlgProc(HWND hDlg, UINT uMsg, WPARA
 	case WM_CTLCOLORDLG:
 	case WM_CTLCOLOREDIT:
 	case WM_CTLCOLORLISTBOX:
+		return (INT_PTR)::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
+
+	case WM_DRAWITEM:
 		return (INT_PTR)::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
 
 	case WM_ERASEBKGND:
@@ -56,10 +61,16 @@ CUnifiedSettingsDlg::CUnifiedSettingsDlg(CClickerSettings& cSettings)
 	m_hwndTabGeneral = NULL;
 	m_hwndTabClass = NULL;
 	m_hwndTabPickup = NULL;
+	m_hEditBrush = NULL;
 }
 
 CUnifiedSettingsDlg::~CUnifiedSettingsDlg()
 {
+	if (m_hEditBrush != NULL)
+	{
+		DeleteObject(m_hEditBrush);
+		m_hEditBrush = NULL;
+	}
 }
 
 
@@ -107,6 +118,8 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 
 		if (m_cTheme.GetTabFont() != NULL)
 			::SendMessage(hwndTab, WM_SETFONT, (WPARAM)m_cTheme.GetTabFont(), TRUE);
+
+		ThemeTabControl(hwndTab);
 	}
 
 	// Get tab display area for child positioning
@@ -199,6 +212,14 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 			rcTab.right - rcTab.left, rcTab.bottom - rcTab.top,
 			SWP_NOZORDER);
 	}
+
+	// Create edit brush for themed edit controls
+	m_hEditBrush = CreateSolidBrush(CMuTheme::ClrBtnBg());
+
+	// Subclass all checkboxes and separators in the entire dialog hierarchy
+	// for dark-gold themed drawing (EnumChildWindows is recursive)
+	SubclassCheckboxes(m_hWnd);
+	SubclassSeparators(m_hWnd);
 
 	// Set version label
 	HWND hwndVersion = GetDlgItem(IDC_VERSION_LABEL);
@@ -741,6 +762,18 @@ LRESULT CUnifiedSettingsDlg::OnCtlColorDlg(UINT, WPARAM wParam, LPARAM lParam, B
 }
 
 
+LRESULT CUnifiedSettingsDlg::OnCtlColorEdit(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	HDC hDC = (HDC)wParam;
+	SetBkMode(hDC, OPAQUE);
+	SetBkColor(hDC, CMuTheme::ClrBtnBg());
+	SetTextColor(hDC, CMuTheme::ClrBodyText());
+
+	bHandled = TRUE;
+	return (LRESULT)m_hEditBrush;
+}
+
+
 LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	LPDRAWITEMSTRUCT lpDIS = (LPDRAWITEMSTRUCT)lParam;
@@ -748,6 +781,14 @@ LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		bHandled = FALSE;
 		return 0;
+	}
+
+	// Handle owner-draw tab items
+	if (lpDIS->CtlType == ODT_TAB)
+	{
+		DrawThemedTab(lpDIS);
+		bHandled = TRUE;
+		return TRUE;
 	}
 
 	// Handle owner-draw buttons (Apply/Cancel)
@@ -770,4 +811,393 @@ LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL
 
 	bHandled = FALSE;
 	return 0;
+}
+
+
+// -----------------------------------------------------------------------
+// Theme helpers
+// -----------------------------------------------------------------------
+
+void CUnifiedSettingsDlg::ThemeTabControl(HWND hwndTab)
+{
+	if (hwndTab == NULL) return;
+
+	// Disable visual styles on the tab control so owner-draw works cleanly
+	SetWindowTheme(hwndTab, L"", L"");
+
+	// Add TCS_OWNERDRAWTABS style so WM_DRAWITEM is sent for each tab
+	LONG lStyle = ::GetWindowLong(hwndTab, GWL_STYLE);
+	::SetWindowLong(hwndTab, GWL_STYLE, lStyle | TCS_OWNERDRAWTABS);
+
+	// Subclass tab control to paint its background/border
+	SetWindowSubclass(hwndTab, TabSubclassProc, 1, (DWORD_PTR)&m_cTheme);
+}
+
+
+static BOOL CALLBACK EnumSubclassCheckboxesProc(HWND hWnd, LPARAM lParam)
+{
+	TCHAR szClass[64] = {0};
+	GetClassName(hWnd, szClass, 63);
+	if (_tcsicmp(szClass, _T("Button")) != 0)
+		return TRUE;
+
+	LONG lStyle = ::GetWindowLong(hWnd, GWL_STYLE);
+	LONG lType = lStyle & BS_TYPEMASK;
+
+	// Only subclass auto-checkboxes and 3-state checkboxes
+	if (lType != BS_AUTOCHECKBOX && lType != BS_CHECKBOX && lType != BS_AUTO3STATE)
+		return TRUE;
+
+	CMuTheme* pTheme = (CMuTheme*)lParam;
+	SetWindowSubclass(hWnd, CUnifiedSettingsDlg::CheckboxSubclassProc, 2, (DWORD_PTR)pTheme);
+	return TRUE;
+}
+
+
+void CUnifiedSettingsDlg::SubclassCheckboxes(HWND hwndParent)
+{
+	if (hwndParent == NULL) return;
+	EnumChildWindows(hwndParent, EnumSubclassCheckboxesProc, (LPARAM)&m_cTheme);
+}
+
+
+void CUnifiedSettingsDlg::DrawThemedTab(LPDRAWITEMSTRUCT lpDIS)
+{
+	HDC hDC = lpDIS->hDC;
+	RECT rc = lpDIS->rcItem;
+	BOOL bSelected = (lpDIS->itemState & ODS_SELECTED) != 0;
+
+	// Fill tab background
+	COLORREF clrBg = bSelected ? CMuTheme::ClrTabActive() : CMuTheme::ClrTabInactive();
+	HBRUSH hBr = CreateSolidBrush(clrBg);
+	FillRect(hDC, &rc, hBr);
+	DeleteObject(hBr);
+
+	// Draw tab border
+	COLORREF clrBorder = bSelected ? CMuTheme::ClrFrameBright() : CMuTheme::ClrFrameGold();
+	HPEN hPen = CreatePen(PS_SOLID, 1, clrBorder);
+	HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+	HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+
+	// Draw top and sides (no bottom for selected tab)
+	MoveToEx(hDC, rc.left, rc.bottom - 1, NULL);
+	LineTo(hDC, rc.left, rc.top);
+	LineTo(hDC, rc.right - 1, rc.top);
+	LineTo(hDC, rc.right - 1, rc.bottom - 1);
+	if (!bSelected)
+		LineTo(hDC, rc.left, rc.bottom - 1);
+
+	SelectObject(hDC, hOldPen);
+	SelectObject(hDC, hOldBr);
+	DeleteObject(hPen);
+
+	// Draw tab text
+	TCHAR szText[64] = {0};
+	TCITEM tci;
+	memset(&tci, 0, sizeof(tci));
+	tci.mask = TCIF_TEXT;
+	tci.pszText = szText;
+	tci.cchTextMax = 63;
+	TabCtrl_GetItem(lpDIS->hwndItem, lpDIS->itemID, &tci);
+
+	SetBkMode(hDC, TRANSPARENT);
+	SetTextColor(hDC, bSelected ? CMuTheme::ClrActiveText() : CMuTheme::ClrBodyText());
+
+	if (m_cTheme.GetTabFont() != NULL)
+		SelectObject(hDC, m_cTheme.GetTabFont());
+
+	DrawText(hDC, szText, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+}
+
+
+void CUnifiedSettingsDlg::DrawThemedCheckbox(LPDRAWITEMSTRUCT lpDIS)
+{
+	// Not used directly - checkboxes are drawn via subclass WM_PAINT
+}
+
+
+static BOOL CALLBACK EnumSubclassSeparatorsProc(HWND hWnd, LPARAM lParam)
+{
+	TCHAR szClass[64] = {0};
+	GetClassName(hWnd, szClass, 63);
+	if (_tcsicmp(szClass, _T("Static")) != 0)
+		return TRUE;
+
+	LONG lStyle = ::GetWindowLong(hWnd, GWL_STYLE);
+	LONG lType = lStyle & SS_TYPEMASK;
+
+	// Only subclass SS_ETCHEDHORZ static controls
+	if (lType != SS_ETCHEDHORZ)
+		return TRUE;
+
+	CMuTheme* pTheme = (CMuTheme*)lParam;
+	SetWindowSubclass(hWnd, CUnifiedSettingsDlg::SeparatorSubclassProc, 3, (DWORD_PTR)pTheme);
+	return TRUE;
+}
+
+
+void CUnifiedSettingsDlg::SubclassSeparators(HWND hwndParent)
+{
+	if (hwndParent == NULL) return;
+	EnumChildWindows(hwndParent, EnumSubclassSeparatorsProc, (LPARAM)&m_cTheme);
+}
+
+
+// -----------------------------------------------------------------------
+// Separator subclass: paints gold line instead of white etched line
+// -----------------------------------------------------------------------
+LRESULT CALLBACK CUnifiedSettingsDlg::SeparatorSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	CMuTheme* pTheme = (CMuTheme*)dwRefData;
+
+	switch (uMsg)
+	{
+	case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hWnd, &ps);
+
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+
+			// Fill background with panel color
+			FillRect(hDC, &rc, pTheme->GetPanelBrush());
+
+			// Draw gold separator line at vertical center
+			int yMid = (rc.top + rc.bottom) / 2;
+			HPEN hPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrSeparator());
+			HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+			MoveToEx(hDC, rc.left, yMid, NULL);
+			LineTo(hDC, rc.right, yMid);
+			SelectObject(hDC, hOldPen);
+			DeleteObject(hPen);
+
+			EndPaint(hWnd, &ps);
+			return 0;
+		}
+
+	case WM_NCDESTROY:
+		RemoveWindowSubclass(hWnd, SeparatorSubclassProc, uIdSubclass);
+		break;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+
+// -----------------------------------------------------------------------
+// Tab control subclass: paints background and border in dark-gold theme
+// -----------------------------------------------------------------------
+LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	CMuTheme* pTheme = (CMuTheme*)dwRefData;
+
+	switch (uMsg)
+	{
+	case WM_ERASEBKGND:
+		{
+			HDC hDC = (HDC)wParam;
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+
+			// Fill entire tab control area with panel background
+			FillRect(hDC, &rc, pTheme->GetPanelBrush());
+
+			// Draw a gold border around the tab display area
+			RECT rcDisplay = rc;
+			TabCtrl_AdjustRect(hWnd, FALSE, &rcDisplay);
+			rcDisplay.left -= 2;
+			rcDisplay.top -= 2;
+			rcDisplay.right += 2;
+			rcDisplay.bottom += 2;
+
+			HPEN hPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrFrameGold());
+			HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+			HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+			Rectangle(hDC, rcDisplay.left, rcDisplay.top, rcDisplay.right, rcDisplay.bottom);
+			SelectObject(hDC, hOldPen);
+			SelectObject(hDC, hOldBr);
+			DeleteObject(hPen);
+
+			return 1;
+		}
+
+	case WM_PAINT:
+		{
+			// Let the default handler draw the tab items, then paint over the body border
+			LRESULT lr = DefSubclassProc(hWnd, uMsg, wParam, lParam);
+
+			HDC hDC = GetDC(hWnd);
+			if (hDC != NULL)
+			{
+				RECT rc;
+				GetClientRect(hWnd, &rc);
+
+				// Paint over the default body border with dark-gold border
+				RECT rcDisplay = rc;
+				TabCtrl_AdjustRect(hWnd, FALSE, &rcDisplay);
+				rcDisplay.left -= 2;
+				rcDisplay.top -= 2;
+				rcDisplay.right += 2;
+				rcDisplay.bottom += 2;
+
+				HPEN hPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrFrameGold());
+				HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+				HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+				Rectangle(hDC, rcDisplay.left, rcDisplay.top, rcDisplay.right, rcDisplay.bottom);
+				SelectObject(hDC, hOldPen);
+				SelectObject(hDC, hOldBr);
+				DeleteObject(hPen);
+
+				ReleaseDC(hWnd, hDC);
+			}
+			return lr;
+		}
+
+	case WM_NCDESTROY:
+		RemoveWindowSubclass(hWnd, TabSubclassProc, uIdSubclass);
+		break;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+
+// -----------------------------------------------------------------------
+// Checkbox subclass: custom paints checkbox with dark-gold theme bitmaps
+// -----------------------------------------------------------------------
+LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	CMuTheme* pTheme = (CMuTheme*)dwRefData;
+
+	switch (uMsg)
+	{
+	case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hWnd, &ps);
+
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+
+			// Fill background with panel color
+			FillRect(hDC, &rc, pTheme->GetPanelBrush());
+
+			// Get checkbox state
+			BOOL bChecked = (::SendMessage(hWnd, BM_GETCHECK, 0, 0) == BST_CHECKED);
+			BOOL bEnabled = ::IsWindowEnabled(hWnd);
+
+			// Select the appropriate checkbox bitmap
+			HBITMAP hBmp = NULL;
+			if (bChecked)
+				hBmp = bEnabled ? pTheme->GetChkChecked() : pTheme->GetChkCheckedDis();
+			else
+				hBmp = bEnabled ? pTheme->GetChkUnchecked() : pTheme->GetChkUncheckedDis();
+
+			// Get checkbox text and style for layout
+			TCHAR szText[256] = {0};
+			::GetWindowText(hWnd, szText, 255);
+			LONG lStyle = ::GetWindowLong(hWnd, GWL_STYLE);
+			BOOL bLeftText = (lStyle & BS_LEFTTEXT) != 0;
+
+			int boxSize = 13;  // Standard checkbox box size
+
+			if (hBmp != NULL)
+			{
+				BITMAP bm;
+				GetObject(hBmp, sizeof(bm), &bm);
+				boxSize = bm.bmWidth;
+
+				HDC hMemDC = CreateCompatibleDC(hDC);
+				HBITMAP hOldBmp = (HBITMAP)SelectObject(hMemDC, hBmp);
+
+				int yBox = rc.top + (rc.bottom - rc.top - bm.bmHeight) / 2;
+				int xBox;
+
+				if (bLeftText)
+					xBox = rc.right - bm.bmWidth;
+				else
+					xBox = rc.left;
+
+				BitBlt(hDC, xBox, yBox, bm.bmWidth, bm.bmHeight, hMemDC, 0, 0, SRCCOPY);
+
+				SelectObject(hMemDC, hOldBmp);
+				DeleteDC(hMemDC);
+			}
+			else
+			{
+				// Fallback: draw a simple themed checkbox box
+				int yBox = rc.top + (rc.bottom - rc.top - boxSize) / 2;
+				int xBox = bLeftText ? (rc.right - boxSize) : rc.left;
+
+				RECT rcBox = {xBox, yBox, xBox + boxSize, yBox + boxSize};
+
+				HBRUSH hBoxBr = CreateSolidBrush(CMuTheme::ClrBtnBg());
+				FillRect(hDC, &rcBox, hBoxBr);
+				DeleteObject(hBoxBr);
+
+				HPEN hPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrFrameGold());
+				HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+				HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+				Rectangle(hDC, rcBox.left, rcBox.top, rcBox.right, rcBox.bottom);
+				SelectObject(hDC, hOldPen);
+				SelectObject(hDC, hOldBr);
+				DeleteObject(hPen);
+
+				if (bChecked)
+				{
+					HPEN hChkPen = CreatePen(PS_SOLID, 2,
+						bEnabled ? CMuTheme::ClrCheckMark() : CMuTheme::ClrDisabledText());
+					hOldPen = (HPEN)SelectObject(hDC, hChkPen);
+					// Draw checkmark
+					MoveToEx(hDC, rcBox.left + 2, rcBox.top + boxSize/2, NULL);
+					LineTo(hDC, rcBox.left + boxSize/3 + 1, rcBox.bottom - 3);
+					LineTo(hDC, rcBox.right - 2, rcBox.top + 2);
+					SelectObject(hDC, hOldPen);
+					DeleteObject(hChkPen);
+				}
+			}
+
+			// Draw text if present
+			if (szText[0] != 0)
+			{
+				SetBkMode(hDC, TRANSPARENT);
+				SetTextColor(hDC, bEnabled ? CMuTheme::ClrBodyText() : CMuTheme::ClrDisabledText());
+
+				if (pTheme->GetBodyFont() != NULL)
+					SelectObject(hDC, pTheme->GetBodyFont());
+
+				RECT rcText = rc;
+				if (bLeftText)
+				{
+					rcText.right -= boxSize + 3;
+					DrawText(hDC, szText, -1, &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+				}
+				else
+				{
+					rcText.left += boxSize + 3;
+					DrawText(hDC, szText, -1, &rcText, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+				}
+			}
+
+			EndPaint(hWnd, &ps);
+			return 0;
+		}
+
+	case WM_ENABLE:
+		::InvalidateRect(hWnd, NULL, TRUE);
+		break;
+
+	case WM_NCDESTROY:
+		RemoveWindowSubclass(hWnd, CheckboxSubclassProc, uIdSubclass);
+		break;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
