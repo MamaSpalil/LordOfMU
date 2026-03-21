@@ -117,7 +117,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 
 IF "$(Configuration)" == "Release [Antihack]" (
 copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
@@ -152,7 +152,7 @@ copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 
 IF "$(Configuration)" == "Release [Antihack]" (
 copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
@@ -187,7 +187,7 @@ copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 
 IF "$(Configuration)" == "Release [Antihack]" (
 copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
@@ -222,7 +222,7 @@ copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\$(TargetName).ilk" /Q /F
+      <Command>if exist "$(TargetDir)\$(TargetName).ilk" del "$(TargetDir)\$(TargetName).ilk" /Q /F
 
 IF "$(Configuration)" == "Release [Antihack]" (
 copy /Y "$(TargetDir)\$(TargetName).dll" "$(TargetDir)\anti.dll"
