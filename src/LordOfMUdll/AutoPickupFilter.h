@@ -120,6 +120,7 @@ private:
 	bool m_fSuspZen;
 	bool m_fSuspMove;
 	volatile bool m_fWalking;
+	bool m_fDebugMoveTo;
 	int	 m_iDist;
 
 	static const int WALK_MS_PER_TILE = 150;

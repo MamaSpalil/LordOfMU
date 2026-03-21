@@ -57,6 +57,7 @@ CGameCommands::CGameCommands(CProxy* pProxy)
 
 	AddCommand("die", new CDieCommandHandler(pProxy));
 	AddCommand("help", new CHelpCommandHandler(pProxy, m_cCommands));
+	AddCommand("pickdebug", new CPickDebugCommandHandler(pProxy));
 #endif
 
 
@@ -976,6 +977,37 @@ bool CPickDistCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	}
 
 	GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up distance set to %d [OK].", dist));
+	return true;
+}
+
+
+/**
+ * \brief 
+ */
+bool CPickDebugCommandHandler::ProcessCommand(const char* cmd, const char* args)
+{
+	bool fCmd = false;
+
+	if (_stricmp(args, "on") == 0)
+		fCmd = true;
+	else if (_stricmp(args, "off") == 0)
+		fCmd = false;
+	else
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
+	if (!pPickFilter)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
+		return false;
+	}
+
+	pPickFilter->SetParam("pickdebug", &fCmd);
+	GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up debug mode %s [OK].", args));
 	return true;
 }
 
