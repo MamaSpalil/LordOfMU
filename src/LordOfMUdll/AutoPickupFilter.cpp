@@ -28,6 +28,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fSuspPick = false;
 	m_fSuspZen = false;
 	m_fSuspMove = false;
+	m_fWalking = false;
 
 	InitializeCriticalSection(&m_csQueue);
 
@@ -230,6 +231,17 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
  */
 int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
+	if (m_fWalking)
+	{
+		if (pkt == CNormalAttackPacket::Type()
+			|| pkt == CSingleSkillPacket::Type()
+			|| pkt == CMassiveSkillPacket::Type()
+			|| pkt == CCharMoveCTSPacket::Type())
+		{
+			return -1;
+		}
+	}
+
 	ProcessDropQueue();
 	ProcessNoMovePickupQueue();
 	return 0;
@@ -369,6 +381,7 @@ void CAutoPickupFilter::GoPickNextItem()
 	BYTE y = 0;
 	bool fSuspended = false;
 	bool fSuspMove = false;
+	bool fHasItem = false;
 
 	EnterCriticalSection(&m_csQueue);
 
@@ -380,6 +393,7 @@ void CAutoPickupFilter::GoPickNextItem()
 		wItem = LOWORD(ulItemInfo);
 		x = LOBYTE(HIWORD(ulItemInfo));
 		y = HIBYTE(HIWORD(ulItemInfo));
+		fHasItem = true;
 	}
 
 	if (m_vPickQueue.size() == 0)
@@ -388,6 +402,9 @@ void CAutoPickupFilter::GoPickNextItem()
 	fSuspended = m_fSuspended;
 	fSuspMove = m_fSuspMove;
 	LeaveCriticalSection(&m_csQueue);
+
+	if (!fHasItem)
+		return;
 
 	CPacketFilter* pCharInfo = GetProxy()->GetFilter("CharInfoFilter");
 	CPacketFilter* pScript = GetProxy()->GetFilter("ScriptProcessorFilter");
@@ -416,6 +433,7 @@ void CAutoPickupFilter::GoPickNextItem()
 				pAutoKill->SetParam("suspended", (void*)&fTemp);
 		}
 
+		m_fWalking = true;
 		Sleep(350);
 
 		CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
@@ -434,6 +452,8 @@ void CAutoPickupFilter::GoPickNextItem()
 		// Walk back to original position step by step
 		CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
 		WalkTo(wPlayerId, x, y, xOld, yOld);
+
+		m_fWalking = false;
 
 		bool fTemp = false;
 		if (!fSuspended)
@@ -504,9 +524,9 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
 		GetProxy()->recv_packet(pktMoveSTC);
 
-		// Update server position (emulate client telling server where character moved)
+		// Update server position (bypass filter chain to avoid being blocked)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
-		GetProxy()->send_packet(pktMoveCTS);
+		GetProxy()->send_direct(pktMoveCTS);
 
 		// Wait per tile to emulate walking speed
 		Sleep(WALK_MS_PER_TILE);
