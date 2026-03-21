@@ -78,9 +78,13 @@ static bool GetConnectIniIP(char* szIP, int cbIP)
 /**
  * \brief Patch Main.dll's in-memory IP string with the value from Connect.ini.
  *        Main.dll is embedded in Main.exe and contains a hardcoded server IP.
- *        This function locates the IP string in Main.dll's loaded image,
- *        auto-creates Connect.ini with the found IP if the file does not exist,
- *        then overwrites the IP so the game client connects to the configured server.
+ *        Flow:
+ *        1. Scans Main.dll for the hardcoded IP ("192.168.0.105") first
+ *        2. Extracts the actual IP from the found location in Main.dll
+ *        3. Auto-creates Connect.ini with the extracted IP if the file is missing
+ *        4. Reads the configured IP from Connect.ini
+ *        5. Compares Connect.ini IP with Main.dll IP — skips if they match
+ *        6. Patches Main.dll in memory with Connect.ini's IP when they differ
  */
 static void PatchMainDllIP()
 {
@@ -96,25 +100,39 @@ static void PatchMainDllIP()
 	IMAGE_NT_HEADERS* pNt = (IMAGE_NT_HEADERS*)((BYTE*)hMain + pDos->e_lfanew);
 	DWORD dwModuleSize = pNt->OptionalHeader.SizeOfImage;
 
-	// Search for the hardcoded IP string in Main.dll's loaded memory.
+	// Scan Main.dll for the hardcoded IP string first, before reading Connect.ini.
 	// The binary has 16 bytes at this location: "192.168.0.105\0\0\0" followed
 	// by the next data string, so any IPv4 address (max 15 chars) fits.
-	static const char szOriginalIP[] = "192.168.0.105";
+	static const char szSearchIP[] = "192.168.0.105";
 	static const size_t cbPatchSize = 16;
 	BYTE* pBase = (BYTE*)hMain;
-	BYTE* pEnd = pBase + dwModuleSize - sizeof(szOriginalIP);
+	BYTE* pEnd = pBase + dwModuleSize - sizeof(szSearchIP);
 	BYTE* pFound = NULL;
 
 	for (BYTE* p = pBase; p < pEnd; p++)
 	{
-		if (memcmp(p, szOriginalIP, sizeof(szOriginalIP)) == 0)
+		if (memcmp(p, szSearchIP, sizeof(szSearchIP)) == 0)
 		{
 			pFound = p;
 			break;
 		}
 	}
 
-	// Auto-create Connect.ini next to Main.dll with the hardcoded IP if missing
+	// Extract the actual IP string from the found location in Main.dll
+	char szMainDllIP[16] = {0};
+	if (pFound)
+	{
+		// Read up to 15 chars (max IPv4 length) from the found location,
+		// stopping at the first null byte within the 16-byte field
+		size_t i;
+		for (i = 0; i < cbPatchSize - 1 && pFound[i] != '\0'; i++)
+			szMainDllIP[i] = (char)pFound[i];
+		szMainDllIP[i] = '\0';
+
+		CDebugOut::PrintAlways("[PATCH] Extracted hardcoded IP from Main.dll: '%s'", szMainDllIP);
+	}
+
+	// Auto-create Connect.ini next to Main.dll with the extracted IP if missing
 	char szIniPath[_MAX_PATH + 1] = {0};
 	GetConnectIniPath(szIniPath, sizeof(szIniPath));
 
@@ -123,8 +141,10 @@ static void PatchMainDllIP()
 		DWORD dwErr = GetLastError();
 		if (dwErr == ERROR_FILE_NOT_FOUND || dwErr == ERROR_PATH_NOT_FOUND)
 		{
-			if (WritePrivateProfileStringA("Config", "IP", szOriginalIP, szIniPath))
-				CDebugOut::PrintAlways("[CONFIG] Created Connect.ini with default IP: %s", szOriginalIP);
+			// Use the IP extracted from Main.dll; fall back to the search pattern
+			const char* szDefaultIP = (szMainDllIP[0] != '\0') ? szMainDllIP : szSearchIP;
+			if (WritePrivateProfileStringA("Config", "IP", szDefaultIP, szIniPath))
+				CDebugOut::PrintAlways("[CONFIG] Created Connect.ini with IP from Main.dll: %s", szDefaultIP);
 			else
 				CDebugOut::PrintAlways("[CONFIG] Failed to create Connect.ini at '%s', error %d",
 					szIniPath, GetLastError());
@@ -138,7 +158,7 @@ static void PatchMainDllIP()
 
 	if (!pFound)
 	{
-		CDebugOut::PrintAlways("[PATCH] Hardcoded IP '%s' not found in Main.dll", szOriginalIP);
+		CDebugOut::PrintAlways("[PATCH] Hardcoded IP '%s' not found in Main.dll", szSearchIP);
 		return;
 	}
 
@@ -150,13 +170,16 @@ static void PatchMainDllIP()
 		return;
 	}
 
-	// Skip patching if the configured IP matches the hardcoded one
-	if (strcmp(szNewIP, szOriginalIP) == 0)
+	// Skip patching when the Connect.ini IP matches the IP currently in Main.dll
+	if (strcmp(szNewIP, szMainDllIP) == 0)
 	{
-		CDebugOut::PrintAlways("[PATCH] Connect.ini IP matches hardcoded IP (%s), no patch needed",
+		CDebugOut::PrintAlways("[PATCH] Connect.ini IP matches Main.dll IP (%s), no patch needed",
 			szNewIP);
 		return;
 	}
+
+	CDebugOut::PrintAlways("[PATCH] IP mismatch: Main.dll='%s', Connect.ini='%s' - patching",
+		szMainDllIP, szNewIP);
 
 	// Validate new IP length fits in the available buffer space
 	size_t cbNewIP = strlen(szNewIP);
@@ -191,9 +214,9 @@ static void PatchMainDllIP()
 	VirtualProtect(pFound, cbPatchSize, dwOldProtect, &dwDummy);
 
 	CDebugOut::PrintAlways("[PATCH] Main.dll IP patched: '%s' -> '%s' at 0x%p",
-		szOriginalIP, szNewIP, pFound);
+		szMainDllIP, szNewIP, pFound);
 	WriteHookLog("Main.dll IP patched: %s -> %s at offset 0x%X",
-		szOriginalIP, szNewIP, (DWORD)(pFound - pBase));
+		szMainDllIP, szNewIP, (DWORD)(pFound - pBase));
 }
 
 
