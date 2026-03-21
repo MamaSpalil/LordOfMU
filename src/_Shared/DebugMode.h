@@ -135,9 +135,10 @@ public:
 		WaitForSingleObject(hMutex, INFINITE);
 
 		time_t t = time(NULL);
-		struct tm* tm_info = localtime(&t);
+		struct tm tm_storage = {0};
+		localtime_s(&tm_storage, &t);
 		char szTime[32] = {0};
-		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 		char szMessage[1024] = {0};
 		va_list args;
@@ -278,9 +279,10 @@ private:
 		strncat(szPath, "ClickerLog.txt", MAX_PATH - strlen(szPath) - 1);
 
 		time_t t = time(NULL);
-		struct tm* tm_info = localtime(&t);
+		struct tm tm_storage = {0};
+		localtime_s(&tm_storage, &t);
 		char szTime[32] = {0};
-		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 		char szMessage[1024] = {0};
 		va_list args;

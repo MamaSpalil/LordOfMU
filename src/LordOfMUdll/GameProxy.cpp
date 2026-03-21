@@ -25,11 +25,15 @@ static void FormatPacketHex(const BYTE* pData, int nLen, char* szOut, int cbOut,
 	for (int i = 0; i < nShow && nPos + 4 < cbOut; i++)
 	{
 		if (i > 0) szOut[nPos++] = ' ';
-		nPos += _snprintf(szOut + nPos, cbOut - nPos - 1, "%02X", pData[i]);
+		int nWritten = _snprintf(szOut + nPos, cbOut - nPos - 1, "%02X", pData[i]);
+		if (nWritten > 0) nPos += nWritten; else break;
 	}
 
 	if (nLen > nMaxBytes && nPos + 4 < cbOut)
-		nPos += _snprintf(szOut + nPos, cbOut - nPos - 1, "...");
+	{
+		int nWritten = _snprintf(szOut + nPos, cbOut - nPos - 1, "...");
+		if (nWritten > 0) nPos += nWritten;
+	}
 
 	szOut[nPos] = '\0';
 }
