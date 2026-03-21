@@ -6,6 +6,7 @@
 #include "Proxifier.h"
 #include "DebugOut.h"
 #include "DebugMode.h"
+#include "ClickerLogger.h"
 
 TCHAR g_szRoot[_MAX_PATH + 1] = {0};
 static HINSTANCE g_hDllInstance = NULL;
@@ -27,9 +28,11 @@ static BOOL CheckDllHookPresence()
 	if (hMod && hMod != g_hDllInstance)
 	{
 		CDebugOut::PrintAlways("[HOOK_CHECK] Another instance of LordOfMU DLL detected at 0x%p", hMod);
+		WriteHookLog("DLL hook already present: another instance at 0x%p (our instance 0x%p)", hMod, g_hDllInstance);
 		return TRUE;
 	}
 
+	WriteHookLog("DLL hook presence check passed - no duplicate DLL detected");
 	return FALSE;
 }
 
@@ -46,15 +49,18 @@ static void VerifyHookIntegrity()
 		if (pConnect && pConnect[0] == 0xE9)
 		{
 			CDebugOut::PrintAlways("[HOOK_CHECK] ws2_32!connect hook is active (JMP at 0x%p)", pConnect);
+			WriteHookLog("Hook integrity OK: ws2_32!connect hook active (JMP 0xE9 at 0x%p)", pConnect);
 		}
 		else if (pConnect)
 		{
 			CDebugOut::PrintAlways("[HOOK_CHECK] WARNING: ws2_32!connect hook is NOT active (byte=0x%02X at 0x%p)", pConnect[0], pConnect);
+			WriteHookLog("Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x%02X at 0x%p)", pConnect[0], pConnect);
 		}
 	}
 	else
 	{
 		CDebugOut::PrintAlways("[HOOK_CHECK] ws2_32.dll not loaded yet - hooks will be applied during init");
+		WriteHookLog("ws2_32.dll not yet loaded - hooks pending");
 	}
 }
 
@@ -66,12 +72,14 @@ static void VerifyHookIntegrity()
 static void CleanupDllHook()
 {
 	CDebugOut::PrintAlways("[HOOK_CLEANUP] Cleaning up DLL hooks from main.exe process...");
+	WriteHookLog("Starting DLL hook cleanup from main.exe process");
 
 	CProxifier::CleanUp();
 
 	InterlockedExchange(&g_lHookApplied, 0);
 
 	CDebugOut::PrintAlways("[HOOK_CLEANUP] DLL hook cleanup complete. All hooks removed.");
+	WriteHookLog("DLL hook cleanup complete - all hooks removed, g_lHookApplied reset to 0");
 }
 
 
@@ -98,15 +106,18 @@ protected:
 	{
 		CDebugOut::Init();
 		CDebugOut::PrintAlways("=== LordOfMU DLL initializing (InternalInit) ===");
+		WriteDebugLog("LordOfMU DLL initializing (InternalInit)");
 
 		// Install crash handler for main.exe
 		CDebugMode::Install();
 		CDebugOut::PrintAlways("[DEBUG_MODE] Crash handler installed for main.exe");
+		WriteHookLog("Crash handler installed for main.exe process");
 
 		// Check for existing DLL hook presence
 		if (CheckDllHookPresence())
 		{
 			CDebugOut::PrintAlways("[HOOK_CHECK] DLL hook already present - skipping re-initialization");
+			WriteHookLog("DLL hook already present - skipping re-initialization");
 			return true;
 		}
 
@@ -117,39 +128,48 @@ protected:
 		if (InterlockedCompareExchange(&g_lHookApplied, 1, 0) == 0)
 		{
 			CDebugOut::PrintAlways("[HOOK] Applying DLL hooks for the first time...");
+			WriteHookLog("Applying DLL hooks for the first time (InterlockedCompareExchange 0->1)");
 			if (CProxifier::StartUp())
 			{
 				CDebugOut::PrintAlways("[HOOK] DLL hooks applied successfully.");
+				WriteHookLog("DLL hooks applied successfully - proxy system active");
 			}
 			else
 			{
 				CDebugOut::PrintAlways("[HOOK] ERROR: DLL hook installation failed! Game will run without proxy.");
+				WriteHookLog("ERROR: DLL hook installation failed - game running without proxy");
 				InterlockedExchange(&g_lHookApplied, 0);
 			}
 		}
 		else
 		{
 			CDebugOut::PrintAlways("[HOOK] DLL hooks already applied - skipping duplicate hook.");
+			WriteHookLog("DLL hooks already applied (g_lHookApplied=1) - skipping duplicate");
 		}
 
 		// Post-init hook verification
 		VerifyHookIntegrity();
 
 		CDebugOut::PrintAlways("=== LordOfMU DLL initialization complete ===");
+		WriteDebugLog("LordOfMU DLL initialization complete");
 		return true;
 	}
 
 	static int OnExit(void)
 	{
 		CDebugOut::PrintAlways("=== LordOfMU DLL shutting down (OnExit) ===");
+		WriteDebugLog("LordOfMU DLL shutting down (OnExit)");
+		WriteHookLog("DLL shutdown initiated - starting hook removal from main.exe");
 
 		// Uninstall crash handler
 		CDebugMode::Uninstall();
+		WriteHookLog("Crash handler uninstalled");
 
 		// Clean up hooks when main.exe closes
 		CleanupDllHook();
 
 		CDebugOut::PrintAlways("=== LordOfMU DLL cleanup complete ===");
+		WriteDebugLog("LordOfMU DLL cleanup complete - all resources released");
 		CDebugOut::CleanUp();
 
 		return 0;
@@ -184,6 +204,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 	else if (dwReason == DLL_PROCESS_DETACH)
 	{
 		CDebugOut::PrintAlways("[DLL] DLL_PROCESS_DETACH - game process unloading DLL.");
+		WriteHookLog("DLL_PROCESS_DETACH - main.exe unloading LordOfMU DLL, removing hooks");
 		_AtlModule.TermClient();
 	}
 
