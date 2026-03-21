@@ -391,6 +391,7 @@ void CAutoPickupFilter::GoPickNextItem()
 
 	CPacketFilter* pCharInfo = GetProxy()->GetFilter("CharInfoFilter");
 	CPacketFilter* pScript = GetProxy()->GetFilter("ScriptProcessorFilter");
+	CPacketFilter* pAutoKill = GetProxy()->GetFilter("AutoKillFilter");
 
 	BYTE xOld = 0;
 	BYTE yOld = 0;
@@ -407,8 +408,13 @@ void CAutoPickupFilter::GoPickNextItem()
 	if (!fSuspended || !fSuspMove)
 	{
 		bool fTemp = true;
-		if (pScript && !fSuspended)
-			pScript->SetParam("suspended", (void*)&fTemp);
+		if (!fSuspended)
+		{
+			if (pScript)
+				pScript->SetParam("suspended", (void*)&fTemp);
+			if (pAutoKill)
+				pAutoKill->SetParam("suspended", (void*)&fTemp);
+		}
 
 		Sleep(350);
 
@@ -430,8 +436,13 @@ void CAutoPickupFilter::GoPickNextItem()
 		WalkTo(wPlayerId, x, y, xOld, yOld);
 
 		bool fTemp = false;
-		if (pScript && !fSuspended)
-			pScript->SetParam("suspended", (void*)&fTemp);
+		if (!fSuspended)
+		{
+			if (pScript)
+				pScript->SetParam("suspended", (void*)&fTemp);
+			if (pAutoKill)
+				pAutoKill->SetParam("suspended", (void*)&fTemp);
+		}
 	}
 }
 
