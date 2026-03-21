@@ -35,11 +35,10 @@ class CAutoPickupFilter
 		CDropInfo(BYTE pos){ bInvPos = pos; dwTimestamp = GetTickCount(); }
 		CDropInfo(const CDropInfo& in){ bInvPos = in.bInvPos; dwTimestamp = in.dwTimestamp; }
 
+		CDropInfo& operator=(const CDropInfo& in){ bInvPos = in.bInvPos; dwTimestamp = in.dwTimestamp; return *this; }
+
 		BYTE bInvPos;
 		DWORD dwTimestamp;
-
-	private:
-		void operator=(const CDropInfo& in){}
 	};
 
 	/**  
@@ -50,11 +49,10 @@ class CAutoPickupFilter
 		CPickInfo(WORD wId){ wItemId = wId; dwTimestamp = GetTickCount(); }
 		CPickInfo(const CPickInfo& in){ wItemId = in.wItemId; dwTimestamp = in.dwTimestamp; }
 
+		CPickInfo& operator=(const CPickInfo& in){ wItemId = in.wItemId; dwTimestamp = in.dwTimestamp; return *this; }
+
 		WORD wItemId;
 		DWORD dwTimestamp;
-
-	private:
-		void operator=(const CPickInfo& in){}
 	};
 
 public:
