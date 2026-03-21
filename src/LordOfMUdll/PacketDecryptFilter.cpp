@@ -77,7 +77,7 @@ int CPacketDecryptFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context
 	BYTE* buf = pkt.GetDecryptedPacket();
 	const BYTE* xorP = pkt.GetType().GetXorParams();
 
-	if (xorP && (xorP[0] != 0 || xorP[1] != 0))
+	if (buf && xorP && (xorP[0] != 0 || xorP[1] != 0))
 		CEncDec::DecXor32(buf + xorP[0], xorP[1], len - xorP[0]);
 
 	PostDetectRecvPacketType(pkt);
@@ -119,7 +119,7 @@ int CPacketDecryptFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context
 	BYTE* buf = pkt.GetDecryptedPacket();
 	const BYTE* xorP = pkt.GetType().GetXorParams();
 
-	if (xorP && (xorP[0] != 0 || xorP[1] != 0))
+	if (buf && xorP && (xorP[0] != 0 || xorP[1] != 0))
 		CEncDec::DecXor32(buf + xorP[0], xorP[1], len - xorP[0]);
 
 	PostDetectSendPacketType(pkt);

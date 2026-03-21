@@ -65,7 +65,7 @@ private:
 
 	static const UINT QUEUE_FLAG_DIRECT	= 1;
 
-	static const int io_buffer_size	= 1024;
+	static const int io_buffer_size	= 65536;
 
 	CCharAutoBuffer m_ioBuffer;
 	CCharAutoBuffer m_ioBuffer2;

@@ -59,10 +59,16 @@ int CPacketEncryptFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context
 		if (pkt.GetInjected() != 0)
 			m_ulSendC3Counter = (m_ulSendC3Counter + 1) % 256;
 		else
-			m_bLastSendC3Counter = *(pkt.GetDecryptedPacket() + pkt.GetHdrLen());
+		{
+			BYTE* pDec = pkt.GetDecryptedPacket();
+			if (pDec)
+				m_bLastSendC3Counter = *(pDec + pkt.GetHdrLen());
+		}
 
-		DWORD counter = (m_bLastSendC3Counter + m_ulSendC3Counter) % 256;		
-		*(pkt.GetDecryptedPacket() + pkt.GetHdrLen()) = (BYTE)counter;
+		DWORD counter = (m_bLastSendC3Counter + m_ulSendC3Counter) % 256;
+		BYTE* pDec2 = pkt.GetDecryptedPacket();
+		if (pDec2)
+			*(pDec2 + pkt.GetHdrLen()) = (BYTE)counter;
 
 		CEncDec::EncryptC3asClient(pkt);
 #endif
@@ -87,6 +93,7 @@ void CPacketEncryptFilter::EncryptXOR(CPacket& pkt)
 		int len = pkt.GetDecryptedLen();
 		BYTE* buf = pkt.GetDecryptedPacket();
 
-		CEncDec::EncXor32(buf + xorP[0], xorP[1], len - xorP[0]);
+		if (buf)
+			CEncDec::EncXor32(buf + xorP[0], xorP[1], len - xorP[0]);
 	}
 }
