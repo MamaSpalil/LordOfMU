@@ -829,7 +829,7 @@ void CUnifiedSettingsDlg::ThemeTabControl(HWND hwndTab)
 
 	// Add TCS_OWNERDRAWTABS style so WM_DRAWITEM is sent for each tab
 	LONG lStyle = ::GetWindowLong(hwndTab, GWL_STYLE);
-	::SetWindowLong(hwndTab, GWL_STYLE, lStyle | TCS_OWNERDRAWTABS);
+	::SetWindowLong(hwndTab, GWL_STYLE, lStyle | TCS_OWNERDRAWFIXED);
 
 	// Subclass tab control to paint its background/border
 	SetWindowSubclass(hwndTab, TabSubclassProc, 1, (DWORD_PTR)&m_cTheme);
@@ -953,10 +953,10 @@ LRESULT CALLBACK CUnifiedSettingsDlg::SeparatorSubclassProc(
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hDC = BeginPaint(hWnd, &ps);
+			HDC hDC = ::BeginPaint(hWnd, &ps);
 
 			RECT rc;
-			GetClientRect(hWnd, &rc);
+			::GetClientRect(hWnd, &rc);
 
 			// Fill background with panel color
 			FillRect(hDC, &rc, pTheme->GetPanelBrush());
@@ -970,7 +970,7 @@ LRESULT CALLBACK CUnifiedSettingsDlg::SeparatorSubclassProc(
 			SelectObject(hDC, hOldPen);
 			DeleteObject(hPen);
 
-			EndPaint(hWnd, &ps);
+			::EndPaint(hWnd, &ps);
 			return 0;
 		}
 
@@ -998,7 +998,7 @@ LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
 		{
 			HDC hDC = (HDC)wParam;
 			RECT rc;
-			GetClientRect(hWnd, &rc);
+			::GetClientRect(hWnd, &rc);
 
 			// Fill entire tab control area with panel background
 			FillRect(hDC, &rc, pTheme->GetPanelBrush());
@@ -1027,11 +1027,11 @@ LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
 			// Let the default handler draw the tab items, then paint over the body border
 			LRESULT lr = DefSubclassProc(hWnd, uMsg, wParam, lParam);
 
-			HDC hDC = GetDC(hWnd);
+			HDC hDC = ::GetDC(hWnd);
 			if (hDC != NULL)
 			{
 				RECT rc;
-				GetClientRect(hWnd, &rc);
+				::GetClientRect(hWnd, &rc);
 
 				// Paint over the default body border with dark-gold border
 				RECT rcDisplay = rc;
@@ -1049,7 +1049,7 @@ LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
 				SelectObject(hDC, hOldBr);
 				DeleteObject(hPen);
 
-				ReleaseDC(hWnd, hDC);
+				::ReleaseDC(hWnd, hDC);
 			}
 			return lr;
 		}
@@ -1077,10 +1077,10 @@ LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hDC = BeginPaint(hWnd, &ps);
+			HDC hDC = ::BeginPaint(hWnd, &ps);
 
 			RECT rc;
-			GetClientRect(hWnd, &rc);
+			::GetClientRect(hWnd, &rc);
 
 			// Fill background with panel color
 			FillRect(hDC, &rc, pTheme->GetPanelBrush());
@@ -1182,7 +1182,7 @@ LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
 				}
 			}
 
-			EndPaint(hWnd, &ps);
+			::EndPaint(hWnd, &ps);
 			return 0;
 		}
 
