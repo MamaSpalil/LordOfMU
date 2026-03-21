@@ -6,6 +6,7 @@
 #include "PEUtil.h"
 #include "Psapi.h"
 #include "ClickerLogger.h"
+#include <ws2tcpip.h>
 
 
 /**
@@ -234,9 +235,8 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 		if (GetConnectIniIP(szIP, sizeof(szIP)))
 		{
 			memcpy(&addrOverride, addr, sizeof(addrOverride));
-			addrOverride.sin_addr.s_addr = inet_addr(szIP);
 
-			if (addrOverride.sin_addr.s_addr != INADDR_NONE)
+			if (inet_pton(AF_INET, szIP, &addrOverride.sin_addr) == 1)
 			{
 				CDebugOut::PrintAlways("[SOCKET] Overriding IP from Connect.ini: %s", szIP);
 				WriteSocketLog("IP override from Connect.ini: %s", szIP);
