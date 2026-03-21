@@ -635,4 +635,36 @@ public:
 };
 
 
+/**
+ * \brief Sets the character class for auto-pickup run mode determination
+ */
+class CPickCharClassCommandHandler
+	: public CCommandHandler
+{
+public:
+	CPickCharClassCommandHandler(CProxy* pProxy) : CCommandHandler(pProxy) {}
+	virtual ~CPickCharClassCommandHandler(){}
+
+public:
+	virtual bool ProcessCommand(const char* cmd, const char* args);
+	virtual const char* PrintUsage(){ return "//pickclass <0-5>"; }
+};
+
+
+/**
+ * \brief Enables/disables auto run mode based on boots enchantment level
+ */
+class CPickAutoRunModeCommandHandler
+	: public CCommandHandler
+{
+public:
+	CPickAutoRunModeCommandHandler(CProxy* pProxy) : CCommandHandler(pProxy) {}
+	virtual ~CPickAutoRunModeCommandHandler(){}
+
+public:
+	virtual bool ProcessCommand(const char* cmd, const char* args);
+	virtual const char* PrintUsage(){ return "//pickautorunmode <on|off>"; }
+};
+
+
 #endif //__GameCommands_H

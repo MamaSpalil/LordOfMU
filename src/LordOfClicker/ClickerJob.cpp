@@ -168,6 +168,17 @@ void CClickerJob::InitClicker()
 		SetAdvancedAutopickOptions();
 		CMuWindow::GetInstance()->SayToServer("//autopick on");
 
+		// Send character class for auto run-mode determination
+		{
+			char szMsg[256] = {0};
+			_snprintf(szMsg, 255, "//pickclass %d", m_tSettings.all.dwClass);
+			CMuWindow::GetInstance()->SayToServer(szMsg);
+		}
+
+		// Enable auto run-mode: walk/run determined by boots enchantment level
+		WriteClickerLog("Auto run mode enabled (boots level detection)");
+		CMuWindow::GetInstance()->SayToServer("//pickautorunmode on");
+
 		if (m_tSettings.all.fPickRunMode)
 		{
 			WriteClickerLog("Pick-up run mode enabled");

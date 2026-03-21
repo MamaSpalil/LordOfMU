@@ -59,6 +59,8 @@ CGameCommands::CGameCommands(CProxy* pProxy)
 	AddCommand("help", new CHelpCommandHandler(pProxy, m_cCommands));
 	AddCommand("pickdebug", new CPickDebugCommandHandler(pProxy));
 	AddCommand("pickrunmode", new CPickRunModeCommandHandler(pProxy));
+	AddCommand("pickclass", new CPickCharClassCommandHandler(pProxy));
+	AddCommand("pickautorunmode", new CPickAutoRunModeCommandHandler(pProxy));
 #endif
 
 
@@ -1629,6 +1631,78 @@ bool CSuicideCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	pFilter->SetParam("suicide", 0);
 
 	GetProxy()->recv_direct(CServerMessagePacket(">> %s %s [OK].", cmd, args));
+	return true;
+}
+
+
+/**
+ * \brief 
+ */
+bool CPickCharClassCommandHandler::ProcessCommand(const char* cmd, const char* args)
+{
+	if (!args || args[0] == 0)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	int iClass = atoi(args);
+	if (iClass < 0 || iClass > 5)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments. Class must be 0-5."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
+	if (!pPickFilter)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
+		return false;
+	}
+
+	BYTE bClass = (BYTE)iClass;
+	pPickFilter->SetParam("charclass", &bClass);
+	GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up char class set to %d [OK].", iClass));
+	return true;
+}
+
+
+/**
+ * \brief 
+ */
+bool CPickAutoRunModeCommandHandler::ProcessCommand(const char* cmd, const char* args)
+{
+	if (!args || args[0] == 0)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	bool fCmd = false;
+
+	if (_stricmp(args, "on") == 0)
+		fCmd = true;
+	else if (_stricmp(args, "off") == 0)
+		fCmd = false;
+	else
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
+	if (!pPickFilter)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
+		return false;
+	}
+
+	pPickFilter->SetParam("autorunmode", &fCmd);
+	GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up auto run mode %s [OK].", args));
 	return true;
 }
 

@@ -105,6 +105,28 @@ int CInventoryManagerFilter::FilterSendPacket(CPacket& pkt, CFilterContext& cont
  */
 bool CInventoryManagerFilter::GetParam(const char* pszParam, void* pData)
 {
+	if (!pszParam || !pData)
+		return false;
+
+	if (_stricmp(pszParam, "boots_level") == 0)
+	{
+		static const BYTE EQUIP_SLOT_BOOTS = 6;
+		std::map<BYTE,CItemInfo>::iterator it = m_vInventory.find(EQUIP_SLOT_BOOTS);
+
+		if (it != m_vInventory.end())
+		{
+			// Item level is stored in bits 3-6 of byte 1 of the 7-byte item data
+			*((int*)pData) = (it->second.vbData[1] >> 3) & 0x0F;
+		}
+		else
+		{
+			// No boots equipped
+			*((int*)pData) = -1;
+		}
+
+		return true;
+	}
+
 	return false;
 }
 

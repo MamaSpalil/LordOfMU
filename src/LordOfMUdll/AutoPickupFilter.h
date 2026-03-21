@@ -123,7 +123,11 @@ private:
 	volatile bool m_fWalking;
 	bool m_fDebugMoveTo;
 	bool m_fRunMode;
+	bool m_fAutoRunMode;
+	BYTE m_bCharClass;
 	int	 m_iDist;
+
+	static const BYTE CHAR_CLASS_UNSET = 0xFF;
 
 	static const int WALK_MS_PER_TILE = 150;
 	static const int RUN_MS_PER_TILE = 50;
