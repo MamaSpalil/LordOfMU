@@ -90,7 +90,6 @@ protected:
 	void SubclassCheckboxes(HWND hwndParent);
 	void SubclassSeparators(HWND hwndParent);
 	void DrawThemedTab(LPDRAWITEMSTRUCT lpDIS);
-	void DrawThemedCheckbox(LPDRAWITEMSTRUCT lpDIS);
 
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK TabSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,

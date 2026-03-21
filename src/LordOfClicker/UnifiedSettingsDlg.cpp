@@ -9,6 +9,8 @@
 
 static const DWORD s_arrHealTimes[] = {0, 1000, 3000, 5000, 7000, 10000, 15000};
 
+static const int CHECKBOX_BOX_SIZE = 13;  // Default checkbox box size in pixels
+
 
 /**
  * \brief Dialog proc for tab child pages. Forwards WM_COMMAND and
@@ -910,12 +912,6 @@ void CUnifiedSettingsDlg::DrawThemedTab(LPDRAWITEMSTRUCT lpDIS)
 }
 
 
-void CUnifiedSettingsDlg::DrawThemedCheckbox(LPDRAWITEMSTRUCT lpDIS)
-{
-	// Not used directly - checkboxes are drawn via subclass WM_PAINT
-}
-
-
 static BOOL CALLBACK EnumSubclassSeparatorsProc(HWND hWnd, LPARAM lParam)
 {
 	TCHAR szClass[64] = {0};
@@ -1106,7 +1102,7 @@ LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
 			LONG lStyle = ::GetWindowLong(hWnd, GWL_STYLE);
 			BOOL bLeftText = (lStyle & BS_LEFTTEXT) != 0;
 
-			int boxSize = 13;  // Standard checkbox box size
+			int boxSize = CHECKBOX_BOX_SIZE;
 
 			if (hBmp != NULL)
 			{
