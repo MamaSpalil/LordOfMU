@@ -119,6 +119,7 @@ private:
 	bool m_fSuspPick;
 	bool m_fSuspZen;
 	bool m_fSuspMove;
+	volatile bool m_fWalking;
 	int	 m_iDist;
 
 	static const int WALK_MS_PER_TILE = 150;
