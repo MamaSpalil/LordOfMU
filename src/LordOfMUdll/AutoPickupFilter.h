@@ -79,7 +79,7 @@ private:
 	void DropItem(BYTE pos);
 	void GoPickNextItem();
 	void TeleportTo(WORD wPlayerId, BYTE x, BYTE y);
-	void WalkTo(WORD wPlayerId, BYTE x, BYTE y);
+	void WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, BYTE yTo);
 
 	void ProcessDropQueue();
 	void ProcessNoMovePickupQueue();
