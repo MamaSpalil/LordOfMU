@@ -80,6 +80,7 @@ private:
 	void GoPickNextItem();
 	void TeleportTo(WORD wPlayerId, BYTE x, BYTE y);
 	void WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, BYTE yTo);
+	void RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, BYTE yTo);
 
 	void ProcessDropQueue();
 	void ProcessNoMovePickupQueue();
@@ -121,9 +122,11 @@ private:
 	bool m_fSuspMove;
 	volatile bool m_fWalking;
 	bool m_fDebugMoveTo;
+	bool m_fRunMode;
 	int	 m_iDist;
 
 	static const int WALK_MS_PER_TILE = 150;
+	static const int RUN_MS_PER_TILE = 50;
 	static const int WALK_BASE_DELAY_MS = 500;
 	static const int WALK_MAX_TIME_MS = 5000;
 

@@ -30,6 +30,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fSuspMove = false;
 	m_fWalking = false;
 	m_fDebugMoveTo = false;
+	m_fRunMode = false;
 
 	InitializeCriticalSection(&m_csQueue);
 
@@ -443,6 +444,10 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		m_fDebugMoveTo = *((bool*)pData);
 	}
+	else if (_stricmp(pszParam, "pickrunmode") == 0)
+	{
+		m_fRunMode = *((bool*)pData);
+	}
 
 	return true;
 }
@@ -548,11 +553,22 @@ void CAutoPickupFilter::GoPickNextItem()
 		m_fWalking = true;
 		Sleep(350);
 
-		CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
-			(int)x, (int)y, (int)xOld, (int)yOld, wItem);
+		if (m_fRunMode)
+		{
+			CDebugOut::PrintAlways("[AUTOPICK] Running to item at (%d,%d) from (%d,%d), item=0x%04X", 
+				(int)x, (int)y, (int)xOld, (int)yOld, wItem);
 
-		// Walk to item step by step (emulates player walking)
-		WalkTo(wPlayerId, xOld, yOld, x, y);
+			// Run to item step by step (emulates player running)
+			RunTo(wPlayerId, xOld, yOld, x, y);
+		}
+		else
+		{
+			CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
+				(int)x, (int)y, (int)xOld, (int)yOld, wItem);
+
+			// Walk to item step by step (emulates player walking)
+			WalkTo(wPlayerId, xOld, yOld, x, y);
+		}
 	}
 	else if (m_fDebugMoveTo)
 	{
@@ -566,9 +582,17 @@ void CAutoPickupFilter::GoPickNextItem()
 	{
 		Sleep(500);
 
-		// Walk back to original position step by step
-		CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
-		WalkTo(wPlayerId, x, y, xOld, yOld);
+		// Move back to original position using the same mode (walk or run)
+		if (m_fRunMode)
+		{
+			CDebugOut::PrintAlways("[AUTOPICK] Running back to original position (%d,%d)", (int)xOld, (int)yOld);
+			RunTo(wPlayerId, x, y, xOld, yOld);
+		}
+		else
+		{
+			CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
+			WalkTo(wPlayerId, x, y, xOld, yOld);
+		}
 
 		m_fWalking = false;
 
@@ -661,6 +685,50 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] WalkTo: completed in %d steps (%d ms)", steps, steps * WALK_MS_PER_TILE);
+}
+
+
+/**
+ * \brief Moves character to position step-by-step (tile by tile),
+ *        emulating player running. Uses RUN_MS_PER_TILE for faster
+ *        movement compared to WalkTo.
+ */
+void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, BYTE yTo)
+{
+	int currX = (int)xFrom;
+	int currY = (int)yFrom;
+	int destX = (int)xTo;
+	int destY = (int)yTo;
+
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] RunTo: from (%d,%d) to (%d,%d), playerId=0x%04X", 
+			currX, currY, destX, destY, wPlayerId);
+
+	int steps = 0;
+
+	while (currX != destX || currY != destY)
+	{
+		int dx = (destX > currX) ? 1 : (destX < currX) ? -1 : 0;
+		int dy = (destY > currY) ? 1 : (destY < currY) ? -1 : 0;
+
+		currX += dx;
+		currY += dy;
+		steps++;
+
+		// Update client position (emulate server telling client where character is)
+		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
+		GetProxy()->recv_packet(pktMoveSTC);
+
+		// Update server position (bypass filter chain to avoid being blocked)
+		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
+		GetProxy()->send_direct(pktMoveCTS);
+
+		// Wait per tile to emulate running speed (faster than walking)
+		Sleep(RUN_MS_PER_TILE);
+	}
+
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] RunTo: completed in %d steps (%d ms)", steps, steps * RUN_MS_PER_TILE);
 }
 
 
