@@ -636,7 +636,7 @@ public:
 
 
 /**
- * \brief 
+ * \brief Sets the character class for auto-pickup run mode determination
  */
 class CPickCharClassCommandHandler
 	: public CCommandHandler
@@ -652,7 +652,7 @@ public:
 
 
 /**
- * \brief 
+ * \brief Enables/disables auto run mode based on boots enchantment level
  */
 class CPickAutoRunModeCommandHandler
 	: public CCommandHandler

@@ -32,7 +32,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fDebugMoveTo = false;
 	m_fRunMode = false;
 	m_fAutoRunMode = false;
-	m_bCharClass = 0xFF;
+	m_bCharClass = CHAR_CLASS_UNSET;
 
 	InitializeCriticalSection(&m_csQueue);
 

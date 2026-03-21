@@ -1674,6 +1674,13 @@ bool CPickCharClassCommandHandler::ProcessCommand(const char* cmd, const char* a
  */
 bool CPickAutoRunModeCommandHandler::ProcessCommand(const char* cmd, const char* args)
 {
+	if (!args || args[0] == 0)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
 	bool fCmd = false;
 
 	if (_stricmp(args, "on") == 0)

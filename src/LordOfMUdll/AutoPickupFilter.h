@@ -127,6 +127,8 @@ private:
 	BYTE m_bCharClass;
 	int	 m_iDist;
 
+	static const BYTE CHAR_CLASS_UNSET = 0xFF;
+
 	static const int WALK_MS_PER_TILE = 150;
 	static const int RUN_MS_PER_TILE = 50;
 	static const int WALK_BASE_DELAY_MS = 500;
