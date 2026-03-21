@@ -54,15 +54,64 @@ public:
 
 	/**
 	 * \brief Enable or disable verbose debug mode.
+	 *        When enabled, allocates a console window for real-time log viewing.
+	 *        All game actions, packet traffic, and auto-pickup events are shown
+	 *        in the console and saved to ClickerLog.txt.
 	 */
 	static void SetEnabled(bool fEnabled)
 	{
 		s_fEnabled() = fEnabled;
 
 		if (fEnabled)
-			LogDebugAction("Debug mode ENABLED - verbose logging active");
+		{
+			if (!s_fConsoleAllocated())
+			{
+				if (AllocConsole())
+				{
+					s_fConsoleAllocated() = true;
+
+					SetConsoleTitleA("LordOfMU - Debug Console");
+
+					// Redirect stdout to the new console
+					FILE* fp = NULL;
+					if (freopen_s(&fp, "CONOUT$", "w", stdout) != 0)
+					{
+						LogDebugAction("Warning: failed to redirect stdout to console");
+					}
+
+					// Set console buffer and window size for better readability
+					HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+					if (hOut != INVALID_HANDLE_VALUE)
+					{
+						COORD bufSize;
+						bufSize.X = 200;
+						bufSize.Y = 9999;
+						SetConsoleScreenBufferSize(hOut, bufSize);
+
+						// Set console text color to green on black (MU Online style)
+						SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					}
+
+					printf("[DEBUG] Console window opened - all game actions will be logged here and to ClickerLog.txt\n");
+					printf("[DEBUG] Debug mode ENABLED - verbose logging active\n");
+				}
+				else
+				{
+					LogDebugAction("Warning: AllocConsole() failed, debug console unavailable (error=%d)", (int)GetLastError());
+				}
+			}
+			LogDebugAction("Debug mode ENABLED - verbose logging active, console window opened");
+		}
 		else
+		{
+			if (s_fConsoleAllocated())
+			{
+				printf("[DEBUG] Debug mode DISABLED - closing console window\n");
+				FreeConsole();
+				s_fConsoleAllocated() = false;
+			}
 			LogDebugAction("Debug mode DISABLED - normal logging");
+		}
 	}
 
 	/**
@@ -128,6 +177,12 @@ private:
 	{
 		static bool fInstalled = false;
 		return fInstalled;
+	}
+
+	static bool& s_fConsoleAllocated()
+	{
+		static bool fAllocated = false;
+		return fAllocated;
 	}
 
 	static LPTOP_LEVEL_EXCEPTION_FILTER& s_pfnOldFilter()
