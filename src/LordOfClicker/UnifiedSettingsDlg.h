@@ -94,6 +94,7 @@ protected:
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK TabSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 		UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+public:
 	static LRESULT CALLBACK CheckboxSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 		UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 	static LRESULT CALLBACK SeparatorSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
