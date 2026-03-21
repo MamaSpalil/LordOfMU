@@ -575,14 +575,14 @@ void CAutoPickupFilter::GoPickNextItem()
 					static const BYTE CLASS_DL = 0;
 					static const BYTE CLASS_MG = 5;
 
-					if (iBootsLevel >= 5)
+					if (iBootsLevel > 5)
 					{
-						// Boots +5 or higher: run mode for all classes
+						// Boots level > 5: run mode for all classes
 						m_fRunMode = true;
 					}
 					else
 					{
-						// Boots level < 5 (or no boots): walk mode,
+						// Boots level <= 5 (or no boots): walk mode,
 						// except Magic Gladiator and Dark Lord always use run mode
 						m_fRunMode = (m_bCharClass == CLASS_MG || m_bCharClass == CLASS_DL);
 					}
