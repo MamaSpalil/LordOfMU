@@ -43,6 +43,96 @@ static bool GetConnectIniIP(char* szIP, int cbIP)
 
 
 /**
+ * \brief Patch Main.dll's in-memory IP string with the value from Connect.ini.
+ *        Main.dll is embedded in Main.exe and contains a hardcoded server IP.
+ *        This function locates the IP string in Main.dll's loaded image and
+ *        overwrites it so that the game client connects to the configured server.
+ */
+static void PatchMainDllIP()
+{
+	char szNewIP[64] = {0};
+	if (!GetConnectIniIP(szNewIP, sizeof(szNewIP)))
+	{
+		CDebugOut::PrintAlways("[PATCH] No IP configured in Connect.ini, skipping Main.dll patch");
+		return;
+	}
+
+	HMODULE hMain = GetModuleHandleA("Main.dll");
+	if (!hMain)
+	{
+		CDebugOut::PrintAlways("[PATCH] Main.dll not loaded, skipping IP patch");
+		return;
+	}
+
+	// Get module size from PE header
+	IMAGE_DOS_HEADER* pDos = (IMAGE_DOS_HEADER*)hMain;
+	IMAGE_NT_HEADERS* pNt = (IMAGE_NT_HEADERS*)((BYTE*)hMain + pDos->e_lfanew);
+	DWORD dwModuleSize = pNt->OptionalHeader.SizeOfImage;
+
+	// Search for the hardcoded IP string in Main.dll's loaded memory.
+	// The binary has 16 bytes at this location: "192.168.0.105\0\0\0" followed
+	// by the next data string, so any IPv4 address (max 15 chars) fits.
+	static const char szOriginalIP[] = "192.168.0.105";
+	static const size_t cbPatchSize = 16;
+	BYTE* pBase = (BYTE*)hMain;
+	BYTE* pEnd = pBase + dwModuleSize - sizeof(szOriginalIP);
+	BYTE* pFound = NULL;
+
+	for (BYTE* p = pBase; p < pEnd; p++)
+	{
+		if (memcmp(p, szOriginalIP, sizeof(szOriginalIP)) == 0)
+		{
+			pFound = p;
+			break;
+		}
+	}
+
+	if (!pFound)
+	{
+		CDebugOut::PrintAlways("[PATCH] Hardcoded IP '%s' not found in Main.dll", szOriginalIP);
+		return;
+	}
+
+	// Validate new IP length fits in the available buffer space
+	size_t cbNewIP = strlen(szNewIP);
+	if (cbNewIP + 1 > cbPatchSize)
+	{
+		CDebugOut::PrintAlways("[PATCH] New IP '%s' too long for Main.dll patch (max %d chars)",
+			szNewIP, (int)(cbPatchSize - 1));
+		return;
+	}
+
+	// Validate new IP is a valid IPv4 address
+	struct in_addr inAddr;
+	if (inet_pton(AF_INET, szNewIP, &inAddr) != 1)
+	{
+		CDebugOut::PrintAlways("[PATCH] Invalid IP address in Connect.ini: '%s'", szNewIP);
+		return;
+	}
+
+	// Make memory writable, patch, and restore protection
+	DWORD dwOldProtect = 0;
+	if (!VirtualProtect(pFound, cbPatchSize, PAGE_EXECUTE_READWRITE, &dwOldProtect))
+	{
+		CDebugOut::PrintAlways("[PATCH] VirtualProtect failed on Main.dll at 0x%p, error %d",
+			pFound, GetLastError());
+		return;
+	}
+
+	memset(pFound, 0, cbPatchSize);
+	memcpy(pFound, szNewIP, cbNewIP);
+
+	DWORD dwDummy = 0;
+	VirtualProtect(pFound, cbPatchSize, dwOldProtect, &dwDummy);
+
+	CDebugOut::PrintAlways("[PATCH] Main.dll IP patched: '%s' -> '%s' at 0x%p",
+		szOriginalIP, szNewIP, pFound);
+	WriteHookLog("Main.dll IP patched: %s -> %s at offset 0x%X",
+		szOriginalIP, szNewIP, (DWORD)(pFound - pBase));
+}
+
+
+/**
  * \brief Single instance pointer
  */
 CProxifier* CProxifier::m_sInstance = 0;
@@ -154,6 +244,9 @@ bool CProxifier::InternalInit()
 		CDebugOut::PrintAlways("[WARNING] Debugger application detected - ignoring to keep game running.");
 	}
 #endif
+
+	// Patch hardcoded IP in Main.dll with value from Connect.ini
+	PatchMainDllIP();
 
 	// Hook Api functions
 	CDebugOut::PrintAlways("Hooking Winsock API functions ...");
