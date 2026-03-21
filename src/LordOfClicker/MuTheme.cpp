@@ -140,7 +140,7 @@ void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 
 	for (int y = rc.top; y < rc.bottom; ++y)
 	{
-		int t = ((y - rc.top) * 255) / (height > 1 ? height - 1 : 1);
+		int t = (height > 1) ? ((y - rc.top) * 255) / (height - 1) : 0;
 		int r = 15 + (20 - 15) * t / 255;
 		int g = 15 + (22 - 15) * t / 255;
 		int b = 25 + (35 - 25) * t / 255;

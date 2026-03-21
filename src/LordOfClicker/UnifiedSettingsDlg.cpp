@@ -404,8 +404,8 @@ void CUnifiedSettingsDlg::ApplyGeneral()
 	if (hwndHealTime != NULL)
 		nIdx = (int)::SendMessage(hwndHealTime, CB_GETCURSEL, 0, 0);
 
-	if (nIdx > (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
-		nIdx = (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0]));
+	if (nIdx >= (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
+		nIdx = (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])) - 1;
 
 	if (nIdx < 0)
 		nIdx = 0;
