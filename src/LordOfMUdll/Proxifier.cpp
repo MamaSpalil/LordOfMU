@@ -10,7 +10,43 @@
 
 
 /**
+ * \brief Build the full path to Connect.ini located next to Main.dll.
+ *        Uses GetModuleFileNameA on Main.dll to determine its directory,
+ *        falling back to g_szRoot (game root) if Main.dll is not yet loaded.
+ */
+static void GetConnectIniPath(char* szIniPath, int cbIniPath)
+{
+	szIniPath[0] = '\0';
+
+	HMODULE hMain = GetModuleHandleA("Main.dll");
+	if (hMain)
+	{
+		GetModuleFileNameA(hMain, szIniPath, cbIniPath - 1);
+		szIniPath[cbIniPath - 1] = '\0';
+		char* pSlash = strrchr(szIniPath, '\\');
+		if (pSlash)
+			*(pSlash + 1) = '\0';
+		else
+			szIniPath[0] = '\0';
+	}
+
+	if (szIniPath[0] == '\0')
+	{
+		extern TCHAR g_szRoot[_MAX_PATH + 1];
+		strncpy(szIniPath, CT2A(g_szRoot), cbIniPath - 1);
+		szIniPath[cbIniPath - 1] = '\0';
+	}
+
+	if (strlen(szIniPath) + sizeof("Connect.ini") <= (size_t)cbIniPath)
+		strcat(szIniPath, "Connect.ini");
+	else
+		CDebugOut::PrintAlways("[CONFIG] Path buffer too small for Connect.ini path");
+}
+
+
+/**
  * \brief Read the server IP address from Connect.ini configuration file.
+ *        Connect.ini is located next to Main.dll.
  *        Caches the result after the first successful read.
  *        Falls back to empty string if the file or key is not found.
  */
@@ -21,11 +57,8 @@ static bool GetConnectIniIP(char* szIP, int cbIP)
 
 	if (!s_bRead)
 	{
-		extern TCHAR g_szRoot[_MAX_PATH + 1];
-
 		char szIniPath[_MAX_PATH + 1] = {0};
-		strcpy(szIniPath, CT2A(g_szRoot));
-		strcat(szIniPath, "Connect.ini");
+		GetConnectIniPath(szIniPath, sizeof(szIniPath));
 
 		GetPrivateProfileStringA("Config", "IP", "", s_szCachedIP, sizeof(s_szCachedIP), szIniPath);
 		s_bRead = true;
@@ -45,18 +78,12 @@ static bool GetConnectIniIP(char* szIP, int cbIP)
 /**
  * \brief Patch Main.dll's in-memory IP string with the value from Connect.ini.
  *        Main.dll is embedded in Main.exe and contains a hardcoded server IP.
- *        This function locates the IP string in Main.dll's loaded image and
- *        overwrites it so that the game client connects to the configured server.
+ *        This function locates the IP string in Main.dll's loaded image,
+ *        auto-creates Connect.ini with the found IP if the file does not exist,
+ *        then overwrites the IP so the game client connects to the configured server.
  */
 static void PatchMainDllIP()
 {
-	char szNewIP[64] = {0};
-	if (!GetConnectIniIP(szNewIP, sizeof(szNewIP)))
-	{
-		CDebugOut::PrintAlways("[PATCH] No IP configured in Connect.ini, skipping Main.dll patch");
-		return;
-	}
-
 	HMODULE hMain = GetModuleHandleA("Main.dll");
 	if (!hMain)
 	{
@@ -87,9 +114,47 @@ static void PatchMainDllIP()
 		}
 	}
 
+	// Auto-create Connect.ini next to Main.dll with the hardcoded IP if missing
+	char szIniPath[_MAX_PATH + 1] = {0};
+	GetConnectIniPath(szIniPath, sizeof(szIniPath));
+
+	if (GetFileAttributesA(szIniPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		DWORD dwErr = GetLastError();
+		if (dwErr == ERROR_FILE_NOT_FOUND || dwErr == ERROR_PATH_NOT_FOUND)
+		{
+			if (WritePrivateProfileStringA("Config", "IP", szOriginalIP, szIniPath))
+				CDebugOut::PrintAlways("[CONFIG] Created Connect.ini with default IP: %s", szOriginalIP);
+			else
+				CDebugOut::PrintAlways("[CONFIG] Failed to create Connect.ini at '%s', error %d",
+					szIniPath, GetLastError());
+		}
+		else
+		{
+			CDebugOut::PrintAlways("[CONFIG] Cannot access Connect.ini at '%s', error %d",
+				szIniPath, dwErr);
+		}
+	}
+
 	if (!pFound)
 	{
 		CDebugOut::PrintAlways("[PATCH] Hardcoded IP '%s' not found in Main.dll", szOriginalIP);
+		return;
+	}
+
+	// Read configured IP from Connect.ini
+	char szNewIP[64] = {0};
+	if (!GetConnectIniIP(szNewIP, sizeof(szNewIP)))
+	{
+		CDebugOut::PrintAlways("[PATCH] No IP configured in Connect.ini, skipping Main.dll patch");
+		return;
+	}
+
+	// Skip patching if the configured IP matches the hardcoded one
+	if (strcmp(szNewIP, szOriginalIP) == 0)
+	{
+		CDebugOut::PrintAlways("[PATCH] Connect.ini IP matches hardcoded IP (%s), no patch needed",
+			szNewIP);
 		return;
 	}
 
