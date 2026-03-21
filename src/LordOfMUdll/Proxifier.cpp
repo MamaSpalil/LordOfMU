@@ -8,6 +8,38 @@
 #include "ClickerLogger.h"
 
 
+/**
+ * \brief Read the server IP address from Connect.ini configuration file.
+ *        Caches the result after the first successful read.
+ *        Falls back to empty string if the file or key is not found.
+ */
+static bool GetConnectIniIP(char* szIP, int cbIP)
+{
+	static char s_szCachedIP[64] = {0};
+	static bool s_bRead = false;
+
+	if (!s_bRead)
+	{
+		extern TCHAR g_szRoot[_MAX_PATH + 1];
+
+		char szIniPath[_MAX_PATH + 1] = {0};
+		strcpy(szIniPath, CT2A(g_szRoot));
+		strcat(szIniPath, "Connect.ini");
+
+		GetPrivateProfileStringA("Config", "IP", "", s_szCachedIP, sizeof(s_szCachedIP), szIniPath);
+		s_bRead = true;
+	}
+
+	if (s_szCachedIP[0] != '\0' && cbIP > 0)
+	{
+		strncpy(szIP, s_szCachedIP, cbIP - 1);
+		szIP[cbIP - 1] = '\0';
+		return true;
+	}
+
+	return false;
+}
+
 
 /**
  * \brief Single instance pointer
@@ -192,10 +224,35 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 	if (!s)
 		return CProxifier::connect(s, addr, len);
 
-	// Log socket connection details
+	// Override destination IP from Connect.ini if configured
+	struct sockaddr_in addrOverride;
+	const struct sockaddr* pConnectAddr = addr;
+
 	if (addr && addr->sa_family == AF_INET)
 	{
-		const struct sockaddr_in* pAddr = (const struct sockaddr_in*)addr;
+		char szIP[64] = {0};
+		if (GetConnectIniIP(szIP, sizeof(szIP)))
+		{
+			memcpy(&addrOverride, addr, sizeof(addrOverride));
+			addrOverride.sin_addr.s_addr = inet_addr(szIP);
+
+			if (addrOverride.sin_addr.s_addr != INADDR_NONE)
+			{
+				CDebugOut::PrintAlways("[SOCKET] Overriding IP from Connect.ini: %s", szIP);
+				WriteSocketLog("IP override from Connect.ini: %s", szIP);
+				pConnectAddr = (const struct sockaddr*)&addrOverride;
+			}
+			else
+			{
+				CDebugOut::PrintAlways("[SOCKET] Invalid IP in Connect.ini: %s, using original", szIP);
+			}
+		}
+	}
+
+	// Log socket connection details
+	if (pConnectAddr && pConnectAddr->sa_family == AF_INET)
+	{
+		const struct sockaddr_in* pAddr = (const struct sockaddr_in*)pConnectAddr;
 		CDebugOut::PrintAlways("[SOCKET] connect() called: socket=%d, IP=%d.%d.%d.%d, port=%d",
 			(int)s,
 			pAddr->sin_addr.S_un.S_un_b.s_b1,
@@ -216,7 +273,7 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 	CProxifier* pThis = CProxifier::GetInstance();
 	pThis->cleanDead();
 
-	CProxy* pProxy = CProxyBuilder::CreateProxy(s, addr, len);
+	CProxy* pProxy = CProxyBuilder::CreateProxy(s, pConnectAddr, len);
 
 	CProxyList::iterator it = pThis->m_vProxies.find(s);
 	if (it != pThis->m_vProxies.end())
@@ -230,7 +287,7 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 	if (pProxy)
 		pThis->m_vProxies.insert(CProxyList::value_type(s, pProxy));
 
-	return pProxy ? pProxy->connect(addr, len) : connect(s, addr, len);
+	return pProxy ? pProxy->connect(pConnectAddr, len) : connect(s, pConnectAddr, len);
 }
 
 
