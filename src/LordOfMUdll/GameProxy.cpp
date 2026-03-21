@@ -4,6 +4,39 @@
 #include "DebugOut.h"
 #include "BufferUtil.h"
 #include "CommonPackets.h"
+#include "ClickerLogger.h"
+
+
+/**
+ * \brief Format raw packet bytes as a hex string for logging.
+ *        Outputs up to nMaxBytes bytes in "XX XX XX ..." format.
+ */
+static void FormatPacketHex(const BYTE* pData, int nLen, char* szOut, int cbOut, int nMaxBytes = 32)
+{
+	if (!pData || nLen <= 0 || !szOut || cbOut <= 0)
+	{
+		if (szOut && cbOut > 0) szOut[0] = '\0';
+		return;
+	}
+
+	int nShow = (nLen < nMaxBytes) ? nLen : nMaxBytes;
+	int nPos = 0;
+
+	for (int i = 0; i < nShow && nPos + 4 < cbOut; i++)
+	{
+		if (i > 0) szOut[nPos++] = ' ';
+		int nWritten = _snprintf(szOut + nPos, cbOut - nPos - 1, "%02X", pData[i]);
+		if (nWritten > 0) nPos += nWritten; else break;
+	}
+
+	if (nLen > nMaxBytes && nPos + 4 < cbOut)
+	{
+		int nWritten = _snprintf(szOut + nPos, cbOut - nPos - 1, "...");
+		if (nWritten > 0) nPos += nWritten;
+	}
+
+	szOut[nPos] = '\0';
+}
 
 
 static CGameProxy* g_pGameProxy = 0;
@@ -98,6 +131,16 @@ void CGameProxy::ProcessRecvStream(char* lpBuffer, char* newBuff, int& iLen)
 		CPacket pkt;
 		if (m_cRecvPacketParser.GetPacket(pkt))
 		{
+			// Log server->client packet traffic
+			if (CDebugMode::IsEnabled())
+			{
+				BYTE* pRaw = pkt.GetRawPacket();
+				int pktLen = pkt.GetPktLen();
+				char szHex[256] = {0};
+				FormatPacketHex(pRaw, pktLen, szHex, sizeof(szHex));
+				WritePacketLog("SERVER>CLIENT", pkt.GetType().GetDescription(), pktLen, szHex);
+			}
+
 			if (!FilterRecvPacket(pkt))
 			{
 				BYTE* pRaw = pkt.GetRawPacket();
@@ -139,6 +182,16 @@ void CGameProxy::ProcessSendStream(char* lpBuffer, char* newBuff, int& iLen)
 		CPacket pkt;
 		if (m_cSendPacketParser.GetPacket(pkt))
 		{
+			// Log client->server packet traffic
+			if (CDebugMode::IsEnabled())
+			{
+				BYTE* pRaw = pkt.GetRawPacket();
+				int pktLen = pkt.GetPktLen();
+				char szHex[256] = {0};
+				FormatPacketHex(pRaw, pktLen, szHex, sizeof(szHex));
+				WritePacketLog("CLIENT>SERVER", pkt.GetType().GetDescription(), pktLen, szHex);
+			}
+
 			if (!FilterSendPacket(pkt))
 			{
 				BYTE* pRaw = pkt.GetRawPacket();
@@ -229,6 +282,12 @@ bool CGameProxy::FilterSendPacket(CPacket& pkt)
  */
 bool CGameProxy::send_packet(CPacket& pkt)
 {
+	if (CDebugMode::IsEnabled())
+	{
+		char szHex[256] = {0};
+		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
+		WritePacketLog("QUEUE>SERVER", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
+	}
 	m_cSendQueue.QueuePacket(pkt);
 	return true;
 }
@@ -239,6 +298,12 @@ bool CGameProxy::send_packet(CPacket& pkt)
  */
 bool CGameProxy::send_lop_packet(CPacket& pkt)
 {
+	if (CDebugMode::IsEnabled())
+	{
+		char szHex[256] = {0};
+		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
+		WritePacketLog("QUEUE-LOP>SERVER", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
+	}
 	m_cSendQueue.QueuePacket(pkt);
 	return true;
 }
@@ -249,6 +314,12 @@ bool CGameProxy::send_lop_packet(CPacket& pkt)
  */
 bool CGameProxy::recv_packet(CPacket& pkt)
 {
+	if (CDebugMode::IsEnabled())
+	{
+		char szHex[256] = {0};
+		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
+		WritePacketLog("QUEUE>CLIENT", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
+	}
 	m_cRecvQueue.QueuePacket(pkt);	
 	return true;
 }
@@ -259,6 +330,12 @@ bool CGameProxy::recv_packet(CPacket& pkt)
  */
 bool CGameProxy::send_direct(CPacket& pkt)
 {
+	if (CDebugMode::IsEnabled())
+	{
+		char szHex[256] = {0};
+		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
+		WritePacketLog("DIRECT>SERVER", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
+	}
 	m_cSendQueue.QueuePacket(pkt, QUEUE_FLAG_DIRECT);
 	return true;
 }
@@ -268,6 +345,12 @@ bool CGameProxy::send_direct(CPacket& pkt)
  */
 bool CGameProxy::recv_direct(CPacket& pkt)
 {
+	if (CDebugMode::IsEnabled())
+	{
+		char szHex[256] = {0};
+		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
+		WritePacketLog("DIRECT>CLIENT", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
+	}
 	m_cRecvQueue.QueuePacket(pkt, QUEUE_FLAG_DIRECT);
 	return true;
 }

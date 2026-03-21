@@ -2,6 +2,7 @@
 #include "MuInstanceManager.h"
 #include "version.h"
 #include "DebugMode.h"
+#include "ClickerLogger.h"
 
 #include <string>
 using namespace std;
@@ -91,19 +92,33 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	memset(m_szLoaderPath, 0, (_MAX_PATH+1)*sizeof(TCHAR));
 	PrepareDll(m_szLoaderPath);
 
+	WriteHookLog("Loading hook DLL from: %s", CT2A(m_szLoaderPath));
 	m_hHookDll = LoadLibrary(m_szLoaderPath);
 
 	ATLASSERT(m_hHookDll);
 
 	if (m_hHookDll)
 	{
+		WriteHookLog("Hook DLL loaded successfully at 0x%p", m_hHookDll);
+
 		typedef HRESULT (__stdcall* InstallHookPtr)(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
 		InstallHookPtr InstallProc = (InstallHookPtr)GetProcAddress(m_hHookDll, "DllGetClassObject");
 
 		GUID guid = {0};
 
 		if (InstallProc)
+		{
 			InstallProc(guid, guid, (LPVOID*)szPath);
+			WriteHookLog("DllGetClassObject called - hooks installed for main.exe");
+		}
+		else
+		{
+			WriteHookLog("WARNING: DllGetClassObject export not found in hook DLL");
+		}
+	}
+	else
+	{
+		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", CT2A(m_szLoaderPath), (int)GetLastError());
 	}
 
 	// Launch the game client (main.exe) after hooks are installed
@@ -115,17 +130,24 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		struct _stat stMain = {0};
 		if (0 == _tstat(szMainExe, &stMain))
 		{
+			WriteHookLog("Launching main.exe: %s", CT2A(szMainExe));
 			HINSTANCE hResult = ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
 
 			if ((INT_PTR)hResult <= 32)
 			{
+				WriteHookLog("ERROR: Failed to launch main.exe (error %d)", (int)(INT_PTR)hResult);
 				TCHAR szErr[512] = {0};
 				_sntprintf(szErr, 511, _T("Failed to launch main.exe (error %d).\nPath: %s"), (int)(INT_PTR)hResult, szMainExe);
 				::MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
 			}
+			else
+			{
+				WriteHookLog("main.exe launched successfully");
+			}
 		}
 		else
 		{
+			WriteHookLog("ERROR: main.exe not found at %s", CT2A(szMainExe));
 			TCHAR szErr[512] = {0};
 			_sntprintf(szErr, 511, _T("main.exe not found.\nExpected path: %s"), szMainExe);
 			::MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
@@ -151,16 +173,23 @@ LRESULT CMuInstanceManager::OnDestroy(UINT, WPARAM, LPARAM, BOOL&)
 
 	if (m_hHookDll)
 	{
+		WriteHookLog("Removing DLL hooks from main.exe on exit");
+
 		typedef HRESULT (__stdcall* RemoveHookPtr)();
 		RemoveHookPtr RemoveProc = (RemoveHookPtr)GetProcAddress(m_hHookDll, "DllUnregisterServer");
 
 		if (RemoveProc)
+		{
 			RemoveProc();
+			WriteHookLog("DllUnregisterServer called - hooks removal initiated");
+		}
 
 		FreeLibrary(m_hHookDll);
 		m_hHookDll = 0;
+		WriteHookLog("Hook DLL unloaded via FreeLibrary");
 
 		DeleteFile(m_szLoaderPath);
+		WriteHookLog("Temporary hook DLL deleted: %s", CT2A(m_szLoaderPath));
 
 		TCHAR* pszFilename = PathFindFileName(m_szLoaderPath);
 
@@ -172,6 +201,8 @@ LRESULT CMuInstanceManager::OnDestroy(UINT, WPARAM, LPARAM, BOOL&)
 			pszFilename[1] = _T('T');
 			DeleteFile(m_szLoaderPath);
 		}
+
+		WriteHookLog("DLL hook cleanup complete - all temporary files removed");
 	}
 
 	return 0;

@@ -123,7 +123,8 @@ public:
 	}
 
 	/**
-	 * \brief Log a debug action to CrashDump.txt and optionally ClickerLog.txt.
+	 * \brief Log a debug action to CrashDump.txt and ClickerLog.txt.
+	 *        When debug mode is enabled, also outputs to the debug console.
 	 */
 	static void LogDebugAction(const char* szFormat, ...)
 	{
@@ -133,6 +134,19 @@ public:
 
 		WaitForSingleObject(hMutex, INFINITE);
 
+		time_t t = time(NULL);
+		struct tm tm_storage = {0};
+		localtime_s(&tm_storage, &t);
+		char szTime[32] = {0};
+		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
+
+		char szMessage[1024] = {0};
+		va_list args;
+		va_start(args, szFormat);
+		_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+		szMessage[sizeof(szMessage) - 1] = '\0';
+		va_end(args);
+
 		// Write to CrashDump.txt
 		char szPath[MAX_PATH + 1] = {0};
 		GetModuleFileNameA(NULL, szPath, MAX_PATH);
@@ -140,25 +154,35 @@ public:
 		int i;
 		for (i = (int)strlen(szPath) - 1; i >= 0 && szPath[i] != '\\'; --i);
 		szPath[i + 1] = '\0';
+
+		char szDir[MAX_PATH + 1] = {0};
+		strncpy(szDir, szPath, MAX_PATH);
+
 		strncat(szPath, "CrashDump.txt", MAX_PATH - strlen(szPath) - 1);
 
 		FILE* f = fopen(szPath, "a");
 		if (f)
 		{
-			time_t t = time(NULL);
-			struct tm* tm_info = localtime(&t);
-			char szTime[32] = {0};
-			strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
-
-			fprintf(f, "[%s] [DEBUG] ", szTime);
-
-			va_list args;
-			va_start(args, szFormat);
-			vfprintf(f, szFormat, args);
-			va_end(args);
-
-			fprintf(f, "\n");
+			fprintf(f, "[%s] [DEBUG] %s\n", szTime, szMessage);
 			fclose(f);
+		}
+
+		// Also write to ClickerLog.txt for unified logging
+		char szLogPath[MAX_PATH + 1] = {0};
+		strncpy(szLogPath, szDir, MAX_PATH);
+		strncat(szLogPath, "ClickerLog.txt", MAX_PATH - strlen(szLogPath) - 1);
+
+		FILE* fLog = fopen(szLogPath, "a");
+		if (fLog)
+		{
+			fprintf(fLog, "[%s] [DEBUG] %s\n", szTime, szMessage);
+			fclose(fLog);
+		}
+
+		// Output to debug console if enabled
+		if (s_fEnabled() && s_fConsoleAllocated())
+		{
+			printf("[%s] [DEBUG] %s\n", szTime, szMessage);
 		}
 
 		ReleaseMutex(hMutex);
@@ -241,8 +265,49 @@ private:
 	}
 
 	/**
+	 * \brief Write a crash event to ClickerLog.txt with [CRASH] category.
+	 *        Used by CrashHandler to log crash details separately from [DEBUG].
+	 */
+	static void WriteCrashLog(const char* szFormat, ...)
+	{
+		char szPath[MAX_PATH + 1] = {0};
+		GetModuleFileNameA(NULL, szPath, MAX_PATH);
+
+		int i;
+		for (i = (int)strlen(szPath) - 1; i >= 0 && szPath[i] != '\\'; --i);
+		szPath[i + 1] = '\0';
+		strncat(szPath, "ClickerLog.txt", MAX_PATH - strlen(szPath) - 1);
+
+		time_t t = time(NULL);
+		struct tm tm_storage = {0};
+		localtime_s(&tm_storage, &t);
+		char szTime[32] = {0};
+		strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
+
+		char szMessage[1024] = {0};
+		va_list args;
+		va_start(args, szFormat);
+		_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+		szMessage[sizeof(szMessage) - 1] = '\0';
+		va_end(args);
+
+		FILE* f = fopen(szPath, "a");
+		if (f)
+		{
+			fprintf(f, "[%s] [CRASH] %s\n", szTime, szMessage);
+			fclose(f);
+		}
+
+		if (s_fConsoleAllocated())
+		{
+			printf("[%s] [CRASH] %s\n", szTime, szMessage);
+		}
+	}
+
+	/**
 	 * \brief Global crash handler - catches unhandled exceptions in main.exe.
-	 *        Reports crash reason, address, module, and registers to CrashDump.txt.
+	 *        Reports crash reason, address, module, and registers to
+	 *        CrashDump.txt and ClickerLog.txt with [CRASH] category.
 	 */
 	static LONG WINAPI CrashHandler(EXCEPTION_POINTERS* pExceptionInfo)
 	{
@@ -262,16 +327,21 @@ private:
 		char szModule[MAX_PATH + 1] = {0};
 		GetModuleFromAddress(pAddr, szModule, MAX_PATH);
 
-		// Log crash to CrashDump.txt
+		// Log crash to CrashDump.txt and ClickerLog.txt
 		LogDebugAction("========== CRASH DETECTED ==========");
 		LogDebugAction("Exception: %s (0x%08X)", GetExceptionCodeString(dwCode), dwCode);
 		LogDebugAction("Address: 0x%p", pAddr);
 		LogDebugAction("Module: %s", szModule);
 
+		// Also write a [CRASH] summary to ClickerLog.txt for unified tracking
+		WriteCrashLog("CRASH DETECTED: %s (0x%08X) at 0x%p in %s",
+			GetExceptionCodeString(dwCode), dwCode, pAddr, szModule);
+
 		if (dwCode == EXCEPTION_ACCESS_VIOLATION && pRecord->NumberParameters >= 2)
 		{
 			const char* szOp = (pRecord->ExceptionInformation[0] == 0) ? "reading" : "writing";
 			LogDebugAction("Access violation %s address 0x%p", szOp, (PVOID)pRecord->ExceptionInformation[1]);
+			WriteCrashLog("Access violation %s address 0x%p", szOp, (PVOID)pRecord->ExceptionInformation[1]);
 		}
 
 		if (pContext)
@@ -283,6 +353,10 @@ private:
 				pContext->Esi, pContext->Edi, pContext->Ebp, pContext->Esp);
 			LogDebugAction("           EIP=0x%08X EFLAGS=0x%08X",
 				pContext->Eip, pContext->EFlags);
+			WriteCrashLog("Registers: EAX=0x%08X EBX=0x%08X ECX=0x%08X EDX=0x%08X ESI=0x%08X EDI=0x%08X EBP=0x%08X ESP=0x%08X EIP=0x%08X",
+				pContext->Eax, pContext->Ebx, pContext->Ecx, pContext->Edx,
+				pContext->Esi, pContext->Edi, pContext->Ebp, pContext->Esp,
+				pContext->Eip);
 #endif
 		}
 
