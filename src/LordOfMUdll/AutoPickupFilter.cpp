@@ -2,6 +2,7 @@
 #include "AutoPickupFilter.h"
 #include "CommonPackets.h"
 #include "DebugOut.h"
+#include "ClickerLogger.h"
 #include <math.h>
 
 /**
@@ -72,14 +73,18 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 {
 	if (m_fEnabled && pkt == CMeetItemPacket::Type())
 	{
+		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
+
+		WriteClickerLogFmt("PICKUP", "RECV CMeetItemPacket: %d item(s) dropped on ground", pktMItem.GetItemCount());
+
 		if (m_fSuspended && m_fSuspPick)
 		{
+			WriteClickerLogFmt("PICKUP", "Item packet ignored: picking is suspended (suspended=%d, suspPick=%d)", (int)m_fSuspended, (int)m_fSuspPick);
+
 			if (m_fDebugMoveTo)
 				CDebugOut::PrintAlways("[MOVETO-DBG] Item packet ignored: picking is suspended (m_fSuspended=%d, m_fSuspPick=%d)", (int)m_fSuspended, (int)m_fSuspPick);
 			return 0;
 		}
-
-		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
 
 		ULONG ulZenFlags = (m_fSuspended && m_fSuspZen) ? 0 : m_ulZenFlags;
 
@@ -137,6 +142,9 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 					SetEvent(m_hPickEvent);
 
+					WriteClickerLogFmt("PICKUP", "Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
+						wType, wId, (int)x, (int)y, xdiff, ydiff);
+
 					if (m_fDebugMoveTo)
 						CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup", 
 							wType, wId, (int)x, (int)y, xdiff, ydiff);
@@ -144,16 +152,25 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				else if (fPickEnabled && fInRange)
 				{
 					// Immediate pickup: item is within range and pickup enabled
+					WriteClickerLogFmt("PICKUP", "Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) picking up immediately",
+						wType, wId, (int)x, (int)y, xdiff, ydiff);
+
 					PickItem(wId);
 
 					if (m_fDebugMoveTo)
 						CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) picked up immediately (no Move To)", 
 							wType, wId, (int)x, (int)y, xdiff, ydiff);
 				}
-				else if (m_fDebugMoveTo)
+				else
 				{
-					CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED: pickEnabled=%d, moveTo=%d, inRange=%d",
+					WriteClickerLogFmt("PICKUP", "Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED: pick=%d moveTo=%d inRange=%d",
 						wType, wId, (int)x, (int)y, xdiff, ydiff, (int)fPickEnabled, (int)fMoveTo, (int)fInRange);
+
+					if (m_fDebugMoveTo)
+					{
+						CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED: pickEnabled=%d, moveTo=%d, inRange=%d",
+							wType, wId, (int)x, (int)y, xdiff, ydiff, (int)fPickEnabled, (int)fMoveTo, (int)fInRange);
+					}
 				}
 			}
 			else
@@ -195,6 +212,9 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 							SetEvent(m_hPickEvent);
 						}
 
+						WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
+							pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
+
 						if (m_fDebugMoveTo)
 							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
 								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
@@ -202,6 +222,9 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					else
 					{
 						m_vNoMovePickQueue.push_back(CPickInfo(wId));
+
+						WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for no-move pickup",
+							pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
 
 						if (m_fDebugMoveTo)
 							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for no-move pickup",
@@ -230,6 +253,8 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		BYTE bPos = pkt2.GetInvPos();
 
 		wType &= 0x0FFF;
+
+		WriteClickerLogFmt("PICKUP", "RECV CPutInventoryPacket: item type=0x%04X placed in inventory slot=%d", wType, (int)bPos);
 
 		if (m_fEnabled)
 		{
@@ -263,6 +288,8 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		// Remove them from pickup queues to avoid picking non-existent items
 		CForgetItemPacket& pktForget = (CForgetItemPacket&)pkt;
 		int iCount = pktForget.GetItemCount();
+
+		WriteClickerLogFmt("PICKUP", "RECV CForgetItemPacket: %d item(s) disappeared from ground", iCount);
 
 		for (int i = 0; i < iCount; ++i)
 		{
@@ -306,6 +333,8 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		// Clear stale pickup queues on warp or respawn, but keep m_fEnabled
 		// so auto-pickup continues working after warp/respawn
+		WriteClickerLogFmt("PICKUP", "RECV %s: clearing pickup queues",
+			(pkt == CWarpReplyPacket::Type()) ? "CWarpReplyPacket" : "CCharRespawnPacket");
 		{
 			CAutoLockQueue autoCS(&m_csQueue);
 			m_vPickQueue.clear();
@@ -334,6 +363,7 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 			|| pkt == CMassiveSkillPacket::Type()
 			|| pkt == CCharMoveCTSPacket::Type())
 		{
+			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED outgoing packet during auto-pickup walk (walking=%d)", (int)m_fWalking);
 			return -1;
 		}
 	}
@@ -522,6 +552,9 @@ void CAutoPickupFilter::GoPickNextItem()
 		return;
 	}
 
+	WriteClickerLogFmt("PICKUP", "GoPickNextItem: dequeued item 0x%04X at (%d,%d), suspended=%d, suspMove=%d",
+		wItem, (int)x, (int)y, (int)fSuspended, (int)fSuspMove);
+
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: dequeued item 0x%04X at (%d,%d), suspended=%d, suspMove=%d",
 			wItem, (int)x, (int)y, (int)fSuspended, (int)fSuspMove);
@@ -598,6 +631,8 @@ void CAutoPickupFilter::GoPickNextItem()
 		{
 			CDebugOut::PrintAlways("[AUTOPICK] Running to item at (%d,%d) from (%d,%d), item=0x%04X", 
 				(int)x, (int)y, (int)xOld, (int)yOld, wItem);
+			WriteClickerLogFmt("PICKUP", "GoPickNextItem: RUNNING to item 0x%04X at (%d,%d) from (%d,%d)",
+				wItem, (int)x, (int)y, (int)xOld, (int)yOld);
 
 			// Run to item step by step (emulates player running)
 			RunTo(wPlayerId, xOld, yOld, x, y);
@@ -606,6 +641,8 @@ void CAutoPickupFilter::GoPickNextItem()
 		{
 			CDebugOut::PrintAlways("[AUTOPICK] Walking to item at (%d,%d) from (%d,%d), item=0x%04X", 
 				(int)x, (int)y, (int)xOld, (int)yOld, wItem);
+			WriteClickerLogFmt("PICKUP", "GoPickNextItem: WALKING to item 0x%04X at (%d,%d) from (%d,%d)",
+				wItem, (int)x, (int)y, (int)xOld, (int)yOld);
 
 			// Walk to item step by step (emulates player walking)
 			WalkTo(wPlayerId, xOld, yOld, x, y);
@@ -627,11 +664,13 @@ void CAutoPickupFilter::GoPickNextItem()
 		if (m_fRunMode)
 		{
 			CDebugOut::PrintAlways("[AUTOPICK] Running back to original position (%d,%d)", (int)xOld, (int)yOld);
+			WriteClickerLogFmt("PICKUP", "GoPickNextItem: RUNNING back to original position (%d,%d)", (int)xOld, (int)yOld);
 			RunTo(wPlayerId, x, y, xOld, yOld);
 		}
 		else
 		{
 			CDebugOut::PrintAlways("[AUTOPICK] Walking back to original position (%d,%d)", (int)xOld, (int)yOld);
+			WriteClickerLogFmt("PICKUP", "GoPickNextItem: WALKING back to original position (%d,%d)", (int)xOld, (int)yOld);
 			WalkTo(wPlayerId, x, y, xOld, yOld);
 		}
 
@@ -658,6 +697,8 @@ void CAutoPickupFilter::GoPickNextItem()
 void CAutoPickupFilter::PickItem(WORD wId)
 {
 	CDebugOut::PrintAlways("[AUTOPICK] Picking up item ID=0x%04X", wId);
+	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X", wId);
+
 	CPickItemPacket pkt(wId);
 	GetProxy()->send_packet(pkt);
 }
@@ -677,8 +718,11 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 		|| !pCharInfo->GetParam("X", &x)
 		|| !pCharInfo->GetParam("Y", &y))
 	{
+		WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket FAILED: cannot get player position for slot=%d", (int)pos);
 		return;
 	}
+
+	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket: dropping item from slot=%d at (%d,%d)", (int)pos, (int)x, (int)y);
 
 	CDropItemPacket pkt(x, y, pos);
 	GetProxy()->send_packet(pkt);
@@ -696,6 +740,9 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 	int currY = (int)yFrom;
 	int destX = (int)xTo;
 	int destY = (int)yTo;
+
+	WriteClickerLogFmt("PICKUP", "WalkTo: from (%d,%d) to (%d,%d), playerId=0x%04X",
+		currX, currY, destX, destY, wPlayerId);
 
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] WalkTo: from (%d,%d) to (%d,%d), playerId=0x%04X", 
@@ -716,6 +763,9 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
 		GetProxy()->recv_packet(pktMoveSTC);
 
+		WriteClickerLogFmt("PICKUP", "WalkTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
+			steps, currX, currY, currX, currY);
+
 		// Update server position (bypass filter chain to avoid being blocked)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
 		GetProxy()->send_direct(pktMoveCTS);
@@ -723,6 +773,8 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		// Wait per tile to emulate walking speed
 		Sleep(WALK_MS_PER_TILE);
 	}
+
+	WriteClickerLogFmt("PICKUP", "WalkTo: completed in %d steps (%d ms)", steps, steps * WALK_MS_PER_TILE);
 
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] WalkTo: completed in %d steps (%d ms)", steps, steps * WALK_MS_PER_TILE);
@@ -740,6 +792,9 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 	int currY = (int)yFrom;
 	int destX = (int)xTo;
 	int destY = (int)yTo;
+
+	WriteClickerLogFmt("PICKUP", "RunTo: from (%d,%d) to (%d,%d), playerId=0x%04X",
+		currX, currY, destX, destY, wPlayerId);
 
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] RunTo: from (%d,%d) to (%d,%d), playerId=0x%04X", 
@@ -760,6 +815,9 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
 		GetProxy()->recv_packet(pktMoveSTC);
 
+		WriteClickerLogFmt("PICKUP", "RunTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
+			steps, currX, currY, currX, currY);
+
 		// Update server position (bypass filter chain to avoid being blocked)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
 		GetProxy()->send_direct(pktMoveCTS);
@@ -767,6 +825,8 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 		// Wait per tile to emulate running speed (faster than walking)
 		Sleep(RUN_MS_PER_TILE);
 	}
+
+	WriteClickerLogFmt("PICKUP", "RunTo: completed in %d steps (%d ms)", steps, steps * RUN_MS_PER_TILE);
 
 	if (m_fDebugMoveTo)
 		CDebugOut::PrintAlways("[MOVETO-DBG] RunTo: completed in %d steps (%d ms)", steps, steps * RUN_MS_PER_TILE);
@@ -779,6 +839,8 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
  */
 void CAutoPickupFilter::TeleportTo(WORD wPlayerId, BYTE x, BYTE y)
 {
+	WriteClickerLogFmt("PICKUP", "TeleportTo: teleporting to (%d,%d), playerId=0x%04X", (int)x, (int)y, wPlayerId);
+
 	CUpdatePosSTCPacket pktMoveSTC(wPlayerId, x, y);
 	GetProxy()->recv_packet(pktMoveSTC);
 	Sleep(10);
@@ -803,6 +865,9 @@ void CAutoPickupFilter::ProcessDropQueue()
 {
 	while (!m_vDropQueue.empty() && (GetTickCount() - m_vDropQueue.front().dwTimestamp) > 700)
 	{
+		WriteClickerLogFmt("PICKUP", "ProcessDropQueue: dropping item from inventory slot=%d (queued %d ms ago)",
+			(int)m_vDropQueue.front().bInvPos, (int)(GetTickCount() - m_vDropQueue.front().dwTimestamp));
+
 		DropItem(m_vDropQueue.front().bInvPos);
 		m_vDropQueue.pop_front();
 	}
@@ -816,6 +881,9 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
 {
 	while (!m_vNoMovePickQueue.empty() && (GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp) > 2000)
 	{
+		WriteClickerLogFmt("PICKUP", "ProcessNoMovePickupQueue: picking item ID=0x%04X (queued %d ms ago)",
+			m_vNoMovePickQueue.front().wItemId, (int)(GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp));
+
 		PickItem(m_vNoMovePickQueue.front().wItemId);
 		m_vNoMovePickQueue.pop_front();
 	}
