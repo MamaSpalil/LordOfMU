@@ -32,6 +32,9 @@ INT_PTR CALLBACK CUnifiedSettingsDlg::TabPageDlgProc(HWND hDlg, UINT uMsg, WPARA
 
 	case WM_ERASEBKGND:
 		return (INT_PTR)::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
+
+	case WM_SETCURSOR:
+		return (INT_PTR)::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
 	}
 
 	return FALSE;
@@ -262,7 +265,9 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		InitClassValues();
 		InitPickupValues();
 
-		HCURSOR hCursor = LoadCursor(0, IDC_ARROW);
+		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(0, IDC_ARROW);
 		m_hOldCursor = SetCursor(hCursor);
 
 		for (m_iShowCursor = 0; ShowCursor(TRUE) < 1 && m_iShowCursor < 100; ++m_iShowCursor);
@@ -281,6 +286,20 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 	}
 
 	return 0;
+}
+
+
+LRESULT CUnifiedSettingsDlg::OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if (LOWORD(lParam) == HTCLIENT && m_cTheme.GetMuCursor() != NULL)
+	{
+		SetCursor(m_cTheme.GetMuCursor());
+		bHandled = TRUE;
+		return TRUE;
+	}
+
+	bHandled = FALSE;
+	return FALSE;
 }
 
 

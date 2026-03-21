@@ -285,30 +285,38 @@ BEGIN
     LTEXT           "Advanced Pick-up Settings",IDC_STATIC,7,5,100,8
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,112,9,178,1
     CONTROL         "Enable advanced pick-up",IDC_ADV_PICKUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,18,130,10
-    LTEXT           "Pick",IDC_STATIC,200,30,20,8
-    LTEXT           "Move To",IDC_STATIC,230,30,40,8
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,42,260,1
-    CONTROL         "Jewel of Bless",IDC_BLESS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,48,170,10
-    CONTROL         "",IDC_BLESS1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,48,9,10
-    CONTROL         "Jewel of Soul",IDC_SOUL,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,60,170,10
-    CONTROL         "",IDC_SOUL1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,60,9,10
-    CONTROL         "Jewel of Life",IDC_LIFE,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,72,170,10
-    CONTROL         "",IDC_LIFE1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,72,9,10
-    CONTROL         "Jewel of Guardian",IDC_JOG,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,84,170,10
-    CONTROL         "",IDC_JOG1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,84,9,10
-    CONTROL         "Jewel of Creation",IDC_JOC,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,96,170,10
-    CONTROL         "",IDC_JOC1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,96,9,10
-    CONTROL         "Jewel of Chaos",IDC_CHAOS,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,108,170,10
-    CONTROL         "",IDC_CHAOS1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,108,9,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,122,260,1
-    CONTROL         "Excellent && Ancient Items",IDC_EXL,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,128,170,10
-    CONTROL         "",IDC_EXL1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,128,9,10
-    CONTROL         "Zen",IDC_ZEN,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,18,140,170,10
-    CONTROL         "",IDC_ZEN1,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,140,9,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,154,260,1
-    LTEXT           "Custom Items (//pick xx yy)",IDC_STATIC,18,160,100,8
-    CONTROL         "",IDC_CUSTOM1,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_VCENTER | WS_TABSTOP,200,160,10,10
-    CONTROL         "",IDC_CUSTOM2,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,240,160,9,10
+    LTEXT           "Pick",IDC_STATIC,207,32,16,8
+    LTEXT           "Move To",IDC_STATIC,244,32,35,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,42,262,1
+    LTEXT           "Jewel of Bless",IDC_STATIC,18,48,120,10
+    CONTROL         "",IDC_BLESS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,48,9,10
+    CONTROL         "",IDC_BLESS1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,48,9,10
+    LTEXT           "Jewel of Soul",IDC_STATIC,18,60,120,10
+    CONTROL         "",IDC_SOUL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,60,9,10
+    CONTROL         "",IDC_SOUL1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,60,9,10
+    LTEXT           "Jewel of Life",IDC_STATIC,18,72,120,10
+    CONTROL         "",IDC_LIFE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,72,9,10
+    CONTROL         "",IDC_LIFE1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,72,9,10
+    LTEXT           "Jewel of Guardian",IDC_STATIC,18,84,120,10
+    CONTROL         "",IDC_JOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,84,9,10
+    CONTROL         "",IDC_JOG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,84,9,10
+    LTEXT           "Jewel of Creation",IDC_STATIC,18,96,120,10
+    CONTROL         "",IDC_JOC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,96,9,10
+    CONTROL         "",IDC_JOC1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,96,9,10
+    LTEXT           "Jewel of Chaos",IDC_STATIC,18,108,120,10
+    CONTROL         "",IDC_CHAOS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,108,9,10
+    CONTROL         "",IDC_CHAOS1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,108,9,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,122,262,1
+    LTEXT           "Excellent && Ancient Items",IDC_STATIC,18,128,120,10
+    CONTROL         "",IDC_EXL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,128,9,10
+    CONTROL         "",IDC_EXL1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,128,9,10
+    LTEXT           "Zen",IDC_STATIC,18,140,120,10
+    CONTROL         "",IDC_ZEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,140,9,10
+    CONTROL         "",IDC_ZEN1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,140,9,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,18,154,262,1
+    LTEXT           "Custom Items (//pick xx yy)",IDC_STATIC,18,160,120,8
+    CONTROL         "",IDC_CUSTOM1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,160,9,10
+    CONTROL         "",IDC_CUSTOM2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,252,160,9,10
     LTEXT           "Item code:",IDC_STATIC,30,174,40,12,SS_CENTERIMAGE
     EDITTEXT        IDC_EDIT_CUSTOM,75,174,60,12,ES_AUTOHSCROLL
 END
@@ -341,6 +349,13 @@ IDB_TITLEBAR            BITMAP  "res\\titlebar.bmp"
 IDB_ICO_SWORD           BITMAP  "res\\ico_sword.bmp"
 IDB_ICO_HELM            BITMAP  "res\\ico_helm.bmp"
 IDB_ICO_JEWEL           BITMAP  "res\\ico_jewel.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_MU_CURSOR           CURSOR  "res\\mu_cursor.cur"
 
 
 /////////////////////////////////////////////////////////////////////////////

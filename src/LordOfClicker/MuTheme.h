@@ -44,6 +44,9 @@ public:
 	HBITMAP GetChkUncheckedDis()  const { return m_hChkUncheckedDis; }
 	HBITMAP GetChkCheckedDis()    const { return m_hChkCheckedDis; }
 
+	// Cursor
+	HCURSOR GetMuCursor()      const { return m_hMuCursor; }
+
 	// Fonts
 	HFONT GetTitleFont()       const { return m_hTitleFont; }
 	HFONT GetTabFont()         const { return m_hTabFont; }
@@ -55,22 +58,22 @@ public:
 	HBRUSH GetBgBrush()        const { return m_hBgBrush; }
 	HBRUSH GetPanelBrush()     const { return m_hPanelBrush; }
 
-	// Colors
-	static COLORREF ClrWindowBg()     { return RGB(15, 15, 25); }
-	static COLORREF ClrPanelBg()      { return RGB(20, 22, 35); }
-	static COLORREF ClrFrameGold()    { return RGB(85, 75, 45); }
-	static COLORREF ClrFrameBright()  { return RGB(180, 155, 80); }
-	static COLORREF ClrTitleText()    { return RGB(200, 170, 80); }
-	static COLORREF ClrBodyText()     { return RGB(210, 210, 210); }
-	static COLORREF ClrActiveText()   { return RGB(255, 230, 150); }
-	static COLORREF ClrDisabledText() { return RGB(120, 120, 140); }
-	static COLORREF ClrCheckMark()    { return RGB(120, 200, 80); }
-	static COLORREF ClrSeparator()    { return RGB(60, 55, 45); }
-	static COLORREF ClrBtnBg()        { return RGB(40, 38, 55); }
-	static COLORREF ClrBtnHover()     { return RGB(55, 50, 70); }
-	static COLORREF ClrBtnPressed()   { return RGB(70, 60, 45); }
-	static COLORREF ClrTabActive()    { return RGB(35, 30, 50); }
-	static COLORREF ClrTabInactive()  { return RGB(20, 18, 30); }
+	// Dark-gold MU Online S3E1 color scheme
+	static COLORREF ClrWindowBg()     { return RGB(18, 15, 10); }
+	static COLORREF ClrPanelBg()      { return RGB(25, 22, 16); }
+	static COLORREF ClrFrameGold()    { return RGB(120, 95, 40); }
+	static COLORREF ClrFrameBright()  { return RGB(195, 165, 70); }
+	static COLORREF ClrTitleText()    { return RGB(210, 180, 70); }
+	static COLORREF ClrBodyText()     { return RGB(200, 195, 180); }
+	static COLORREF ClrActiveText()   { return RGB(255, 225, 130); }
+	static COLORREF ClrDisabledText() { return RGB(100, 95, 80); }
+	static COLORREF ClrCheckMark()    { return RGB(130, 190, 60); }
+	static COLORREF ClrSeparator()    { return RGB(70, 58, 32); }
+	static COLORREF ClrBtnBg()        { return RGB(40, 35, 22); }
+	static COLORREF ClrBtnHover()     { return RGB(55, 48, 30); }
+	static COLORREF ClrBtnPressed()   { return RGB(75, 60, 30); }
+	static COLORREF ClrTabActive()    { return RGB(40, 35, 22); }
+	static COLORREF ClrTabInactive()  { return RGB(22, 18, 12); }
 	static COLORREF ClrError()        { return RGB(200, 50, 50); }
 
 	// GDI fallback drawing helpers
@@ -88,6 +91,8 @@ private:
 	HBITMAP m_hBtnNormal, m_hBtnHover, m_hBtnPressed;
 	HBITMAP m_hTabActive, m_hTabInactive;
 	HBITMAP m_hChkUnchecked, m_hChkChecked, m_hChkUncheckedDis, m_hChkCheckedDis;
+
+	HCURSOR m_hMuCursor;
 
 	HFONT m_hTitleFont, m_hTabFont, m_hSectionFont, m_hBodyFont, m_hSmallFont;
 	HBRUSH m_hBgBrush, m_hPanelBrush;
