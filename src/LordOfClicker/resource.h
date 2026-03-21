@@ -120,11 +120,14 @@
 #define IDB_ICO_HELM                    520
 #define IDB_ICO_JEWEL                   521
 
+// Cursor resource for MU Online game cursor
+#define IDC_MU_CURSOR                   522
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        522
+#define _APS_NEXT_RESOURCE_VALUE        523
 #define _APS_NEXT_COMMAND_VALUE         32768
 #define _APS_NEXT_CONTROL_VALUE         406
 #define _APS_NEXT_SYMED_VALUE           103

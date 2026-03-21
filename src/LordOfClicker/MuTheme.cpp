@@ -22,6 +22,7 @@ CMuTheme::CMuTheme()
 	m_hChkChecked = NULL;
 	m_hChkUncheckedDis = NULL;
 	m_hChkCheckedDis = NULL;
+	m_hMuCursor = NULL;
 	m_hTitleFont = NULL;
 	m_hTabFont = NULL;
 	m_hSectionFont = NULL;
@@ -63,6 +64,10 @@ BOOL CMuTheme::Initialize(HINSTANCE hInst)
 	LoadBitmapSafe(m_hChkChecked, hInst, IDB_CHK_CHECKED);
 	LoadBitmapSafe(m_hChkUncheckedDis, hInst, IDB_CHK_UNCHECKED_DIS);
 	LoadBitmapSafe(m_hChkCheckedDis, hInst, IDB_CHK_CHECKED_DIS);
+
+	// Load MU Online game cursor
+	m_hMuCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_MU_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
 	// Create fonts (Tahoma - standard MU Online font)
 	m_hTitleFont = CreateFont(-15, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
@@ -129,21 +134,22 @@ void CMuTheme::Cleanup()
 
 	if (m_hBgBrush != NULL) { DeleteObject(m_hBgBrush); m_hBgBrush = NULL; }
 	if (m_hPanelBrush != NULL) { DeleteObject(m_hPanelBrush); m_hPanelBrush = NULL; }
+	if (m_hMuCursor != NULL) { DestroyCursor(m_hMuCursor); m_hMuCursor = NULL; }
 }
 
 
 void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 {
-	// Gradient from top RGB(15,15,25) to bottom RGB(20,22,35)
+	// Dark-gold gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
 	int height = rc.bottom - rc.top;
 	if (height <= 0) return;
 
 	for (int y = rc.top; y < rc.bottom; ++y)
 	{
 		int t = (height > 1) ? ((y - rc.top) * 255) / (height - 1) : 0;
-		int r = 15 + (20 - 15) * t / 255;
+		int r = 18 + (25 - 18) * t / 255;
 		int g = 15 + (22 - 15) * t / 255;
-		int b = 25 + (35 - 25) * t / 255;
+		int b = 10 + (16 - 10) * t / 255;
 
 		HPEN hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b));
 		HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
@@ -158,18 +164,18 @@ void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 void CMuTheme::DrawMuFrame(HDC hDC, const RECT& rc)
 {
 	// Outer dark border
-	HPEN hDarkPen = CreatePen(PS_SOLID, 1, RGB(40, 35, 25));
+	HPEN hDarkPen = CreatePen(PS_SOLID, 1, RGB(50, 42, 22));
 	HPEN hOldPen = (HPEN)SelectObject(hDC, hDarkPen);
 	HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
 	Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
 
 	// Middle gold border
-	HPEN hGoldPen = CreatePen(PS_SOLID, 2, RGB(85, 75, 45));
+	HPEN hGoldPen = CreatePen(PS_SOLID, 2, RGB(120, 95, 40));
 	SelectObject(hDC, hGoldPen);
 	Rectangle(hDC, rc.left + 1, rc.top + 1, rc.right - 1, rc.bottom - 1);
 
 	// Inner bright highlight
-	HPEN hBrightPen = CreatePen(PS_SOLID, 1, RGB(120, 105, 60));
+	HPEN hBrightPen = CreatePen(PS_SOLID, 1, RGB(155, 130, 55));
 	SelectObject(hDC, hBrightPen);
 	Rectangle(hDC, rc.left + 3, rc.top + 3, rc.right - 3, rc.bottom - 3);
 
@@ -192,7 +198,7 @@ void CMuTheme::DrawMuButton(HDC hDC, const RECT& rc, LPCTSTR text, BOOL pressed,
 	DeleteObject(hBr);
 
 	// Button border
-	HPEN hPen = CreatePen(PS_SOLID, 1, pressed ? RGB(120, 105, 60) : ClrFrameGold());
+	HPEN hPen = CreatePen(PS_SOLID, 1, pressed ? RGB(155, 130, 55) : ClrFrameGold());
 	HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
 	HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
 	Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
