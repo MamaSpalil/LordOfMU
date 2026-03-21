@@ -29,6 +29,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fSuspZen = false;
 	m_fSuspMove = false;
 	m_fWalking = false;
+	m_fDebugMoveTo = false;
 
 	InitializeCriticalSection(&m_csQueue);
 
@@ -69,17 +70,21 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	if (m_fEnabled && pkt == CMeetItemPacket::Type())
 	{
 		if (m_fSuspended && m_fSuspPick)
+		{
+			if (m_fDebugMoveTo)
+				CDebugOut::PrintAlways("[MOVETO-DBG] Item packet ignored: picking is suspended (m_fSuspended=%d, m_fSuspPick=%d)", (int)m_fSuspended, (int)m_fSuspPick);
 			return 0;
+		}
 
 		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
 
 		ULONG ulZenFlags = (m_fSuspended && m_fSuspZen) ? 0 : m_ulZenFlags;
 
-		struct { WORD wType; ULONG* pFlags; } _map[] =
+		struct { WORD wType; ULONG* pFlags; const char* pszName; } _map[] =
 			{
-				{TYPE_BLESS, &m_ulBlessFlags}, {TYPE_SOUL, &m_ulSoulFlags}, {TYPE_CHAOS, &m_ulChaosFlags},
-				{TYPE_LIFE, &m_ulLifeFlags}, {TYPE_JOC, &m_ulCreationFlags}, {TYPE_JOG, &m_ulGuardianFlags},  
-				{TYPE_ZEN, &ulZenFlags}
+				{TYPE_BLESS, &m_ulBlessFlags, "Bless"}, {TYPE_SOUL, &m_ulSoulFlags, "Soul"}, {TYPE_CHAOS, &m_ulChaosFlags, "Chaos"},
+				{TYPE_LIFE, &m_ulLifeFlags, "Life"}, {TYPE_JOC, &m_ulCreationFlags, "Creation"}, {TYPE_JOG, &m_ulGuardianFlags, "Guardian"},  
+				{TYPE_ZEN, &ulZenFlags, "Zen"}
 			};
 
 		BYTE bPlX = 0;
@@ -91,6 +96,14 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			pFilter->GetParam("X", (void*)&bPlX);
 			pFilter->GetParam("Y", (void*)&bPlY);
 		}
+		else if (m_fDebugMoveTo)
+		{
+			CDebugOut::PrintAlways("[MOVETO-DBG] CharInfoFilter not found, player position unknown (0,0)");
+		}
+
+		if (m_fDebugMoveTo)
+			CDebugOut::PrintAlways("[MOVETO-DBG] Processing %d item(s), player at (%d,%d), pdist=%d", 
+				pktMItem.GetItemCount(), (int)bPlX, (int)bPlY, m_iDist);
 
 		for (int i = pktMItem.GetItemCount()-1; i >= 0; --i)
 		{
@@ -110,31 +123,48 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			if (it != m_vItemList.end() && (wMask & it->second) != 0)
 			{
-				if (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist && (m_ulCustomFlags & 1)))
-				{
-					if ((m_ulCustomFlags & 2) != 0)
-					{
-						CAutoLockQueue autoCS(&m_csQueue);
+				bool fMoveTo = (m_ulCustomFlags & 2) != 0;
+				bool fPickEnabled = (m_ulCustomFlags & 1) != 0;
+				bool fInRange = (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist));
 
-						m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
-						SetEvent(m_hPickEvent);
-					}
-					else
-					{
-						PickItem(wId);
-					}
+				if (fMoveTo && fPickEnabled)
+				{
+					// Move To mode: queue item for walking pickup regardless of distance
+					CAutoLockQueue autoCS(&m_csQueue);
+					m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
+					SetEvent(m_hPickEvent);
+
+					if (m_fDebugMoveTo)
+						CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup", 
+							wType, wId, (int)x, (int)y, xdiff, ydiff);
+				}
+				else if (fPickEnabled && fInRange)
+				{
+					// Immediate pickup: item is within range and pickup enabled
+					PickItem(wId);
+
+					if (m_fDebugMoveTo)
+						CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) picked up immediately (no Move To)", 
+							wType, wId, (int)x, (int)y, xdiff, ydiff);
+				}
+				else if (m_fDebugMoveTo)
+				{
+					CDebugOut::PrintAlways("[MOVETO-DBG] Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED: pickEnabled=%d, moveTo=%d, inRange=%d",
+						wType, wId, (int)x, (int)y, xdiff, ydiff, (int)fPickEnabled, (int)fMoveTo, (int)fInRange);
 				}
 			}
 			else
 			{
 				BOOL fFound = FALSE;
 				ULONG ulFlags = 0;
+				const char* pszItemName = "Unknown";
 
 				for (int j=0; j < sizeof(_map)/sizeof(_map[0]); j++)
 				{
 					if (wType == _map[j].wType)
 					{
 						ulFlags = *(_map[j].pFlags);
+						pszItemName = _map[j].pszName;
 						fFound = TRUE;
 						break;
 					}
@@ -147,6 +177,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 						&& ((pItemCode[3] & 0x3F) || (pItemCode[4] & 0x01)))
 				{
 					ulFlags = m_ulExlFlags;
+					pszItemName = "Excellent";
 					fFound = TRUE;
 				}
 
@@ -154,18 +185,35 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				{
 					if ((ulFlags & 2) != 0)
 					{
-						if (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist))
+						// Move To mode: queue item for walking pickup regardless of distance
 						{
 							CAutoLockQueue autoCS(&m_csQueue);
-
 							m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 							SetEvent(m_hPickEvent);
 						}
+
+						if (m_fDebugMoveTo)
+							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
+								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
 					}
 					else
 					{
 						m_vNoMovePickQueue.push_back(CPickInfo(wId));
+
+						if (m_fDebugMoveTo)
+							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for no-move pickup",
+								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
 					}
+				}
+				else if (m_fDebugMoveTo && fFound)
+				{
+					CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED: flags=0x%02X (pickup=%d, moveTo=%d)",
+						pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff, ulFlags, (int)(ulFlags & 1), (int)((ulFlags & 2) != 0));
+				}
+				else if (m_fDebugMoveTo)
+				{
+					CDebugOut::PrintAlways("[MOVETO-DBG] Item 0x%04X (id=0x%04X) at (%d,%d) not in any pickup list, ignored",
+						wType, wId, (int)x, (int)y);
 				}
 			}
 		}
@@ -346,6 +394,10 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		m_iDist = *((int*)pData);
 	}
+	else if (_stricmp(pszParam, "pickdebug") == 0)
+	{
+		m_fDebugMoveTo = *((bool*)pData);
+	}
 
 	return true;
 }
@@ -404,7 +456,15 @@ void CAutoPickupFilter::GoPickNextItem()
 	LeaveCriticalSection(&m_csQueue);
 
 	if (!fHasItem)
+	{
+		if (m_fDebugMoveTo)
+			CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: queue is empty, nothing to pick");
 		return;
+	}
+
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: dequeued item 0x%04X at (%d,%d), suspended=%d, suspMove=%d",
+			wItem, (int)x, (int)y, (int)fSuspended, (int)fSuspMove);
 
 	CPacketFilter* pCharInfo = GetProxy()->GetFilter("CharInfoFilter");
 	CPacketFilter* pScript = GetProxy()->GetFilter("ScriptProcessorFilter");
@@ -419,8 +479,15 @@ void CAutoPickupFilter::GoPickNextItem()
 			|| !pCharInfo->GetParam("Y", &yOld)
 			|| !pCharInfo->GetParam("PlayerId", &wPlayerId))
 	{
+		if (m_fDebugMoveTo)
+			CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: FAILED - CharInfoFilter unavailable or could not get player position/ID (charInfo=%p)",
+				pCharInfo);
 		return;
 	}
+
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: player at (%d,%d) id=0x%04X, target item at (%d,%d)",
+			(int)xOld, (int)yOld, wPlayerId, (int)x, (int)y);
 
 	if (!fSuspended || !fSuspMove)
 	{
@@ -442,6 +509,11 @@ void CAutoPickupFilter::GoPickNextItem()
 		// Walk to item step by step (emulates player walking)
 		WalkTo(wPlayerId, xOld, yOld, x, y);
 	}
+	else if (m_fDebugMoveTo)
+	{
+		CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: walking SKIPPED (both suspended=%d and suspMove=%d are true), picking in place",
+			(int)fSuspended, (int)fSuspMove);
+	}
 
 	PickItem(wItem);
 
@@ -454,6 +526,9 @@ void CAutoPickupFilter::GoPickNextItem()
 		WalkTo(wPlayerId, x, y, xOld, yOld);
 
 		m_fWalking = false;
+
+		if (m_fDebugMoveTo)
+			CDebugOut::PrintAlways("[MOVETO-DBG] GoPickNextItem: walk complete, m_fWalking=false, resuming filters");
 
 		bool fTemp = false;
 		if (!fSuspended)
@@ -512,6 +587,12 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 	int destX = (int)xTo;
 	int destY = (int)yTo;
 
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] WalkTo: from (%d,%d) to (%d,%d), playerId=0x%04X", 
+			currX, currY, destX, destY, wPlayerId);
+
+	int steps = 0;
+
 	while (currX != destX || currY != destY)
 	{
 		int dx = (destX > currX) ? 1 : (destX < currX) ? -1 : 0;
@@ -519,6 +600,7 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 
 		currX += dx;
 		currY += dy;
+		steps++;
 
 		// Update client position (emulate server telling client where character is)
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
@@ -531,6 +613,9 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		// Wait per tile to emulate walking speed
 		Sleep(WALK_MS_PER_TILE);
 	}
+
+	if (m_fDebugMoveTo)
+		CDebugOut::PrintAlways("[MOVETO-DBG] WalkTo: completed in %d steps (%d ms)", steps, steps * WALK_MS_PER_TILE);
 }
 
 

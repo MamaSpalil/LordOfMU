@@ -603,4 +603,20 @@ public:
 };
 
 
+/**
+ * \brief 
+ */
+class CPickDebugCommandHandler
+	: public CCommandHandler
+{
+public:
+	CPickDebugCommandHandler(CProxy* pProxy) : CCommandHandler(pProxy) {}
+	virtual ~CPickDebugCommandHandler(){}
+
+public:
+	virtual bool ProcessCommand(const char* cmd, const char* args);
+	virtual const char* PrintUsage(){ return "//pickdebug <on|off>"; }
+};
+
+
 #endif //__GameCommands_H
