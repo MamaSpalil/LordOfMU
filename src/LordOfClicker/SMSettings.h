@@ -44,6 +44,13 @@ public:
 
 BEGIN_MSG_MAP(CSMSettings)
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+	MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORBTN, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLOREDIT, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORLISTBOX, OnForwardToParent)
+	MESSAGE_HANDLER(WM_CTLCOLORDLG, OnForwardToParent)
+	MESSAGE_HANDLER(WM_SETCURSOR, OnForwardToParent)
+	MESSAGE_HANDLER(WM_ERASEBKGND, OnForwardToParent)
 	COMMAND_HANDLER(IDC_ENABLEMANASHLD, BN_CLICKED, ApplyState)
 END_MSG_MAP()
 
@@ -70,6 +77,15 @@ END_MSG_MAP()
 		GetDlgItem(IDC_ATTACKSKILL).EnableWindow(IsDlgButtonChecked(IDC_ENABLEMANASHLD) == BST_CHECKED);
 		GetDlgItem(IDC_MANASHIELDSKILL).EnableWindow(IsDlgButtonChecked(IDC_ENABLEMANASHLD) == BST_CHECKED);
 
+		return 0;
+	}
+
+	LRESULT OnForwardToParent(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		HWND hParent = GetParent();
+		if (hParent != NULL)
+			return ::SendMessage(hParent, uMsg, wParam, lParam);
+		bHandled = FALSE;
 		return 0;
 	}
 

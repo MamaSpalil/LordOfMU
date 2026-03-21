@@ -34,6 +34,7 @@ BEGIN_MSG_MAP(CUnifiedSettingsDlg)
 	MESSAGE_HANDLER(WM_CTLCOLORBTN, OnCtlColorBtn)
 	MESSAGE_HANDLER(WM_CTLCOLORDLG, OnCtlColorDlg)
 	MESSAGE_HANDLER(WM_CTLCOLOREDIT, OnCtlColorEdit)
+	MESSAGE_HANDLER(WM_CTLCOLORLISTBOX, OnCtlColorListBox)
 	MESSAGE_HANDLER(WM_DRAWITEM, OnDrawItem)
 	NOTIFY_HANDLER(IDC_SETTINGS_TAB, TCN_SELCHANGE, OnTabSelChange)
 	COMMAND_HANDLER(IDOK, BN_CLICKED, OnClickedOK)
@@ -67,6 +68,7 @@ protected:
 	LRESULT OnCtlColorBtn(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCtlColorDlg(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCtlColorEdit(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnCtlColorListBox(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnTabSelChange(int, LPNMHDR pNMHDR, BOOL&);
 	LRESULT OnClickedOK(WORD, WORD, HWND, BOOL&);
@@ -89,6 +91,7 @@ protected:
 	void ThemeTabControl(HWND hwndTab);
 	void SubclassCheckboxes(HWND hwndParent);
 	void SubclassSeparators(HWND hwndParent);
+	void DisableChildThemes(HWND hwndParent);
 	void DrawThemedTab(LPDRAWITEMSTRUCT lpDIS);
 
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
