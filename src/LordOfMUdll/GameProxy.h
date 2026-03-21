@@ -67,6 +67,8 @@ private:
 
 	static const int io_buffer_size	= 65536;
 
+	static const int io_output_buffer_size = io_buffer_size * 2 + 16;
+
 	CCharAutoBuffer m_ioBuffer;
 	CCharAutoBuffer m_ioBuffer2;
 };

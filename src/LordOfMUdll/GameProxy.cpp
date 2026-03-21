@@ -103,7 +103,7 @@ void CGameProxy::ProcessRecvStream(char* lpBuffer, char* newBuff, int& iLen)
 				BYTE* pRaw = pkt.GetRawPacket();
 				int pktLen = pkt.GetPktLen();
 
-				if (pRaw && pktLen > 0 && offs + pktLen <= io_buffer_size * 2)
+				if (pRaw && pktLen > 0 && offs + pktLen <= io_output_buffer_size)
 				{
 					memcpy(newBuff + offs, pRaw, pktLen);
 					offs += pktLen;
@@ -144,7 +144,7 @@ void CGameProxy::ProcessSendStream(char* lpBuffer, char* newBuff, int& iLen)
 				BYTE* pRaw = pkt.GetRawPacket();
 				int pktLen = pkt.GetPktLen();
 
-				if (pRaw && pktLen > 0 && offs + pktLen <= io_buffer_size * 2)
+				if (pRaw && pktLen > 0 && offs + pktLen <= io_output_buffer_size)
 				{
 					memcpy(newBuff + offs, pRaw, pktLen);
 					offs += pktLen;
