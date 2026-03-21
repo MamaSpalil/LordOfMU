@@ -70,9 +70,9 @@ static void PatchMainDllIP()
 	DWORD dwModuleSize = pNt->OptionalHeader.SizeOfImage;
 
 	// Search for the hardcoded IP string in Main.dll's loaded memory.
-	// The binary has 16 bytes at this location: "192.168.10.205\0\0" followed
+	// The binary has 16 bytes at this location: "192.168.0.105\0\0\0" followed
 	// by the next data string, so any IPv4 address (max 15 chars) fits.
-	static const char szOriginalIP[] = "192.168.10.205";
+	static const char szOriginalIP[] = "192.168.0.105";
 	static const size_t cbPatchSize = 16;
 	BYTE* pBase = (BYTE*)hMain;
 	BYTE* pEnd = pBase + dwModuleSize - sizeof(szOriginalIP);
