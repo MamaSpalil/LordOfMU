@@ -74,7 +74,10 @@ public:
 
 					// Redirect stdout to the new console
 					FILE* fp = NULL;
-					freopen_s(&fp, "CONOUT$", "w", stdout);
+					if (freopen_s(&fp, "CONOUT$", "w", stdout) != 0)
+					{
+						LogDebugAction("Warning: failed to redirect stdout to console");
+					}
 
 					// Set console buffer and window size for better readability
 					HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -91,6 +94,10 @@ public:
 
 					printf("[DEBUG] Console window opened - all game actions will be logged here and to ClickerLog.txt\n");
 					printf("[DEBUG] Debug mode ENABLED - verbose logging active\n");
+				}
+				else
+				{
+					LogDebugAction("Warning: AllocConsole() failed, debug console unavailable (error=%d)", (int)GetLastError());
 				}
 			}
 			LogDebugAction("Debug mode ENABLED - verbose logging active, console window opened");

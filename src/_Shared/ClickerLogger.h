@@ -72,6 +72,7 @@ static void WriteClickerLogFmt(const char* szCategory, const char* szFormat, ...
 	va_list args;
 	va_start(args, szFormat);
 	_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+	szMessage[sizeof(szMessage) - 1] = '\0';
 	va_end(args);
 
 	// Write to file
@@ -126,6 +127,7 @@ static void WriteHookLog(const char* szFormat, ...)
 	va_list args;
 	va_start(args, szFormat);
 	_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+	szMessage[sizeof(szMessage) - 1] = '\0';
 	va_end(args);
 
 	FILE* f = fopen(szPath, "a");
@@ -180,6 +182,7 @@ static void WriteSocketLog(const char* szFormat, ...)
 	va_list args;
 	va_start(args, szFormat);
 	_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+	szMessage[sizeof(szMessage) - 1] = '\0';
 	va_end(args);
 
 	FILE* f = fopen(szPath, "a");
@@ -223,6 +226,7 @@ static void WriteDebugLog(const char* szFormat, ...)
 	va_list args;
 	va_start(args, szFormat);
 	_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+	szMessage[sizeof(szMessage) - 1] = '\0';
 	va_end(args);
 
 	FILE* f = fopen(szPath, "a");
