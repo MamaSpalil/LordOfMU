@@ -20,7 +20,7 @@ CGetActiveWindowTramp CMuWindow::GetActiveWindowTr;
  * \brief 
  */
 CMuWindow::CMuWindow()
-	: m_cAdvSettingsDlg(m_cSettingsDlg.GetSettingsObj())
+	: m_cUnifiedSettingsDlg(m_cSettingsDlg.GetSettingsObj())
 {
 	m_hEvent = CreateEvent(0, 0, 0, _T("__LordOfMU_Event01__"));
 	SetEvent(m_hEvent);
@@ -169,7 +169,9 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_cSettingsDlg.Create(m_hWnd);
 	m_cLaunchMuDlg.Create(m_hWnd);
-	m_cAdvSettingsDlg.Create(m_hWnd);
+	// REDESIGN: Create unified dialog instead of separate advanced dialog
+	// m_cAdvSettingsDlg.Create(m_hWnd);
+	m_cUnifiedSettingsDlg.Create(m_hWnd);
 
 	CRegKey cRegKey;
 	DWORD dwWndMode = 0;
@@ -466,12 +468,14 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	if (m_pClicker != NULL)
 		return 0;
 
-	CWindow dlg = m_cSettingsDlg;
-	
-	if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
-	{
-		dlg = m_cAdvSettingsDlg;
-	}
+	// REDESIGN: F9 and SHIFT+F9 merged into unified dialog
+	CWindow dlg = m_cUnifiedSettingsDlg;
+
+	// DEPRECATED: SHIFT+F9 no longer used
+	// if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+	// {
+	//     dlg = m_cAdvSettingsDlg;
+	// }
 
 	if (m_fGuiActive || !dlg.IsWindow())
 		return 0;

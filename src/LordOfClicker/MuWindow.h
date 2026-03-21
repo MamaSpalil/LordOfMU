@@ -7,6 +7,7 @@
 #include "ClickerJob.h"
 #include "LaunchMuDialog.h"
 #include "AdvSettingsDialog.h"
+#include "UnifiedSettingsDlg.h"
 #include "ApiHooker.h"
 
 #define WM_IS_CLICKER_INSTALLED WM_APP + 402
@@ -132,7 +133,9 @@ protected:
 
 	CSettingsDlg m_cSettingsDlg;
 	CLaunchMuDialog m_cLaunchMuDlg;
-	CAdvSettingsDialog m_cAdvSettingsDlg;
+	// REDESIGN: CAdvSettingsDialog replaced by CUnifiedSettingsDlg
+	// CAdvSettingsDialog m_cAdvSettingsDlg;
+	CUnifiedSettingsDlg m_cUnifiedSettingsDlg;
 
 private:
 	HHOOK m_hKbdHook;
