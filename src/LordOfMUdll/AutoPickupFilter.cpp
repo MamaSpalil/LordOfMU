@@ -254,10 +254,55 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		CServerMessagePacket pktMsg(">> Item code: %d %d %d", HIBYTE(wType) & 0x0F, LOBYTE(wType), HIBYTE(wType) >> 4);
 		GetProxy()->recv_direct(pktMsg);
 	}
-	else if (pkt == CWarpReplyPacket::Type())
+	else if (pkt == CForgetItemPacket::Type())
 	{
-		// Clear stale pickup queues from previous map, but keep m_fEnabled
-		// so auto-pickup continues working after warp
+		// Items disappeared from the ground (picked by others, despawned, etc.)
+		// Remove them from pickup queues to avoid picking non-existent items
+		CForgetItemPacket& pktForget = (CForgetItemPacket&)pkt;
+		int iCount = pktForget.GetItemCount();
+
+		for (int i = 0; i < iCount; ++i)
+		{
+			WORD wId = pktForget.GetItemId(i);
+
+			// Remove from move-to pickup queue
+			{
+				CAutoLockQueue autoCS(&m_csQueue);
+
+				for (std::set<ULONG>::iterator it = m_vPickQueue.begin(); it != m_vPickQueue.end(); )
+				{
+					if (LOWORD(*it) == wId)
+					{
+						it = m_vPickQueue.erase(it);
+					}
+					else
+					{
+						++it;
+					}
+				}
+
+				if (m_vPickQueue.empty())
+					ResetEvent(m_hPickEvent);
+			}
+
+			// Remove from no-move pickup queue
+			for (std::deque<CPickInfo>::iterator it = m_vNoMovePickQueue.begin(); it != m_vNoMovePickQueue.end(); )
+			{
+				if (it->wItemId == wId)
+				{
+					it = m_vNoMovePickQueue.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+	}
+	else if (pkt == CWarpReplyPacket::Type() || pkt == CCharRespawnPacket::Type())
+	{
+		// Clear stale pickup queues on warp or respawn, but keep m_fEnabled
+		// so auto-pickup continues working after warp/respawn
 		{
 			CAutoLockQueue autoCS(&m_csQueue);
 			m_vPickQueue.clear();
