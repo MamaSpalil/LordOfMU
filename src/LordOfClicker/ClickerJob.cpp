@@ -128,7 +128,7 @@ void CClickerJob::InitClicker()
 	// Set console title to distinguish clicker debug window
 	HWND hConsole = GetConsoleWindow();
 	if (hConsole != NULL)
-		SetConsoleTitleA("LordOfMU - Clicker Debug Mode");
+		SetConsoleTitleA("LordOfMU - Clicker Debug Console");
 
 	// Propagate debug mode to the DLL so packet logging and debug console work
 	WriteClickerLog("Debug mode active - propagating to DLL");
