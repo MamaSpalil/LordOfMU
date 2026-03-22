@@ -116,45 +116,43 @@ void CClickerJob::InitClicker()
 {
 	WriteClickerLogFmt("CLICKER", "=== Auto-clicker starting ===");
 
-	// Sync debug mode state from registry (set by Bootstrapper in a separate process)
-	bool fDebugFromRegistry = CDebugMode::LoadFromRegistry();
-	if (fDebugFromRegistry != CDebugMode::IsEnabled())
+	// Always enable Clicker Debug Mode when autoclicker starts (F5).
+	// This opens a dedicated debug console window for tracking all clicker actions.
+	if (!CDebugMode::IsEnabled())
 	{
-		CDebugMode::SetEnabled(fDebugFromRegistry);
-		WriteClickerLogFmt("CLICKER", "Debug mode synced from registry: %s",
-			fDebugFromRegistry ? "ON" : "OFF");
+		CDebugMode::SetEnabled(true);
+		CDebugMode::SaveToRegistry();
+		WriteClickerLogFmt("CLICKER", "Clicker Debug Mode auto-enabled on autoclicker start");
 	}
+
+	// Set console title to distinguish clicker debug window
+	HWND hConsole = GetConsoleWindow();
+	if (hConsole != NULL)
+		SetConsoleTitleA("LordOfMU - Clicker Debug Mode");
 
 	// Propagate debug mode to the DLL so packet logging and debug console work
-	if (CDebugMode::IsEnabled())
-	{
-		WriteClickerLog("Debug mode active - propagating to DLL");
-		CMuWindow::GetInstance()->SayToServer("//debugmode on");
+	WriteClickerLog("Debug mode active - propagating to DLL");
+	CMuWindow::GetInstance()->SayToServer("//debugmode on");
 
-		// Log all settings for diagnostics
-		WriteClickerLogFmt("CLICKER", "Settings: fAutoPick=%d fAutoRepair=%d fAutoLife=%d fAutoReOff=%d",
-			(int)m_tSettings.all.fAutoPick, (int)m_tSettings.all.fAutoRepair,
-			(int)m_tSettings.all.fAutoLife, (int)m_tSettings.all.fAutoReOff);
-		WriteClickerLogFmt("CLICKER", "Settings: dwPickTime=%d dwRepairTime=%d dwHealTime=%d dwClass=%d",
-			(int)m_tSettings.all.dwPickTime, (int)m_tSettings.all.dwRepairTime,
-			(int)m_tSettings.all.dwHealTime, (int)m_tSettings.all.dwClass);
-		WriteClickerLogFmt("CLICKER", "Settings: fAdvAutoPick=%d fExitAtLvl400=%d fAntiAFKProtect=%d fPickRunMode=%d",
-			(int)m_tSettings.all.fAdvAutoPick, (int)m_tSettings.all.fExitAtLvl400,
-			(int)m_tSettings.all.fAntiAFKProtect, (int)m_tSettings.all.fPickRunMode);
-		WriteClickerLogFmt("CLICKER", "Settings: fAdvPickBless=%d fAdvPickSoul=%d fAdvPickChaos=%d fAdvPickLife=%d",
-			(int)m_tSettings.all.fAdvPickBless, (int)m_tSettings.all.fAdvPickSoul,
-			(int)m_tSettings.all.fAdvPickChaos, (int)m_tSettings.all.fAdvPickLife);
-		WriteClickerLogFmt("CLICKER", "Settings: fAdvPickCreation=%d fAdvPickGuardian=%d fAdvPickExl=%d fAdvPickZen=%d",
-			(int)m_tSettings.all.fAdvPickCreation, (int)m_tSettings.all.fAdvPickGuardian,
-			(int)m_tSettings.all.fAdvPickExl, (int)m_tSettings.all.fAdvPickZen);
-		WriteClickerLogFmt("CLICKER", "Settings: fAdvPickCustom=%d fAdvPickCustomMove=%d wPickCustomCode=0x%04X",
-			(int)m_tSettings.all.fAdvPickCustom, (int)m_tSettings.all.fAdvPickCustomMove,
-			(int)m_tSettings.all.wPickCustomCode);
-	}
-	else
-	{
-		CMuWindow::GetInstance()->SayToServer("//debugmode off");
-	}
+	// Log all settings for diagnostics
+	WriteClickerLogFmt("CLICKER", "Settings: fAutoPick=%d fAutoRepair=%d fAutoLife=%d fAutoReOff=%d",
+		(int)m_tSettings.all.fAutoPick, (int)m_tSettings.all.fAutoRepair,
+		(int)m_tSettings.all.fAutoLife, (int)m_tSettings.all.fAutoReOff);
+	WriteClickerLogFmt("CLICKER", "Settings: dwPickTime=%d dwRepairTime=%d dwHealTime=%d dwClass=%d",
+		(int)m_tSettings.all.dwPickTime, (int)m_tSettings.all.dwRepairTime,
+		(int)m_tSettings.all.dwHealTime, (int)m_tSettings.all.dwClass);
+	WriteClickerLogFmt("CLICKER", "Settings: fAdvAutoPick=%d fExitAtLvl400=%d fAntiAFKProtect=%d fPickRunMode=%d",
+		(int)m_tSettings.all.fAdvAutoPick, (int)m_tSettings.all.fExitAtLvl400,
+		(int)m_tSettings.all.fAntiAFKProtect, (int)m_tSettings.all.fPickRunMode);
+	WriteClickerLogFmt("CLICKER", "Settings: fAdvPickBless=%d fAdvPickSoul=%d fAdvPickChaos=%d fAdvPickLife=%d",
+		(int)m_tSettings.all.fAdvPickBless, (int)m_tSettings.all.fAdvPickSoul,
+		(int)m_tSettings.all.fAdvPickChaos, (int)m_tSettings.all.fAdvPickLife);
+	WriteClickerLogFmt("CLICKER", "Settings: fAdvPickCreation=%d fAdvPickGuardian=%d fAdvPickExl=%d fAdvPickZen=%d",
+		(int)m_tSettings.all.fAdvPickCreation, (int)m_tSettings.all.fAdvPickGuardian,
+		(int)m_tSettings.all.fAdvPickExl, (int)m_tSettings.all.fAdvPickZen);
+	WriteClickerLogFmt("CLICKER", "Settings: fAdvPickCustom=%d fAdvPickCustomMove=%d wPickCustomCode=0x%04X",
+		(int)m_tSettings.all.fAdvPickCustom, (int)m_tSettings.all.fAdvPickCustomMove,
+		(int)m_tSettings.all.wPickCustomCode);
 
 	if (m_tSettings.all.fAutoReOff)
 	{
@@ -309,11 +307,13 @@ void CClickerJob::TermClicker()
 		CMuWindow::GetInstance()->SayToServer("//autopick off");
 	}
 
-	// Disable debug mode in DLL when clicker stops
-	if (CDebugMode::IsEnabled())
-		WriteClickerLogFmt("CLICKER", "Sending //debugmode off to DLL");
+	// Keep debug mode active in DLL after clicker stops (debug mode is always on)
+	WriteClickerLogFmt("CLICKER", "Debug mode remains active in DLL after clicker stop");
 
-	CMuWindow::GetInstance()->SayToServer("//debugmode off");
+	// Restore console title from clicker-specific to general debug
+	HWND hConsole = GetConsoleWindow();
+	if (hConsole != NULL)
+		SetConsoleTitleA("LordOfMU - Debug Console");
 
 	if (m_tSettings.all.fExitAtLvl400)
 	{
