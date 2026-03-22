@@ -370,11 +370,11 @@ void CClickerJob::DoClicker()
 
 	if ((int)dwTick - (int)m_dwPickUpTicks > (int)m_tSettings.all.dwPickTime)
 	{
-		if (m_tSettings.all.fAutoPick || m_tSettings.all.fAdvAutoPick)
+		if (m_tSettings.all.fAutoPick)
 		{
 			if (CDebugMode::IsEnabled())
-				WriteClickerLogFmt("CLICKER", "Auto-pickup triggered (interval=%d ms, basic=%d, adv=%d)",
-					(int)m_tSettings.all.dwPickTime, (int)m_tSettings.all.fAutoPick, (int)m_tSettings.all.fAdvAutoPick);
+				WriteClickerLogFmt("CLICKER", "Auto-pickup SPACE triggered (interval=%d ms)",
+					(int)m_tSettings.all.dwPickTime);
 
 			DoPickUp();
 		}
