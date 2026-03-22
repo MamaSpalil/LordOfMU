@@ -369,7 +369,8 @@ void CopyDlls()
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{
-		WriteHookLog("CopyFile FAILED for LordOfMU DLL: err=%d", (int)GetLastError());
+		DWORD dwErr = GetLastError();
+		WriteHookLog("CopyFile FAILED for LordOfMU DLL: err=%d", (int)dwErr);
 	}
 
 	// Copy Clicker DLL (MUAutoClicker.dll) to stealth name
@@ -382,7 +383,8 @@ void CopyDlls()
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{
-		WriteHookLog("CopyFile FAILED for Clicker DLL: err=%d", (int)GetLastError());
+		DWORD dwErr = GetLastError();
+		WriteHookLog("CopyFile FAILED for Clicker DLL: err=%d", (int)dwErr);
 	}
 }
 
