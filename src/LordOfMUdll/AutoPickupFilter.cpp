@@ -369,8 +369,15 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 			|| pkt == CMassiveSkillPacket::Type()
 			|| pkt == CCharMoveCTSPacket::Type())
 		{
-			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED outgoing packet during auto-pickup walk (walking=%d)", (int)m_fWalking);
+			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED %s during auto-pickup walk",
+				pkt.GetType().GetDescription());
 			return -1;
+		}
+
+		if (m_fDebugMoveTo)
+		{
+			CDebugOut::PrintAlways("[MOVETO-DBG] FilterSendPacket: ALLOWED %s during walk (not in block list)",
+				pkt.GetType().GetDescription());
 		}
 	}
 
@@ -411,7 +418,14 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		if (_stricmp(pszParam, _map[i].pszOpt) == 0)
 		{
+			ULONG ulOld = *_map[i].pFlags;
 			*_map[i].pFlags = *((ULONG*)pData);
+
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("PICKUP", "SetParam: %s flags 0x%02X -> 0x%02X (pick=%d, moveTo=%d)",
+					pszParam, ulOld, *_map[i].pFlags,
+					(int)(*_map[i].pFlags & 1), (int)((*_map[i].pFlags & 2) != 0));
+
 			return true;
 		}
 	}
@@ -419,6 +433,10 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	if (_stricmp(pszParam, "autopick") == 0)
 	{
 		m_fEnabled = *((BOOL*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: autopick %s (m_fEnabled=%d)",
+				m_fEnabled ? "ENABLED" : "DISABLED", (int)m_fEnabled);
 	}
 	else if (_stricmp(pszParam, "pick") == 0)
 	{
@@ -432,9 +450,16 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 			it->second = it->second | wMask;
 		else
 			m_vItemList.insert(std::pair<WORD,WORD>(wCode, wMask));
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: pick item code=0x%04X mask=0x%04X (total pick items=%d)",
+				wCode, wMask, (int)m_vItemList.size());
 	}
 	else if (_stricmp(pszParam, "pick_clear") == 0)
 	{
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: pick list cleared (was %d items)", (int)m_vItemList.size());
+
 		m_vItemList.clear();
 	}
 	else if (_stricmp(pszParam, "drop") == 0)
@@ -449,14 +474,24 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 			it->second = it->second | wMask;
 		else
 			m_vDropList.insert(std::pair<WORD,WORD>(wCode, wMask));
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: drop item code=0x%04X mask=0x%04X (total drop items=%d)",
+				wCode, wMask, (int)m_vDropList.size());
 	}
 	else if (_stricmp(pszParam, "drop_clear") == 0)
 	{
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: drop list cleared (was %d items)", (int)m_vDropList.size());
+
 		m_vDropList.clear();
 	}
 	else if (_stricmp(pszParam, "suspended") == 0)
 	{
 		m_fSuspended = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: suspended=%d", (int)m_fSuspended);
 	}
 	else if (_stricmp(pszParam, "itemcode") == 0)
 	{
@@ -465,34 +500,58 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	else if (_stricmp(pszParam, "susp_move_pick") == 0)
 	{
 		m_fSuspMove = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: susp_move_pick=%d", (int)m_fSuspMove);
 	}
 	else if (_stricmp(pszParam, "susp_pick") == 0)
 	{
 		m_fSuspPick = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: susp_pick=%d", (int)m_fSuspPick);
 	}
 	else if (_stricmp(pszParam, "susp_zen_pick") == 0)
 	{
 		m_fSuspZen = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: susp_zen_pick=%d", (int)m_fSuspZen);
 	}
 	else if (_stricmp(pszParam, "pdist") == 0)
 	{
 		m_iDist = *((int*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: pdist=%d", m_iDist);
 	}
 	else if (_stricmp(pszParam, "pickdebug") == 0)
 	{
 		m_fDebugMoveTo = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: pickdebug=%d", (int)m_fDebugMoveTo);
 	}
 	else if (_stricmp(pszParam, "pickrunmode") == 0)
 	{
 		m_fRunMode = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: pickrunmode=%d", (int)m_fRunMode);
 	}
 	else if (_stricmp(pszParam, "charclass") == 0)
 	{
 		m_bCharClass = *((BYTE*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: charclass=%d", (int)m_bCharClass);
 	}
 	else if (_stricmp(pszParam, "autorunmode") == 0)
 	{
 		m_fAutoRunMode = *((bool*)pData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("PICKUP", "SetParam: autorunmode=%d", (int)m_fAutoRunMode);
 	}
 
 	return true;
@@ -711,10 +770,21 @@ void CAutoPickupFilter::GoPickNextItem()
 void CAutoPickupFilter::PickItem(WORD wId)
 {
 	CDebugOut::PrintAlways("[AUTOPICK] Picking up item ID=0x%04X", wId);
-	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X", wId);
 
 	CPickItemPacket pkt(wId);
-	GetProxy()->send_packet(pkt);
+
+	if (m_fWalking)
+	{
+		// During active walking, use send_direct() to bypass the filter chain
+		// and send the pickup packet immediately without queue delay
+		WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket (direct): picking up item ID=0x%04X (walking=true)", wId);
+		GetProxy()->send_direct(pkt);
+	}
+	else
+	{
+		WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X", wId);
+		GetProxy()->send_packet(pkt);
+	}
 }
 
 

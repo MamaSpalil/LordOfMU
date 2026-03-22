@@ -313,6 +313,11 @@ bool CPickOptCommandHandler::ProcessCommand(const char* cmd, const char* args)
 		ulFlags |= 2;
 
 	pPickFilter->SetParam(szArg0, &ulFlags);
+
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("DEBUG", "Command //set_pick_opt: item=%s pick=%s moveTo=%s (flags=0x%02X)",
+			szArg0, szArg1, szArg2[0] ? szArg2 : "off", ulFlags);
+
 	return true;
 }
 
@@ -364,6 +369,10 @@ bool CStealthOptCommandHandler::ProcessCommand(const char* cmd, const char* args
 	}
 
 	pPickFilter->SetParam(szArg0, &fOpt);
+
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("DEBUG", "Command //set_stealth_opt: opt=%s value=%s", szArg0, szArg1);
+
 	return true;
 }
 
@@ -393,6 +402,10 @@ bool CAutopickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	}
 
 	pPickFilter->SetParam(cmd, &fCmd);
+
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("DEBUG", "Command //%s: %s (fCmd=%d)", cmd, args, (int)fCmd);
+
 	GetProxy()->recv_direct(CServerMessagePacket(">> %s %s [OK].", cmd, args));
 	return true;
 }
@@ -551,6 +564,9 @@ bool CPickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	if (_stricmp(szArg0, "clear") == 0 && szArg1[0] == 0)
 	{
 		pPickFilter->SetParam("pick_clear", 0);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("DEBUG", "Command //pick clear: pick list cleared");
 	}
 	else if (szArg1[0] != 0)
 	{
@@ -562,6 +578,10 @@ bool CPickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 
 		DWORD dwData = ((DWORD)wMask << 16) | wCode;
 		pPickFilter->SetParam(cmd, &dwData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("DEBUG", "Command //pick: code=0x%04X mask=0x%04X (args: %s %s %s)",
+				wCode, wMask, szArg0, szArg1, szArg2);
 	}
 	else
 	{
@@ -1184,6 +1204,9 @@ bool CDropCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	if (_stricmp(szArg0, "clear") == 0 && szArg1[0] == 0)
 	{
 		pPickFilter->SetParam("drop_clear", 0);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("DEBUG", "Command //drop clear: drop list cleared");
 	}
 	else if (szArg1[0] != 0)
 	{
@@ -1195,6 +1218,10 @@ bool CDropCommandHandler::ProcessCommand(const char* cmd, const char* args)
 
 		DWORD dwData = ((DWORD)wMask << 16) | wCode;
 		pPickFilter->SetParam(cmd, &dwData);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("DEBUG", "Command //drop: code=0x%04X mask=0x%04X (args: %s %s %s)",
+				wCode, wMask, szArg0, szArg1, szArg2);
 	}
 	else
 	{
