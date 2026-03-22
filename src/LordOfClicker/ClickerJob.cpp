@@ -116,6 +116,17 @@ void CClickerJob::InitClicker()
 {
 	WriteClickerLogFmt("CLICKER", "=== Auto-clicker starting ===");
 
+	// Propagate debug mode to the DLL so packet logging and debug console work
+	if (CDebugMode::IsEnabled())
+	{
+		WriteClickerLog("Debug mode active - propagating to DLL");
+		CMuWindow::GetInstance()->SayToServer("//debugmode on");
+	}
+	else
+	{
+		CMuWindow::GetInstance()->SayToServer("//debugmode off");
+	}
+
 	if (m_tSettings.all.fAutoReOff)
 	{
 		WriteClickerLog("Sending /request off");
@@ -188,6 +199,13 @@ void CClickerJob::InitClicker()
 		{
 			CMuWindow::GetInstance()->SayToServer("//pickrunmode off");
 		}
+
+		// Enable pickup debug logging when debug mode is active
+		if (CDebugMode::IsEnabled())
+		{
+			WriteClickerLog("Pick-up debug logging enabled");
+			CMuWindow::GetInstance()->SayToServer("//pickdebug on");
+		}
 	}
 
 	if (m_tSettings.all.fExitAtLvl400)
@@ -238,8 +256,12 @@ void CClickerJob::TermClicker()
 	if (m_tSettings.all.fAdvAutoPick)
 	{
 		WriteClickerLog("Advanced auto-pickup disabled");
+		CMuWindow::GetInstance()->SayToServer("//pickdebug off");
 		CMuWindow::GetInstance()->SayToServer("//autopick off");
 	}
+
+	// Disable debug mode in DLL when clicker stops
+	CMuWindow::GetInstance()->SayToServer("//debugmode off");
 
 	if (m_tSettings.all.fExitAtLvl400)
 	{
@@ -268,6 +290,9 @@ void CClickerJob::DoClicker()
 
 		if (IsWindow(m_hWnd))
 		{
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Attack: right-click at (%d,%d)", x, y);
+
 			SendMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONUP, (WPARAM)0, (LPARAM)MAKELONG(x, y));
 			SendMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONDOWN, (WPARAM)(MK_RBUTTON | MK_SHIFT), (LPARAM)MAKELONG(x, y));
 		}
@@ -282,6 +307,9 @@ void CClickerJob::DoClicker()
 	{
 		if (m_tSettings.all.fAutoLife)
 		{
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Auto-heal triggered (interval=%d ms)", (int)m_tSettings.all.dwHealTime);
+
 			DoHeal();
 		}
 
@@ -292,6 +320,9 @@ void CClickerJob::DoClicker()
 	{
 		if (m_tSettings.all.fAutoPick && !m_tSettings.all.fAdvAutoPick)
 		{
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Basic auto-pickup triggered (interval=%d ms)", (int)m_tSettings.all.dwPickTime);
+
 			DoPickUp();
 		}
 
@@ -302,6 +333,9 @@ void CClickerJob::DoClicker()
 	{
 		if (m_tSettings.all.fAutoRepair)
 		{
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Auto-repair triggered (interval=%d ms)", (int)m_tSettings.all.dwRepairTime);
+
 			DoRepair();
 		}
 

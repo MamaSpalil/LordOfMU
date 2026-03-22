@@ -437,6 +437,7 @@ void CUnifiedSettingsDlg::InitPickupValues()
 
 	::CheckDlgButton(m_hwndTabPickup, IDC_CUSTOM1, m_cSettings->all.fAdvPickCustom ? BST_CHECKED : BST_UNCHECKED);
 	::CheckDlgButton(m_hwndTabPickup, IDC_CUSTOM2, m_cSettings->all.fAdvPickCustomMove ? BST_CHECKED : BST_UNCHECKED);
+	::CheckDlgButton(m_hwndTabPickup, IDC_PICKRUNMODE, m_cSettings->all.fPickRunMode ? BST_CHECKED : BST_UNCHECKED);
 
 	TCHAR szCustom[256] = {0};
 	_sntprintf(szCustom, 255, _T("%d %d"), HIBYTE(m_cSettings->all.wPickCustomCode), LOBYTE(m_cSettings->all.wPickCustomCode));
@@ -531,6 +532,7 @@ void CUnifiedSettingsDlg::ApplyPickup()
 
 	m_cSettings->all.fAdvPickCustom = ::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM1) == BST_CHECKED;
 	m_cSettings->all.fAdvPickCustomMove = ::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM2) == BST_CHECKED;
+	m_cSettings->all.fPickRunMode = ::IsDlgButtonChecked(m_hwndTabPickup, IDC_PICKRUNMODE) == BST_CHECKED;
 
 	TCHAR szCustom[256] = {0};
 	::GetDlgItemText(m_hwndTabPickup, IDC_EDIT_CUSTOM, szCustom, 255);
@@ -575,6 +577,7 @@ void CUnifiedSettingsDlg::ApplyPickupState()
 
 	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_CUSTOM2), fEnable && (::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM1) == BST_CHECKED));
 	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_EDIT_CUSTOM), fEnable && (::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM1) == BST_CHECKED));
+	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_PICKRUNMODE), fEnable);
 }
 
 
