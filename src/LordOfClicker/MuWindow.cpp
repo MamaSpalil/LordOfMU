@@ -1135,19 +1135,30 @@ void CMuWindow::SayToServer(const char* buf)
 	{
 		HMODULE hMod = NULL;
 
+		// Attempt 0 (most reliable): Get the LordOfMU DLL HMODULE directly from
+		// the window property set by the LoaderDll during DLL injection.
+		// This bypasses all module name lookup issues with stealth-renamed DLLs.
+		if (m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+		}
+
 		// Attempt 1: Derive DLL name from our own module name (stealth naming convention:
 		//            Clicker DLL has 2nd char='T', LordOfMU DLL has 2nd char='K')
-		TCHAR szPath[_MAX_PATH+1] = {0};
-		GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
+		if (!hMod)
+		{
+			TCHAR szPath[_MAX_PATH+1] = {0};
+			GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
 
-		int i = (int)_tcslen(szPath) - 1;
-		for (i; i >= 0 && szPath[i] != _T('\\'); --i);
-		i++;
+			int i = (int)_tcslen(szPath) - 1;
+			for (i; i >= 0 && szPath[i] != _T('\\'); --i);
+			i++;
 
-		TCHAR* pszFilename = szPath + i;
-		pszFilename[1] = _T('K');
+			TCHAR* pszFilename = szPath + i;
+			pszFilename[1] = _T('K');
 
-		hMod = GetModuleHandle(pszFilename);
+			hMod = GetModuleHandle(pszFilename);
+		}
 
 		// Attempt 2: Try well-known DLL names
 		if (!hMod)
@@ -1160,7 +1171,7 @@ void CMuWindow::SayToServer(const char* buf)
 		//            This handles cases where stealth DLL renaming makes name-based lookups fail.
 		if (!hMod)
 		{
-			HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+			HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, GetCurrentProcessId());
 			if (hSnap != INVALID_HANDLE_VALUE)
 			{
 				MODULEENTRY32 me32 = {0};
@@ -1183,6 +1194,11 @@ void CMuWindow::SayToServer(const char* buf)
 		if (hMod)
 		{
 			s_pfnSendCommand = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
+
+			if (!s_pfnSendCommand)
+			{
+				WriteClickerLogFmt("CLICKER", "SayToServer: DLL module found at 0x%p but SendCommand export not found", hMod);
+			}
 		}
 	}
 
