@@ -205,19 +205,25 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				{
 					if ((ulFlags & 2) != 0)
 					{
-						// Move To mode: queue item for walking pickup regardless of distance
+						if (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist))
 						{
+							// Move To mode: queue item for walking pickup if within range
 							CAutoLockQueue autoCS(&m_csQueue);
 							m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 							SetEvent(m_hPickEvent);
-						}
 
-						WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
-							pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
-
-						if (m_fDebugMoveTo)
-							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
+							WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
 								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
+
+							if (m_fDebugMoveTo)
+								CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
+									pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
+						}
+						else if (m_fDebugMoveTo)
+						{
+							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED Move To: out of range (pdist=%d)",
+								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff, m_iDist);
+						}
 					}
 					else
 					{
@@ -647,6 +653,10 @@ void CAutoPickupFilter::GoPickNextItem()
 			// Walk to item step by step (emulates player walking)
 			WalkTo(wPlayerId, xOld, yOld, x, y);
 		}
+
+		// Settling delay: give the server time to process the final
+		// position update before we send the pickup request
+		Sleep(WALK_BASE_DELAY_MS);
 	}
 	else if (m_fDebugMoveTo)
 	{
@@ -673,6 +683,10 @@ void CAutoPickupFilter::GoPickNextItem()
 			WriteClickerLogFmt("PICKUP", "GoPickNextItem: WALKING back to original position (%d,%d)", (int)xOld, (int)yOld);
 			WalkTo(wPlayerId, x, y, xOld, yOld);
 		}
+
+		// Settling delay: let the server finish processing the return
+		// movement before resuming filters (AutoKill, Script, etc.)
+		Sleep(WALK_BASE_DELAY_MS);
 
 		m_fWalking = false;
 
