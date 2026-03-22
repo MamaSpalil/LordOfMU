@@ -198,14 +198,19 @@ void CClickerJob::InitClicker()
 		WriteClickerLog("Advanced auto-pickup enabled - setting options");
 		SetAdvancedAutopickOptions();
 
-		WriteClickerLogFmt("CLICKER", "Sending //autopick on to DLL");
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("CLICKER", "Sending //autopick on to DLL");
+
 		CMuWindow::GetInstance()->SayToServer("//autopick on");
 
 		// Send character class for auto run-mode determination
 		{
 			char szMsg[256] = {0};
 			_snprintf(szMsg, 255, "//pickclass %d", m_tSettings.all.dwClass);
-			WriteClickerLogFmt("CLICKER", "Sending %s to DLL", szMsg);
+
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Sending %s to DLL", szMsg);
+
 			CMuWindow::GetInstance()->SayToServer(szMsg);
 		}
 
@@ -220,7 +225,9 @@ void CClickerJob::InitClicker()
 		}
 		else
 		{
-			WriteClickerLogFmt("CLICKER", "Pick-up run mode disabled (fPickRunMode=%d)", (int)m_tSettings.all.fPickRunMode);
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Pick-up run mode disabled (fPickRunMode=%d)", (int)m_tSettings.all.fPickRunMode);
+
 			CMuWindow::GetInstance()->SayToServer("//pickrunmode off");
 		}
 
@@ -285,13 +292,18 @@ void CClickerJob::TermClicker()
 	if (m_tSettings.all.fAdvAutoPick)
 	{
 		WriteClickerLog("Advanced auto-pickup disabled");
-		WriteClickerLogFmt("CLICKER", "Sending //pickdebug off and //autopick off to DLL");
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("CLICKER", "Sending //pickdebug off and //autopick off to DLL");
+
 		CMuWindow::GetInstance()->SayToServer("//pickdebug off");
 		CMuWindow::GetInstance()->SayToServer("//autopick off");
 	}
 
 	// Disable debug mode in DLL when clicker stops
-	WriteClickerLogFmt("CLICKER", "Sending //debugmode off to DLL");
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("CLICKER", "Sending //debugmode off to DLL");
+
 	CMuWindow::GetInstance()->SayToServer("//debugmode off");
 
 	if (m_tSettings.all.fExitAtLvl400)
@@ -470,7 +482,8 @@ void CClickerJob::DoRepair()
  */
 void CClickerJob::SetAdvancedAutopickOptions()
 {
-	WriteClickerLogFmt("CLICKER", "SetAdvancedAutopickOptions: sending all pickup options to DLL");
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("CLICKER", "SetAdvancedAutopickOptions: sending all pickup options to DLL");
 
 	SetAutopickOption("bless", m_tSettings.all.fAdvPickBless, m_tSettings.all.fAdvPickBlessMove);
 	SetAutopickOption("soul", m_tSettings.all.fAdvPickSoul, m_tSettings.all.fAdvPickSoulMove);
@@ -482,18 +495,24 @@ void CClickerJob::SetAdvancedAutopickOptions()
 	SetAutopickOption("zen", m_tSettings.all.fAdvPickZen, m_tSettings.all.fAdvPickZenMove);
 	SetAutopickOption("custom", m_tSettings.all.fAdvPickCustom, m_tSettings.all.fAdvPickCustomMove);
 
-	WriteClickerLogFmt("CLICKER", "Sending //pick clear to DLL");
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("CLICKER", "Sending //pick clear to DLL");
+
 	CMuWindow::GetInstance()->SayToServer("//pick clear");
 
 	if (m_tSettings.all.fAdvPickCustom && m_tSettings.all.wPickCustomCode != 0)
 	{
 		char szMsg[256] = {0};
 		_snprintf(szMsg, 255, "//pick %d %d", HIBYTE(m_tSettings.all.wPickCustomCode), LOBYTE(m_tSettings.all.wPickCustomCode));
-		WriteClickerLogFmt("CLICKER", "Sending custom pick command: %s", szMsg);
+
+		if (CDebugMode::IsEnabled())
+			WriteClickerLogFmt("CLICKER", "Sending custom pick command: %s", szMsg);
+
 		CMuWindow::GetInstance()->SayToServer(szMsg);
 	}
 
-	WriteClickerLogFmt("CLICKER", "SetAdvancedAutopickOptions: all pickup options sent");
+	if (CDebugMode::IsEnabled())
+		WriteClickerLogFmt("CLICKER", "SetAdvancedAutopickOptions: all pickup options sent");
 }
 
 
