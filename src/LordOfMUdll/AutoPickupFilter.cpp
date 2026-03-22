@@ -700,6 +700,22 @@ void CAutoPickupFilter::GoPickNextItem()
 							iBootsLevel, (int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
 				}
 			}
+			else
+			{
+				// Fallback: InventoryManagerFilter unavailable (e.g. MUEliteClicker build)
+				// Use class-based defaults — MG and DL always run, others walk
+				static const BYTE CLASS_DL = 0;
+				static const BYTE CLASS_MG = 5;
+				m_fRunMode = (m_bCharClass == CLASS_MG || m_bCharClass == CLASS_DL);
+
+				if (m_fDebugMoveTo)
+					CDebugOut::PrintAlways("[MOVETO-DBG] Auto run mode fallback (no InventoryManagerFilter): class=%d -> %s",
+						(int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
+
+				if (CDebugMode::IsEnabled())
+					WriteClickerLogFmt("PICKUP", "Auto run mode: InventoryManagerFilter unavailable, using class-based fallback (class=%d -> %s)",
+						(int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
+			}
 		}
 
 		if (m_fRunMode)

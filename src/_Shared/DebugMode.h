@@ -143,6 +143,58 @@ public:
 	}
 
 	/**
+	 * \brief Persist the current debug mode state to the registry so that
+	 *        other modules (Clicker DLL, LordOfMU DLL) running in a
+	 *        different process can read it.
+	 *        Registry path: HKCU\Software\LordJerec\MUAutoClicker\Config\DebugMode
+	 */
+	static void SaveToRegistry()
+	{
+		HKEY hKey = NULL;
+		if (RegCreateKeyExA(HKEY_CURRENT_USER, s_szRegistryPath(),
+							0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+		{
+			DWORD dwValue = s_fEnabled() ? 1 : 0;
+			RegSetValueExA(hKey, "DebugMode", 0, REG_DWORD, (const BYTE*)&dwValue, sizeof(dwValue));
+			RegCloseKey(hKey);
+		}
+		else
+		{
+			LogDebugAction("Warning: failed to save debug mode to registry (error=%d)", (int)GetLastError());
+		}
+	}
+
+	/**
+	 * \brief Read the debug mode state from the registry.
+	 *        Returns the persisted debug mode value, or false if not set.
+	 */
+	static bool LoadFromRegistry()
+	{
+		HKEY hKey = NULL;
+		bool fResult = false;
+		LONG lRes = RegOpenKeyExA(HKEY_CURRENT_USER, s_szRegistryPath(),
+								  0, KEY_READ, &hKey);
+		if (lRes == ERROR_SUCCESS)
+		{
+			DWORD dwValue = 0;
+			DWORD dwSize = sizeof(dwValue);
+			DWORD dwType = REG_DWORD;
+			if (RegQueryValueExA(hKey, "DebugMode", NULL, &dwType, (BYTE*)&dwValue, &dwSize) == ERROR_SUCCESS
+				&& dwType == REG_DWORD)
+			{
+				fResult = (dwValue != 0);
+			}
+			RegCloseKey(hKey);
+		}
+		else if (lRes != ERROR_FILE_NOT_FOUND)
+		{
+			// Log unexpected registry failures (ERROR_FILE_NOT_FOUND is expected on first run)
+			LogDebugAction("Warning: failed to read debug mode from registry (error=%d)", (int)lRes);
+		}
+		return fResult;
+	}
+
+	/**
 	 * \brief Log a debug action to CrashDump.txt and ClickerLog.txt.
 	 *        When debug mode is enabled, also outputs to the debug console.
 	 */
@@ -212,6 +264,11 @@ public:
 
 
 private:
+	static const char* s_szRegistryPath()
+	{
+		return "Software\\LordJerec\\MUAutoClicker\\Config";
+	}
+
 	static bool& s_fEnabled()
 	{
 		static bool fEnabled = false;

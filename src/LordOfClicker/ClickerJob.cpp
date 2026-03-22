@@ -116,6 +116,15 @@ void CClickerJob::InitClicker()
 {
 	WriteClickerLogFmt("CLICKER", "=== Auto-clicker starting ===");
 
+	// Sync debug mode state from registry (set by Bootstrapper in a separate process)
+	bool fDebugFromRegistry = CDebugMode::LoadFromRegistry();
+	if (fDebugFromRegistry != CDebugMode::IsEnabled())
+	{
+		CDebugMode::SetEnabled(fDebugFromRegistry);
+		WriteClickerLogFmt("CLICKER", "Debug mode synced from registry: %s",
+			fDebugFromRegistry ? "ON" : "OFF");
+	}
+
 	// Propagate debug mode to the DLL so packet logging and debug console work
 	if (CDebugMode::IsEnabled())
 	{
