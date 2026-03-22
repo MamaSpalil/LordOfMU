@@ -74,17 +74,16 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 {
 	if (pkt == CMeetItemPacket::Type())
 	{
+		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
+
 		if (!m_fEnabled)
 		{
-			CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
 			WriteClickerLogFmt("PICKUP", "RECV CMeetItemPacket: %d item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored",
 				pktMItem.GetItemCount());
 			CDebugOut::PrintAlways("[PICKUP] RECV CMeetItemPacket: %d item(s) but autopick DISABLED - items ignored",
 				pktMItem.GetItemCount());
 			return 0;
 		}
-
-		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
 
 		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 		WriteClickerLogFmt("PICKUP", "RECV CMeetItemPacket: %d item(s) dropped on ground | Len=%d | %s",
