@@ -45,13 +45,25 @@ extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 {
 //	char* buf = (char*)lParam;
 
-	if (!buf || !g_pGameProxy)
+	if (!buf)
+	{
+		WriteClickerLogFmt("PICKUP", "SendCommand FAILED: buf is NULL");
 		return false;
+	}
+
+	if (!g_pGameProxy)
+	{
+		WriteClickerLogFmt("PICKUP", "SendCommand FAILED: g_pGameProxy is NULL (game not connected?) cmd='%s'", buf);
+		return false;
+	}
 
 	CPacketFilter* pFilter = g_pGameProxy->GetFilter("CharInfoFilter");
 
 	if (!pFilter)
+	{
+		WriteClickerLogFmt("PICKUP", "SendCommand FAILED: CharInfoFilter not found in proxy cmd='%s'", buf);
 		return false;
+	}
 
 	char* pszCharName = 0;
 	pFilter->GetParam("CharName", &pszCharName);

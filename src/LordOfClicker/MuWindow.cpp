@@ -1144,12 +1144,23 @@ void CMuWindow::SayToServer(const char* buf)
 		hMod = GetModuleHandle(_T(__LORDOFMU_DLL_NAME));
 
 	if (!hMod)
+	{
+		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: DLL module not found for cmd='%s'", buf);
 		return;
+	}
 
 	bool (*SendCommandPtr)(const char*) = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
 
-	if (SendCommandPtr)
-		SendCommandPtr(buf);
+	if (!SendCommandPtr)
+	{
+		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: SendCommand export not found in DLL for cmd='%s'", buf);
+		return;
+	}
+
+	if (!SendCommandPtr(buf))
+	{
+		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: SendCommand returned false for cmd='%s' (game proxy not ready?)", buf);
+	}
 }
 
 

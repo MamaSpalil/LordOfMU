@@ -300,6 +300,7 @@ bool CPickOptCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
 	if (!pPickFilter)
 	{
+		WriteClickerLogFmt("PICKUP", "Command //set_pick_opt FAILED: AutoPickupFilter not found");
 		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
 		return false;
 	}
@@ -314,9 +315,8 @@ bool CPickOptCommandHandler::ProcessCommand(const char* cmd, const char* args)
 
 	pPickFilter->SetParam(szArg0, &ulFlags);
 
-	if (CDebugMode::IsEnabled())
-		WriteClickerLogFmt("DEBUG", "Command //set_pick_opt: item=%s pick=%s moveTo=%s (flags=0x%02X)",
-			szArg0, szArg1, szArg2[0] ? szArg2 : "off", ulFlags);
+	WriteClickerLogFmt("PICKUP", "Command //set_pick_opt: item=%s pick=%s moveTo=%s (flags=0x%02X)",
+		szArg0, szArg1, szArg2[0] ? szArg2 : "off", ulFlags);
 
 	return true;
 }
@@ -397,14 +397,14 @@ bool CAutopickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
 	if (!pPickFilter)
 	{
+		WriteClickerLogFmt("PICKUP", "Command //%s FAILED: AutoPickupFilter not found", cmd);
 		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
 		return false;
 	}
 
 	pPickFilter->SetParam(cmd, &fCmd);
 
-	if (CDebugMode::IsEnabled())
-		WriteClickerLogFmt("DEBUG", "Command //%s: %s (fCmd=%d)", cmd, args, (int)fCmd);
+	WriteClickerLogFmt("PICKUP", "Command //%s: %s (fCmd=%d)", cmd, args, (int)fCmd);
 
 	GetProxy()->recv_direct(CServerMessagePacket(">> %s %s [OK].", cmd, args));
 	return true;
@@ -557,6 +557,7 @@ bool CPickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	CPacketFilter* pPickFilter = GetProxy()->GetFilter("AutoPickupFilter");
 	if (!pPickFilter)
 	{
+		WriteClickerLogFmt("PICKUP", "Command //pick FAILED: AutoPickupFilter not found");
 		GetProxy()->recv_direct(CServerMessagePacket(">> Bad software configuration. AutoPickupFilter object not found."));
 		return false;
 	}
@@ -565,8 +566,7 @@ bool CPickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 	{
 		pPickFilter->SetParam("pick_clear", 0);
 
-		if (CDebugMode::IsEnabled())
-			WriteClickerLogFmt("DEBUG", "Command //pick clear: pick list cleared");
+		WriteClickerLogFmt("PICKUP", "Command //pick clear: pick list cleared");
 	}
 	else if (szArg1[0] != 0)
 	{
@@ -579,9 +579,8 @@ bool CPickCommandHandler::ProcessCommand(const char* cmd, const char* args)
 		DWORD dwData = ((DWORD)wMask << 16) | wCode;
 		pPickFilter->SetParam(cmd, &dwData);
 
-		if (CDebugMode::IsEnabled())
-			WriteClickerLogFmt("DEBUG", "Command //pick: code=0x%04X mask=0x%04X (args: %s %s %s)",
-				wCode, wMask, szArg0, szArg1, szArg2);
+		WriteClickerLogFmt("PICKUP", "Command //pick: code=0x%04X mask=0x%04X (args: %s %s %s)",
+			wCode, wMask, szArg0, szArg1, szArg2);
 	}
 	else
 	{
