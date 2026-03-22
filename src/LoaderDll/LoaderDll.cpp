@@ -145,6 +145,10 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	}
 	else
 	{
+		// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
+		// can find it reliably via GetProp() without depending on module name lookups.
+		SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
+
 		InitClickerModulePtr InitProc = (InitClickerModulePtr)GetProcAddress(g_hInjected, "DllGetClassObject");
 
 		GUID guid = {0};
@@ -355,6 +359,7 @@ void CopyDlls()
 	TCHAR szSrcFile[_MAX_PATH+1] = {0};
 	TCHAR szDstFile[_MAX_PATH+1] = {0};
 
+	// Copy LordOfMU DLL (MUEliteClicker.dll) to stealth name
 	_tcscpy(szSrcFile, g_szRoot);
 	_tcscat(szSrcFile, CA2T(__LORDOFMU_DLL_NAME));
 
@@ -362,8 +367,13 @@ void CopyDlls()
 	_tcscat(szDstFile, _T("\\"));
 	_tcscat(szDstFile, g_szDllName);
 
-	CopyFile(szSrcFile, szDstFile, FALSE);
+	if (!CopyFile(szSrcFile, szDstFile, FALSE))
+	{
+		DWORD dwErr = GetLastError();
+		WriteHookLog("CopyFile FAILED for LordOfMU DLL: err=%d", (int)dwErr);
+	}
 
+	// Copy Clicker DLL (MUAutoClicker.dll) to stealth name
 	_tcscpy(szSrcFile, g_szRoot);
 	_tcscat(szSrcFile, CA2T(__CLICKER_DLL_NAME));
 
@@ -371,6 +381,10 @@ void CopyDlls()
 	_tcscat(szDstFile, _T("\\"));
 	_tcscat(szDstFile, g_szDllName2);
 
-	CopyFile(szSrcFile, szDstFile, FALSE);
+	if (!CopyFile(szSrcFile, szDstFile, FALSE))
+	{
+		DWORD dwErr = GetLastError();
+		WriteHookLog("CopyFile FAILED for Clicker DLL: err=%d", (int)dwErr);
+	}
 }
 
