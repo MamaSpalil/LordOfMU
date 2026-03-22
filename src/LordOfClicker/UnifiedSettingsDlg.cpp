@@ -235,9 +235,9 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 			::SendMessage(hwndVersion, WM_SETFONT, (WPARAM)m_cTheme.GetSmallFont(), TRUE);
 	}
 
-	// Show General tab by default for unified AVANTA+ELITE settings
-	m_nCurrentTab = 0;
-	ShowTab(0);
+	// Show Pickup tab by default for ELITE mode settings
+	m_nCurrentTab = 2;
+	ShowTab(2);
 
 	return 1;
 }
@@ -298,11 +298,11 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 
 		for (m_iShowCursor = 0; ShowCursor(TRUE) < 1 && m_iShowCursor < 100; ++m_iShowCursor);
 
-		// Open to General tab by default for unified AVANTA+ELITE settings (F9)
+		// Open to Pickup tab by default for ELITE mode settings (F9)
 		HWND hwndTab = GetDlgItem(IDC_SETTINGS_TAB);
 		if (hwndTab != NULL)
-			TabCtrl_SetCurSel(hwndTab, 0);
-		ShowTab(0);
+			TabCtrl_SetCurSel(hwndTab, 2);
+		ShowTab(2);
 	}
 	else
 	{

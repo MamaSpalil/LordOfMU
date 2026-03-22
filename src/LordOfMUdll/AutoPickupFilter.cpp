@@ -3,6 +3,7 @@
 #include "CommonPackets.h"
 #include "DebugOut.h"
 #include "ClickerLogger.h"
+#include "BufferUtil.h"
 #include <math.h>
 
 /**
@@ -75,7 +76,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
 
-		WriteClickerLogFmt("PICKUP", "RECV CMeetItemPacket: %d item(s) dropped on ground", pktMItem.GetItemCount());
+		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+		WriteClickerLogFmt("PICKUP", "RECV CMeetItemPacket: %d item(s) dropped on ground | Len=%d | %s",
+			pktMItem.GetItemCount(), pkt.GetDecryptedLen(), (const char*)szHex);
+		CDebugOut::PrintAlways("[PICKUP] RECV CMeetItemPacket: %d item(s) | Len=%d | %s",
+			pktMItem.GetItemCount(), pkt.GetDecryptedLen(), (const char*)szHex);
 
 		if (m_fSuspended && m_fSuspPick)
 		{
@@ -260,7 +265,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 		wType &= 0x0FFF;
 
-		WriteClickerLogFmt("PICKUP", "RECV CPutInventoryPacket: item type=0x%04X placed in inventory slot=%d", wType, (int)bPos);
+		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+		WriteClickerLogFmt("PICKUP", "RECV CPutInventoryPacket: item type=0x%04X placed in inventory slot=%d | Len=%d | %s",
+			wType, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
+		CDebugOut::PrintAlways("[PICKUP] RECV CPutInventoryPacket: type=0x%04X slot=%d | Len=%d | %s",
+			wType, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
 
 		if (m_fEnabled)
 		{
@@ -295,7 +304,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		CForgetItemPacket& pktForget = (CForgetItemPacket&)pkt;
 		int iCount = pktForget.GetItemCount();
 
-		WriteClickerLogFmt("PICKUP", "RECV CForgetItemPacket: %d item(s) disappeared from ground", iCount);
+		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+		WriteClickerLogFmt("PICKUP", "RECV CForgetItemPacket: %d item(s) disappeared from ground | Len=%d | %s",
+			iCount, pkt.GetDecryptedLen(), (const char*)szHex);
+		CDebugOut::PrintAlways("[PICKUP] RECV CForgetItemPacket: %d item(s) disappeared | Len=%d | %s",
+			iCount, pkt.GetDecryptedLen(), (const char*)szHex);
 
 		for (int i = 0; i < iCount; ++i)
 		{
@@ -339,8 +352,13 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		// Clear stale pickup queues on warp or respawn, but keep m_fEnabled
 		// so auto-pickup continues working after warp/respawn
-		WriteClickerLogFmt("PICKUP", "RECV %s: clearing pickup queues",
-			(pkt == CWarpReplyPacket::Type()) ? "CWarpReplyPacket" : "CCharRespawnPacket");
+		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+		WriteClickerLogFmt("PICKUP", "RECV %s: clearing pickup queues | Len=%d | %s",
+			(pkt == CWarpReplyPacket::Type()) ? "CWarpReplyPacket" : "CCharRespawnPacket",
+			pkt.GetDecryptedLen(), (const char*)szHex);
+		CDebugOut::PrintAlways("[PICKUP] RECV %s: clearing queues | Len=%d | %s",
+			(pkt == CWarpReplyPacket::Type()) ? "CWarpReplyPacket" : "CCharRespawnPacket",
+			pkt.GetDecryptedLen(), (const char*)szHex);
 		{
 			CAutoLockQueue autoCS(&m_csQueue);
 			m_vPickQueue.clear();
@@ -381,6 +399,8 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 			|| pkt == CCharMoveCTSPacket::Type())
 		{
 			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED %s during auto-pickup walk",
+				pkt.GetType().GetDescription());
+			CDebugOut::PrintAlways("[PICKUP] FilterSendPacket: BLOCKED %s during walk",
 				pkt.GetType().GetDescription());
 			return -1;
 		}
@@ -671,8 +691,10 @@ void CAutoPickupFilter::GoPickNextItem()
 		m_fWalking = true;
 		Sleep(350);
 
-		// Auto-determine run mode based on boots enchantment level and character class
-		if (m_fAutoRunMode)
+		// Auto-determine run mode based on boots enchantment level and character class.
+		// Only auto-detect if user hasn't explicitly enabled run mode (pickrunmode).
+		// When user sets pickrunmode=on, always use run mode regardless of auto-detection.
+		if (m_fAutoRunMode && !m_fRunMode)
 		{
 			CPacketFilter* pInvFilter = GetProxy()->GetFilter("InventoryManagerFilter");
 			if (pInvFilter)
@@ -795,14 +817,17 @@ void CAutoPickupFilter::GoPickNextItem()
  */
 void CAutoPickupFilter::PickItem(WORD wId)
 {
-	CDebugOut::PrintAlways("[AUTOPICK] Picking up item ID=0x%04X", wId);
-
 	CPickItemPacket pkt(wId);
+
+	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X (walking=%d) | Len=%d | %s",
+		wId, (int)m_fWalking, pkt.GetDecryptedLen(), (const char*)szHex);
+	CDebugOut::PrintAlways("[PICKUP] SEND CPickItemPacket: ID=0x%04X walking=%d | Len=%d | %s",
+		wId, (int)m_fWalking, pkt.GetDecryptedLen(), (const char*)szHex);
 
 	// Always use send_packet() so the packet goes through the full filter chain
 	// including PacketEncryptFilter.  FilterSendPacket allows injected packets
 	// through even during walking, so this will not be blocked.
-	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X (walking=%d)", wId, (int)m_fWalking);
 	GetProxy()->send_packet(pkt);
 }
 
@@ -828,6 +853,12 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket: dropping item from slot=%d at (%d,%d)", (int)pos, (int)x, (int)y);
 
 	CDropItemPacket pkt(x, y, pos);
+
+	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket HEX: Len=%d | %s", pkt.GetDecryptedLen(), (const char*)szHex);
+	CDebugOut::PrintAlways("[PICKUP] SEND CDropItemPacket: slot=%d pos=(%d,%d) | Len=%d | %s",
+		(int)pos, (int)x, (int)y, pkt.GetDecryptedLen(), (const char*)szHex);
+
 	GetProxy()->send_packet(pkt);
 }
 
@@ -866,13 +897,24 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
 		GetProxy()->recv_packet(pktMoveSTC);
 
-		WriteClickerLogFmt("PICKUP", "WalkTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
-			steps, currX, currY, currX, currY);
-
 		// Update server position (send through filter chain for proper encryption;
 		// FilterSendPacket allows injected packets through during walking)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
 		GetProxy()->send_packet(pktMoveCTS);
+
+		if (steps == 1 || (currX == destX && currY == destY))
+		{
+			CStringA szHexSTC = CBufferUtil::BufferToHex((char*)pktMoveSTC.GetDecryptedPacket(), pktMoveSTC.GetDecryptedLen());
+			CStringA szHexCTS = CBufferUtil::BufferToHex((char*)pktMoveCTS.GetDecryptedPacket(), pktMoveCTS.GetDecryptedLen());
+			WriteClickerLogFmt("PICKUP", "WalkTo step %d: RECV STC | %s | SEND CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+			CDebugOut::PrintAlways("[PICKUP] WalkTo step %d: STC | %s | CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+		}
+		else if (m_fDebugMoveTo)
+		{
+			WriteClickerLogFmt("PICKUP", "WalkTo step %d: pos=(%d,%d)", steps, currX, currY);
+		}
 
 		// Wait per tile to emulate walking speed
 		Sleep(WALK_MS_PER_TILE);
@@ -919,13 +961,24 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 		CUpdatePosSTCPacket pktMoveSTC(wPlayerId, (BYTE)currX, (BYTE)currY);
 		GetProxy()->recv_packet(pktMoveSTC);
 
-		WriteClickerLogFmt("PICKUP", "RunTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
-			steps, currX, currY, currX, currY);
-
 		// Update server position (send through filter chain for proper encryption;
 		// FilterSendPacket allows injected packets through during walking)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
 		GetProxy()->send_packet(pktMoveCTS);
+
+		if (steps == 1 || (currX == destX && currY == destY))
+		{
+			CStringA szHexSTC = CBufferUtil::BufferToHex((char*)pktMoveSTC.GetDecryptedPacket(), pktMoveSTC.GetDecryptedLen());
+			CStringA szHexCTS = CBufferUtil::BufferToHex((char*)pktMoveCTS.GetDecryptedPacket(), pktMoveCTS.GetDecryptedLen());
+			WriteClickerLogFmt("PICKUP", "RunTo step %d: RECV STC | %s | SEND CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+			CDebugOut::PrintAlways("[PICKUP] RunTo step %d: STC | %s | CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+		}
+		else if (m_fDebugMoveTo)
+		{
+			WriteClickerLogFmt("PICKUP", "RunTo step %d: pos=(%d,%d)", steps, currX, currY);
+		}
 
 		// Wait per tile to emulate running speed (faster than walking)
 		Sleep(RUN_MS_PER_TILE);
@@ -972,6 +1025,8 @@ void CAutoPickupFilter::ProcessDropQueue()
 	{
 		WriteClickerLogFmt("PICKUP", "ProcessDropQueue: dropping item from inventory slot=%d (queued %d ms ago)",
 			(int)m_vDropQueue.front().bInvPos, (int)(GetTickCount() - m_vDropQueue.front().dwTimestamp));
+		CDebugOut::PrintAlways("[PICKUP] ProcessDropQueue: dropping slot=%d (queued %d ms ago)",
+			(int)m_vDropQueue.front().bInvPos, (int)(GetTickCount() - m_vDropQueue.front().dwTimestamp));
 
 		DropItem(m_vDropQueue.front().bInvPos);
 		m_vDropQueue.pop_front();
@@ -987,6 +1042,8 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
 	while (!m_vNoMovePickQueue.empty() && (GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp) > 2000)
 	{
 		WriteClickerLogFmt("PICKUP", "ProcessNoMovePickupQueue: picking item ID=0x%04X (queued %d ms ago)",
+			m_vNoMovePickQueue.front().wItemId, (int)(GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp));
+		CDebugOut::PrintAlways("[PICKUP] ProcessNoMovePickupQueue: picking ID=0x%04X (queued %d ms ago)",
 			m_vNoMovePickQueue.front().wItemId, (int)(GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp));
 
 		PickItem(m_vNoMovePickQueue.front().wItemId);
