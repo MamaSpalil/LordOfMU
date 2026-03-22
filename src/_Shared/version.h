@@ -17,12 +17,13 @@
 	#define __LAUNCHER_EXE_NAME "LordOfMU.exe"
 #elif defined(__CLICKER_STUFF__)
 	#define __CLICKER_ELITE__
+	#define __CLICKER_AVANTA__
 
 	#define __SOFTWARE_VERSION 2,0600,1003,30002
 	#define __SOFTWARE_VERSION_STR "2.0600.1003.30002"
 
-	#define __SOFTWARE_VERSION_ABOUT _T("MUAutoClicker v2.0600 (Elite)")
-	#define __SOFTWARE_PRODUCT_NAME "MUAutoClicker (Elite)"
+	#define __SOFTWARE_VERSION_ABOUT _T("MUAutoClicker v2.0600 (AVANTA+ELITE)")
+	#define __SOFTWARE_PRODUCT_NAME "MUAutoClicker (AVANTA+ELITE)"
 
 	#define __SOFTWARE_COPYRIGHT "Copyright 2010 (c) Kalin Temelkov"
 	#define __SOFTWARE_COMPANY_NAME "Kalin Temelkov"

@@ -83,12 +83,10 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 
 	Shell_NotifyIcon(NIM_ADD, &nid);
 
-	// Restore debug mode state from registry (persisted across sessions)
-	if (CDebugMode::LoadFromRegistry())
-	{
-		CDebugMode::SetEnabled(true);
-		CDebugMode::LogDebugAction("Debug mode restored from registry on startup");
-	}
+	// Auto-enable debug mode on startup with logging of all LordOfMU.exe actions
+	CDebugMode::SetEnabled(true);
+	CDebugMode::SaveToRegistry();
+	CDebugMode::LogDebugAction("Debug mode auto-enabled on LordOfMU.exe startup");
 
 	TCHAR szPath[_MAX_PATH+1] = {0};
 	GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
@@ -128,7 +126,41 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", (LPCSTR)CT2A(m_szLoaderPath), (int)GetLastError());
 	}
 
+	// Validate Connect.ini before launching main.exe
+	{
+		TCHAR szIniPath[_MAX_PATH+1] = {0};
+		_tcscpy(szIniPath, szPath);
+		_tcscat(szIniPath, _T("Connect.ini"));
+
+		struct _stat stIni = {0};
+		if (0 == _tstat(szIniPath, &stIni))
+		{
+			char szIP[64] = {0};
+			GetPrivateProfileStringA("Config", "IP", "", szIP, sizeof(szIP), (LPCSTR)CT2A(szIniPath));
+
+			if (szIP[0] != '\0')
+			{
+				WriteHookLog("Connect.ini found - server IP: %s", szIP);
+				CDebugMode::LogDebugAction("Connect.ini validated: IP=%s", szIP);
+			}
+			else
+			{
+				WriteHookLog("WARNING: Connect.ini found but IP address is empty");
+				CDebugMode::LogDebugAction("WARNING: Connect.ini found but IP address is empty at %s", (LPCSTR)CT2A(szIniPath));
+			}
+		}
+		else
+		{
+			WriteHookLog("WARNING: Connect.ini not found at %s - will be auto-created by DLL with Main.dll IP", (LPCSTR)CT2A(szIniPath));
+			CDebugMode::LogDebugAction("Connect.ini not found - will be auto-created during IP patch");
+		}
+	}
+
 	// Launch the game client (main.exe) after hooks are installed
+	// NOTE: IP patching of Main.dll happens in-memory inside main.exe process
+	// when LordOfMU.dll initializes (Proxifier::InternalInit -> PatchMainDllIP).
+	// The IP is patched before any network connection because Winsock hooks are
+	// installed after PatchMainDllIP completes.
 	{
 		TCHAR szMainExe[_MAX_PATH+1] = {0};
 		_tcscpy(szMainExe, szPath);
