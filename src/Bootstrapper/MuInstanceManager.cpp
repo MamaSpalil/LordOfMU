@@ -272,7 +272,7 @@ LRESULT CMuInstanceManager::OnShellIcon(UINT, WPARAM wParam, LPARAM lParam, BOOL
 	#define PTYPE_JPN 0x00000004
 	#define PTYPE_PHI 0x00000005
 */
-	#if defined(__CLICKER_ELITE__) || defined(__INCLUDE_ALL_STUFF__)
+	#if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__) || defined(__INCLUDE_ALL_STUFF__)
 		AppendMenu(hPopup, MF_POPUP, (UINT_PTR)hPopupST, _T("Protocol Type"));
 
 		AppendMenu(hPopupST, MF_STRING | ((dwType == 1) ? MF_CHECKED : 0), 301, _T("Korea"));

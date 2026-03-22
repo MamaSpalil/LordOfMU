@@ -103,7 +103,7 @@ int CCharInfoFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CMuWindowUtil::PostMessageToMuWindow(WM_CLOSE, 0, 0);
 		}
 	}
-#if defined(__HACK_STUFF__) || defined(__CLICKER_ELITE__) || defined(__INCLUDE_ALL_STUFF__)
+#if defined(__HACK_STUFF__) || defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__) || defined(__INCLUDE_ALL_STUFF__)
 	else if (pkt == CMeetPlayerPacket::Type())
 	{
 		CMeetPlayerPacket& pkt2 = (CMeetPlayerPacket&)pkt;

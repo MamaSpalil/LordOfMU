@@ -39,7 +39,7 @@ CMuWindow::CMuWindow()
 	m_ulVersion = 0;
 	m_fWindow = false;
 
-#ifdef __CLICKER_AVANTA__
+#if defined(__CLICKER_AVANTA__) || defined(__CLICKER_ELITE__)
 	CRegKey key;
 	key.Create(HKEY_CURRENT_USER, _T("Software"));
 	key.Create(key.m_hKey, _T("LordJerec"));
@@ -605,7 +605,7 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 #endif
 
 
-#if defined(__CLICKER_AVANTA__)
+#if defined(__CLICKER_AVANTA__) || defined(__CLICKER_ELITE__)
 	CRegKey key;
 	key.Create(HKEY_CURRENT_USER, _T("Software"));
 	key.Create(key.m_hKey, _T("LordJerec"));

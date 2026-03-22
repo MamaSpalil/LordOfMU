@@ -105,7 +105,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	if (g_fClient)
 	{
-#ifdef __CLICKER_ELITE__
+#if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__)
 		GetTempPath(_MAX_PATH, szPath);
 		PathAddBackslash(szPath);
 #else
@@ -124,7 +124,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	if (0 != _tstat(szPath, &st))
 	{
-#ifdef __CLICKER_ELITE__
+#if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__)
 		MessageBox(0, _T("Clicker module not found!"), _T("Error"), MB_OK);
 #else
 		MessageBox(0, _T("MU Anti-hack module not found!"), _T("Error"), MB_OK);
@@ -135,7 +135,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	if (0 == (g_hInjected = LoadLibrary(szPath)))
 	{
-		#ifdef __CLICKER_ELITE__
+		#if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__)
 			MessageBox(0, _T("Cannot load clicker module!"), _T("Error"), MB_OK);
 		#else
 			MessageBox(0, _T("Cannot load Lord of MU Anti-hack!"), _T("Error"), MB_OK);
