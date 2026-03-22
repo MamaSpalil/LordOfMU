@@ -143,6 +143,48 @@ public:
 	}
 
 	/**
+	 * \brief Persist the current debug mode state to the registry so that
+	 *        other modules (Clicker DLL, LordOfMU DLL) running in a
+	 *        different process can read it.
+	 *        Registry path: HKCU\Software\LordJerec\MUAutoClicker\Config\DebugMode
+	 */
+	static void SaveToRegistry()
+	{
+		HKEY hKey = NULL;
+		if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\LordJerec\\MUAutoClicker\\Config",
+							0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+		{
+			DWORD dwValue = s_fEnabled() ? 1 : 0;
+			RegSetValueExA(hKey, "DebugMode", 0, REG_DWORD, (const BYTE*)&dwValue, sizeof(dwValue));
+			RegCloseKey(hKey);
+		}
+	}
+
+	/**
+	 * \brief Read the debug mode state from the registry.
+	 *        Returns the persisted debug mode value, or false if not set.
+	 */
+	static bool LoadFromRegistry()
+	{
+		HKEY hKey = NULL;
+		bool fResult = false;
+		if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\LordJerec\\MUAutoClicker\\Config",
+						  0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		{
+			DWORD dwValue = 0;
+			DWORD dwSize = sizeof(dwValue);
+			DWORD dwType = REG_DWORD;
+			if (RegQueryValueExA(hKey, "DebugMode", NULL, &dwType, (BYTE*)&dwValue, &dwSize) == ERROR_SUCCESS
+				&& dwType == REG_DWORD)
+			{
+				fResult = (dwValue != 0);
+			}
+			RegCloseKey(hKey);
+		}
+		return fResult;
+	}
+
+	/**
 	 * \brief Log a debug action to CrashDump.txt and ClickerLog.txt.
 	 *        When debug mode is enabled, also outputs to the debug console.
 	 */

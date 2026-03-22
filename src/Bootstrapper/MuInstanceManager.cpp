@@ -83,6 +83,13 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 
 	Shell_NotifyIcon(NIM_ADD, &nid);
 
+	// Restore debug mode state from registry (persisted across sessions)
+	if (CDebugMode::LoadFromRegistry())
+	{
+		CDebugMode::SetEnabled(true);
+		CDebugMode::LogDebugAction("Debug mode restored from registry on startup");
+	}
+
 	TCHAR szPath[_MAX_PATH+1] = {0};
 	GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
 
@@ -358,6 +365,7 @@ LRESULT CMuInstanceManager::OnShellIcon(UINT, WPARAM wParam, LPARAM lParam, BOOL
 			// Toggle debug mode
 			bool fNewState = !CDebugMode::IsEnabled();
 			CDebugMode::SetEnabled(fNewState);
+			CDebugMode::SaveToRegistry();
 
 			CDebugMode::LogDebugAction("Debug mode toggled %s by user from tray menu", fNewState ? "ON" : "OFF");
 
