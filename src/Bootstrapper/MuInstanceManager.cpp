@@ -5,6 +5,7 @@
 #include "ClickerLogger.h"
 
 #include <string>
+#include <vector>
 using namespace std;
 
 
@@ -27,6 +28,267 @@ static VOID CALLBACK DelayedTerm(HWND, UINT, UINT_PTR, DWORD)
 	FreeLibrary(GetModuleHandle(p));
 }
 
+
+
+/**
+ * \brief Default IP hardcoded in original Main.dll binary.
+ */
+static const char s_szDefaultIP[] = "192.168.0.105";
+
+/**
+ * \brief Patch size for the IP field in Main.dll (16-byte slot: IP + null padding).
+ */
+static const size_t s_cbPatchSize = 16;
+
+
+/**
+ * \brief Validate that a string is a valid IPv4 address (digits and dots, 4 octets 0-255).
+ */
+static bool IsValidIPv4(const char* szIP)
+{
+	if (!szIP || szIP[0] == '\0')
+		return false;
+
+	int nOctets = 0;
+	int nDigits = 0;
+	int nValue = 0;
+
+	for (const char* p = szIP; ; p++)
+	{
+		if (*p >= '0' && *p <= '9')
+		{
+			nValue = nValue * 10 + (*p - '0');
+			nDigits++;
+			if (nDigits > 3 || nValue > 255)
+				return false;
+		}
+		else if (*p == '.' || *p == '\0')
+		{
+			if (nDigits == 0)
+				return false;
+			nOctets++;
+			nDigits = 0;
+			nValue = 0;
+			if (*p == '\0')
+				break;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return (nOctets == 4);
+}
+
+
+/**
+ * \brief Patch Main.dll file on disk with the IP address from Connect.ini.
+ *
+ *        This function modifies the actual Main.dll binary file before main.exe
+ *        is launched, ensuring the game client connects to the correct server.
+ *
+ *        Flow:
+ *        1. Reads the target IP from Connect.ini [Config] IP
+ *        2. Reads the last patched IP from Connect.ini [Config] LastPatchedIP
+ *           (defaults to "192.168.0.105" — the original hardcoded IP)
+ *        3. Opens Main.dll as binary and searches for the last known IP
+ *        4. If not found, falls back to searching for the default "192.168.0.105"
+ *        5. Replaces the found IP with the new IP (zero-padded to 16 bytes)
+ *        6. Writes the modified Main.dll back to disk
+ *        7. Updates [Config] LastPatchedIP in Connect.ini
+ *
+ * \param szPath  Game directory path (with trailing backslash)
+ */
+static void PatchMainDllFileIP(const TCHAR* szPath)
+{
+	// Build paths to Connect.ini and Main.dll
+	TCHAR szIniPath[_MAX_PATH + 1] = {0};
+	_tcscpy(szIniPath, szPath);
+	_tcscat(szIniPath, _T("Connect.ini"));
+
+	TCHAR szDllPath[_MAX_PATH + 1] = {0};
+	_tcscpy(szDllPath, szPath);
+	_tcscat(szDllPath, _T("Main.dll"));
+
+	// Check if Main.dll exists
+	struct _stat stDll = {0};
+	if (0 != _tstat(szDllPath, &stDll))
+	{
+		WriteHookLog("[FILE_PATCH] Main.dll not found at %s, skipping file patch", (LPCSTR)CT2A(szDllPath));
+		CDebugMode::LogDebugAction("[FILE_PATCH] Main.dll not found, skipping");
+		return;
+	}
+
+	// Check if Connect.ini exists
+	struct _stat stIni = {0};
+	if (0 != _tstat(szIniPath, &stIni))
+	{
+		WriteHookLog("[FILE_PATCH] Connect.ini not found at %s, skipping file patch", (LPCSTR)CT2A(szIniPath));
+		CDebugMode::LogDebugAction("[FILE_PATCH] Connect.ini not found, skipping");
+		return;
+	}
+
+	// Read target IP from Connect.ini
+	char szNewIP[64] = {0};
+	GetPrivateProfileStringA("Config", "IP", "", szNewIP, sizeof(szNewIP), (LPCSTR)CT2A(szIniPath));
+
+	if (szNewIP[0] == '\0')
+	{
+		WriteHookLog("[FILE_PATCH] No IP in Connect.ini, skipping file patch");
+		CDebugMode::LogDebugAction("[FILE_PATCH] Connect.ini IP is empty, skipping");
+		return;
+	}
+
+	// Validate the new IP
+	if (!IsValidIPv4(szNewIP))
+	{
+		WriteHookLog("[FILE_PATCH] Invalid IP address in Connect.ini: '%s'", szNewIP);
+		CDebugMode::LogDebugAction("[FILE_PATCH] Invalid IP in Connect.ini: %s", szNewIP);
+		return;
+	}
+
+	// Validate new IP length fits in the 16-byte slot
+	size_t cbNewIP = strlen(szNewIP);
+	if (cbNewIP + 1 > s_cbPatchSize)
+	{
+		WriteHookLog("[FILE_PATCH] IP '%s' too long (max %d chars)", szNewIP, (int)(s_cbPatchSize - 1));
+		CDebugMode::LogDebugAction("[FILE_PATCH] IP too long: %s", szNewIP);
+		return;
+	}
+
+	// Read the last patched IP (what's currently in Main.dll) from Connect.ini
+	// Default is the original hardcoded "192.168.0.105"
+	char szLastPatchedIP[64] = {0};
+	GetPrivateProfileStringA("Config", "LastPatchedIP", s_szDefaultIP,
+		szLastPatchedIP, sizeof(szLastPatchedIP), (LPCSTR)CT2A(szIniPath));
+
+	// If IPs already match, no patch needed
+	if (strcmp(szNewIP, szLastPatchedIP) == 0)
+	{
+		WriteHookLog("[FILE_PATCH] Main.dll already has IP %s, no patch needed", szNewIP);
+		CDebugMode::LogDebugAction("[FILE_PATCH] IP already matches: %s", szNewIP);
+		return;
+	}
+
+	WriteHookLog("[FILE_PATCH] Patching Main.dll: '%s' -> '%s'", szLastPatchedIP, szNewIP);
+	CDebugMode::LogDebugAction("[FILE_PATCH] Patching Main.dll file: %s -> %s", szLastPatchedIP, szNewIP);
+
+	// Read Main.dll into memory
+	HANDLE hFile = CreateFile(szDllPath, GENERIC_READ, FILE_SHARE_READ, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		WriteHookLog("[FILE_PATCH] Failed to open Main.dll for reading (error %d)", (int)GetLastError());
+		CDebugMode::LogDebugAction("[FILE_PATCH] Cannot open Main.dll for reading");
+		return;
+	}
+
+	DWORD dwFileSize = GetFileSize(hFile, NULL);
+	if (dwFileSize == INVALID_FILE_SIZE || dwFileSize == 0)
+	{
+		CloseHandle(hFile);
+		WriteHookLog("[FILE_PATCH] Invalid Main.dll file size");
+		return;
+	}
+
+	std::vector<BYTE> vBuffer(dwFileSize);
+	DWORD dwBytesRead = 0;
+	if (!ReadFile(hFile, &vBuffer[0], dwFileSize, &dwBytesRead, NULL) || dwBytesRead != dwFileSize)
+	{
+		CloseHandle(hFile);
+		WriteHookLog("[FILE_PATCH] Failed to read Main.dll (error %d)", (int)GetLastError());
+		return;
+	}
+	CloseHandle(hFile);
+
+	// Search for the last known IP in the binary
+	size_t cbSearchIP = strlen(szLastPatchedIP) + 1; // include null terminator
+	BYTE* pFound = NULL;
+
+	if (dwFileSize >= cbSearchIP)
+	{
+		for (DWORD i = 0; i <= dwFileSize - cbSearchIP; i++)
+		{
+			if (memcmp(&vBuffer[i], szLastPatchedIP, cbSearchIP) == 0)
+			{
+				pFound = &vBuffer[i];
+				WriteHookLog("[FILE_PATCH] Found IP '%s' at offset 0x%X", szLastPatchedIP, i);
+				break;
+			}
+		}
+	}
+
+	// Fallback: if lastPatchedIP was not found and it's not the default, try the default
+	if (!pFound && strcmp(szLastPatchedIP, s_szDefaultIP) != 0)
+	{
+		WriteHookLog("[FILE_PATCH] LastPatchedIP '%s' not found, trying default '%s'",
+			szLastPatchedIP, s_szDefaultIP);
+
+		size_t cbDefault = strlen(s_szDefaultIP) + 1;
+		if (dwFileSize >= cbDefault)
+		{
+			for (DWORD i = 0; i <= dwFileSize - cbDefault; i++)
+			{
+				if (memcmp(&vBuffer[i], s_szDefaultIP, cbDefault) == 0)
+				{
+					pFound = &vBuffer[i];
+					WriteHookLog("[FILE_PATCH] Found default IP '%s' at offset 0x%X", s_szDefaultIP, i);
+					break;
+				}
+			}
+		}
+	}
+
+	if (!pFound)
+	{
+		WriteHookLog("[FILE_PATCH] Could not find IP pattern in Main.dll, skipping patch");
+		CDebugMode::LogDebugAction("[FILE_PATCH] IP pattern not found in Main.dll");
+		return;
+	}
+
+	// Patch the IP in the buffer: zero-fill the 16-byte slot, then write new IP
+	size_t nOffset = pFound - &vBuffer[0];
+
+	// Safety check: ensure we don't write beyond the file
+	if (nOffset + s_cbPatchSize > dwFileSize)
+	{
+		WriteHookLog("[FILE_PATCH] Not enough space at offset 0x%X to patch (file size 0x%X)",
+			(DWORD)nOffset, dwFileSize);
+		return;
+	}
+
+	memset(pFound, 0, s_cbPatchSize);
+	memcpy(pFound, szNewIP, cbNewIP);
+
+	// Write modified buffer back to Main.dll
+	hFile = CreateFile(szDllPath, GENERIC_WRITE, 0, NULL,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		WriteHookLog("[FILE_PATCH] Failed to open Main.dll for writing (error %d)", (int)GetLastError());
+		CDebugMode::LogDebugAction("[FILE_PATCH] Cannot open Main.dll for writing");
+		return;
+	}
+
+	DWORD dwBytesWritten = 0;
+	BOOL bWriteOK = WriteFile(hFile, &vBuffer[0], dwFileSize, &dwBytesWritten, NULL);
+	CloseHandle(hFile);
+
+	if (!bWriteOK || dwBytesWritten != dwFileSize)
+	{
+		WriteHookLog("[FILE_PATCH] Failed to write Main.dll (error %d)", (int)GetLastError());
+		CDebugMode::LogDebugAction("[FILE_PATCH] Failed to write patched Main.dll");
+		return;
+	}
+
+	// Update LastPatchedIP in Connect.ini so next run knows what IP is in Main.dll
+	WritePrivateProfileStringA("Config", "LastPatchedIP", szNewIP, (LPCSTR)CT2A(szIniPath));
+
+	WriteHookLog("[FILE_PATCH] Main.dll patched successfully: '%s' -> '%s' at offset 0x%X",
+		szLastPatchedIP, szNewIP, (DWORD)nOffset);
+	CDebugMode::LogDebugAction("[FILE_PATCH] Main.dll file patched: %s -> %s", szLastPatchedIP, szNewIP);
+}
 
 
 /**
@@ -156,11 +418,13 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		}
 	}
 
-	// Launch the game client (main.exe) after hooks are installed
-	// NOTE: IP patching of Main.dll happens in-memory inside main.exe process
-	// when LordOfMU.dll initializes (Proxifier::InternalInit -> PatchMainDllIP).
-	// The IP is patched before any network connection because Winsock hooks are
-	// installed after PatchMainDllIP completes.
+	// Patch Main.dll file on disk with IP from Connect.ini BEFORE launching main.exe.
+	// This ensures the game client binary has the correct server IP embedded in it.
+	PatchMainDllFileIP(szPath);
+
+	// Launch the game client (main.exe) after Main.dll has been patched on disk.
+	// The in-memory PatchMainDllIP() in LordOfMU.dll (Proxifier::InternalInit)
+	// serves as an additional safety net for the IP override.
 	{
 		TCHAR szMainExe[_MAX_PATH+1] = {0};
 		_tcscpy(szMainExe, szPath);
