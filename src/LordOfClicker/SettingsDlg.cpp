@@ -80,22 +80,6 @@ void CSettingsDlg::InitValues()
 	CheckDlgButton(IDC_AUTOHEAL, m_cSettings->all.fAutoLife ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(IDC_AUTOREPAIR, m_cSettings->all.fAutoRepair ? BST_CHECKED : BST_UNCHECKED);
 
-#ifdef __CLICKER_AVANTA__
-	CheckDlgButton(IDC_AUTOREOFF, BST_UNCHECKED);
-	CheckDlgButton(IDC_EXITAT400, BST_UNCHECKED);
-	CheckDlgButton(IDC_STOPZEN, BST_UNCHECKED);
-	CheckDlgButton(IDC_AUTOSPEAK, BST_UNCHECKED);
-	CheckDlgButton(IDC_STOPMOVE, BST_UNCHECKED);
-	CheckDlgButton(IDC_STOPPICK, BST_UNCHECKED);
-
-	::EnableWindow(GetDlgItem(IDC_STOPPICK), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STOPZEN), FALSE);
-	::EnableWindow(GetDlgItem(IDC_AUTOSPEAK), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STOPMOVE), FALSE);
-	::EnableWindow(GetDlgItem(IDC_AUTOREOFF), FALSE);
-	::EnableWindow(GetDlgItem(IDC_EXITAT400), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_STEALTH), FALSE);	
-#else
 	CheckDlgButton(IDC_AUTOREOFF, m_cSettings->all.fAutoReOff ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(IDC_EXITAT400, m_cSettings->all.fExitAtLvl400 ? BST_CHECKED : BST_UNCHECKED);
 
@@ -106,7 +90,6 @@ void CSettingsDlg::InitValues()
 
 	BOOL fTemp = 0;
 	OnCheckStopPick(0,0,0,fTemp);
-#endif
 	
 	int nSel = 0;
 	int nMinDelta = INT_MAX;
