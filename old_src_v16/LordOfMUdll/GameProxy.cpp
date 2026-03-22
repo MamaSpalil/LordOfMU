@@ -100,8 +100,14 @@ void CGameProxy::ProcessRecvStream(char* lpBuffer, char* newBuff, int& iLen)
 		{
 			if (!FilterRecvPacket(pkt))
 			{
-				memcpy(newBuff + offs, pkt.GetRawPacket(), pkt.GetPktLen());
-				offs += pkt.GetPktLen();
+				BYTE* pRaw = pkt.GetRawPacket();
+				int pktLen = pkt.GetPktLen();
+
+				if (pRaw && pktLen > 0 && offs + pktLen <= io_output_buffer_size)
+				{
+					memcpy(newBuff + offs, pRaw, pktLen);
+					offs += pktLen;
+				}
 			}
 
 			continue;
@@ -135,8 +141,14 @@ void CGameProxy::ProcessSendStream(char* lpBuffer, char* newBuff, int& iLen)
 		{
 			if (!FilterSendPacket(pkt))
 			{
-				memcpy(newBuff + offs, pkt.GetRawPacket(), pkt.GetPktLen());
-				offs += pkt.GetPktLen();
+				BYTE* pRaw = pkt.GetRawPacket();
+				int pktLen = pkt.GetPktLen();
+
+				if (pRaw && pktLen > 0 && offs + pktLen <= io_output_buffer_size)
+				{
+					memcpy(newBuff + offs, pRaw, pktLen);
+					offs += pktLen;
+				}
 			}
 
 			continue;
@@ -361,7 +373,7 @@ void CGameProxy::ProcessSendQueue()
 			char* buf = (char*)pkt.GetRawPacket();
 			int len = (int)pkt.GetPktLen();
 
-			if (!sendBuffer(m_cServer.getSock(), buf, len))
+			if (buf && len > 0 && !sendBuffer(m_cServer.getSock(), buf, len))
 				break;
 		}
 	}
@@ -389,7 +401,7 @@ void CGameProxy::ProcessRecvQueue()
 			char* buf = (char*)pkt.GetRawPacket();
 			int len = (int)pkt.GetPktLen();
 
-			if (!sendBuffer(m_cClient.getSock(), buf, len))
+			if (buf && len > 0 && !sendBuffer(m_cClient.getSock(), buf, len))
 				break;
 		}
 	}

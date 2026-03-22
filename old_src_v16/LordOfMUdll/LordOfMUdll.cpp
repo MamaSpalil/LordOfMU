@@ -117,8 +117,15 @@ protected:
 		if (InterlockedCompareExchange(&g_lHookApplied, 1, 0) == 0)
 		{
 			CDebugOut::PrintAlways("[HOOK] Applying DLL hooks for the first time...");
-			CProxifier::StartUp();
-			CDebugOut::PrintAlways("[HOOK] DLL hooks applied successfully.");
+			if (CProxifier::StartUp())
+			{
+				CDebugOut::PrintAlways("[HOOK] DLL hooks applied successfully.");
+			}
+			else
+			{
+				CDebugOut::PrintAlways("[HOOK] ERROR: DLL hook installation failed! Game will run without proxy.");
+				InterlockedExchange(&g_lHookApplied, 0);
+			}
 		}
 		else
 		{
