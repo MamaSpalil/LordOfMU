@@ -63,9 +63,10 @@ static void WriteClickerLogFmt(const char* szCategory, const char* szFormat, ...
 	GetClickerLogPath(szPath, MAX_PATH);
 
 	time_t t = time(NULL);
-	struct tm* tm_info = localtime(&t);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
 	char szTime[32] = {0};
-	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 	// Format the message
 	char szMessage[1024] = {0};
@@ -119,9 +120,10 @@ static void WriteHookLog(const char* szFormat, ...)
 	GetClickerLogPath(szPath, MAX_PATH);
 
 	time_t t = time(NULL);
-	struct tm* tm_info = localtime(&t);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
 	char szTime[32] = {0};
-	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 	char szMessage[1024] = {0};
 	va_list args;
@@ -174,9 +176,10 @@ static void WriteSocketLog(const char* szFormat, ...)
 	GetClickerLogPath(szPath, MAX_PATH);
 
 	time_t t = time(NULL);
-	struct tm* tm_info = localtime(&t);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
 	char szTime[32] = {0};
-	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 	char szMessage[1024] = {0};
 	va_list args;
@@ -218,9 +221,10 @@ static void WriteDebugLog(const char* szFormat, ...)
 	GetClickerLogPath(szPath, MAX_PATH);
 
 	time_t t = time(NULL);
-	struct tm* tm_info = localtime(&t);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
 	char szTime[32] = {0};
-	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", tm_info);
+	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
 
 	char szMessage[1024] = {0};
 	va_list args;

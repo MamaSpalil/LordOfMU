@@ -667,4 +667,21 @@ public:
 };
 
 
+/**
+ * \brief Toggles debug mode in the DLL context. Enables/disables
+ *        packet logging, debug console output, and verbose diagnostics.
+ */
+class CDebugModeCommandHandler
+	: public CCommandHandler
+{
+public:
+	CDebugModeCommandHandler(CProxy* pProxy) : CCommandHandler(pProxy) {}
+	virtual ~CDebugModeCommandHandler(){}
+
+public:
+	virtual bool ProcessCommand(const char* cmd, const char* args);
+	virtual const char* PrintUsage(){ return "//debugmode <on|off>"; }
+};
+
+
 #endif //__GameCommands_H

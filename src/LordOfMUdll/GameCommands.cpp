@@ -2,6 +2,8 @@
 #include "GameCommands.h"
 #include "CommonPackets.h"
 #include "DebugOut.h"
+#include "DebugMode.h"
+#include "ClickerLogger.h"
 #include "base64.h"
 #include "EncDec.h"
 
@@ -61,6 +63,7 @@ CGameCommands::CGameCommands(CProxy* pProxy)
 	AddCommand("pickrunmode", new CPickRunModeCommandHandler(pProxy));
 	AddCommand("pickclass", new CPickCharClassCommandHandler(pProxy));
 	AddCommand("pickautorunmode", new CPickAutoRunModeCommandHandler(pProxy));
+	AddCommand("debugmode", new CDebugModeCommandHandler(pProxy));
 #endif
 
 
@@ -1703,6 +1706,42 @@ bool CPickAutoRunModeCommandHandler::ProcessCommand(const char* cmd, const char*
 
 	pPickFilter->SetParam("autorunmode", &fCmd);
 	GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up auto run mode %s [OK].", args));
+	return true;
+}
+
+
+/**
+ * \brief Toggles debug mode in the DLL context.
+ */
+bool CDebugModeCommandHandler::ProcessCommand(const char* cmd, const char* args)
+{
+	if (!args || !*args)
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	bool fCmd = false;
+
+	if (_stricmp(args, "on") == 0)
+	{
+		fCmd = true;
+	}
+	else if (_stricmp(args, "off") == 0)
+	{
+		fCmd = false;
+	}
+	else
+	{
+		GetProxy()->recv_direct(CServerMessagePacket(">> Bad command arguments."));
+		GetProxy()->recv_direct(CServerMessagePacket(">> %s", PrintUsage()));
+		return false;
+	}
+
+	CDebugMode::SetEnabled(fCmd);
+	WriteClickerLogFmt("DEBUG", "Debug mode %s in DLL context via //debugmode command", fCmd ? "ENABLED" : "DISABLED");
+	GetProxy()->recv_direct(CServerMessagePacket(">> Debug mode %s [OK].", args));
 	return true;
 }
 
