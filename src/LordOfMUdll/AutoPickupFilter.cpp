@@ -850,12 +850,11 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 		return;
 	}
 
-	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket: dropping item from slot=%d at (%d,%d)", (int)pos, (int)x, (int)y);
-
 	CDropItemPacket pkt(x, y, pos);
 
 	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
-	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket HEX: Len=%d | %s", pkt.GetDecryptedLen(), (const char*)szHex);
+	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket: dropping item from slot=%d at (%d,%d) | Len=%d | %s",
+		(int)pos, (int)x, (int)y, pkt.GetDecryptedLen(), (const char*)szHex);
 	CDebugOut::PrintAlways("[PICKUP] SEND CDropItemPacket: slot=%d pos=(%d,%d) | Len=%d | %s",
 		(int)pos, (int)x, (int)y, pkt.GetDecryptedLen(), (const char*)szHex);
 
