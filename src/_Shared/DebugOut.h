@@ -4,6 +4,8 @@
 #pragma once
 
 #include <conio.h>
+#include "DebugMode.h"
+#include "ClickerLogger.h"
 
 #ifdef DEBUG
 //	#define __DEBUG_OUT
@@ -358,23 +360,24 @@ public:
 protected:
 	static void PrintV(const char* format, va_list args)
 	{
+		// Format the message once into a buffer so it can be used by all
+		// output targets without consuming the va_list multiple times.
+		char szMessage[512] = {0};
+		_vsprintf_p(szMessage, 510, format, args);
+		DWORD len = (DWORD)strlen(szMessage);
+
 #if defined(__DEBUG_OUT) || defined(__DEBUG_LOG)
 		Lock();
 		PrintTimeStamp();
 #endif
 
 #if defined(__DEBUG_OUT)
-		_vcprintf(format, args);
-		_cprintf("\n"); 
+		_cprintf("%s\n", szMessage);
 #endif
 
 #if defined(__DEBUG_LOG)
 		if (s_hFile())
 		{
-			char szMessage[512] = {0};
-			_vsprintf_p(szMessage, 510, format, args);
-
-			DWORD len = (DWORD)strlen(szMessage);
 			szMessage[len++] = '\n';
 
 			DWORD dwWritten = 0;
@@ -391,6 +394,19 @@ protected:
 #if defined(__DEBUG_OUT) || defined(__DEBUG_LOG)
 		UnLock();
 #endif
+
+		// When debug mode is enabled at runtime, also output to the debug
+		// console (stdout) and ClickerLog.txt.  This bridges the compile-time
+		// CDebugOut logging with the runtime CDebugMode debug console so that
+		// [AUTOPICK], [MOVETO-DBG] and other DLL messages appear in the
+		// debug console window even in Release builds.
+		if (CDebugMode::IsEnabled())
+		{
+			szMessage[510] = '\0'; // ensure NUL termination after potential \n
+			if (len > 0 && szMessage[len - 1] == '\n')
+				szMessage[len - 1] = '\0';
+			WriteClickerLogFmt("GAMEDBG", "%s", szMessage);
+		}
 	}
 
 	static void PrintTimeStamp()

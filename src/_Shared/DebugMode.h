@@ -66,18 +66,12 @@ public:
 		{
 			if (!s_fConsoleAllocated())
 			{
+				bool fNewConsole = false;
+
 				if (AllocConsole())
 				{
-					s_fConsoleAllocated() = true;
-
+					fNewConsole = true;
 					SetConsoleTitleA("LordOfMU - Debug Console");
-
-					// Redirect stdout to the new console
-					FILE* fp = NULL;
-					if (freopen_s(&fp, "CONOUT$", "w", stdout) != 0)
-					{
-						LogDebugAction("Warning: failed to redirect stdout to console");
-					}
 
 					// Set console buffer and window size for better readability
 					HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -91,26 +85,52 @@ public:
 						// Set console text color to green on black (MU Online style)
 						SetConsoleTextAttribute(hOut, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					}
+				}
+
+				// Redirect stdout to the console in THIS module.
+				// This is needed even when AllocConsole() failed because another
+				// module (Bootstrapper / LordOfMUdll) may have already allocated
+				// the console.  Each module has its own CRT stdout handle, so
+				// every module must redirect independently.
+				if (fNewConsole || GetConsoleWindow() != NULL)
+				{
+					FILE* fp = NULL;
+					if (freopen_s(&fp, "CONOUT$", "w", stdout) == 0)
+					{
+						setvbuf(stdout, NULL, _IONBF, 0); // disable buffering for immediate output
+					}
+					else
+					{
+						LogDebugAction("Warning: failed to redirect stdout to console");
+					}
+
+					// Also redirect stderr so _cprintf / CDebugOut output reaches the console
+					FILE* fpErr = NULL;
+					freopen_s(&fpErr, "CONOUT$", "w", stderr);
+
+					s_fConsoleAllocated() = true;
 
 					printf("[DEBUG] Console window opened - all game actions will be logged here and to ClickerLog.txt\n");
 					printf("[DEBUG] Debug mode ENABLED - verbose logging active\n");
 				}
 				else
 				{
-					LogDebugAction("Warning: AllocConsole() failed, debug console unavailable (error=%d)", (int)GetLastError());
+					LogDebugAction("Warning: AllocConsole() failed and no console window exists (error=%d)", (int)GetLastError());
 				}
 			}
 			LogDebugAction("Debug mode ENABLED - verbose logging active, console window opened");
 		}
 		else
 		{
+			LogDebugAction("Debug mode DISABLED - closing console window");
+
 			if (s_fConsoleAllocated())
 			{
 				printf("[DEBUG] Debug mode DISABLED - closing console window\n");
+				fflush(stdout);
 				FreeConsole();
 				s_fConsoleAllocated() = false;
 			}
-			LogDebugAction("Debug mode DISABLED - normal logging");
 		}
 	}
 
@@ -183,6 +203,7 @@ public:
 		if (s_fEnabled() && s_fConsoleAllocated())
 		{
 			printf("[%s] [DEBUG] %s\n", szTime, szMessage);
+			fflush(stdout);
 		}
 
 		ReleaseMutex(hMutex);
