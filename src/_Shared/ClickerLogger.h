@@ -88,6 +88,7 @@ static void WriteClickerLogFmt(const char* szCategory, const char* szFormat, ...
 	if (CDebugMode::IsEnabled())
 	{
 		printf("[%s] [%s] %s\n", szTime, szCategory, szMessage);
+		fflush(stdout);
 	}
 
 	ReleaseMutex(hMutex);
@@ -142,6 +143,7 @@ static void WriteHookLog(const char* szFormat, ...)
 	if (CDebugMode::IsEnabled())
 	{
 		printf("[%s] [HOOK] %s\n", szTime, szMessage);
+		fflush(stdout);
 	}
 
 	ReleaseMutex(hMutex);
@@ -198,6 +200,7 @@ static void WriteSocketLog(const char* szFormat, ...)
 	if (CDebugMode::IsEnabled())
 	{
 		printf("[%s] [SOCKET] %s\n", szTime, szMessage);
+		fflush(stdout);
 	}
 
 	ReleaseMutex(hMutex);
@@ -243,6 +246,7 @@ static void WriteDebugLog(const char* szFormat, ...)
 	if (CDebugMode::IsEnabled())
 	{
 		printf("[%s] [DEBUG] %s\n", szTime, szMessage);
+		fflush(stdout);
 	}
 
 	ReleaseMutex(hMutex);

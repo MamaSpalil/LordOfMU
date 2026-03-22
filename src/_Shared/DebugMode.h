@@ -203,6 +203,7 @@ public:
 		if (s_fEnabled() && s_fConsoleAllocated())
 		{
 			printf("[%s] [DEBUG] %s\n", szTime, szMessage);
+			fflush(stdout);
 		}
 
 		ReleaseMutex(hMutex);
