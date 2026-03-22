@@ -7,6 +7,7 @@
 #include "version.h"
 #include "ClickerLogger.h"
 #include <map>
+#include <TlHelp32.h>
 
 CMuWindow* CMuWindow::s_pInstance = NULL;
 
@@ -1125,39 +1126,73 @@ LRESULT CMuWindow::OnCaptureChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
  */
 void CMuWindow::SayToServer(const char* buf)
 {
-	TCHAR szPath[_MAX_PATH+1] = {0};
-	GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
+	// Cache the SendCommand function pointer across calls to avoid repeated module lookups.
+	// Only cache on successful lookup; retry on each call if the DLL wasn't found yet
+	// (handles timing where SayToServer is called before the DLL finishes loading).
+	static bool (*s_pfnSendCommand)(const char*) = NULL;
 
-	int i = (int)_tcslen(szPath) - 1;
-	for (i; i >= 0 && szPath[i] != _T('\\'); --i);
-	i++;
+	if (!s_pfnSendCommand)
+	{
+		HMODULE hMod = NULL;
 
-	TCHAR* pszFilename = szPath + i;
-	pszFilename[1] = _T('K');
+		// Attempt 1: Derive DLL name from our own module name (stealth naming convention:
+		//            Clicker DLL has 2nd char='T', LordOfMU DLL has 2nd char='K')
+		TCHAR szPath[_MAX_PATH+1] = {0};
+		GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szPath, _MAX_PATH);
 
-	HMODULE hMod = GetModuleHandle(pszFilename);
+		int i = (int)_tcslen(szPath) - 1;
+		for (i; i >= 0 && szPath[i] != _T('\\'); --i);
+		i++;
 
-	if (!hMod)
-		hMod = GetModuleHandle(_T("LordOfMU.dll"));
+		TCHAR* pszFilename = szPath + i;
+		pszFilename[1] = _T('K');
 
-	if (!hMod)
-		hMod = GetModuleHandle(_T(__LORDOFMU_DLL_NAME));
+		hMod = GetModuleHandle(pszFilename);
 
-	if (!hMod)
+		// Attempt 2: Try well-known DLL names
+		if (!hMod)
+			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+
+		if (!hMod)
+			hMod = GetModuleHandle(_T(__LORDOFMU_DLL_NAME));
+
+		// Attempt 3: Enumerate all loaded modules and find the one exporting SendCommand.
+		//            This handles cases where stealth DLL renaming makes name-based lookups fail.
+		if (!hMod)
+		{
+			HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+			if (hSnap != INVALID_HANDLE_VALUE)
+			{
+				MODULEENTRY32 me32 = {0};
+				me32.dwSize = sizeof(MODULEENTRY32);
+
+				if (Module32First(hSnap, &me32))
+				{
+					do {
+						if (GetProcAddress(me32.hModule, "SendCommand"))
+						{
+							hMod = me32.hModule;
+							break;
+						}
+					} while (Module32Next(hSnap, &me32));
+				}
+				CloseHandle(hSnap);
+			}
+		}
+
+		if (hMod)
+		{
+			s_pfnSendCommand = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
+		}
+	}
+
+	if (!s_pfnSendCommand)
 	{
 		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: DLL module not found for cmd='%s'", buf);
 		return;
 	}
 
-	bool (*SendCommandPtr)(const char*) = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
-
-	if (!SendCommandPtr)
-	{
-		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: SendCommand export not found in DLL for cmd='%s'", buf);
-		return;
-	}
-
-	if (!SendCommandPtr(buf))
+	if (!s_pfnSendCommand(buf))
 	{
 		WriteClickerLogFmt("CLICKER", "SayToServer FAILED: SendCommand returned false for cmd='%s' (game proxy not ready?)", buf);
 	}
