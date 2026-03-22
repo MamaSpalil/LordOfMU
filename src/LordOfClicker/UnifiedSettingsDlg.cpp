@@ -235,9 +235,9 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 			::SendMessage(hwndVersion, WM_SETFONT, (WPARAM)m_cTheme.GetSmallFont(), TRUE);
 	}
 
-	// Show first tab
-	m_nCurrentTab = 0;
-	ShowTab(0);
+	// Show Pickup tab by default (F9 opens directly to Pickup settings)
+	m_nCurrentTab = 2;
+	ShowTab(2);
 
 	return 1;
 }
@@ -298,11 +298,11 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 
 		for (m_iShowCursor = 0; ShowCursor(TRUE) < 1 && m_iShowCursor < 100; ++m_iShowCursor);
 
-		// Show first tab
+		// Open to Pickup tab by default (F9 → Pickup → Advanced Pick-up Settings)
 		HWND hwndTab = GetDlgItem(IDC_SETTINGS_TAB);
 		if (hwndTab != NULL)
-			TabCtrl_SetCurSel(hwndTab, 0);
-		ShowTab(0);
+			TabCtrl_SetCurSel(hwndTab, 2);
+		ShowTab(2);
 	}
 	else
 	{
