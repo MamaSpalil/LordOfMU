@@ -261,9 +261,11 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 	memset(pFound, 0, s_cbPatchSize);
 	memcpy(pFound, szNewIP, cbNewIP);
 
-	// Write modified buffer back to Main.dll
+	// Write only the patched 16-byte IP field back to Main.dll at the found offset.
+	// Using OPEN_EXISTING with SetFilePointer to modify only the specific bytes,
+	// avoiding risk of file corruption from rewriting the entire file.
 	hFile = CreateFile(szDllPath, GENERIC_WRITE, 0, NULL,
-		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		WriteHookLog("[FILE_PATCH] Failed to open Main.dll for writing (error %d)", (int)GetLastError());
@@ -271,11 +273,19 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 		return;
 	}
 
+	if (SetFilePointer(hFile, (LONG)nOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	{
+		CloseHandle(hFile);
+		WriteHookLog("[FILE_PATCH] Failed to seek in Main.dll to offset 0x%X (error %d)",
+			(DWORD)nOffset, (int)GetLastError());
+		return;
+	}
+
 	DWORD dwBytesWritten = 0;
-	BOOL bWriteOK = WriteFile(hFile, &vBuffer[0], dwFileSize, &dwBytesWritten, NULL);
+	BOOL bWriteOK = WriteFile(hFile, pFound, (DWORD)s_cbPatchSize, &dwBytesWritten, NULL);
 	CloseHandle(hFile);
 
-	if (!bWriteOK || dwBytesWritten != dwFileSize)
+	if (!bWriteOK || dwBytesWritten != (DWORD)s_cbPatchSize)
 	{
 		WriteHookLog("[FILE_PATCH] Failed to write Main.dll (error %d)", (int)GetLastError());
 		CDebugMode::LogDebugAction("[FILE_PATCH] Failed to write patched Main.dll");
