@@ -364,7 +364,18 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
 	if (m_fWalking)
 	{
-		if (pkt == CNormalAttackPacket::Type()
+		// Allow injected packets (auto-pickup position updates & pick commands)
+		// through the filter chain so they reach PacketEncryptFilter for proper
+		// encryption.  Only block player-generated movement and attack packets.
+		if (pkt.GetInjected())
+		{
+			if (m_fDebugMoveTo)
+			{
+				CDebugOut::PrintAlways("[MOVETO-DBG] FilterSendPacket: ALLOWED injected %s during walk",
+					pkt.GetType().GetDescription());
+			}
+		}
+		else if (pkt == CNormalAttackPacket::Type()
 			|| pkt == CSingleSkillPacket::Type()
 			|| pkt == CMassiveSkillPacket::Type()
 			|| pkt == CCharMoveCTSPacket::Type())
@@ -373,8 +384,7 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 				pkt.GetType().GetDescription());
 			return -1;
 		}
-
-		if (m_fDebugMoveTo)
+		else if (m_fDebugMoveTo)
 		{
 			CDebugOut::PrintAlways("[MOVETO-DBG] FilterSendPacket: ALLOWED %s during walk (not in block list)",
 				pkt.GetType().GetDescription());
@@ -773,18 +783,11 @@ void CAutoPickupFilter::PickItem(WORD wId)
 
 	CPickItemPacket pkt(wId);
 
-	if (m_fWalking)
-	{
-		// During active walking, use send_direct() to bypass the filter chain
-		// and send the pickup packet immediately without queue delay
-		WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket (direct): picking up item ID=0x%04X (walking=true)", wId);
-		GetProxy()->send_direct(pkt);
-	}
-	else
-	{
-		WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X", wId);
-		GetProxy()->send_packet(pkt);
-	}
+	// Always use send_packet() so the packet goes through the full filter chain
+	// including PacketEncryptFilter.  FilterSendPacket allows injected packets
+	// through even during walking, so this will not be blocked.
+	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X (walking=%d)", wId, (int)m_fWalking);
+	GetProxy()->send_packet(pkt);
 }
 
 
@@ -850,9 +853,10 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 		WriteClickerLogFmt("PICKUP", "WalkTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
 			steps, currX, currY, currX, currY);
 
-		// Update server position (bypass filter chain to avoid being blocked)
+		// Update server position (send through filter chain for proper encryption;
+		// FilterSendPacket allows injected packets through during walking)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
-		GetProxy()->send_direct(pktMoveCTS);
+		GetProxy()->send_packet(pktMoveCTS);
 
 		// Wait per tile to emulate walking speed
 		Sleep(WALK_MS_PER_TILE);
@@ -902,9 +906,10 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 		WriteClickerLogFmt("PICKUP", "RunTo step %d: RECV CUpdatePosSTCPacket pos=(%d,%d) | SEND CUpdatePosCTSPacket pos=(%d,%d)",
 			steps, currX, currY, currX, currY);
 
-		// Update server position (bypass filter chain to avoid being blocked)
+		// Update server position (send through filter chain for proper encryption;
+		// FilterSendPacket allows injected packets through during walking)
 		CUpdatePosCTSPacket pktMoveCTS((BYTE)currX, (BYTE)currY);
-		GetProxy()->send_direct(pktMoveCTS);
+		GetProxy()->send_packet(pktMoveCTS);
 
 		// Wait per tile to emulate running speed (faster than walking)
 		Sleep(RUN_MS_PER_TILE);
