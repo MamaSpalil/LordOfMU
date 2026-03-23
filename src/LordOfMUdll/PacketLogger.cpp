@@ -35,6 +35,7 @@ static bool IsRelevantRecvPacket(CPacket& pkt)
 	if (pkt == CCharStatsPacket::Type())       return true;
 	if (pkt == CCharRespawnPacket::Type())     return true;
 	if (pkt == CPickItemResultFailPacket::Type()) return true;
+	if (pkt == CZenUpdatePacket::Type())       return true;
 
 	return false;
 }

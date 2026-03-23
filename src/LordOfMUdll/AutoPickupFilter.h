@@ -127,6 +127,9 @@ private:
 	BYTE m_bCharClass;
 	int	 m_iDist;
 
+	DWORD m_dwLastZen;
+	bool m_fZenTracked;
+
 	static const BYTE CHAR_CLASS_UNSET = 0xFF;
 
 	static const int WALK_MS_PER_TILE = 150;
@@ -137,6 +140,8 @@ private:
 	static const int PICKUP_DIST_MIN = 1;
 	static const int PICKUP_DIST_MAX = 8;
 	static const int PICKUP_DIST_DEFAULT = 3;
+
+	static const DWORD MAX_ZEN = 2000000000;
 
 private:
 	HANDLE m_hThread;

@@ -1296,7 +1296,8 @@ public:
 /**
  * \brief Zen/money amount update from server
  *
- * C1 05 B8 ...
+ * C1 [len] B8 [subcode] [4-byte zen amount]
+ * Zen has its own separate storage (max 2,000,000,000), independent of inventory slots.
  */
 class CZenUpdatePacket
 	: public CPacket
@@ -1307,6 +1308,26 @@ public:
 		PACKET_MASK3(0xFF, 0x00, 0xFF)
 		PACKET_DESCR("Zen/money update")
 	END_COMMON_PACKET_DECL()
+
+	DWORD GetZenAmount()
+	{
+		BYTE* p = AnyBuffer();
+		if (!p) return 0;
+
+		int len = (int)p[1]; // C1 format: byte 1 = total packet length
+
+		// Validate buffer length against actual allocated size
+		int bufLen = IsDecrypted() ? GetDecryptedLen() : GetPktLen();
+		if (len < 7 || bufLen < 7 || len > bufLen) return 0;
+
+		// Zen amount is the last 4 bytes of the packet (big-endian).
+		// Handles both formats:
+		//   C1 07 B8 [zen-4-bytes]       (no subcode, len=7)
+		//   C1 08 B8 [flag] [zen-4-bytes] (with subcode, len=8)
+		int off = len - 4;
+		return ((DWORD)p[off] << 24) | ((DWORD)p[off+1] << 16) |
+			   ((DWORD)p[off+2] << 8) | (DWORD)p[off+3];
+	}
 };
 
 

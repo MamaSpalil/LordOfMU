@@ -129,6 +129,9 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_fAutoRunMode = false;
 	m_bCharClass = CHAR_CLASS_UNSET;
 
+	m_dwLastZen = 0;
+	m_fZenTracked = false;
+
 	InitializeCriticalSection(&m_csQueue);
 
 	m_hPickEvent = CreateEvent(0, 1, 0, 0);
@@ -383,13 +386,17 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			if (m_fSuspended && m_fSuspPick)
 				return 0;
 
-			// Display "[PICKUP] - ItemName Obtained" notification
-			const char* pszName = GetItemDisplayName(wType);
-			CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
-			GetProxy()->recv_direct(pktObtained);
+			// Skip notification for Zen items - handled by CZenUpdatePacket with amount
+			if (wType != TYPE_ZEN)
+			{
+				// Display "[PICKUP] - ItemName Obtained" notification
+				const char* pszName = GetItemDisplayName(wType);
+				CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
+				GetProxy()->recv_direct(pktObtained);
 
-			// Record to pickup history for the History dialog
-			AddPickupHistoryEntry(pszName);
+				// Record to pickup history for the History dialog
+				AddPickupHistoryEntry(pszName);
+			}
 
 			std::map<WORD, WORD>::iterator it = m_vDropList.find(wType);
 
@@ -410,9 +417,41 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] RECV CPickItemResultFailPacket: inventory is full");
 
 			// Display "[PICKUP] - Inventory is Full" notification
+			// Note: Zen pickup continues even when inventory is full,
+			// since Zen has its own separate storage (max 2,000,000,000)
 			CServerMessagePacket pktFull("[PICKUP] - Inventory is Full");
 			GetProxy()->recv_direct(pktFull);
 		}
+	}
+	else if (pkt == CZenUpdatePacket::Type())
+	{
+		CZenUpdatePacket& pktZen = (CZenUpdatePacket&)pkt;
+		DWORD dwNewZen = pktZen.GetZenAmount();
+
+		WriteClickerLogFmt("PICKUP", "RECV CZenUpdatePacket: zen=%lu (prev=%lu, tracked=%d)",
+			(unsigned long)dwNewZen, (unsigned long)m_dwLastZen, (int)m_fZenTracked);
+
+		if (m_fEnabled && m_fZenTracked && dwNewZen > m_dwLastZen)
+		{
+			DWORD dwDelta = dwNewZen - m_dwLastZen;
+
+			WriteClickerLogFmt("PICKUP", "Zen increased by %lu (new total: %lu)",
+				(unsigned long)dwDelta, (unsigned long)dwNewZen);
+			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
+				(unsigned long)dwDelta, (unsigned long)dwNewZen);
+
+			// Display "[PICKUP] - {amount} Zen Obtained" notification
+			CServerMessagePacket pktMsg("[PICKUP] - %lu Zen Obtained", (unsigned long)dwDelta);
+			GetProxy()->recv_direct(pktMsg);
+
+			// Record to pickup history
+			char szHistory[64];
+			sprintf_s(szHistory, sizeof(szHistory), "%lu Zen", (unsigned long)dwDelta);
+			AddPickupHistoryEntry(szHistory);
+		}
+
+		m_dwLastZen = dwNewZen;
+		m_fZenTracked = true;
 	}
 	else if (m_fDisplayCode && pkt == CMoveToInventoryPacket::Type())
 	{
