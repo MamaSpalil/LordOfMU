@@ -290,6 +290,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			if (m_fSuspended && m_fSuspPick)
 				return 0;
 
+			// Display "[PICKUP] - ItemName Obtained" notification
+			const char* pszName = GetItemDisplayName(wType);
+			CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
+			GetProxy()->recv_direct(pktObtained);
+
 			std::map<WORD, WORD>::iterator it = m_vDropList.find(wType);
 
 			if (it != m_vDropList.end() && (wMask & it->second) != 0)
@@ -299,6 +304,18 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		{
 			CServerMessagePacket pktMsg(">> Item code: %d %d %d", HIBYTE(wType) & 0x0F, LOBYTE(wType), HIBYTE(wType) >> 4);
 			GetProxy()->recv_direct(pktMsg);
+		}
+	}
+	else if (pkt == CPickItemResultFailPacket::Type())
+	{
+		if (m_fEnabled)
+		{
+			WriteClickerLogFmt("PICKUP", "RECV CPickItemResultFailPacket: inventory is full, cannot pick item");
+			CDebugOut::PrintAlways("[PICKUP] RECV CPickItemResultFailPacket: inventory is full");
+
+			// Display "[PICKUP] - Inventory is Full" notification
+			CServerMessagePacket pktFull("[PICKUP] - Inventory is Full");
+			GetProxy()->recv_direct(pktFull);
 		}
 	}
 	else if (m_fDisplayCode && pkt == CMoveToInventoryPacket::Type())
@@ -1087,4 +1104,157 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
 		PickItem(m_vNoMovePickQueue.front().wItemId);
 		m_vNoMovePickQueue.pop_front();
 	}
+}
+
+
+/**
+ * \brief Returns a human-readable display name for a MU Online item type code.
+ *
+ * Item type encoding: bits 0-7 = item index, bits 8-11 = item group (0-15).
+ */
+const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
+{
+	BYTE bGroup = (wType >> 8) & 0x0F;
+	BYTE bIndex = wType & 0xFF;
+
+	// Group 14 (0x0E) - Consumables & Jewels
+	if (bGroup == 14)
+	{
+		switch (bIndex)
+		{
+		case 0x00: return "Apple";
+		case 0x01: return "Small Healing Potion";
+		case 0x02: return "Medium Healing Potion";
+		case 0x03: return "Large Healing Potion";
+		case 0x04: return "Small Mana Potion";
+		case 0x05: return "Medium Mana Potion";
+		case 0x06: return "Large Mana Potion";
+		case 0x08: return "Antidote";
+		case 0x09: return "Ale";
+		case 0x0A: return "Town Portal Scroll";
+		case 0x0B: return "Armor of Guardsman";
+		case 0x0C: return "Wizards Ring";
+		case 0x0D: return "Jewel of Bless";
+		case 0x0E: return "Jewel of Soul";
+		case 0x0F: return "Zen";
+		case 0x10: return "Jewel of Life";
+		case 0x11: return "Jewel of Creation";
+		case 0x12: return "Box of Kundun +1";
+		case 0x13: return "Box of Kundun +2";
+		case 0x14: return "Box of Kundun +3";
+		case 0x15: return "Box of Kundun +4";
+		case 0x16: return "Jewel of Creation";
+		case 0x17: return "Box of Kundun +5";
+		case 0x1A: return "Symbol of Kundun";
+		case 0x1C: return "Loch's Feather";
+		case 0x1D: return "Gemstone";
+		case 0x1E: return "Jewel of Harmony";
+		case 0x1F: return "Jewel of Guardian";
+		case 0x20: return "Crest of Monarch";
+		case 0x21: return "Rena";
+		case 0x22: return "Fruits";
+		case 0x23: return "Blue Chocolate Box";
+		case 0x24: return "Pink Chocolate Box";
+		case 0x25: return "Red Chocolate Box";
+		case 0x26: return "Firecracker";
+		case 0x2A: return "Cherry Blossom Wine";
+		case 0x2B: return "Cherry Blossom Rice Cake";
+		case 0x2C: return "Cherry Blossom Flower Petal";
+		case 0x2E: return "Scroll of Emperor";
+		case 0x31: return "Old Scroll";
+		case 0x32: return "Illusion Sorcerer Covenant";
+		case 0x33: return "Scroll of Blood";
+		case 0x35: return "Condor Feather";
+		case 0x36: return "Condor Flame";
+		case 0x37: return "Horn of Fenrir";
+		case 0x38: return "Broken Horn";
+		case 0x39: return "Jewel of Chaos";
+		}
+	}
+
+	// Group 12 (0x0C) - Wings / Capes / Special
+	if (bGroup == 12)
+	{
+		switch (bIndex)
+		{
+		case 0x00: return "Wings of Elf";
+		case 0x01: return "Wings of Heaven";
+		case 0x02: return "Wings of Satan";
+		case 0x03: return "Wings of Spirits";
+		case 0x04: return "Wings of Soul";
+		case 0x05: return "Wings of Dragon";
+		case 0x06: return "Wings of Darkness";
+		case 0x07: return "Cape of Lord";
+		case 0x0A: return "Dinorant";
+		case 0x0B: return "Dark Horse";
+		case 0x0C: return "Dark Raven";
+		case 0x0D: return "Horn of Uniria";
+		case 0x0E: return "Jewel of Chaos";
+		case 0x0F: return "Jewel of Chaos";
+		case 0x24: return "Wings of Storm";
+		case 0x25: return "Wings of Eternal";
+		case 0x26: return "Wings of Illusion";
+		case 0x27: return "Wings of Ruin";
+		case 0x28: return "Cape of Emperor";
+		case 0x29: return "Wings of Dimension";
+		case 0x2A: return "Cape of Fighter";
+		case 0x30: return "Small Cape of Lord";
+		case 0x31: return "Small Wings of Mistery";
+		case 0x32: return "Small Wings of Elf";
+		case 0x33: return "Small Wings of Heaven";
+		case 0x34: return "Small Wings of Satan";
+		}
+	}
+
+	// Group 15 (0x0F) - Scrolls
+	if (bGroup == 15)
+	{
+		switch (bIndex)
+		{
+		case 0x00: return "Scroll of Fire Ball";
+		case 0x01: return "Scroll of Power Wave";
+		case 0x02: return "Scroll of Lightning";
+		case 0x03: return "Scroll of Meteor";
+		case 0x04: return "Scroll of Ice";
+		case 0x05: return "Scroll of Poison";
+		case 0x06: return "Scroll of Flame";
+		case 0x07: return "Scroll of Twister";
+		case 0x08: return "Scroll of Evil Spirit";
+		case 0x09: return "Scroll of Hellfire";
+		case 0x0A: return "Scroll of Aqua Flash";
+		case 0x0B: return "Scroll of Cometfall";
+		case 0x0C: return "Scroll of Inferno";
+		case 0x0D: return "Scroll of Blast";
+		case 0x0E: return "Scroll of Force";
+		case 0x10: return "Scroll of Decay";
+		case 0x11: return "Scroll of Ice Storm";
+		case 0x12: return "Scroll of Nova";
+		}
+	}
+
+	// Equipment group names for generic fallback
+	static const char* s_szGroupNames[] =
+	{
+		"Sword",     // 0
+		"Axe",       // 1
+		"Mace",      // 2
+		"Spear",     // 3
+		"Bow",       // 4
+		"Staff",     // 5
+		"Shield",    // 6
+		"Helm",      // 7
+		"Armor",     // 8
+		"Pants",     // 9
+		"Gloves",    // 10
+		"Boots",     // 11
+		"Wings",     // 12
+		"Misc",      // 13
+		"Item",      // 14
+		"Scroll",    // 15
+	};
+
+	if (bGroup < 16)
+		return s_szGroupNames[bGroup];
+
+	return "Item";
 }

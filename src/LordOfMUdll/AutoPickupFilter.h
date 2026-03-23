@@ -83,6 +83,8 @@ private:
 	void ProcessDropQueue();
 	void ProcessNoMovePickupQueue();
 
+	static const char* GetItemDisplayName(WORD wType);
+
 private:
 	std::map<WORD, WORD> m_vItemList;
 	std::map<WORD, WORD> m_vDropList;
