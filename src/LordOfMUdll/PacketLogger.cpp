@@ -121,6 +121,7 @@ static bool IsThrottled(ThrottleCategory cat, DWORD* pLastLogTime, DWORD* pSkipC
 CPacketLogger::CPacketLogger(CProxy* pProxy)
 	: CPacketFilter(pProxy)
 {
+	CDebugOut::PrintAlways("[PACKET_LOG] Packet logger filter initialized (AVANTA+ELITE mode).");
 	WriteClickerLogFmt("PACKET", "Packet logger filter initialized - AVANTA+ELITE relevant packets only");
 }
 
@@ -129,6 +130,7 @@ CPacketLogger::CPacketLogger(CProxy* pProxy)
  */
 CPacketLogger::~CPacketLogger()
 {
+	CDebugOut::PrintAlways("[PACKET_LOG] Packet logger filter destroyed.");
 	WriteClickerLogFmt("PACKET", "Packet logger filter destroyed - monitoring stopped");
 }
 
@@ -150,7 +152,9 @@ WORD CPacketLogger::GetLevel()
 
 /**
  * \brief Logs only AVANTA+ELITE relevant server-to-client packets.
- *        High-frequency packet types are rate-limited to prevent log flood.
+ *        High-frequency non-pickup packet types are rate-limited to prevent
+ *        log flood that causes I/O bottleneck and server disconnection.
+ *        Pickup-related packets (MeetItem, ForgetItem, etc.) are always logged.
  */
 int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 {
@@ -170,11 +174,21 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 	if (dwSkipped > 0)
 	{
+		CDebugOut::PrintAlways("[PACKET] SERVER -> CLIENT | %s | Len=%d | %s (throttled: %d similar packets skipped)",
+					pkt.GetType().GetDescription(),
+					pkt.GetDecryptedLen(),
+					szHex, dwSkipped);
+
 		WriteClickerLogFmt("PACKET", "SERVER -> CLIENT | %s | Len=%d | %s (throttled: %d similar packets skipped)",
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), szHex, dwSkipped);
 	}
 	else
 	{
+		CDebugOut::PrintAlways("[PACKET] SERVER -> CLIENT | %s | Len=%d | %s", 
+					pkt.GetType().GetDescription(),
+					pkt.GetDecryptedLen(),
+					szHex);
+
 		WritePacketLog("SERVER -> CLIENT", pkt.GetType().GetDescription(), 
 					   pkt.GetDecryptedLen(), szHex);
 	}
@@ -184,7 +198,9 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 /**
  * \brief Logs only AVANTA+ELITE relevant client-to-server packets.
- *        High-frequency packet types are rate-limited to prevent log flood.
+ *        High-frequency non-pickup packet types are rate-limited to prevent
+ *        log flood that causes I/O bottleneck and server disconnection.
+ *        Pickup-related packets (PickItem, CharacterSay, etc.) are always logged.
  */
 int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
@@ -205,11 +221,21 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 
 	if (dwSkipped > 0)
 	{
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
+					pkt.GetType().GetDescription(),
+					pkt.GetDecryptedLen(),
+					szHex, dwSkipped);
+
 		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), szHex, dwSkipped);
 	}
 	else
 	{
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s", 
+					pkt.GetType().GetDescription(),
+					pkt.GetDecryptedLen(),
+					szHex);
+
 		WritePacketLog("CLIENT -> SERVER", pkt.GetType().GetDescription(),
 					   pkt.GetDecryptedLen(), szHex);
 	}
