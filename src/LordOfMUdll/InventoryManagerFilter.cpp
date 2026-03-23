@@ -148,6 +148,23 @@ bool CInventoryManagerFilter::GetParam(const char* pszParam, void* pData)
 		return true;
 	}
 
+	if (_stricmp(pszParam, "inv_count") == 0)
+	{
+		// Count items in the backpack area (slots 12-75, 8x8 grid)
+		static const BYTE INV_SLOT_START = 12;
+		static const BYTE INV_SLOT_END = 75;
+
+		int iCount = 0;
+		for (std::map<BYTE,CItemInfo>::iterator it = m_vInventory.begin(); it != m_vInventory.end(); ++it)
+		{
+			if (it->first >= INV_SLOT_START && it->first <= INV_SLOT_END)
+				iCount++;
+		}
+
+		*((int*)pData) = iCount;
+		return true;
+	}
+
 	return false;
 }
 

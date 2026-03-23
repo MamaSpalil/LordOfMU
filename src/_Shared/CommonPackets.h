@@ -378,6 +378,26 @@ public:
 
 
 /**  
+ * \brief Pick item result with inventory position >= 0x80 means failure (typically 0xFF).
+ * This occurs when the server cannot place the item in inventory (inventory full).
+ *
+ * C3 15 0C 22 FF 03 00 FF 00 00 E0 00 FF FF FF FF FF 00 FD FD FD 
+ *              ^
+ *        Inventory Place (0xFF = failed)
+ */
+class CPickItemResultFailPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CPickItemResultFailPacket)
+		PACKET_PATT5(0xC3, 0x00, 0x00, 0x22, 0x80)
+		PACKET_MASK5(0xFF, 0x00, 0x00, 0xFF, 0x80)
+		PACKET_DESCR("Pick item failed (inventory full)")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**  
  * \brief 
  * C3 16 1A 24 00 0C 22 13 4A 00 00 A0 00 FF FF FF FF FF 00 00 00 00 
  *                 ^  ^----------------^   ---- Some junk here ----
