@@ -85,8 +85,11 @@ extern "C" __declspec(dllexport) int GetPickupHistory(char* pszBuffer, int nBufS
 		if (nPos + nNeeded >= nBufSize - 1)
 			break;
 
-		nPos += _snprintf(pszBuffer + nPos, nBufSize - nPos - 1,
+		int nRet = _snprintf(pszBuffer + nPos, nBufSize - nPos - 1,
 			"%s|%s\n", entry.szTime, entry.szItem);
+		if (nRet < 0)
+			break;
+		nPos += nRet;
 		nWritten++;
 	}
 

@@ -1530,7 +1530,8 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 		// Parse "HH:MM:SS|ItemName\n" entries
 		char* pLine = szBuffer;
-		while (pLine && *pLine)
+		char* pBufEnd = szBuffer + sizeof(szBuffer);
+		while (pLine && pLine < pBufEnd && *pLine)
 		{
 			char* pEnd = strchr(pLine, '\n');
 			if (pEnd) *pEnd = '\0';
@@ -1545,7 +1546,8 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 				vHistory.push_back(entry);
 			}
 
-			pLine = pEnd ? pEnd + 1 : NULL;
+			if (!pEnd) break;
+			pLine = pEnd + 1;
 		}
 	}
 

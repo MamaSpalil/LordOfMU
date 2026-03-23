@@ -46,7 +46,9 @@ void CHistoryDialog::PopulateList()
 
 		// Format: "[HH:MM:SS]  ItemName"
 		TCHAR szLine[256] = {0};
-		_stprintf(szLine, _T("  [%S]  %S"), entry.sTime.c_str(), entry.sItem.c_str());
+		_sntprintf(szLine, _countof(szLine) - 1, _T("  [%S]  %S"),
+			entry.sTime.c_str(), entry.sItem.c_str());
+		szLine[_countof(szLine) - 1] = 0;
 		::SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)szLine);
 	}
 }
