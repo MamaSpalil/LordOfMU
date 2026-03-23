@@ -274,6 +274,21 @@ void CClickerJob::InitClicker()
 	m_dwPickUpTicks = GetTickCount();
 	m_dwRepairTicks = GetTickCount();
 	m_dwClickTicks = GetTickCount() - RCLICK_TIMEOUT - 10;
+
+	// AVANTA+ELITE mode verification: log active features summary
+	WriteClickerLogFmt("CLICKER", "=== AVANTA+ELITE mode active features ===");
+	WriteClickerLogFmt("CLICKER", "  AVANTA: AutoPick(SPACE)=%s AutoHeal=%s AutoRepair=%s AutoReqOff=%s",
+		m_tSettings.all.fAutoPick ? "ON" : "off",
+		m_tSettings.all.fAutoLife ? "ON" : "off",
+		m_tSettings.all.fAutoRepair ? "ON" : "off",
+		m_tSettings.all.fAutoReOff ? "ON" : "off");
+	WriteClickerLogFmt("CLICKER", "  ELITE:  AdvPick(DLL)=%s Exit400=%s AntiAFK=0x%X PickRun=%s Class=%d",
+		m_tSettings.all.fAdvAutoPick ? "ON" : "off",
+		m_tSettings.all.fExitAtLvl400 ? "ON" : "off",
+		m_tSettings.all.fAntiAFKProtect,
+		m_tSettings.all.fPickRunMode ? "ON" : "off",
+		(int)m_tSettings.all.dwClass);
+	WriteClickerLogFmt("CLICKER", "=== Auto-clicker initialization complete ===");
 }
 
 
