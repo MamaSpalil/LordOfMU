@@ -170,27 +170,27 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	if (IsThrottled(cat, s_dwRecvLastLog, s_dwRecvSkipCount))
 		return 0;
 
-	const char* szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 
 	if (dwSkipped > 0)
 	{
 		CDebugOut::PrintAlways("[PACKET] SERVER -> CLIENT | %s | Len=%d | %s (throttled: %d similar packets skipped)",
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
-					szHex, dwSkipped);
+					(const char*)szHex, dwSkipped);
 
 		WriteClickerLogFmt("PACKET", "SERVER -> CLIENT | %s | Len=%d | %s (throttled: %d similar packets skipped)",
-			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), szHex, dwSkipped);
+			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex, dwSkipped);
 	}
 	else
 	{
 		CDebugOut::PrintAlways("[PACKET] SERVER -> CLIENT | %s | Len=%d | %s", 
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
-					szHex);
+					(const char*)szHex);
 
 		WritePacketLog("SERVER -> CLIENT", pkt.GetType().GetDescription(), 
-					   pkt.GetDecryptedLen(), szHex);
+					   pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 
 	return 0;
@@ -216,28 +216,27 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 	if (IsThrottled(cat, s_dwSendLastLog, s_dwSendSkipCount))
 		return 0;
 
-	BYTE* buf = pkt.GetDecryptedPacket();
-	const char* szHex = CBufferUtil::BufferToHex((char*)buf, pkt.GetDecryptedLen());
+	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 
 	if (dwSkipped > 0)
 	{
 		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
-					szHex, dwSkipped);
+					(const char*)szHex, dwSkipped);
 
 		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
-			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), szHex, dwSkipped);
+			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex, dwSkipped);
 	}
 	else
 	{
 		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s", 
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
-					szHex);
+					(const char*)szHex);
 
 		WritePacketLog("CLIENT -> SERVER", pkt.GetType().GetDescription(),
-					   pkt.GetDecryptedLen(), szHex);
+					   pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 
 	return 0;

@@ -60,7 +60,10 @@ struct GeneralSettings
 	// v2.2 options
 	BOOL fPickRunMode;
 
-	BYTE  arrReserved[902];
+	// v2.3 options
+	DWORD dwPickDist;
+
+	BYTE  arrReserved[898];
 };
 
 struct DLSettings
@@ -177,6 +180,7 @@ public:
 		m_cSettings.all.wPickCustomCode = 0x0E33;
 
 		m_cSettings.all.fPickRunMode = FALSE;
+		m_cSettings.all.dwPickDist = 3;
 
 		m_cSettings.ae.dwChangeDirTime = 3000;
 		m_cSettings.ae.dwTShotSkillSlot = 4;

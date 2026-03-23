@@ -422,6 +422,14 @@ void CUnifiedSettingsDlg::InitPickupValues()
 	::CheckDlgButton(m_hwndTabPickup, IDC_CUSTOM2, m_cSettings->all.fAdvPickCustomMove ? BST_CHECKED : BST_UNCHECKED);
 	::CheckDlgButton(m_hwndTabPickup, IDC_PICKRUNMODE, m_cSettings->all.fPickRunMode ? BST_CHECKED : BST_UNCHECKED);
 
+	// Validate and set pickup distance (handle old settings files where dwPickDist is 0)
+	if (m_cSettings->all.dwPickDist < 1 || m_cSettings->all.dwPickDist > 8)
+		m_cSettings->all.dwPickDist = 3;
+
+	TCHAR szDist[16] = {0};
+	_sntprintf(szDist, 15, _T("%d"), m_cSettings->all.dwPickDist);
+	::SetDlgItemText(m_hwndTabPickup, IDC_PICKDIST, szDist);
+
 	TCHAR szCustom[256] = {0};
 	_sntprintf(szCustom, 255, _T("%d %d"), HIBYTE(m_cSettings->all.wPickCustomCode), LOBYTE(m_cSettings->all.wPickCustomCode));
 	::SetDlgItemText(m_hwndTabPickup, IDC_EDIT_CUSTOM, szCustom);
@@ -517,6 +525,16 @@ void CUnifiedSettingsDlg::ApplyPickup()
 	m_cSettings->all.fAdvPickCustomMove = ::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM2) == BST_CHECKED;
 	m_cSettings->all.fPickRunMode = ::IsDlgButtonChecked(m_hwndTabPickup, IDC_PICKRUNMODE) == BST_CHECKED;
 
+	// Read and clamp pickup distance (1-8)
+	{
+		TCHAR szDist[16] = {0};
+		::GetDlgItemText(m_hwndTabPickup, IDC_PICKDIST, szDist, 15);
+		int dist = _ttoi(szDist);
+		if (dist < 1) dist = 1;
+		if (dist > 8) dist = 8;
+		m_cSettings->all.dwPickDist = (DWORD)dist;
+	}
+
 	TCHAR szCustom[256] = {0};
 	::GetDlgItemText(m_hwndTabPickup, IDC_EDIT_CUSTOM, szCustom, 255);
 
@@ -561,6 +579,7 @@ void CUnifiedSettingsDlg::ApplyPickupState()
 	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_CUSTOM2), fEnable && (::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM1) == BST_CHECKED));
 	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_EDIT_CUSTOM), fEnable && (::IsDlgButtonChecked(m_hwndTabPickup, IDC_CUSTOM1) == BST_CHECKED));
 	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_PICKRUNMODE), fEnable);
+	::EnableWindow(::GetDlgItem(m_hwndTabPickup, IDC_PICKDIST), fEnable);
 }
 
 

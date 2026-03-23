@@ -225,6 +225,20 @@ void CClickerJob::InitClicker()
 		WriteClickerLog("Auto run mode enabled (boots level detection)");
 		CMuWindow::GetInstance()->SayToServer("//pickautorunmode on");
 
+		// Send pickup distance (radius)
+		{
+			int dist = (int)m_tSettings.all.dwPickDist;
+			if (dist < 1 || dist > 8) dist = 3;
+
+			char szMsg[256] = {0};
+			_snprintf(szMsg, 255, "//pdist %d", dist);
+
+			if (CDebugMode::IsEnabled())
+				WriteClickerLogFmt("CLICKER", "Sending %s to DLL", szMsg);
+
+			CMuWindow::GetInstance()->SayToServer(szMsg);
+		}
+
 		if (m_tSettings.all.fPickRunMode)
 		{
 			WriteClickerLog("Pick-up run mode enabled");
