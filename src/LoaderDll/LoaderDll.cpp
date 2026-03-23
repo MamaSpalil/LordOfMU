@@ -123,8 +123,12 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	_tcscat(szPath, g_szDllName);
 
 
+	WriteHookLog("RunDllWndProc: Loading LordOfMU DLL from '%s'", (LPCSTR)CT2A(szPath));
+
 	if (0 != _tstat(szPath, &st))
 	{
+		WriteHookLog("RunDllWndProc: CRITICAL - LordOfMU DLL file not found at '%s'", (LPCSTR)CT2A(szPath));
+
 #if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__)
 		MessageBox(0, _T("Clicker module not found!"), _T("Error"), MB_OK);
 #else
@@ -132,10 +136,14 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 #endif
 
 		CKillUtil::KillGame("RunDllWndProc: module DLL not found");
+		return res; // Prevent fall-through if KillGame doesn't terminate immediately
 	}
 
 	if (0 == (g_hInjected = LoadLibrary(szPath)))
 	{
+		DWORD dwErr = GetLastError();
+		WriteHookLog("RunDllWndProc: CRITICAL - LoadLibrary failed for '%s' (error=%d)", (LPCSTR)CT2A(szPath), (int)dwErr);
+
 		#if defined(__CLICKER_ELITE__) || defined(__CLICKER_AVANTA__)
 			MessageBox(0, _T("Cannot load clicker module!"), _T("Error"), MB_OK);
 		#else
@@ -143,32 +151,39 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		#endif
 
 		CKillUtil::KillGame("RunDllWndProc: LoadLibrary failed for module DLL");
+		return res; // Prevent fall-through if KillGame doesn't terminate immediately
+	}
+
+	// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
+	// can find it reliably via GetProp() without depending on module name lookups.
+	SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
+
+	// Also store HMODULE via environment variable as a reliable fallback.
+	// Window properties can fail if the Clicker DLL subclasses a different window
+	// than the one SetProp was called on (e.g., game recreates its window).
+	// Environment variables are per-process and accessible from any DLL.
+	{
+		char szBuf[32] = {0};
+		_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)g_hInjected);
+		SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
+		WriteHookLog("RunDllWndProc: __LordOfMU_HMODULE__ env var set to '%s'", szBuf);
+	}
+
+	WriteHookLog("LordOfMU DLL loaded at 0x%p, HMODULE stored via SetProp(hWnd=0x%p) and env var",
+		(void*)g_hInjected, (void*)hWnd);
+
+	InitClickerModulePtr InitProc = (InitClickerModulePtr)GetProcAddress(g_hInjected, "DllGetClassObject");
+
+	GUID guid = {0};
+
+	if (InitProc)
+	{
+		InitProc(guid, guid, (LPVOID*)g_szRoot);
+		WriteHookLog("RunDllWndProc: LordOfMU DLL DllGetClassObject called successfully");
 	}
 	else
 	{
-		// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
-		// can find it reliably via GetProp() without depending on module name lookups.
-		SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
-
-		// Also store HMODULE via environment variable as a reliable fallback.
-		// Window properties can fail if the Clicker DLL subclasses a different window
-		// than the one SetProp was called on (e.g., game recreates its window).
-		// Environment variables are per-process and accessible from any DLL.
-		{
-			char szBuf[32] = {0};
-			_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)g_hInjected);
-			SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
-		}
-
-		WriteHookLog("LordOfMU DLL loaded at 0x%p, HMODULE stored via SetProp(hWnd=0x%p) and env var",
-			(void*)g_hInjected, (void*)hWnd);
-
-		InitClickerModulePtr InitProc = (InitClickerModulePtr)GetProcAddress(g_hInjected, "DllGetClassObject");
-
-		GUID guid = {0};
-
-		if (InitProc)
-			InitProc(guid, guid, (LPVOID*)g_szRoot);
+		WriteHookLog("RunDllWndProc: WARNING - DllGetClassObject export not found in LordOfMU DLL");
 	}
 
 #endif
@@ -176,23 +191,49 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 #if defined(__CLICKER_STUFF__) || defined(__HACK_STUFF__)
 	if (g_fClient)
 	{
-		TCHAR szPath2[_MAX_PATH+1] = {0};
-		GetTempPath(_MAX_PATH, szPath2);
-		PathAddBackslash(szPath2);
-		_tcscat(szPath2, g_szDllName2);
-
-		if (0 == _tstat(szPath2, &st))
+		// Only load Clicker DLL if LordOfMU DLL was successfully loaded.
+		// Without the LordOfMU DLL, the Clicker cannot send commands via SayToServer
+		// and all advanced pickup/packet functionality will be non-functional.
+		if (!g_hInjected)
 		{
-			HMODULE hClicker = LoadLibrary(szPath2);
+			WriteHookLog("RunDllWndProc: SKIPPING Clicker DLL load - LordOfMU DLL not loaded (g_hInjected=NULL)");
+		}
+		else
+		{
+			TCHAR szPath2[_MAX_PATH+1] = {0};
+			GetTempPath(_MAX_PATH, szPath2);
+			PathAddBackslash(szPath2);
+			_tcscat(szPath2, g_szDllName2);
 
-			if (hClicker)
+			WriteHookLog("RunDllWndProc: Loading Clicker DLL from '%s'", (LPCSTR)CT2A(szPath2));
+
+			if (0 != _tstat(szPath2, &st))
 			{
-				InitClickerModulePtr InitProc = (InitClickerModulePtr)GetProcAddress(hClicker, "DllGetClassObject");
+				WriteHookLog("RunDllWndProc: WARNING - Clicker DLL not found at '%s'", (LPCSTR)CT2A(szPath2));
+			}
+			else
+			{
+				HMODULE hClicker = LoadLibrary(szPath2);
 
-				GUID guid = {0};
+				if (hClicker)
+				{
+					WriteHookLog("RunDllWndProc: Clicker DLL loaded at 0x%p", (void*)hClicker);
 
-				if (InitProc)
-					InitProc(guid, guid, (LPVOID*)g_szRoot);
+					InitClickerModulePtr InitProc2 = (InitClickerModulePtr)GetProcAddress(hClicker, "DllGetClassObject");
+
+					GUID guid2 = {0};
+
+					if (InitProc2)
+					{
+						InitProc2(guid2, guid2, (LPVOID*)g_szRoot);
+						WriteHookLog("RunDllWndProc: Clicker DLL DllGetClassObject called successfully");
+					}
+				}
+				else
+				{
+					DWORD dwErr2 = GetLastError();
+					WriteHookLog("RunDllWndProc: WARNING - Clicker DLL LoadLibrary failed (error=%d)", (int)dwErr2);
+				}
 			}
 		}
 	}
@@ -355,6 +396,8 @@ void CopyDlls()
 	TCHAR szPath[_MAX_PATH + 1] = {0};
 	GetModuleFileName(g_hModule, szPath, _MAX_PATH);
 
+	WriteHookLog("CopyDlls: LoaderDll module path: '%s'", (LPCSTR)CT2A(szPath));
+
 	int i=(int)_tcslen(szPath) - 1;
 	for (i; i >= 0 && szPath[i] != _T('\\'); --i);
 
@@ -370,6 +413,10 @@ void CopyDlls()
 	g_szDllName[1] = _T('K');
 	g_szDllName2[1] = _T('T');
 
+	WriteHookLog("CopyDlls: Stealth names - LordOfMU='%s', Clicker='%s'",
+		(LPCSTR)CT2A(g_szDllName), (LPCSTR)CT2A(g_szDllName2));
+	WriteHookLog("CopyDlls: g_szRoot='%s'", (LPCSTR)CT2A(g_szRoot));
+
 	TCHAR szSrcFile[_MAX_PATH+1] = {0};
 	TCHAR szDstFile[_MAX_PATH+1] = {0};
 
@@ -380,6 +427,14 @@ void CopyDlls()
 	_tcscpy(szDstFile, szPath);
 	_tcscat(szDstFile, _T("\\"));
 	_tcscat(szDstFile, g_szDllName);
+
+	// Validate source file exists before attempting copy
+	struct _stat stSrc = {0};
+	if (0 != _tstat(szSrcFile, &stSrc))
+	{
+		WriteHookLog("CopyDlls: CRITICAL - LordOfMU DLL source not found: '%s' (check g_szRoot)",
+			(LPCSTR)CT2A(szSrcFile));
+	}
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{
@@ -400,6 +455,13 @@ void CopyDlls()
 	_tcscpy(szDstFile, szPath);
 	_tcscat(szDstFile, _T("\\"));
 	_tcscat(szDstFile, g_szDllName2);
+
+	// Validate source file exists before attempting copy
+	if (0 != _tstat(szSrcFile, &stSrc))
+	{
+		WriteHookLog("CopyDlls: CRITICAL - Clicker DLL source not found: '%s' (check g_szRoot)",
+			(LPCSTR)CT2A(szSrcFile));
+	}
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{

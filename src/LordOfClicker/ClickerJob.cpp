@@ -370,11 +370,15 @@ void CClickerJob::DoClicker()
 
 	if ((int)dwTick - (int)m_dwPickUpTicks > (int)m_tSettings.all.dwPickTime)
 	{
-		if (m_tSettings.all.fAutoPick || m_tSettings.all.fAdvAutoPick)
+		// SPACE key pickup (DoPickUp) should only trigger for basic auto-pick mode.
+		// When Advanced Pick-up (fAdvAutoPick) is enabled, the DLL handles item pickup
+		// via packet injection (//autopick on) — pressing SPACE would interfere by
+		// picking up unfiltered items and conflicting with DLL movement commands.
+		if (m_tSettings.all.fAutoPick)
 		{
 			if (CDebugMode::IsEnabled())
-				WriteClickerLogFmt("CLICKER", "Auto-pickup SPACE triggered (interval=%d ms, fAutoPick=%d, fAdvAutoPick=%d)",
-					(int)m_tSettings.all.dwPickTime, (int)m_tSettings.all.fAutoPick, (int)m_tSettings.all.fAdvAutoPick);
+				WriteClickerLogFmt("CLICKER", "Auto-pickup SPACE triggered (interval=%d ms, fAutoPick=%d)",
+					(int)m_tSettings.all.dwPickTime, (int)m_tSettings.all.fAutoPick);
 
 			DoPickUp();
 		}
