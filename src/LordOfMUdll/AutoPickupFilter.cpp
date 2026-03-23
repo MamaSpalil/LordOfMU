@@ -446,8 +446,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			// Record to pickup history
 			char szHistory[64];
-			_snprintf(szHistory, sizeof(szHistory) - 1, "%lu Zen", (unsigned long)dwDelta);
-			szHistory[sizeof(szHistory) - 1] = '\0';
+			sprintf_s(szHistory, sizeof(szHistory), "%lu Zen", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory);
 		}
 

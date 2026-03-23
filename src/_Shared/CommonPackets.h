@@ -1315,7 +1315,10 @@ public:
 		if (!p) return 0;
 
 		int len = (int)p[1]; // C1 format: byte 1 = total packet length
-		if (len < 7) return 0; // Need at least C1 [len] B8 + 4 bytes
+
+		// Validate buffer length against actual allocated size
+		int bufLen = IsDecrypted() ? GetDecryptedLen() : GetPktLen();
+		if (len < 7 || bufLen < 7 || len > bufLen) return 0;
 
 		// Zen amount is the last 4 bytes of the packet (big-endian).
 		// Handles both formats:
