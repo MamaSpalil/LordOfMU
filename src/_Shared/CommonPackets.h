@@ -397,6 +397,8 @@ public:
 
 	WORD GetItemType()
 	{
+		// Same extraction as CPutInventoryPacket: byte[5] = index,
+		// byte[6] bits 3-6 and byte[10] = group/category.
 		BYTE* pPacket = AnyBuffer();
 		return (pPacket == 0) ? 0 : ((WORD)pPacket[10] << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
 	}

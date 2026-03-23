@@ -368,6 +368,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	else if (pkt == CPickItemResultFailPacket::Type())
 	{
 		CPickItemResultFailPacket& pktFail = (CPickItemResultFailPacket&)pkt;
+		// Mask to 12-bit item type (strip upper group bits used for drop masks)
 		WORD wFailType = pktFail.GetItemType() & 0x0FFF;
 
 		if (m_fEnabled)
