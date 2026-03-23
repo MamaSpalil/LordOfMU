@@ -127,19 +127,26 @@ extern "C" __declspec(dllexport) bool ForceInitCommandProxy()
 CGameProxy::CGameProxy(SOCKET s)
 	: CPassThroughProxy(s), m_ioBuffer(io_buffer_size+8), m_ioBuffer2(io_buffer_size + io_buffer_size + 16)
 {
-	// If replacing a command-only proxy with a real proxy (game reconnected),
-	// clean up the old one and clear the command-only flag.
-	if (g_pGameProxy && g_bCommandOnlyProxy && g_pGameProxy != this)
-	{
-		WriteClickerLogFmt("PICKUP", "CGameProxy: Real proxy replacing command-only proxy at 0x%p",
-			(void*)g_pGameProxy);
-		delete g_pGameProxy;
-	}
+	// Cache the old state before making any changes.
+	CGameProxy* pOldProxy = g_pGameProxy;
+	bool bWasCommandOnly = g_bCommandOnlyProxy;
+
+	// Update the command-only flag BEFORE setting g_pGameProxy to avoid
+	// a window where other threads see the new proxy with the old flag.
+	if (s != INVALID_SOCKET)
+		g_bCommandOnlyProxy = false;
 
 	g_pGameProxy = this;
 
-	if (s != INVALID_SOCKET)
-		g_bCommandOnlyProxy = false;
+	// If replacing a command-only proxy with a real proxy (game reconnected),
+	// clean up the old one. The check uses the cached state to avoid the
+	// flag being already cleared when we get here.
+	if (pOldProxy && pOldProxy != this && bWasCommandOnly)
+	{
+		WriteClickerLogFmt("PICKUP", "CGameProxy: Real proxy replacing command-only proxy at 0x%p",
+			(void*)pOldProxy);
+		delete pOldProxy;
+	}
 }
 
 /**
@@ -147,7 +154,10 @@ CGameProxy::CGameProxy(SOCKET s)
  */
 CGameProxy::~CGameProxy()
 {
-	g_pGameProxy = 0;
+	// Only clear g_pGameProxy if it still points to us (prevents clearing
+	// the pointer when a command-only proxy is deleted during replacement).
+	if (g_pGameProxy == this)
+		g_pGameProxy = 0;
 
 	ClearFilters();	
 }
