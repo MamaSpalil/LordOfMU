@@ -1130,20 +1130,56 @@ void CMuWindow::SayToServer(const char* buf)
 	// Only cache on successful lookup; retry on each call if the DLL wasn't found yet
 	// (handles timing where SayToServer is called before the DLL finishes loading).
 	static bool (*s_pfnSendCommand)(const char*) = NULL;
+	static int s_nLookupAttempts = 0;
 
 	if (!s_pfnSendCommand)
 	{
 		HMODULE hMod = NULL;
+		const char* pszMethod = NULL;
 
-		// Attempt 0 (most reliable): Get the LordOfMU DLL HMODULE directly from
-		// the window property set by the LoaderDll during DLL injection.
-		// This bypasses all module name lookup issues with stealth-renamed DLLs.
-		if (m_hWnd)
+		// Attempt 0: Get HMODULE from environment variable set by LoaderDll.
+		// This is the most reliable method because environment variables are per-process
+		// and don't depend on window handles (which can differ if the game recreates windows).
+		if (!hMod)
 		{
-			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			char szEnvBuf[32] = {0};
+			if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+			{
+				// Parse "0x<hex>" format - use _strtoui64 for correct 64-bit pointer support
+				HMODULE hEnvMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+				if (hEnvMod)
+				{
+					// Verify the module handle is still valid by checking for the export
+					if (GetProcAddress(hEnvMod, "SendCommand"))
+					{
+						hMod = hEnvMod;
+						pszMethod = "env var";
+					}
+				}
+			}
 		}
 
-		// Attempt 1: Derive DLL name from our own module name (stealth naming convention:
+		// Attempt 1: Get the LordOfMU DLL HMODULE directly from
+		// the window property set by the LoaderDll during DLL injection.
+		if (!hMod && m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			if (hMod) pszMethod = "GetProp(m_hWnd)";
+		}
+
+		// Attempt 1b: Try GetProp on the MU window found by EnumWindows
+		// (in case m_hWnd differs from the window the LoaderDll set the property on)
+		if (!hMod)
+		{
+			HWND hMuWnd = CMuWindowUtil::FindMuWindow();
+			if (hMuWnd && hMuWnd != m_hWnd)
+			{
+				hMod = (HMODULE)GetProp(hMuWnd, _T("__LordOfMU_Module__"));
+				if (hMod) pszMethod = "GetProp(FindMuWindow)";
+			}
+		}
+
+		// Attempt 2: Derive DLL name from our own module name (stealth naming convention:
 		//            Clicker DLL has 2nd char='T', LordOfMU DLL has 2nd char='K')
 		if (!hMod)
 		{
@@ -1158,16 +1194,23 @@ void CMuWindow::SayToServer(const char* buf)
 			pszFilename[1] = _T('K');
 
 			hMod = GetModuleHandle(pszFilename);
+			if (hMod) pszMethod = "name transform";
 		}
 
-		// Attempt 2: Try well-known DLL names
+		// Attempt 3: Try well-known DLL names
 		if (!hMod)
+		{
 			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+			if (hMod) pszMethod = "LordOfMU.dll";
+		}
 
 		if (!hMod)
+		{
 			hMod = GetModuleHandle(_T(__LORDOFMU_DLL_NAME));
+			if (hMod) pszMethod = __LORDOFMU_DLL_NAME;
+		}
 
-		// Attempt 3: Enumerate all loaded modules and find the one exporting SendCommand.
+		// Attempt 4: Enumerate all loaded modules and find the one exporting SendCommand.
 		//            This handles cases where stealth DLL renaming makes name-based lookups fail.
 		if (!hMod)
 		{
@@ -1183,6 +1226,7 @@ void CMuWindow::SayToServer(const char* buf)
 						if (GetProcAddress(me32.hModule, "SendCommand"))
 						{
 							hMod = me32.hModule;
+							pszMethod = "Toolhelp32";
 							break;
 						}
 					} while (Module32Next(hSnap, &me32));
@@ -1195,9 +1239,32 @@ void CMuWindow::SayToServer(const char* buf)
 		{
 			s_pfnSendCommand = (bool (*)(const char*))GetProcAddress(hMod, "SendCommand");
 
-			if (!s_pfnSendCommand)
+			if (s_pfnSendCommand)
 			{
-				WriteClickerLogFmt("CLICKER", "SayToServer: DLL module found at 0x%p but SendCommand export not found", hMod);
+				WriteClickerLogFmt("CLICKER", "SayToServer: DLL found at 0x%p via %s (after %d attempts)",
+					hMod, pszMethod ? pszMethod : "unknown", s_nLookupAttempts + 1);
+			}
+			else
+			{
+				WriteClickerLogFmt("CLICKER", "SayToServer: DLL module found at 0x%p via %s but SendCommand export not found",
+					hMod, pszMethod ? pszMethod : "unknown");
+			}
+		}
+		else
+		{
+			s_nLookupAttempts++;
+
+			// Log detailed diagnostics only on the first failure
+			if (s_nLookupAttempts == 1)
+			{
+				WriteClickerLogFmt("CLICKER", "SayToServer: All lookup methods failed - m_hWnd=0x%p, PID=%d",
+					(void*)m_hWnd, (int)GetCurrentProcessId());
+
+				// Log env var status
+				char szEnvCheck[32] = {0};
+				DWORD dwEnvLen = GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvCheck, sizeof(szEnvCheck));
+				WriteClickerLogFmt("CLICKER", "SayToServer diag: env __LordOfMU_HMODULE__='%s' (len=%d)",
+					dwEnvLen > 0 ? szEnvCheck : "(not set)", (int)dwEnvLen);
 			}
 		}
 	}
