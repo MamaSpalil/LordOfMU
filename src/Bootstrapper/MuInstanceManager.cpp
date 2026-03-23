@@ -436,14 +436,14 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 			else
 			{
 				WriteHookLog("WARNING: Connect.ini found but IP address is empty");
-				CT2A aIniPath2(szIniPath);
-				CDebugMode::LogDebugAction("WARNING: Connect.ini found but IP address is empty at %s", (LPCSTR)aIniPath2);
+				CT2A aIniPath(szIniPath);
+				CDebugMode::LogDebugAction("WARNING: Connect.ini found but IP address is empty at %s", (LPCSTR)aIniPath);
 			}
 		}
 		else
 		{
-			CT2A aIniPath3(szIniPath);
-			WriteHookLog("WARNING: Connect.ini not found at %s - will be auto-created by DLL with Main.dll IP", (LPCSTR)aIniPath3);
+			CT2A aIniPath(szIniPath);
+			WriteHookLog("WARNING: Connect.ini not found at %s - will be auto-created by DLL with Main.dll IP", (LPCSTR)aIniPath);
 			CDebugMode::LogDebugAction("Connect.ini not found - will be auto-created during IP patch");
 		}
 	}
@@ -481,8 +481,8 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		}
 		else
 		{
-			CT2A aMainExe2(szMainExe);
-			WriteHookLog("ERROR: main.exe not found at %s", (LPCSTR)aMainExe2);
+			CT2A aMainExe(szMainExe);
+			WriteHookLog("ERROR: main.exe not found at %s", (LPCSTR)aMainExe);
 			TCHAR szErr[512] = {0};
 			_sntprintf(szErr, 511, _T("main.exe not found.\nExpected path: %s"), szMainExe);
 			::MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
@@ -524,8 +524,8 @@ LRESULT CMuInstanceManager::OnDestroy(UINT, WPARAM, LPARAM, BOOL&)
 		WriteHookLog("Hook DLL unloaded via FreeLibrary");
 
 		DeleteFile(m_szLoaderPath);
-		CT2A aLoaderPath2(m_szLoaderPath);
-		WriteHookLog("Temporary hook DLL deleted: %s", (LPCSTR)aLoaderPath2);
+		CT2A aLoaderPath(m_szLoaderPath);
+		WriteHookLog("Temporary hook DLL deleted: %s", (LPCSTR)aLoaderPath);
 
 		TCHAR* pszFilename = PathFindFileName(m_szLoaderPath);
 
