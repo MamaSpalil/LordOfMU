@@ -211,15 +211,9 @@ void CGameProxy::ProcessRecvStream(char* lpBuffer, char* newBuff, int& iLen)
 		CPacket pkt;
 		if (m_cRecvPacketParser.GetPacket(pkt))
 		{
-			// Log server->client packet traffic
-			if (CDebugMode::IsEnabled())
-			{
-				BYTE* pRaw = pkt.GetRawPacket();
-				int pktLen = pkt.GetPktLen();
-				char szHex[256] = {0};
-				FormatPacketHex(pRaw, pktLen, szHex, sizeof(szHex));
-				WritePacketLog("SERVER>CLIENT", pkt.GetType().GetDescription(), pktLen, szHex);
-			}
+			// Note: Individual packet logging is handled by PacketLogger filter
+			// (AVANTA+ELITE filtered) after type classification by PacketDecryptFilter.
+			// Raw pre-filter logging removed to avoid duplicate flood.
 
 			if (!FilterRecvPacket(pkt))
 			{
@@ -262,15 +256,9 @@ void CGameProxy::ProcessSendStream(char* lpBuffer, char* newBuff, int& iLen)
 		CPacket pkt;
 		if (m_cSendPacketParser.GetPacket(pkt))
 		{
-			// Log client->server packet traffic
-			if (CDebugMode::IsEnabled())
-			{
-				BYTE* pRaw = pkt.GetRawPacket();
-				int pktLen = pkt.GetPktLen();
-				char szHex[256] = {0};
-				FormatPacketHex(pRaw, pktLen, szHex, sizeof(szHex));
-				WritePacketLog("CLIENT>SERVER", pkt.GetType().GetDescription(), pktLen, szHex);
-			}
+			// Note: Individual packet logging is handled by PacketLogger filter
+			// (AVANTA+ELITE filtered) after type classification by PacketDecryptFilter.
+			// Raw pre-filter logging removed to avoid duplicate flood.
 
 			if (!FilterSendPacket(pkt))
 			{

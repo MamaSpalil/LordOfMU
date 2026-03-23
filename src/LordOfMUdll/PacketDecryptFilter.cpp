@@ -164,6 +164,24 @@ void CPacketDecryptFilter::DetectRecvPacketType(CPacket& pkt)
 	DETECT_PACKET_TYPE(CObjectAttackedPacket::Type())
 	DETECT_PACKET_TYPE(CSkillUsedPacket::Type())
 	DETECT_PACKET_TYPE(CMassiveSkillEffectPacket::Type())
+
+	// Additional known packet types to avoid "Unknown packet" flood
+	DETECT_PACKET_TYPE(CViewportSkillEffectPacket::Type())
+	DETECT_PACKET_TYPE(CExtendedProtocolPacket::Type())
+	DETECT_PACKET_TYPE(CShieldGaugePacket::Type())
+	DETECT_PACKET_TYPE(CZenUpdatePacket::Type())
+	DETECT_PACKET_TYPE(CMasterLevelPacket::Type())
+	DETECT_PACKET_TYPE(CExtCharInfoPacket::Type())
+	DETECT_PACKET_TYPE(CBuffEffectPacket::Type())
+	DETECT_PACKET_TYPE(CCharAnimationPacket::Type())
+	DETECT_PACKET_TYPE(CViewportInfoPacket::Type())
+	DETECT_PACKET_TYPE(CGuildInfoPacket::Type())
+	DETECT_PACKET_TYPE(CLiveClientCountPacket::Type())
+	DETECT_PACKET_TYPE(CPartyHPPacket::Type())
+	DETECT_PACKET_TYPE(CViewportObjectPacket::Type())
+	DETECT_PACKET_TYPE(CMassiveSkillAreaPacket::Type())
+	DETECT_PACKET_TYPE(CHitInfoJPNPacket::Type())
+	DETECT_PACKET_TYPE(CAuthSubProtocolPacket::Type())
 }
 
 
@@ -184,10 +202,14 @@ void CPacketDecryptFilter::DetectSendPacketType(CPacket& pkt)
 	DETECT_PACKET_TYPE(CSingleSkillPacket::Type())
 	DETECT_PACKET_TYPE(CMassiveSkillPacket::Type())
 	DETECT_PACKET_TYPE(CCharMoveCTSPacket::Type())
+	DETECT_PACKET_TYPE(CUpdatePosCTSPacket::Type())
 	DETECT_PACKET_TYPE(CClientAuthPacket::Type())
 	DETECT_PACKET_TYPE(CDropItemPacket::Type())
 	DETECT_PACKET_TYPE(CMoveItemReqPacket::Type())
 	DETECT_PACKET_TYPE(CUseItemPacket::Type())
+
+	// Additional known send packet types
+	DETECT_PACKET_TYPE(CExtendedProtocolPacket::Type())
 }
 
 /**

@@ -1221,4 +1221,277 @@ public:
 	}
 };
 
+
+/**
+ * \brief Viewport magic/skill effect animation (server tells client to show spell visual)
+ *
+ * C1 10 27 ...
+ */
+class CViewportSkillEffectPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CViewportSkillEffectPacket)
+		PACKET_PATT3(0xC1, 0x00, 0x27)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Viewport skill effect")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Extended protocol sub-system (Season 4+), carries various sub-commands
+ *
+ * C1 xx FB sub_opcode ...
+ */
+class CExtendedProtocolPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CExtendedProtocolPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xFB)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Extended protocol")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Shield/SD gauge update from server
+ *
+ * C1 05 B2 ...
+ */
+class CShieldGaugePacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CShieldGaugePacket)
+		PACKET_PATT3(0xC1, 0x00, 0xB2)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Shield gauge update")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Zen/money amount update from server
+ *
+ * C1 05 B8 ...
+ */
+class CZenUpdatePacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CZenUpdatePacket)
+		PACKET_PATT3(0xC1, 0x00, 0xB8)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Zen/money update")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Master level system data from server
+ *
+ * C1 24 F9 ...
+ */
+class CMasterLevelPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CMasterLevelPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xF9)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Master level data")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Extended character info / buff duration / skill buff status
+ *
+ * C1 xx FD ...
+ */
+class CExtCharInfoPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CExtCharInfoPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xFD)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Extended character info")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Buff/skill effect applied on character
+ *
+ * C1 08 69 ...
+ */
+class CBuffEffectPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CBuffEffectPacket)
+		PACKET_PATT3(0xC1, 0x00, 0x69)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Buff effect applied")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Object/character animation in viewport
+ *
+ * C1 06 A0 ...
+ */
+class CCharAnimationPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CCharAnimationPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xA0)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Character animation")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Viewport info / refresh notification
+ *
+ * C1 06 2A ...
+ */
+class CViewportInfoPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CViewportInfoPacket)
+		PACKET_PATT3(0xC1, 0x00, 0x2A)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Viewport info")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Guild information from server
+ *
+ * C1 08 F5 ...
+ */
+class CGuildInfoPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CGuildInfoPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xF5)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Guild info")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Live client count / server population info
+ *
+ * C1 06 03 ...
+ */
+class CLiveClientCountPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CLiveClientCountPacket)
+		PACKET_PATT3(0xC1, 0x00, 0x03)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Live client count")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Party HP bar update list
+ *
+ * C2 xx xx 38 ...
+ */
+class CPartyHPPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CPartyHPPacket)
+		PACKET_PATT4(0xC2, 0x00, 0x00, 0x38)
+		PACKET_MASK4(0xFF, 0x00, 0x00, 0xFF)
+		PACKET_DESCR("Party HP bar update")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Viewport object spawn/update
+ *
+ * C2 xx xx 06 ...
+ */
+class CViewportObjectPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CViewportObjectPacket)
+		PACKET_PATT4(0xC2, 0x00, 0x00, 0x06)
+		PACKET_MASK4(0xFF, 0x00, 0x00, 0xFF)
+		PACKET_DESCR("Viewport object spawn")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Massive skill area damage display from server
+ *
+ * C2 xx xx 1E ...
+ */
+class CMassiveSkillAreaPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CMassiveSkillAreaPacket)
+		PACKET_PATT4(0xC2, 0x00, 0x00, 0x1E)
+		PACKET_MASK4(0xFF, 0x00, 0x00, 0xFF)
+		PACKET_DESCR("Massive skill area damage")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Hit info / damage display (JPN version with opcode 0xDC)
+ *
+ * C1 14 DC ...
+ */
+class CHitInfoJPNPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CHitInfoJPNPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xDC)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Hit info (JPN)")
+	END_COMMON_PACKET_DECL()
+};
+
+
+/**
+ * \brief Authentication sub-protocol (login result, server list, etc.)
+ *
+ * C1 xx F1 ...
+ */
+class CAuthSubProtocolPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CAuthSubProtocolPacket)
+		PACKET_PATT3(0xC1, 0x00, 0xF1)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Auth sub-protocol")
+	END_COMMON_PACKET_DECL()
+};
+
+
 #endif //__CommonPackets_H
