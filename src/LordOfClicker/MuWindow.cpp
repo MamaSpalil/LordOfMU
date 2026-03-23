@@ -1131,9 +1131,17 @@ void CMuWindow::SayToServer(const char* buf)
 	// (handles timing where SayToServer is called before the DLL finishes loading).
 	static bool (*s_pfnSendCommand)(const char*) = NULL;
 	static int s_nLookupAttempts = 0;
+	static const int MAX_RETRY_WITH_DELAY = 3; // Number of initial attempts with delay
 
 	if (!s_pfnSendCommand)
 	{
+		// On the first few attempts, add a small delay to handle race conditions
+		// where RunDllWndProc hasn't finished loading the LordOfMU DLL yet.
+		if (s_nLookupAttempts > 0 && s_nLookupAttempts <= MAX_RETRY_WITH_DELAY)
+		{
+			Sleep(500); // Give DLL loading time to complete
+		}
+
 		HMODULE hMod = NULL;
 		const char* pszMethod = NULL;
 
@@ -1164,7 +1172,14 @@ void CMuWindow::SayToServer(const char* buf)
 		if (!hMod && m_hWnd)
 		{
 			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
-			if (hMod) pszMethod = "GetProp(m_hWnd)";
+			if (hMod)
+			{
+				// Verify the module handle has the expected export
+				if (GetProcAddress(hMod, "SendCommand"))
+					pszMethod = "GetProp(m_hWnd)";
+				else
+					hMod = NULL;
+			}
 		}
 
 		// Attempt 1b: Try GetProp on the MU window found by EnumWindows
@@ -1175,7 +1190,13 @@ void CMuWindow::SayToServer(const char* buf)
 			if (hMuWnd && hMuWnd != m_hWnd)
 			{
 				hMod = (HMODULE)GetProp(hMuWnd, _T("__LordOfMU_Module__"));
-				if (hMod) pszMethod = "GetProp(FindMuWindow)";
+				if (hMod)
+				{
+					if (GetProcAddress(hMod, "SendCommand"))
+						pszMethod = "GetProp(FindMuWindow)";
+					else
+						hMod = NULL;
+				}
 			}
 		}
 
@@ -1254,17 +1275,22 @@ void CMuWindow::SayToServer(const char* buf)
 		{
 			s_nLookupAttempts++;
 
-			// Log detailed diagnostics only on the first failure
-			if (s_nLookupAttempts == 1)
+			// Log detailed diagnostics on first failure and every 10th attempt
+			if (s_nLookupAttempts == 1 || (s_nLookupAttempts % 10) == 0)
 			{
-				WriteClickerLogFmt("CLICKER", "SayToServer: All lookup methods failed - m_hWnd=0x%p, PID=%d",
-					(void*)m_hWnd, (int)GetCurrentProcessId());
+				WriteClickerLogFmt("CLICKER", "SayToServer: All lookup methods failed - m_hWnd=0x%p, PID=%d, attempt=%d",
+					(void*)m_hWnd, (int)GetCurrentProcessId(), s_nLookupAttempts);
 
 				// Log env var status
 				char szEnvCheck[32] = {0};
 				DWORD dwEnvLen = GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvCheck, sizeof(szEnvCheck));
 				WriteClickerLogFmt("CLICKER", "SayToServer diag: env __LordOfMU_HMODULE__='%s' (len=%d)",
 					dwEnvLen > 0 ? szEnvCheck : "(not set)", (int)dwEnvLen);
+
+				// Log our own module info for name-transform debugging
+				TCHAR szOurPath[_MAX_PATH+1] = {0};
+				GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szOurPath, _MAX_PATH);
+				WriteClickerLogFmt("CLICKER", "SayToServer diag: our module='%s'", (LPCSTR)CT2A(szOurPath));
 			}
 		}
 	}

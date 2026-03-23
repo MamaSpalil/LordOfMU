@@ -1,3 +1,10 @@
+## Auto-Clicker Debug Log (AVANTA+ELITE Mode)
+
+### Session Log (Before Fix)
+
+The following log captured the broken state where MUEliteClicker.dll could not be found
+by the Clicker DLL (MUAutoClicker.dll). Root causes identified and fixed below.
+
 [2026-03-23 02:53:06] [CLICKER] DLL successfully hooked into main.exe, clicker initialized
 [2026-03-23 02:53:23] [CLICKER] Clicker started
 [2026-03-23 02:53:23] [CLICKER] === Auto-clicker starting ===
@@ -118,3 +125,56 @@
 [2026-03-23 02:53:42] [CLICKER] Debug mode remains active in DLL after clicker stop
 [2026-03-23 02:53:42] [CLICKER] === Auto-clicker stopped ===
 [2026-03-23 02:53:42] [CLICKER] Clicker stopped
+
+### Root Cause Analysis
+
+**Problem 1: SayToServer fails — "DLL module not found" for ALL commands**
+
+ROOT CAUSE: In `LoaderDll.cpp`, `RunDllWndProc()` had no `return` statement after 
+`CKillUtil::KillGame()` calls. If `KillGame()` does not terminate the process immediately 
+(e.g., during WndProc execution, or if `TerminateProcess` is delayed), execution falls through:
+- The `else` block that sets `SetProp()` and `SetEnvironmentVariableA()` is NEVER entered
+- The Clicker DLL is loaded by the second block without the LordOfMU DLL
+- Result: ALL SayToServer lookup methods fail (env var not set, window property not set, 
+  stealth name module not loaded, Toolhelp32 finds nothing)
+
+FIX: Added `return res;` after each `CKillUtil::KillGame()` call to prevent fall-through.
+Also restructured the error handling to not use else-block for the success path, ensuring
+`SetProp`/`SetEnvironmentVariableA` always execute after successful `LoadLibrary`.
+
+**Problem 2: SPACE key fires when fAdvAutoPick=1 but fAutoPick=0**
+
+ROOT CAUSE: `DoClicker()` in `ClickerJob.cpp` used `fAutoPick || fAdvAutoPick` for the 
+SPACE key pickup condition. When Advanced Pick-up (fAdvAutoPick) is enabled, the DLL handles 
+pickup via packet injection. Pressing SPACE interferes by picking up unfiltered items and 
+conflicting with DLL movement commands.
+
+FIX: Changed condition to only `fAutoPick` for SPACE key. DLL-based pickup handles 
+fAdvAutoPick independently.
+
+**Problem 3: No packet logging for dropped/picked items**
+
+ROOT CAUSE: The DLL AutoPickupFilter logs all packets (CMeetItemPacket, CPickItemPacket)
+unconditionally — but `m_fEnabled` was never set to TRUE because the `//autopick on` command 
+never reached the DLL (due to Problem 1). With `m_fEnabled=0`, incoming item packets are 
+logged as "autopick DISABLED - items ignored" and pickup packets are never generated.
+
+FIX: Fixing Problem 1 ensures commands reach the DLL, enabling `m_fEnabled` and packet logging.
+
+**Problem 4: Clicker DLL loaded without LordOfMU DLL**
+
+ROOT CAUSE: `RunDllWndProc()` always loaded the Clicker DLL in the second block, even if 
+the LordOfMU DLL failed to load in the first block.
+
+FIX: Added `g_hInjected` check before loading the Clicker DLL — only load it if the 
+LordOfMU DLL was successfully loaded.
+
+### Fixes Applied
+
+- `src/LoaderDll/LoaderDll.cpp`: Added `return res` after KillGame, improved error logging,
+  source file validation in CopyDlls, guard Clicker DLL loading on LordOfMU DLL success
+- `src/LordOfClicker/ClickerJob.cpp`: SPACE key only triggers for fAutoPick, not fAdvAutoPick
+- `src/LordOfClicker/MuWindow.cpp`: SayToServer retry with delay, better diagnostics,
+  GetProp validation with SendCommand export check
+- AVANTA+ELITE mode: F9 opens unified settings dialog (already implemented)
+- Both __CLICKER_AVANTA__ and __CLICKER_ELITE__ defined in version.h for unified mode
