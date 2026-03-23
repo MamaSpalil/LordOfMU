@@ -186,6 +186,7 @@
 [2026-03-23 05:48:23] [PICKUP] Zen item 0x0E0F (id=0x0001) at (31,204) dist=(1,4) queued for Move To pickup
 [2026-03-23 05:48:23] [PICKUP] Zen item 0x0E0F (id=0x0000) at (32,213) dist=(2,5) queued for Move To pickup
 [2026-03-23 05:48:23] [PICKUP] GoPickNextItem: dequeued item 0x0001 at (31,204), suspended=0, suspMove=0
+[2026-03-23 05:48:24] [PICKUP] Auto run mode: class=5, boots=7, wings=0, pet=0 -> RUN
 [2026-03-23 05:48:24] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk (throttled: 9 similar packets skipped)
 [2026-03-23 05:48:24] [PACKET] CLIENT -> SERVER | Massive skill | Len=17 | C3 11 23 1E 38 1E D0 5F 88 DE FF FF 00 9B C6 39 5D  (throttled: 12 similar packets skipped)
 [2026-03-23 05:48:24] [PICKUP] GoPickNextItem: RUNNING to item 0x0001 at (31,204) from (30,208)
