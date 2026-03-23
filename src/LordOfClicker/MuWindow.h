@@ -8,6 +8,8 @@
 #include "LaunchMuDialog.h"
 #include "AdvSettingsDialog.h"
 #include "UnifiedSettingsDlg.h"
+#include "HUDButtons.h"
+#include "HistoryDialog.h"
 #include "ApiHooker.h"
 
 #define WM_IS_CLICKER_INSTALLED WM_APP + 402
@@ -68,6 +70,9 @@ protected:
 		MESSAGE_HANDLER(WM_CAPTURECHANGED, OnCaptureChanged)
 		MESSAGE_HANDLER(WM_SET_GAME_VERSION, OnSetVersion)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
+		MESSAGE_HANDLER(WM_HUD_SETTINGS, OnHUDSettings)
+		MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
+		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 	END_MSG_MAP()
 
 protected:
@@ -102,6 +107,9 @@ protected:
 	LRESULT OnCaptureChanged(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnSetVersion(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
@@ -136,6 +144,8 @@ protected:
 	// REDESIGN: CAdvSettingsDialog replaced by CUnifiedSettingsDlg
 	// CAdvSettingsDialog m_cAdvSettingsDlg;
 	CUnifiedSettingsDlg m_cUnifiedSettingsDlg;
+	CHistoryDialog m_cHistoryDlg;
+	CHUDButtons m_cHUDButtons;
 
 private:
 	HHOOK m_hKbdHook;

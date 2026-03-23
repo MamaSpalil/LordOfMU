@@ -274,6 +274,8 @@
     <ClCompile Include="MuWindow.cpp" />
     <ClCompile Include="SettingsDlg.cpp" />
     <ClCompile Include="UnifiedSettingsDlg.cpp" />
+    <ClCompile Include="HUDButtons.cpp" />
+    <ClCompile Include="HistoryDialog.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release [Antihack]|Win32'">Create</PrecompiledHeader>
@@ -320,6 +322,8 @@
     <ClInclude Include="SMSettings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UnifiedSettingsDlg.h" />
+    <ClInclude Include="HUDButtons.h" />
+    <ClInclude Include="HistoryDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AutoClicker.rc" />
@@ -350,6 +354,10 @@
     <Image Include="res\ico_sword.bmp" />
     <Image Include="res\ico_helm.bmp" />
     <Image Include="res\ico_jewel.bmp" />
+    <Image Include="res\ico_settings.bmp" />
+    <Image Include="res\ico_play.bmp" />
+    <Image Include="res\ico_stop.bmp" />
+    <Image Include="res\ico_history.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

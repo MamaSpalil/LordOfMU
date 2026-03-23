@@ -125,13 +125,23 @@
 // Cursor resource for MU Online game cursor
 #define IDC_MU_CURSOR                   522
 
+// HUD button icon bitmaps
+#define IDB_ICO_SETTINGS                523
+#define IDB_ICO_PLAY                    524
+#define IDB_ICO_STOP                    525
+#define IDB_ICO_HISTORY                 526
+
+// History dialog
+#define IDD_HISTORY_DLG                 530
+#define IDC_HISTORY_LIST                531
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        523
+#define _APS_NEXT_RESOURCE_VALUE        532
 #define _APS_NEXT_COMMAND_VALUE         32768
-#define _APS_NEXT_CONTROL_VALUE         406
+#define _APS_NEXT_CONTROL_VALUE         532
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif
