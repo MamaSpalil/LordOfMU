@@ -8,6 +8,7 @@
 #include "KillUtil.h"
 #include "version.h"
 #include "atlstr.h"
+#include "ClickerLogger.h"
 
 #pragma data_seg(".shared")
 HHOOK	g_hHook = 0;
@@ -148,6 +149,19 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
 		// can find it reliably via GetProp() without depending on module name lookups.
 		SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
+
+		// Also store HMODULE via environment variable as a reliable fallback.
+		// Window properties can fail if the Clicker DLL subclasses a different window
+		// than the one SetProp was called on (e.g., game recreates its window).
+		// Environment variables are per-process and accessible from any DLL.
+		{
+			char szBuf[32] = {0};
+			_snprintf(szBuf, 31, "0x%p", (void*)g_hInjected);
+			SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
+		}
+
+		WriteHookLog("LordOfMU DLL loaded at 0x%p, HMODULE stored via SetProp(hWnd=0x%p) and env var",
+			(void*)g_hInjected, (void*)hWnd);
 
 		InitClickerModulePtr InitProc = (InitClickerModulePtr)GetProcAddress(g_hInjected, "DllGetClassObject");
 
@@ -370,7 +384,13 @@ void CopyDlls()
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{
 		DWORD dwErr = GetLastError();
-		WriteHookLog("CopyFile FAILED for LordOfMU DLL: err=%d", (int)dwErr);
+		WriteHookLog("CopyFile FAILED for LordOfMU DLL: src='%s' dst='%s' err=%d",
+			(LPCSTR)CT2A(szSrcFile), (LPCSTR)CT2A(szDstFile), (int)dwErr);
+	}
+	else
+	{
+		WriteHookLog("CopyFile OK for LordOfMU DLL: src='%s' dst='%s'",
+			(LPCSTR)CT2A(szSrcFile), (LPCSTR)CT2A(szDstFile));
 	}
 
 	// Copy Clicker DLL (MUAutoClicker.dll) to stealth name
@@ -384,7 +404,13 @@ void CopyDlls()
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
 	{
 		DWORD dwErr = GetLastError();
-		WriteHookLog("CopyFile FAILED for Clicker DLL: err=%d", (int)dwErr);
+		WriteHookLog("CopyFile FAILED for Clicker DLL: src='%s' dst='%s' err=%d",
+			(LPCSTR)CT2A(szSrcFile), (LPCSTR)CT2A(szDstFile), (int)dwErr);
+	}
+	else
+	{
+		WriteHookLog("CopyFile OK for Clicker DLL: src='%s' dst='%s'",
+			(LPCSTR)CT2A(szSrcFile), (LPCSTR)CT2A(szDstFile));
 	}
 }
 
