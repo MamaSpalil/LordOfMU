@@ -156,7 +156,7 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// Environment variables are per-process and accessible from any DLL.
 		{
 			char szBuf[32] = {0};
-			_snprintf(szBuf, 31, "0x%p", (void*)g_hInjected);
+			_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)g_hInjected);
 			SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
 		}
 

@@ -1143,10 +1143,10 @@ void CMuWindow::SayToServer(const char* buf)
 		if (!hMod)
 		{
 			char szEnvBuf[32] = {0};
-			if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, 31) > 0)
+			if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
 			{
-				// Parse "0x<hex>" format
-				HMODULE hEnvMod = (HMODULE)(ULONG_PTR)strtoul(szEnvBuf, NULL, 16);
+				// Parse "0x<hex>" format - use _strtoui64 for correct 64-bit pointer support
+				HMODULE hEnvMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
 				if (hEnvMod)
 				{
 					// Verify the module handle is still valid by checking for the export
@@ -1262,7 +1262,7 @@ void CMuWindow::SayToServer(const char* buf)
 
 				// Log env var status
 				char szEnvCheck[32] = {0};
-				DWORD dwEnvLen = GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvCheck, 31);
+				DWORD dwEnvLen = GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvCheck, sizeof(szEnvCheck));
 				WriteClickerLogFmt("CLICKER", "SayToServer diag: env __LordOfMU_HMODULE__='%s' (len=%d)",
 					dwEnvLen > 0 ? szEnvCheck : "(not set)", (int)dwEnvLen);
 			}
