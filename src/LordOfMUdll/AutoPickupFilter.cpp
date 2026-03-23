@@ -413,6 +413,16 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 			|| pkt == CCharMoveCTSPacket::Type()
 			|| pkt == CUpdatePosCTSPacket::Type())
 		{
+			// Notify PacketEncryptFilter about blocked C3/C4 packets so it can
+			// adjust its sequence counter.  Without this, blocked encrypted
+			// packets cause a counter desync that leads to server disconnect.
+			if (pkt.GetPktClass() == 0xC3 || pkt.GetPktClass() == 0xC4)
+			{
+				CPacketFilter* pEncrypt = GetProxy()->GetFilter("PacketEncryptFilter");
+				if (pEncrypt)
+					pEncrypt->SetParam("BlockedC3Packet", NULL);
+			}
+
 			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED %s during auto-pickup walk",
 				pkt.GetType().GetDescription());
 			CDebugOut::PrintAlways("[PICKUP] FilterSendPacket: BLOCKED %s during walk",
@@ -693,7 +703,7 @@ void CAutoPickupFilter::GoPickNextItem()
 		}
 
 		m_fWalking = true;
-		Sleep(350);
+		Sleep(100);
 
 		// Auto-determine run mode based on equipment and character class.
 		// Only auto-detect if user hasn't explicitly enabled run mode (pickrunmode).
@@ -804,7 +814,7 @@ void CAutoPickupFilter::GoPickNextItem()
 
 	if (!fSuspended || !fSuspMove)
 	{
-		Sleep(500);
+		Sleep(200);
 
 		// Move back to original position using the same mode (walk or run)
 		if (m_fRunMode)

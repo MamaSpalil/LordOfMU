@@ -23,6 +23,9 @@ public:
 	virtual int FilterRecvPacket(CPacket& pkt, CFilterContext& context);
 	virtual int FilterSendPacket(CPacket& pkt, CFilterContext& context);
 
+	// Parameter interface - allows other filters to notify about blocked C3/C4 packets
+	virtual bool SetParam(const char* pszParam, void* pData);
+
 protected:
 	void EncryptXOR(CPacket& pkt);
 
@@ -30,6 +33,7 @@ private:
 	ULONG m_ulSendC3Counter;
 	BYTE m_bLastSendC3Counter;
 	ULONG m_ulRecvC3Counter;
+	ULONG m_ulBlockedC3Total;
 };
 
 #endif //__PacketEncryptFilter_H

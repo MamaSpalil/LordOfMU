@@ -129,7 +129,7 @@ private:
 
 	static const int WALK_MS_PER_TILE = 150;
 	static const int RUN_MS_PER_TILE = 50;
-	static const int WALK_BASE_DELAY_MS = 500;
+	static const int WALK_BASE_DELAY_MS = 150;
 	static const int WALK_MAX_TIME_MS = 5000;
 
 	static const int PICKUP_DIST_MIN = 1;
