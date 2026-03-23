@@ -15,6 +15,7 @@ CPacketEncryptFilter::CPacketEncryptFilter(CProxy* pProxy)
 	m_ulSendC3Counter = 0;
 	m_bLastSendC3Counter = 0;
 	m_ulRecvC3Counter = 0;
+	m_ulBlockedC3Total = 0;
 }
 
 /**
@@ -62,7 +63,15 @@ int CPacketEncryptFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context
 		{
 			BYTE* pDec = pkt.GetDecryptedPacket();
 			if (pDec && pkt.GetDecryptedLen() > pkt.GetHdrLen())
-				m_bLastSendC3Counter = *(pDec + pkt.GetHdrLen());
+			{
+				BYTE bRawCounter = *(pDec + pkt.GetHdrLen());
+				// Subtract the cumulative count of C3/C4 packets that were blocked
+				// by earlier filters (e.g. AutoPickupFilter during walk).  Those
+				// packets incremented the game client's internal counter but never
+				// reached this filter, so the raw counter from the client is ahead
+				// of what the server expects.  Subtracting brings it back in sync.
+				m_bLastSendC3Counter = (BYTE)((bRawCounter - m_ulBlockedC3Total) & 0xFF);
+			}
 		}
 
 		DWORD counter = (m_bLastSendC3Counter + m_ulSendC3Counter) % 256;
@@ -96,4 +105,24 @@ void CPacketEncryptFilter::EncryptXOR(CPacket& pkt)
 		if (buf && xorP[0] < len)
 			CEncDec::EncXor32(buf + xorP[0], xorP[1], len - xorP[0]);
 	}
+}
+
+
+/**
+ * \brief Allows other filters (e.g. AutoPickupFilter) to notify about
+ *        blocked C3/C4 client packets so the encryption counter stays
+ *        synchronized with the server.
+ */
+bool CPacketEncryptFilter::SetParam(const char* pszParam, void* pData)
+{
+	if (!pszParam)
+		return false;
+
+	if (_stricmp(pszParam, "BlockedC3Packet") == 0)
+	{
+		m_ulBlockedC3Total++;
+		return true;
+	}
+
+	return false;
 }
