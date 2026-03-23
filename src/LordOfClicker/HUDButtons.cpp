@@ -60,7 +60,7 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 		CWindow::rcDefault,                     // position (set below)
 		NULL,                                   // no title
 		WS_POPUP,                               // popup, initially hidden
-		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE   // no taskbar, no focus steal
+		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST  // no taskbar, no focus steal, topmost
 	);
 
 	if (!hWnd)
@@ -133,11 +133,10 @@ void CHUDButtons::Reposition()
 	int x = ptClient.x + 8;
 	int y = ptClient.y + 8;
 
+	// Keep TOPMOST so the HUD stays visible above the game's
+	// DirectDraw/Direct3D rendering surface.
 	SetWindowPos(HWND_TOPMOST, x, y, 0, 0,
 		SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-	// Remove TOPMOST immediately to only be on top of owner
-	SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
 

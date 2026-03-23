@@ -352,8 +352,8 @@ class CPutInventoryPacket
 {
 public:
 	BEGIN_COMMON_PACKET_DECL(CPutInventoryPacket)
-		PACKET_PATT5(0xC3, 0x00, 0x00, 0x22, 0x00)
-		PACKET_MASK5(0xFF, 0x00, 0x00, 0xFF, 0x80)
+		PACKET_PATT4(0xC3, 0x00, 0x00, 0x22)
+		PACKET_MASK4(0xFF, 0x00, 0x00, 0xFF)
 		PACKET_DESCR("Put inventory")
 	END_COMMON_PACKET_DECL()
 
@@ -378,8 +378,8 @@ public:
 
 
 /**  
- * \brief Pick item result with inventory position >= 0x80 means failure (typically 0xFF).
- * This occurs when the server cannot place the item in inventory (inventory full).
+ * \brief Pick item result with inventory position 0xFF means failure (inventory full).
+ * This occurs when the server cannot place the item in inventory.
  *
  * C3 15 0C 22 FF 03 00 FF 00 00 E0 00 FF FF FF FF FF 00 FD FD FD 
  *              ^
@@ -390,10 +390,18 @@ class CPickItemResultFailPacket
 {
 public:
 	BEGIN_COMMON_PACKET_DECL(CPickItemResultFailPacket)
-		PACKET_PATT5(0xC3, 0x00, 0x00, 0x22, 0x80)
-		PACKET_MASK5(0xFF, 0x00, 0x00, 0xFF, 0x80)
+		PACKET_PATT5(0xC3, 0x00, 0x00, 0x22, 0xFF)
+		PACKET_MASK5(0xFF, 0x00, 0x00, 0xFF, 0xFF)
 		PACKET_DESCR("Pick item failed (inventory full)")
 	END_COMMON_PACKET_DECL()
+
+	WORD GetItemType()
+	{
+		// Same extraction as CPutInventoryPacket: byte[5] = index,
+		// byte[6] bits 3-6 and byte[10] = group/category.
+		BYTE* pPacket = AnyBuffer();
+		return (pPacket == 0) ? 0 : ((WORD)pPacket[10] << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
+	}
 };
 
 
