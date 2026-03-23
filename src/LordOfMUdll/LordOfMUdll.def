@@ -4,3 +4,4 @@ EXPORTS
 	DllRegisterServer	PRIVATE
 	DllUnregisterServer	PRIVATE
 	SendCommand
+	ForceInitCommandProxy

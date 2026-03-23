@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameProxy.h"
 #include "Proxifier.h"
+#include "ProxyBuilder.h"
 #include "DebugOut.h"
 #include "BufferUtil.h"
 #include "CommonPackets.h"
@@ -40,11 +41,10 @@ static void FormatPacketHex(const BYTE* pData, int nLen, char* szOut, int cbOut,
 
 
 static CGameProxy* g_pGameProxy = 0;
+static bool g_bCommandOnlyProxy = false;
 
 extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 {
-//	char* buf = (char*)lParam;
-
 	if (!buf)
 	{
 		WriteClickerLogFmt("PICKUP", "SendCommand FAILED: buf is NULL");
@@ -71,6 +71,52 @@ extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 	CCharacterSayPacket pkt(pszCharName, buf);
 	g_pGameProxy->send_packet(pkt);
 
+	// In command-only mode (no active socket connection), HandleConnection is not
+	// running, so ProcessSendQueue must be called explicitly to process the command.
+	// Commands starting with "//" are intercepted by CCommandInterface and never
+	// reach sendBuffer, so the invalid socket is not used.
+	if (g_bCommandOnlyProxy)
+	{
+		g_pGameProxy->ProcessSendQueue();
+	}
+
+	return true;
+}
+
+
+/**
+ * \brief Creates a command-only proxy when the game is already connected
+ *        and the connect() hook missed the existing connection.
+ *        This allows // commands (autopick, set_pick_opt, etc.) to be processed
+ *        through the filter chain without an active socket.
+ *        Actual packet sending (PickItem) will not work until a real connection
+ *        is proxied (e.g., on game reconnect).
+ */
+extern "C" __declspec(dllexport) bool ForceInitCommandProxy()
+{
+	if (g_pGameProxy)
+	{
+		WriteClickerLogFmt("PICKUP", "ForceInitCommandProxy: proxy already exists at 0x%p (command-only=%d)",
+			(void*)g_pGameProxy, (int)g_bCommandOnlyProxy);
+		return true;
+	}
+
+	WriteClickerLogFmt("PICKUP", "ForceInitCommandProxy: Creating command-only proxy (no socket)");
+
+	// Use CProxyBuilder to create a full game proxy with all filters.
+	// INVALID_SOCKET means no actual network traffic - only command processing.
+	CProxy* pProxy = CProxyBuilder::CreateGameProxy(INVALID_SOCKET);
+
+	if (!pProxy || !g_pGameProxy)
+	{
+		WriteClickerLogFmt("PICKUP", "ForceInitCommandProxy: FAILED to create proxy");
+		return false;
+	}
+
+	g_bCommandOnlyProxy = true;
+
+	WriteClickerLogFmt("PICKUP", "ForceInitCommandProxy: Command proxy created at 0x%p, filters initialized",
+		(void*)g_pGameProxy);
 	return true;
 }
 
@@ -81,7 +127,26 @@ extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 CGameProxy::CGameProxy(SOCKET s)
 	: CPassThroughProxy(s), m_ioBuffer(io_buffer_size+8), m_ioBuffer2(io_buffer_size + io_buffer_size + 16)
 {
+	// Cache the old state before making any changes.
+	CGameProxy* pOldProxy = g_pGameProxy;
+	bool bWasCommandOnly = g_bCommandOnlyProxy;
+
+	// Update the command-only flag BEFORE setting g_pGameProxy to avoid
+	// a window where other threads see the new proxy with the old flag.
+	if (s != INVALID_SOCKET)
+		g_bCommandOnlyProxy = false;
+
 	g_pGameProxy = this;
+
+	// If replacing a command-only proxy with a real proxy (game reconnected),
+	// clean up the old one. The check uses the cached state to avoid the
+	// flag being already cleared when we get here.
+	if (pOldProxy && pOldProxy != this && bWasCommandOnly)
+	{
+		WriteClickerLogFmt("PICKUP", "CGameProxy: Real proxy replacing command-only proxy at 0x%p",
+			(void*)pOldProxy);
+		delete pOldProxy;
+	}
 }
 
 /**
@@ -89,7 +154,10 @@ CGameProxy::CGameProxy(SOCKET s)
  */
 CGameProxy::~CGameProxy()
 {
-	g_pGameProxy = 0;
+	// Only clear g_pGameProxy if it still points to us (prevents clearing
+	// the pointer when a command-only proxy is deleted during replacement).
+	if (g_pGameProxy == this)
+		g_pGameProxy = 0;
 
 	ClearFilters();	
 }

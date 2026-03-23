@@ -8,6 +8,7 @@
 #include "ClickerLogger.h"
 #include <map>
 #include <TlHelp32.h>
+#include <sys/stat.h>
 
 CMuWindow* CMuWindow::s_pInstance = NULL;
 
@@ -1253,6 +1254,84 @@ void CMuWindow::SayToServer(const char* buf)
 					} while (Module32Next(hSnap, &me32));
 				}
 				CloseHandle(hSnap);
+			}
+		}
+
+		// Attempt 5: Direct LoadLibrary fallback - load MUEliteClicker.dll from
+		// the Clicker DLL's directory. This handles the case where the LoaderDll
+		// mechanism fails and MUEliteClicker.dll was never loaded into the process.
+		if (!hMod)
+		{
+			static bool s_bDirectLoadAttempted = false;
+			if (!s_bDirectLoadAttempted)
+			{
+				s_bDirectLoadAttempted = true;
+
+				TCHAR szDllDir[_MAX_PATH+1] = {0};
+				GetModuleFileName(_AtlBaseModule.GetModuleInstance(), szDllDir, _MAX_PATH);
+				for (int j = (int)_tcslen(szDllDir) - 1; j >= 0 && szDllDir[j] != _T('\\'); szDllDir[j--] = 0);
+
+				TCHAR szDllPath[_MAX_PATH+1] = {0};
+				_tcscpy(szDllPath, szDllDir);
+				_tcscat(szDllPath, _T(__LORDOFMU_DLL_NAME));
+
+				WriteClickerLogFmt("CLICKER", "SayToServer Attempt 5: Direct LoadLibrary for '%s'",
+					(LPCSTR)CT2A(szDllPath));
+
+				struct _stat stDll = {0};
+				if (0 == _tstat(szDllPath, &stDll))
+				{
+					HMODULE hDirect = LoadLibrary(szDllPath);
+					if (hDirect)
+					{
+						// Initialize proxy hooks via DllGetClassObject
+						typedef HRESULT (__stdcall* InitModulePtr)(REFCLSID, REFIID, LPVOID*);
+						InitModulePtr pInit = (InitModulePtr)GetProcAddress(hDirect, "DllGetClassObject");
+						if (pInit)
+						{
+							GUID guid = {0};
+							pInit(guid, guid, (LPVOID*)szDllDir);
+						}
+
+						// Store HMODULE for subsequent lookups
+						char szBuf[32] = {0};
+						_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)hDirect);
+						SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
+
+						if (m_hWnd)
+							SetProp(m_hWnd, _T("__LordOfMU_Module__"), (HANDLE)hDirect);
+
+						// Try to create a command-only proxy if the game is already connected
+						// (the connect hook missed the existing connection).
+						typedef bool (*ForceInitPtr)();
+						ForceInitPtr pForceInit = (ForceInitPtr)GetProcAddress(hDirect, "ForceInitCommandProxy");
+						if (pForceInit)
+						{
+							pForceInit();
+							WriteClickerLogFmt("CLICKER", "SayToServer: ForceInitCommandProxy called");
+						}
+
+						if (GetProcAddress(hDirect, "SendCommand"))
+						{
+							hMod = hDirect;
+							pszMethod = "direct LoadLibrary";
+						}
+
+						WriteClickerLogFmt("CLICKER", "SayToServer: Direct load %s at 0x%p (SendCommand=%s)",
+							__LORDOFMU_DLL_NAME, (void*)hDirect, hMod ? "found" : "not found");
+					}
+					else
+					{
+						DWORD dwErr = GetLastError();
+						WriteClickerLogFmt("CLICKER", "SayToServer: Direct LoadLibrary FAILED for '%s' (error=%d)",
+							(LPCSTR)CT2A(szDllPath), (int)dwErr);
+					}
+				}
+				else
+				{
+					WriteClickerLogFmt("CLICKER", "SayToServer: Direct load skipped - '%s' not found",
+						(LPCSTR)CT2A(szDllPath));
+				}
 			}
 		}
 

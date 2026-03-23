@@ -10,10 +10,10 @@ class CProxyBuilder
 {
 public:
 	static CProxy* CreateProxy(SOCKET s, const struct sockaddr* addr, int len);
+	static CProxy* CreateGameProxy(SOCKET s);
 
 private:
 	static CProxy* CreateBypassProxy(SOCKET s);
-	static CProxy* CreateGameProxy(SOCKET s);
 };
 
 #endif // __ProxyBuilder_H
