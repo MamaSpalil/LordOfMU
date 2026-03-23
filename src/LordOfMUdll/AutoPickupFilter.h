@@ -132,6 +132,10 @@ private:
 	static const int WALK_BASE_DELAY_MS = 500;
 	static const int WALK_MAX_TIME_MS = 5000;
 
+	static const int PICKUP_DIST_MIN = 1;
+	static const int PICKUP_DIST_MAX = 8;
+	static const int PICKUP_DIST_DEFAULT = 3;
+
 private:
 	HANDLE m_hThread;
 	HANDLE m_hPickEvent;

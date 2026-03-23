@@ -11,6 +11,10 @@
 #define CHAR_CLASS_MG 5
 #define CHAR_CLASS_LAST 5
 
+#define PICKUP_DIST_MIN     1
+#define PICKUP_DIST_MAX     8
+#define PICKUP_DIST_DEFAULT 3
+
 
 #pragma pack(push)
 #pragma pack(1)
@@ -60,7 +64,10 @@ struct GeneralSettings
 	// v2.2 options
 	BOOL fPickRunMode;
 
-	BYTE  arrReserved[902];
+	// v2.3 options
+	DWORD dwPickDist;
+
+	BYTE  arrReserved[898];
 };
 
 struct DLSettings
@@ -177,6 +184,7 @@ public:
 		m_cSettings.all.wPickCustomCode = 0x0E33;
 
 		m_cSettings.all.fPickRunMode = FALSE;
+		m_cSettings.all.dwPickDist = PICKUP_DIST_DEFAULT;
 
 		m_cSettings.ae.dwChangeDirTime = 3000;
 		m_cSettings.ae.dwTShotSkillSlot = 4;

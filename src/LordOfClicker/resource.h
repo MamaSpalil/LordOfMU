@@ -88,6 +88,7 @@
 #define IDC_CUSTOM2                     281
 #define IDC_STATIC_STEALTH              282
 #define IDC_PICKRUNMODE                 283
+#define IDC_PICKDIST                    284
 
 // New dialog IDs for unified settings
 #define IDD_UNIFIED_SETTINGS            400

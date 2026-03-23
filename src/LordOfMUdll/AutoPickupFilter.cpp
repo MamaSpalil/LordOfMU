@@ -21,7 +21,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_ulExlFlags = 0;
 	m_ulZenFlags = 0;
 	m_ulCustomFlags = 0;
-	m_iDist = -1;
+	m_iDist = PICKUP_DIST_DEFAULT;
 
 	m_fEnabled = FALSE;
 	m_fDisplayCode = FALSE;
@@ -147,11 +147,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			{
 				bool fMoveTo = (m_ulCustomFlags & 2) != 0;
 				bool fPickEnabled = (m_ulCustomFlags & 1) != 0;
-				bool fInRange = (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist));
+				bool fInRange = (xdiff <= m_iDist && ydiff <= m_iDist);
 
-				if (fMoveTo && fPickEnabled)
+				if (fMoveTo && fPickEnabled && fInRange)
 				{
-					// Move To mode: queue item for walking pickup regardless of distance
+					// Move To mode: queue item for walking pickup within radius
 					CAutoLockQueue autoCS(&m_csQueue);
 					m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 					SetEvent(m_hPickEvent);
@@ -219,7 +219,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				{
 					if ((ulFlags & 2) != 0)
 					{
-						if (m_iDist < 0 || (xdiff <= m_iDist && ydiff <= m_iDist))
+						if (xdiff <= m_iDist && ydiff <= m_iDist)
 						{
 							// Move To mode: queue item for walking pickup if within range
 							CAutoLockQueue autoCS(&m_csQueue);
@@ -239,7 +239,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff, m_iDist);
 						}
 					}
-					else
+					else if (xdiff <= m_iDist && ydiff <= m_iDist)
 					{
 						m_vNoMovePickQueue.push_back(CPickInfo(wId));
 
@@ -249,6 +249,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 						if (m_fDebugMoveTo)
 							CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for no-move pickup",
 								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
+					}
+					else if (m_fDebugMoveTo)
+					{
+						CDebugOut::PrintAlways("[MOVETO-DBG] %s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) SKIPPED no-move pickup: out of range (pdist=%d)",
+							pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff, m_iDist);
 					}
 				}
 				else if (m_fDebugMoveTo && fFound)
@@ -552,6 +557,10 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		m_iDist = *((int*)pData);
 
+		// Enforce min/max for pickup radius
+		if (m_iDist < PICKUP_DIST_MIN) m_iDist = PICKUP_DIST_MIN;
+		if (m_iDist > PICKUP_DIST_MAX) m_iDist = PICKUP_DIST_MAX;
+
 		WriteClickerLogFmt("PICKUP", "SetParam: pdist=%d", m_iDist);
 	}
 	else if (_stricmp(pszParam, "pickdebug") == 0)
@@ -779,7 +788,19 @@ void CAutoPickupFilter::GoPickNextItem()
 			(int)fSuspended, (int)fSuspMove);
 	}
 
-	PickItem(wItem);
+	// Check if autopick was disabled during movement (race condition:
+	// user stopped the clicker while we were walking to the item).
+	// Skip sending PickItem to avoid sending packets after clicker stop.
+	if (!m_fEnabled)
+	{
+		WriteClickerLogFmt("PICKUP", "GoPickNextItem: ABORTED pickup of item 0x%04X - autopick disabled during movement, returning to origin",
+			wItem);
+		CDebugOut::PrintAlways("[AUTOPICK] GoPickNextItem: ABORTED - autopick disabled during movement");
+	}
+	else
+	{
+		PickItem(wItem);
+	}
 
 	if (!fSuspended || !fSuspMove)
 	{
