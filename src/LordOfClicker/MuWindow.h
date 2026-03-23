@@ -23,6 +23,7 @@
 #define WM_SHOW_MU				WM_APP + 507
 #define WM_HIDE_MU				WM_APP + 508
 #define WM_SET_GAME_VERSION		WM_APP + 509
+#define WM_CHAR_SELECTED		WM_APP + 510
 
 
 /**
@@ -73,6 +74,7 @@ protected:
 		MESSAGE_HANDLER(WM_HUD_SETTINGS, OnHUDSettings)
 		MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
 		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
+		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
 	END_MSG_MAP()
 
 protected:
@@ -110,6 +112,7 @@ protected:
 	LRESULT OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
