@@ -1138,7 +1138,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0E: return "Jewel of Soul";
 		case 0x0F: return "Zen";
 		case 0x10: return "Jewel of Life";
-		case 0x11: return "Jewel of Creation";
+		case 0x11: return "Scroll of Archangel";
 		case 0x12: return "Box of Kundun +1";
 		case 0x13: return "Box of Kundun +2";
 		case 0x14: return "Box of Kundun +3";
@@ -1189,7 +1189,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0B: return "Dark Horse";
 		case 0x0C: return "Dark Raven";
 		case 0x0D: return "Horn of Uniria";
-		case 0x0E: return "Jewel of Chaos";
+		case 0x0E: return "Spirit of Guardian";
 		case 0x0F: return "Jewel of Chaos";
 		case 0x24: return "Wings of Storm";
 		case 0x25: return "Wings of Eternal";
@@ -1199,7 +1199,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x29: return "Wings of Dimension";
 		case 0x2A: return "Cape of Fighter";
 		case 0x30: return "Small Cape of Lord";
-		case 0x31: return "Small Wings of Mistery";
+		case 0x31: return "Small Wings of Mystery";
 		case 0x32: return "Small Wings of Elf";
 		case 0x33: return "Small Wings of Heaven";
 		case 0x34: return "Small Wings of Satan";
