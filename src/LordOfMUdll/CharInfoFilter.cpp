@@ -4,6 +4,8 @@
 #include "MuWindowUtil.h"
 #include "version.h"
 
+#define WM_CHAR_SELECTED	WM_APP + 510
+
 
 /**
  * \brief 
@@ -163,6 +165,9 @@ int CCharInfoFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 
 		if (m_szCharName[0] != 0)
 			m_vPartners.insert(pktSel.GetCharName());
+
+		// Notify clicker window that character has been selected (show HUD)
+		CMuWindowUtil::PostMessageToMuWindow(WM_CHAR_SELECTED, 0, 0);
 	}
 	else if (pkt == CUpdatePosCTSPacket::Type())
 	{

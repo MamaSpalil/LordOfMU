@@ -53,23 +53,21 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	int x = ptClient.x + 8;
 	int y = ptClient.y + 8;
 
-	// Create as owned popup window (stays on top of game)
+	// Create as owned popup window (stays on top of game), initially hidden.
+	// Show() must be called later (after character selection) to make it visible.
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
 		hwndOwner,                              // owner window
 		CWindow::rcDefault,                     // position (set below)
 		NULL,                                   // no title
-		WS_POPUP | WS_VISIBLE,                 // popup, visible
+		WS_POPUP,                               // popup, initially hidden
 		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE   // no taskbar, no focus steal
 	);
 
 	if (!hWnd)
 		return FALSE;
 
-	// Position and size the window
+	// Position and size the window (still hidden)
 	SetWindowPos(NULL, x, y, barWidth, barHeight, SWP_NOZORDER | SWP_NOACTIVATE);
-
-	// Start reposition timer
-	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
 
 	return TRUE;
 }
@@ -87,6 +85,20 @@ void CHUDButtons::Destroy()
 		KillTimer(REPOSITION_TIMER_ID);
 		DestroyWindow();
 	}
+}
+
+
+void CHUDButtons::Show()
+{
+	if (!IsWindow())
+		return;
+
+	if (IsWindowVisible())
+		return;
+
+	ShowWindow(SW_SHOWNOACTIVATE);
+	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
+	Reposition();
 }
 
 
