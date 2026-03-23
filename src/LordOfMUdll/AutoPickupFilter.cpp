@@ -5,6 +5,99 @@
 #include "ClickerLogger.h"
 #include "BufferUtil.h"
 #include <math.h>
+#include <time.h>
+
+// ---- Pickup History tracking (global, thread-safe) ----
+
+static const int MAX_HISTORY_ENTRIES = 200;
+
+struct PickupHistoryEntry
+{
+	char szTime[20];   // "HH:MM:SS"
+	char szItem[128];  // Item display name
+};
+
+static PickupHistoryEntry g_vPickupHistory[MAX_HISTORY_ENTRIES];
+static int g_nHistoryCount = 0;
+static int g_nHistoryHead = 0; // circular buffer write position
+static CRITICAL_SECTION g_csHistory;
+static BOOL g_bHistoryInit = FALSE;
+
+static void InitHistoryCS()
+{
+	if (!g_bHistoryInit)
+	{
+		InitializeCriticalSection(&g_csHistory);
+		g_bHistoryInit = TRUE;
+	}
+}
+
+static void AddPickupHistoryEntry(const char* pszItemName)
+{
+	InitHistoryCS();
+	EnterCriticalSection(&g_csHistory);
+
+	time_t t = time(NULL);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
+
+	PickupHistoryEntry& entry = g_vPickupHistory[g_nHistoryHead];
+	strftime(entry.szTime, sizeof(entry.szTime), "%H:%M:%S", &tm_storage);
+	strncpy(entry.szItem, pszItemName, sizeof(entry.szItem) - 1);
+	entry.szItem[sizeof(entry.szItem) - 1] = '\0';
+
+	g_nHistoryHead = (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
+	if (g_nHistoryCount < MAX_HISTORY_ENTRIES)
+		g_nHistoryCount++;
+
+	LeaveCriticalSection(&g_csHistory);
+}
+
+/**
+ * \brief Exported function: copies pickup history entries to caller buffer.
+ *        Returns number of entries copied.
+ *        Each entry is "HH:MM:SS|ItemName\n" format.
+ *        Buffer should be large enough (e.g., 32KB).
+ */
+extern "C" __declspec(dllexport) int GetPickupHistory(char* pszBuffer, int nBufSize)
+{
+	if (!pszBuffer || nBufSize <= 0)
+		return 0;
+
+	InitHistoryCS();
+	EnterCriticalSection(&g_csHistory);
+
+	pszBuffer[0] = '\0';
+	int nWritten = 0;
+	int nPos = 0;
+
+	// Read entries from oldest to newest
+	int nStart = (g_nHistoryCount < MAX_HISTORY_ENTRIES)
+		? 0
+		: g_nHistoryHead;
+
+	for (int i = 0; i < g_nHistoryCount; ++i)
+	{
+		int idx = (nStart + i) % MAX_HISTORY_ENTRIES;
+		const PickupHistoryEntry& entry = g_vPickupHistory[idx];
+
+		int nNeeded = (int)strlen(entry.szTime) + 1 + (int)strlen(entry.szItem) + 1; // "time|item\n"
+		if (nPos + nNeeded >= nBufSize - 1)
+			break;
+
+		int nRet = _snprintf(pszBuffer + nPos, nBufSize - nPos - 1,
+			"%s|%s\n", entry.szTime, entry.szItem);
+		if (nRet < 0)
+			break;
+		nPos += nRet;
+		nWritten++;
+	}
+
+	pszBuffer[nPos] = '\0';
+
+	LeaveCriticalSection(&g_csHistory);
+	return nWritten;
+}
 
 /**
  * \brief 
@@ -294,6 +387,9 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			const char* pszName = GetItemDisplayName(wType);
 			CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
 			GetProxy()->recv_direct(pktObtained);
+
+			// Record to pickup history for the History dialog
+			AddPickupHistoryEntry(pszName);
 
 			std::map<WORD, WORD>::iterator it = m_vDropList.find(wType);
 

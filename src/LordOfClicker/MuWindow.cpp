@@ -7,6 +7,8 @@
 #include "version.h"
 #include "ClickerLogger.h"
 #include <map>
+#include <vector>
+#include <string>
 #include <TlHelp32.h>
 #include <sys/stat.h>
 
@@ -174,6 +176,10 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	// REDESIGN: Create unified dialog instead of separate advanced dialog
 	// m_cAdvSettingsDlg.Create(m_hWnd);
 	m_cUnifiedSettingsDlg.Create(m_hWnd);
+	m_cHistoryDlg.Create(m_hWnd);
+
+	// Create HUD overlay buttons (Settings, Start/Stop, History)
+	m_cHUDButtons.Create(m_hWnd, _AtlBaseModule.GetModuleInstance());
 
 	CRegKey cRegKey;
 	DWORD dwWndMode = 0;
@@ -427,6 +433,11 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cUnifiedSettingsDlg.m_hWnd))
 		m_cUnifiedSettingsDlg.DestroyWindow();
 
+	if (::IsWindow(m_cHistoryDlg.m_hWnd))
+		m_cHistoryDlg.DestroyWindow();
+
+	m_cHUDButtons.Destroy();
+
 	BOOL fHandled = FALSE;
 	OnStopClicker(0, 0, 0, fHandled);
 
@@ -630,6 +641,7 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 		if (m_pClicker->Start())
 		{
 			m_fBlockInput = (fNoMouseMove == 0);
+			m_cHUDButtons.SetClickerRunning(TRUE);
 			WriteClickerLog("Clicker started");
 		}
 		else
@@ -674,6 +686,7 @@ LRESULT CMuWindow::OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&)
 		m_pClicker = NULL;
 	}
 
+	m_cHUDButtons.SetClickerRunning(FALSE);
 	WriteClickerLog("Clicker stopped");
 
 	m_fBlockInput = FALSE;
@@ -1422,6 +1435,177 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 			}
 		}
 	}
+
+	return 0;
+}
+
+
+/**
+ * \brief HUD Settings button clicked - open the F9 settings dialog.
+ */
+LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
+{
+	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+	return 0;
+}
+
+
+/**
+ * \brief HUD Start/Stop button clicked - toggle autoclicker.
+ */
+LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
+{
+	if (m_pClicker != NULL)
+	{
+		PostMessage(WM_STOP_CLICKER, 0, 0);
+	}
+	else
+	{
+		PostMessage(WM_START_CLICKER, 0, 0);
+	}
+
+	return 0;
+}
+
+
+/**
+ * \brief HUD History button clicked - open the pickup history dialog.
+ *        Queries the LordOfMU DLL for pickup history data and displays it.
+ */
+LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
+{
+	if (m_fGuiActive)
+		return 0;
+
+	// Query pickup history from LordOfMU DLL
+	std::vector<CHistoryDialog::HistoryEntry> vHistory;
+
+	typedef int (*GetPickupHistoryPtr)(char*, int);
+	static GetPickupHistoryPtr s_pfnGetHistory = NULL;
+	static bool s_bLookupDone = false;
+
+	if (!s_bLookupDone)
+	{
+		// Find the DLL module using the same approach as SayToServer
+		HMODULE hMod = NULL;
+
+		// Try environment variable first
+		char szEnvBuf[32] = {0};
+		if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+		{
+			hMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+			if (hMod && !GetProcAddress(hMod, "GetPickupHistory"))
+				hMod = NULL;
+		}
+
+		// Try window property
+		if (!hMod && m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			if (hMod && !GetProcAddress(hMod, "GetPickupHistory"))
+				hMod = NULL;
+		}
+
+		// Try well-known names
+		if (!hMod)
+		{
+			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+			if (hMod && !GetProcAddress(hMod, "GetPickupHistory"))
+				hMod = NULL;
+		}
+
+		if (hMod)
+		{
+			s_pfnGetHistory = (GetPickupHistoryPtr)GetProcAddress(hMod, "GetPickupHistory");
+			WriteClickerLogFmt("CLICKER", "GetPickupHistory export found at 0x%p", s_pfnGetHistory);
+		}
+
+		s_bLookupDone = true;
+	}
+
+	if (s_pfnGetHistory)
+	{
+		char szBuffer[32768] = {0};
+		int nCount = s_pfnGetHistory(szBuffer, sizeof(szBuffer));
+
+		// Parse "HH:MM:SS|ItemName\n" entries
+		char* pLine = szBuffer;
+		char* pBufEnd = szBuffer + sizeof(szBuffer);
+		while (pLine && pLine < pBufEnd && *pLine)
+		{
+			char* pEnd = strchr(pLine, '\n');
+			if (pEnd) *pEnd = '\0';
+
+			char* pSep = strchr(pLine, '|');
+			if (pSep)
+			{
+				*pSep = '\0';
+				CHistoryDialog::HistoryEntry entry;
+				entry.sTime = pLine;
+				entry.sItem = pSep + 1;
+				vHistory.push_back(entry);
+			}
+
+			if (!pEnd) break;
+			pLine = pEnd + 1;
+		}
+	}
+
+	m_cHistoryDlg.SetHistory(vHistory);
+
+	// Show history dialog (same modal loop as settings)
+	if (!m_cHistoryDlg.IsWindow())
+		return 0;
+
+	m_fGuiActive = TRUE;
+
+	m_cHistoryDlg.ShowWindow(SW_SHOWNORMAL);
+
+	InvalidateRect(0, TRUE);
+	UpdateWindow();
+
+	PostMessage(WM_NULL, 0, 0);
+
+	BOOL fOldBlockInput = m_fBlockInput;
+	m_fBlockInput = FALSE;
+
+	MSG msg = {0};
+	while (true)
+	{
+		if (GetMessage(&msg, 0, 0, 0) > 0)
+		{
+			if (msg.message == WM_SYSCOMMAND && msg.wParam == SC_CLOSE)
+			{
+				m_cHistoryDlg.ShowWindow(SW_HIDE);
+			}
+			else if (!m_cHistoryDlg.IsDialogMessage(&msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+		else
+		{
+			m_cHistoryDlg.ShowWindow(SW_HIDE);
+		}
+
+		if (!m_cHistoryDlg.IsWindowVisible())
+			break;
+	}
+
+	while (CMuWindow::GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+	{
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		Sleep(10);
+	}
+
+	m_fBlockInput = fOldBlockInput;
+	m_fGuiActive = FALSE;
 
 	return 0;
 }

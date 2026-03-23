@@ -244,6 +244,17 @@ BEGIN
     LTEXT           "LordOfMU AutoClicker v2.x",IDC_VERSION_LABEL,5,258,310,10,SS_CENTER
 END
 
+IDD_HISTORY_DLG DIALOGEX 0, 0, 260, 240
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CHILD | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_CONTROLPARENT
+CAPTION "Pickup History"
+FONT 8, "Tahoma", 0, 0, 0x0
+BEGIN
+    LISTBOX         IDC_HISTORY_LIST,5,5,250,200,LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,210,250,1
+    DEFPUSHBUTTON   "Close",IDOK,100,218,60,16,BS_OWNERDRAW
+END
+
 IDD_TAB_GENERAL DIALOGEX 0, 0, 300, 200
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -353,6 +364,10 @@ IDB_TITLEBAR            BITMAP  "res\\titlebar.bmp"
 IDB_ICO_SWORD           BITMAP  "res\\ico_sword.bmp"
 IDB_ICO_HELM            BITMAP  "res\\ico_helm.bmp"
 IDB_ICO_JEWEL           BITMAP  "res\\ico_jewel.bmp"
+IDB_ICO_SETTINGS        BITMAP  "res\\ico_settings.bmp"
+IDB_ICO_PLAY            BITMAP  "res\\ico_play.bmp"
+IDB_ICO_STOP            BITMAP  "res\\ico_stop.bmp"
+IDB_ICO_HISTORY         BITMAP  "res\\ico_history.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -472,6 +487,14 @@ BEGIN
         RIGHTMARGIN, 293
         TOPMARGIN, 5
         BOTTOMMARGIN, 365
+    END
+
+    IDD_HISTORY_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 255
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 235
     END
 END
 #endif    // APSTUDIO_INVOKED
