@@ -817,6 +817,8 @@ void CAutoPickupFilter::PickItem(WORD wId)
 	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 	WriteClickerLogFmt("PICKUP", "SEND CPickItemPacket: picking up item ID=0x%04X (walking=%d) | Len=%d | %s",
 		wId, (int)m_fWalking, pkt.GetDecryptedLen(), (const char*)szHex);
+	CDebugOut::PrintAlways("[PICKUP] SEND CPickItemPacket: ID=0x%04X walking=%d | Len=%d | %s",
+		wId, (int)m_fWalking, pkt.GetDecryptedLen(), (const char*)szHex);
 
 	// Always use send_packet() so the packet goes through the full filter chain
 	// including PacketEncryptFilter.  FilterSendPacket allows injected packets
@@ -847,6 +849,8 @@ void CAutoPickupFilter::DropItem(BYTE pos)
 
 	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 	WriteClickerLogFmt("PICKUP", "SEND CDropItemPacket: dropping item from slot=%d at (%d,%d) | Len=%d | %s",
+		(int)pos, (int)x, (int)y, pkt.GetDecryptedLen(), (const char*)szHex);
+	CDebugOut::PrintAlways("[PICKUP] SEND CDropItemPacket: slot=%d pos=(%d,%d) | Len=%d | %s",
 		(int)pos, (int)x, (int)y, pkt.GetDecryptedLen(), (const char*)szHex);
 
 	GetProxy()->send_packet(pkt);
@@ -897,6 +901,8 @@ void CAutoPickupFilter::WalkTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo,
 			CStringA szHexSTC = CBufferUtil::BufferToHex((char*)pktMoveSTC.GetDecryptedPacket(), pktMoveSTC.GetDecryptedLen());
 			CStringA szHexCTS = CBufferUtil::BufferToHex((char*)pktMoveCTS.GetDecryptedPacket(), pktMoveCTS.GetDecryptedLen());
 			WriteClickerLogFmt("PICKUP", "WalkTo step %d: RECV STC | %s | SEND CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+			CDebugOut::PrintAlways("[PICKUP] WalkTo step %d: STC | %s | CTS | %s | pos=(%d,%d)",
 				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
 		}
 		else if (m_fDebugMoveTo)
@@ -960,6 +966,8 @@ void CAutoPickupFilter::RunTo(WORD wPlayerId, BYTE xFrom, BYTE yFrom, BYTE xTo, 
 			CStringA szHexCTS = CBufferUtil::BufferToHex((char*)pktMoveCTS.GetDecryptedPacket(), pktMoveCTS.GetDecryptedLen());
 			WriteClickerLogFmt("PICKUP", "RunTo step %d: RECV STC | %s | SEND CTS | %s | pos=(%d,%d)",
 				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
+			CDebugOut::PrintAlways("[PICKUP] RunTo step %d: STC | %s | CTS | %s | pos=(%d,%d)",
+				steps, (const char*)szHexSTC, (const char*)szHexCTS, currX, currY);
 		}
 		else if (m_fDebugMoveTo)
 		{
@@ -1011,6 +1019,8 @@ void CAutoPickupFilter::ProcessDropQueue()
 	{
 		WriteClickerLogFmt("PICKUP", "ProcessDropQueue: dropping item from inventory slot=%d (queued %d ms ago)",
 			(int)m_vDropQueue.front().bInvPos, (int)(GetTickCount() - m_vDropQueue.front().dwTimestamp));
+		CDebugOut::PrintAlways("[PICKUP] ProcessDropQueue: dropping slot=%d (queued %d ms ago)",
+			(int)m_vDropQueue.front().bInvPos, (int)(GetTickCount() - m_vDropQueue.front().dwTimestamp));
 
 		DropItem(m_vDropQueue.front().bInvPos);
 		m_vDropQueue.pop_front();
@@ -1026,6 +1036,8 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
 	while (!m_vNoMovePickQueue.empty() && (GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp) > 2000)
 	{
 		WriteClickerLogFmt("PICKUP", "ProcessNoMovePickupQueue: picking item ID=0x%04X (queued %d ms ago)",
+			m_vNoMovePickQueue.front().wItemId, (int)(GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp));
+		CDebugOut::PrintAlways("[PICKUP] ProcessNoMovePickupQueue: picking ID=0x%04X (queued %d ms ago)",
 			m_vNoMovePickQueue.front().wItemId, (int)(GetTickCount() - m_vNoMovePickQueue.front().dwTimestamp));
 
 		PickItem(m_vNoMovePickQueue.front().wItemId);
