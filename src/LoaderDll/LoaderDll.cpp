@@ -154,19 +154,43 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return res; // Prevent fall-through if KillGame doesn't terminate immediately
 	}
 
-	// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
-	// can find it reliably via GetProp() without depending on module name lookups.
-	SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
-
-	// Also store HMODULE via environment variable as a reliable fallback.
-	// Window properties can fail if the Clicker DLL subclasses a different window
-	// than the one SetProp was called on (e.g., game recreates its window).
-	// Environment variables are per-process and accessible from any DLL.
+	// Check if the env var already points to a valid DLL with SendCommand export.
+	// When EnsureLordOfMUDllLoaded has already loaded and initialized the DLL with
+	// proxy hooks, that instance owns the CGameProxy and must remain the command target.
+	// Overwriting the env var with our stealth copy (which skipped hook installation)
+	// would cause all SayToServer commands to reach a DLL instance with g_pGameProxy=NULL.
 	{
-		char szBuf[32] = {0};
-		_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)g_hInjected);
-		SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
-		WriteHookLog("RunDllWndProc: __LordOfMU_HMODULE__ env var set to '%s'", szBuf);
+		bool bPreserveExisting = false;
+		char szEnvBuf[32] = {0};
+		if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+		{
+			HMODULE hExisting = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+			if (hExisting && hExisting != g_hInjected && GetProcAddress(hExisting, "SendCommand"))
+			{
+				bPreserveExisting = true;
+				WriteHookLog("RunDllWndProc: env var already points to valid DLL at %s with proxy hooks - preserving (our stealth copy=0x%p)",
+					szEnvBuf, (void*)g_hInjected);
+
+				// Set window property to the existing hooked instance for GetProp fallback
+				SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)hExisting);
+			}
+		}
+
+		if (!bPreserveExisting)
+		{
+			// Store the LordOfMU DLL HMODULE as a window property so the Clicker DLL
+			// can find it reliably via GetProp() without depending on module name lookups.
+			SetProp(hWnd, _T("__LordOfMU_Module__"), (HANDLE)g_hInjected);
+
+			// Also store HMODULE via environment variable as a reliable fallback.
+			// Window properties can fail if the Clicker DLL subclasses a different window
+			// than the one SetProp was called on (e.g., game recreates its window).
+			// Environment variables are per-process and accessible from any DLL.
+			char szBuf[32] = {0};
+			_snprintf_s(szBuf, sizeof(szBuf), _TRUNCATE, "0x%p", (void*)g_hInjected);
+			SetEnvironmentVariableA("__LordOfMU_HMODULE__", szBuf);
+			WriteHookLog("RunDllWndProc: __LordOfMU_HMODULE__ env var set to '%s'", szBuf);
+		}
 	}
 
 	WriteHookLog("LordOfMU DLL loaded at 0x%p, HMODULE stored via SetProp(hWnd=0x%p) and env var",
