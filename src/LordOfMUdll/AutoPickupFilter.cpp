@@ -405,7 +405,8 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 		else if (pkt == CNormalAttackPacket::Type()
 			|| pkt == CSingleSkillPacket::Type()
 			|| pkt == CMassiveSkillPacket::Type()
-			|| pkt == CCharMoveCTSPacket::Type())
+			|| pkt == CCharMoveCTSPacket::Type()
+			|| pkt == CUpdatePosCTSPacket::Type())
 		{
 			WriteClickerLogFmt("PICKUP", "FilterSendPacket: BLOCKED %s during auto-pickup walk",
 				pkt.GetType().GetDescription());
@@ -685,36 +686,49 @@ void CAutoPickupFilter::GoPickNextItem()
 		m_fWalking = true;
 		Sleep(350);
 
-		// Auto-determine run mode based on boots enchantment level and character class.
+		// Auto-determine run mode based on equipment and character class.
 		// Only auto-detect if user hasn't explicitly enabled run mode (pickrunmode).
 		// When user sets pickrunmode=on, always use run mode regardless of auto-detection.
+		//
+		// Run method rules:
+		//   Magic Gladiator (class 5) and Dark Lord (class 0) → always Run
+		//   Other classes (DK/BK, DW/SM, Elf/Muse):
+		//     Run if boots_level >= 4, OR has wings, OR has pet equipped
+		//     Walk otherwise (boots < +4, no wings, no pet)
 		if (m_fAutoRunMode && !m_fRunMode)
 		{
 			CPacketFilter* pInvFilter = GetProxy()->GetFilter("InventoryManagerFilter");
 			if (pInvFilter)
 			{
+				static const BYTE CLASS_DL = 0;
+				static const BYTE CLASS_MG = 5;
+
 				int iBootsLevel = -1;
-				if (pInvFilter->GetParam("boots_level", &iBootsLevel))
+				int iHasWings = 0;
+				int iHasPet = 0;
+
+				pInvFilter->GetParam("boots_level", &iBootsLevel);
+				pInvFilter->GetParam("has_wings", &iHasWings);
+				pInvFilter->GetParam("has_pet", &iHasPet);
+
+				if (m_bCharClass == CLASS_MG || m_bCharClass == CLASS_DL)
 				{
-					static const BYTE CLASS_DL = 0;
-					static const BYTE CLASS_MG = 5;
-
-					if (iBootsLevel > 5)
-					{
-						// Boots level > 5: run mode for all classes
-						m_fRunMode = true;
-					}
-					else
-					{
-						// Boots level <= 5 (or no boots): walk mode,
-						// except Magic Gladiator and Dark Lord always use run mode
-						m_fRunMode = (m_bCharClass == CLASS_MG || m_bCharClass == CLASS_DL);
-					}
-
-					if (m_fDebugMoveTo)
-						CDebugOut::PrintAlways("[MOVETO-DBG] Auto run mode: boots_level=%d, class=%d -> %s",
-							iBootsLevel, (int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
+					// MG and DL always run
+					m_fRunMode = true;
 				}
+				else
+				{
+					// Run if boots >= +4, or wings equipped, or pet equipped
+					m_fRunMode = (iBootsLevel >= 4) || (iHasWings != 0) || (iHasPet != 0);
+				}
+
+				if (m_fDebugMoveTo)
+					CDebugOut::PrintAlways("[MOVETO-DBG] Auto run mode: boots_level=%d, wings=%d, pet=%d, class=%d -> %s",
+						iBootsLevel, iHasWings, iHasPet, (int)m_bCharClass, m_fRunMode ? "RUN" : "WALK");
+
+				if (CDebugMode::IsEnabled())
+					WriteClickerLogFmt("PICKUP", "Auto run mode: class=%d, boots=%d, wings=%d, pet=%d -> %s",
+						(int)m_bCharClass, iBootsLevel, iHasWings, iHasPet, m_fRunMode ? "RUN" : "WALK");
 			}
 			else
 			{

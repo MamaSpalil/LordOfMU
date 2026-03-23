@@ -127,6 +127,27 @@ bool CInventoryManagerFilter::GetParam(const char* pszParam, void* pData)
 		return true;
 	}
 
+	if (_stricmp(pszParam, "has_wings") == 0)
+	{
+		static const BYTE EQUIP_SLOT_WINGS = 7;
+		std::map<BYTE,CItemInfo>::iterator it = m_vInventory.find(EQUIP_SLOT_WINGS);
+
+		// Wings are equipped if item exists in slot 7
+		*((int*)pData) = (it != m_vInventory.end()) ? 1 : 0;
+		return true;
+	}
+
+	if (_stricmp(pszParam, "has_pet") == 0)
+	{
+		static const BYTE EQUIP_SLOT_PET = 8;
+		std::map<BYTE,CItemInfo>::iterator it = m_vInventory.find(EQUIP_SLOT_PET);
+
+		// Pet/helper is equipped if item exists in slot 8
+		// (Horn of Uniria, Dinorant, Horn of Fenrir, or new pets)
+		*((int*)pData) = (it != m_vInventory.end()) ? 1 : 0;
+		return true;
+	}
+
 	return false;
 }
 
