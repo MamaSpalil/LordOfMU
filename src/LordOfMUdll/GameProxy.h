@@ -37,6 +37,10 @@ public:
 	virtual CPacketFilter* GetFilter(const char* szName);
 	virtual void ClearFilters();
 
+	// Queue processing - public so SendCommand can flush commands immediately
+	// when running in command-only mode (no active socket connection).
+	void ProcessSendQueue();
+
 	// Parameter interface
 	virtual bool GetParam(const char* pszParam, void* pData);
 	virtual bool SetParam(const char* pszParam, void* pData);
@@ -46,7 +50,6 @@ protected:
 	void ProcessRecvStream(char* lpBuffer, char* newBuff, int& iLen);
 	void ProcessSendStream(char* lpBuffer, char* newBuff, int& iLen);
 
-	void ProcessSendQueue();
 	void ProcessRecvQueue();
 
 	bool FilterRecvPacket(CPacket& pkt);
