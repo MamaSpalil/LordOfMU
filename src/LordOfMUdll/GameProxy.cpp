@@ -350,12 +350,6 @@ bool CGameProxy::FilterSendPacket(CPacket& pkt)
  */
 bool CGameProxy::send_packet(CPacket& pkt)
 {
-	if (CDebugMode::IsEnabled())
-	{
-		char szHex[256] = {0};
-		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
-		WritePacketLog("QUEUE>SERVER", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
-	}
 	m_cSendQueue.QueuePacket(pkt);
 	return true;
 }
@@ -366,12 +360,6 @@ bool CGameProxy::send_packet(CPacket& pkt)
  */
 bool CGameProxy::send_lop_packet(CPacket& pkt)
 {
-	if (CDebugMode::IsEnabled())
-	{
-		char szHex[256] = {0};
-		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
-		WritePacketLog("QUEUE-LOP>SERVER", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
-	}
 	m_cSendQueue.QueuePacket(pkt);
 	return true;
 }
@@ -382,12 +370,6 @@ bool CGameProxy::send_lop_packet(CPacket& pkt)
  */
 bool CGameProxy::recv_packet(CPacket& pkt)
 {
-	if (CDebugMode::IsEnabled())
-	{
-		char szHex[256] = {0};
-		FormatPacketHex(pkt.GetRawPacket(), pkt.GetPktLen(), szHex, sizeof(szHex));
-		WritePacketLog("QUEUE>CLIENT", pkt.GetType().GetDescription(), pkt.GetPktLen(), szHex);
-	}
 	m_cRecvQueue.QueuePacket(pkt);	
 	return true;
 }
