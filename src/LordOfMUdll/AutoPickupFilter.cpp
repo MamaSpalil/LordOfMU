@@ -365,6 +365,31 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			}
 		}
 	}
+	else if (pkt == CPickItemResultFailPacket::Type())
+	{
+		CPickItemResultFailPacket& pktFail = (CPickItemResultFailPacket&)pkt;
+		WORD wFailType = pktFail.GetItemType() & 0x0FFF;
+
+		if (m_fEnabled)
+		{
+			if (wFailType == TYPE_ZEN)
+			{
+				// Zen has its own separate vault (max 2,000,000,000) and does
+				// not occupy inventory slots.  Do NOT show "Inventory is Full"
+				// for Zen - the CZenUpdatePacket handler will display
+				// "[PICKUP] - {amount} Zen Obtained" with the actual amount.
+				WriteClickerLogFmt("PICKUP", "RECV CPickItemResultFailPacket for Zen (type=0x%04X): skipping inventory full notification", wFailType);
+			}
+			else
+			{
+				WriteClickerLogFmt("PICKUP", "RECV CPickItemResultFailPacket: inventory is full, cannot pick item type=0x%04X", wFailType);
+				CDebugOut::PrintAlways("[PICKUP] RECV CPickItemResultFailPacket: inventory is full");
+
+				CServerMessagePacket pktFull("[PICKUP] - Inventory is Full");
+				GetProxy()->recv_direct(pktFull);
+			}
+		}
+	}
 	else if (pkt == CPutInventoryPacket::Type())
 	{
 		CPutInventoryPacket& pkt2 = (CPutInventoryPacket&)pkt;
@@ -407,20 +432,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		{
 			CServerMessagePacket pktMsg(">> Item code: %d %d %d", HIBYTE(wType) & 0x0F, LOBYTE(wType), HIBYTE(wType) >> 4);
 			GetProxy()->recv_direct(pktMsg);
-		}
-	}
-	else if (pkt == CPickItemResultFailPacket::Type())
-	{
-		if (m_fEnabled)
-		{
-			WriteClickerLogFmt("PICKUP", "RECV CPickItemResultFailPacket: inventory is full, cannot pick item");
-			CDebugOut::PrintAlways("[PICKUP] RECV CPickItemResultFailPacket: inventory is full");
-
-			// Display "[PICKUP] - Inventory is Full" notification
-			// Note: Zen pickup continues even when inventory is full,
-			// since Zen has its own separate storage (max 2,000,000,000)
-			CServerMessagePacket pktFull("[PICKUP] - Inventory is Full");
-			GetProxy()->recv_direct(pktFull);
 		}
 	}
 	else if (pkt == CZenUpdatePacket::Type())

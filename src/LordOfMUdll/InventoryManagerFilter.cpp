@@ -60,10 +60,15 @@ int CInventoryManagerFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& cont
 		CPutInventoryPacket& pkt2 = (CPutInventoryPacket&)pkt;
 
 		BYTE bPos = pkt2.GetInvPos();
-		WORD wCode = pkt2.GetItemType();
-		BYTE* pData = pkt2.GetItemData();
-		
-		m_vInventory.insert(std::pair<BYTE,CItemInfo>(bPos, CItemInfo(wCode, pData)));
+
+		// Skip failed pickup packets (pos = 0xFF means inventory full)
+		if (bPos != 0xFF)
+		{
+			WORD wCode = pkt2.GetItemType();
+			BYTE* pData = pkt2.GetItemData();
+
+			m_vInventory.insert(std::pair<BYTE,CItemInfo>(bPos, CItemInfo(wCode, pData)));
+		}
 	}
 	else if (pkt == CMoveToInventoryPacket::Type())
 	{
