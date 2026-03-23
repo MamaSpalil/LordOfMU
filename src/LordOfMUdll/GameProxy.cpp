@@ -43,6 +43,9 @@ static void FormatPacketHex(const BYTE* pData, int nLen, char* szOut, int cbOut,
 static CGameProxy* g_pGameProxy = 0;
 static bool g_bCommandOnlyProxy = false;
 
+// Forward declaration - defined below SendCommand
+extern "C" __declspec(dllexport) bool ForceInitCommandProxy();
+
 extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 {
 	if (!buf)
@@ -53,8 +56,17 @@ extern "C" __declspec(dllexport) bool SendCommand(const char* buf)
 
 	if (!g_pGameProxy)
 	{
-		WriteClickerLogFmt("PICKUP", "SendCommand FAILED: g_pGameProxy is NULL (game not connected?) cmd='%s'", buf);
-		return false;
+		// Auto-create a command-only proxy so that // commands (autopick, set_pick_opt,
+		// debugmode, etc.) can be processed through the filter chain even when the
+		// connect() hook missed the game connection (e.g., dual-DLL-instance scenario).
+		WriteClickerLogFmt("PICKUP", "SendCommand: g_pGameProxy is NULL - attempting ForceInitCommandProxy for cmd='%s'", buf);
+		ForceInitCommandProxy();
+
+		if (!g_pGameProxy)
+		{
+			WriteClickerLogFmt("PICKUP", "SendCommand FAILED: g_pGameProxy still NULL after ForceInitCommandProxy cmd='%s'", buf);
+			return false;
+		}
 	}
 
 	CPacketFilter* pFilter = g_pGameProxy->GetFilter("CharInfoFilter");

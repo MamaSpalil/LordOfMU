@@ -115,7 +115,8 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 	struct _stat stDll = {0};
 	if (0 != _tstat(szDllPath, &stDll))
 	{
-		WriteHookLog("[FILE_PATCH] Main.dll not found at %s, skipping file patch", (LPCSTR)CT2A(szDllPath));
+		CT2A aDllPath(szDllPath);
+		WriteHookLog("[FILE_PATCH] Main.dll not found at %s, skipping file patch", (LPCSTR)aDllPath);
 		CDebugMode::LogDebugAction("[FILE_PATCH] Main.dll not found, skipping");
 		return;
 	}
@@ -124,14 +125,18 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 	struct _stat stIni = {0};
 	if (0 != _tstat(szIniPath, &stIni))
 	{
-		WriteHookLog("[FILE_PATCH] Connect.ini not found at %s, skipping file patch", (LPCSTR)CT2A(szIniPath));
+		CT2A aIniPath(szIniPath);
+		WriteHookLog("[FILE_PATCH] Connect.ini not found at %s, skipping file patch", (LPCSTR)aIniPath);
 		CDebugMode::LogDebugAction("[FILE_PATCH] Connect.ini not found, skipping");
 		return;
 	}
 
 	// Read target IP from Connect.ini
 	char szNewIP[64] = {0};
-	GetPrivateProfileStringA("Config", "IP", "", szNewIP, sizeof(szNewIP), (LPCSTR)CT2A(szIniPath));
+	{
+		CT2A aIniPath(szIniPath);
+		GetPrivateProfileStringA("Config", "IP", "", szNewIP, sizeof(szNewIP), (LPCSTR)aIniPath);
+	}
 
 	if (szNewIP[0] == '\0')
 	{
@@ -160,8 +165,11 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 	// Read the last patched IP (what's currently in Main.dll) from Connect.ini
 	// Default is the original hardcoded "192.168.0.105"
 	char szLastPatchedIP[64] = {0};
-	GetPrivateProfileStringA("Config", "LastPatchedIP", s_szDefaultIP,
-		szLastPatchedIP, sizeof(szLastPatchedIP), (LPCSTR)CT2A(szIniPath));
+	{
+		CT2A aIniPath(szIniPath);
+		GetPrivateProfileStringA("Config", "LastPatchedIP", s_szDefaultIP,
+			szLastPatchedIP, sizeof(szLastPatchedIP), (LPCSTR)aIniPath);
+	}
 
 	// If IPs already match, no patch needed
 	if (strcmp(szNewIP, szLastPatchedIP) == 0)
@@ -293,7 +301,10 @@ static void PatchMainDllFileIP(const TCHAR* szPath)
 	}
 
 	// Update LastPatchedIP in Connect.ini so next run knows what IP is in Main.dll
-	WritePrivateProfileStringA("Config", "LastPatchedIP", szNewIP, (LPCSTR)CT2A(szIniPath));
+	{
+		CT2A aIniPath(szIniPath);
+		WritePrivateProfileStringA("Config", "LastPatchedIP", szNewIP, (LPCSTR)aIniPath);
+	}
 
 	WriteHookLog("[FILE_PATCH] Main.dll patched successfully: '%s' -> '%s' at offset 0x%X",
 		szLastPatchedIP, szNewIP, (DWORD)nOffset);
@@ -369,7 +380,10 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	memset(m_szLoaderPath, 0, (_MAX_PATH+1)*sizeof(TCHAR));
 	PrepareDll(m_szLoaderPath);
 
-	WriteHookLog("Loading hook DLL from: %s", (LPCSTR)CT2A(m_szLoaderPath));
+	{
+		CT2A aLoaderPath(m_szLoaderPath);
+		WriteHookLog("Loading hook DLL from: %s", (LPCSTR)aLoaderPath);
+	}
 	m_hHookDll = LoadLibrary(m_szLoaderPath);
 
 	ATLASSERT(m_hHookDll);
@@ -395,7 +409,8 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 	}
 	else
 	{
-		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", (LPCSTR)CT2A(m_szLoaderPath), (int)GetLastError());
+		CT2A aLoaderPath(m_szLoaderPath);
+		WriteHookLog("ERROR: Failed to load hook DLL from %s (error=%d)", (LPCSTR)aLoaderPath, (int)GetLastError());
 	}
 
 	// Validate Connect.ini before launching main.exe
@@ -408,7 +423,10 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		if (0 == _tstat(szIniPath, &stIni))
 		{
 			char szIP[64] = {0};
-			GetPrivateProfileStringA("Config", "IP", "", szIP, sizeof(szIP), (LPCSTR)CT2A(szIniPath));
+			{
+				CT2A aIniPath(szIniPath);
+				GetPrivateProfileStringA("Config", "IP", "", szIP, sizeof(szIP), (LPCSTR)aIniPath);
+			}
 
 			if (szIP[0] != '\0')
 			{
@@ -418,12 +436,14 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 			else
 			{
 				WriteHookLog("WARNING: Connect.ini found but IP address is empty");
-				CDebugMode::LogDebugAction("WARNING: Connect.ini found but IP address is empty at %s", (LPCSTR)CT2A(szIniPath));
+				CT2A aIniPath(szIniPath);
+				CDebugMode::LogDebugAction("WARNING: Connect.ini found but IP address is empty at %s", (LPCSTR)aIniPath);
 			}
 		}
 		else
 		{
-			WriteHookLog("WARNING: Connect.ini not found at %s - will be auto-created by DLL with Main.dll IP", (LPCSTR)CT2A(szIniPath));
+			CT2A aIniPath(szIniPath);
+			WriteHookLog("WARNING: Connect.ini not found at %s - will be auto-created by DLL with Main.dll IP", (LPCSTR)aIniPath);
 			CDebugMode::LogDebugAction("Connect.ini not found - will be auto-created during IP patch");
 		}
 	}
@@ -443,7 +463,8 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		struct _stat stMain = {0};
 		if (0 == _tstat(szMainExe, &stMain))
 		{
-			WriteHookLog("Launching main.exe: %s", (LPCSTR)CT2A(szMainExe));
+			CT2A aMainExe(szMainExe);
+			WriteHookLog("Launching main.exe: %s", (LPCSTR)aMainExe);
 			HINSTANCE hResult = ShellExecute(NULL, _T("open"), szMainExe, NULL, szPath, SW_SHOWNORMAL);
 
 			if ((INT_PTR)hResult <= 32)
@@ -460,7 +481,8 @@ LRESULT CMuInstanceManager::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 		}
 		else
 		{
-			WriteHookLog("ERROR: main.exe not found at %s", (LPCSTR)CT2A(szMainExe));
+			CT2A aMainExe(szMainExe);
+			WriteHookLog("ERROR: main.exe not found at %s", (LPCSTR)aMainExe);
 			TCHAR szErr[512] = {0};
 			_sntprintf(szErr, 511, _T("main.exe not found.\nExpected path: %s"), szMainExe);
 			::MessageBox(NULL, szErr, _T("LordOfMU - Error"), MB_OK | MB_ICONERROR);
@@ -502,7 +524,8 @@ LRESULT CMuInstanceManager::OnDestroy(UINT, WPARAM, LPARAM, BOOL&)
 		WriteHookLog("Hook DLL unloaded via FreeLibrary");
 
 		DeleteFile(m_szLoaderPath);
-		WriteHookLog("Temporary hook DLL deleted: %s", (LPCSTR)CT2A(m_szLoaderPath));
+		CT2A aLoaderPath(m_szLoaderPath);
+		WriteHookLog("Temporary hook DLL deleted: %s", (LPCSTR)aLoaderPath);
 
 		TCHAR* pszFilename = PathFindFileName(m_szLoaderPath);
 
