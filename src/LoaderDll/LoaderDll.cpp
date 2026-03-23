@@ -228,6 +228,10 @@ static LRESULT WINAPI RunDllWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 						InitProc2(guid2, guid2, (LPVOID*)g_szRoot);
 						WriteHookLog("RunDllWndProc: Clicker DLL DllGetClassObject called successfully");
 					}
+					else
+					{
+						WriteHookLog("RunDllWndProc: WARNING - DllGetClassObject export not found in Clicker DLL");
+					}
 				}
 				else
 				{
@@ -429,11 +433,13 @@ void CopyDlls()
 	_tcscat(szDstFile, g_szDllName);
 
 	// Validate source file exists before attempting copy
-	struct _stat stSrc = {0};
-	if (0 != _tstat(szSrcFile, &stSrc))
 	{
-		WriteHookLog("CopyDlls: CRITICAL - LordOfMU DLL source not found: '%s' (check g_szRoot)",
-			(LPCSTR)CT2A(szSrcFile));
+		struct _stat stSrc = {0};
+		if (0 != _tstat(szSrcFile, &stSrc))
+		{
+			WriteHookLog("CopyDlls: CRITICAL - LordOfMU DLL source not found: '%s' (check g_szRoot)",
+				(LPCSTR)CT2A(szSrcFile));
+		}
 	}
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
@@ -457,10 +463,13 @@ void CopyDlls()
 	_tcscat(szDstFile, g_szDllName2);
 
 	// Validate source file exists before attempting copy
-	if (0 != _tstat(szSrcFile, &stSrc))
 	{
-		WriteHookLog("CopyDlls: CRITICAL - Clicker DLL source not found: '%s' (check g_szRoot)",
-			(LPCSTR)CT2A(szSrcFile));
+		struct _stat stSrc2 = {0};
+		if (0 != _tstat(szSrcFile, &stSrc2))
+		{
+			WriteHookLog("CopyDlls: CRITICAL - Clicker DLL source not found: '%s' (check g_szRoot)",
+				(LPCSTR)CT2A(szSrcFile));
+		}
 	}
 
 	if (!CopyFile(szSrcFile, szDstFile, FALSE))
