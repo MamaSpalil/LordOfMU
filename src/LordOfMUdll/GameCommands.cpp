@@ -994,7 +994,7 @@ bool CPickDistCommandHandler::ProcessCommand(const char* cmd, const char* args)
 
 	int dist = atoi(args);
 
-	// Enforce pickup distance limits (1-8 tiles)
+	// Enforce pickup distance limits
 	if (dist < 1 || dist > 8)
 	{
 		GetProxy()->recv_direct(CServerMessagePacket(">> Pick-up distance must be between 1 and 8."));

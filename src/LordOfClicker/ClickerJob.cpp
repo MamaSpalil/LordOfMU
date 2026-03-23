@@ -228,7 +228,7 @@ void CClickerJob::InitClicker()
 		// Send pickup distance (radius)
 		{
 			int dist = (int)m_tSettings.all.dwPickDist;
-			if (dist < 1 || dist > 8) dist = 3;
+			if (dist < PICKUP_DIST_MIN || dist > PICKUP_DIST_MAX) dist = PICKUP_DIST_DEFAULT;
 
 			char szMsg[256] = {0};
 			_snprintf(szMsg, 255, "//pdist %d", dist);

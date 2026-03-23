@@ -423,8 +423,8 @@ void CUnifiedSettingsDlg::InitPickupValues()
 	::CheckDlgButton(m_hwndTabPickup, IDC_PICKRUNMODE, m_cSettings->all.fPickRunMode ? BST_CHECKED : BST_UNCHECKED);
 
 	// Validate and set pickup distance (handle old settings files where dwPickDist is 0)
-	if (m_cSettings->all.dwPickDist < 1 || m_cSettings->all.dwPickDist > 8)
-		m_cSettings->all.dwPickDist = 3;
+	if (m_cSettings->all.dwPickDist < PICKUP_DIST_MIN || m_cSettings->all.dwPickDist > PICKUP_DIST_MAX)
+		m_cSettings->all.dwPickDist = PICKUP_DIST_DEFAULT;
 
 	TCHAR szDist[16] = {0};
 	_sntprintf(szDist, 15, _T("%d"), m_cSettings->all.dwPickDist);
@@ -530,8 +530,8 @@ void CUnifiedSettingsDlg::ApplyPickup()
 		TCHAR szDist[16] = {0};
 		::GetDlgItemText(m_hwndTabPickup, IDC_PICKDIST, szDist, 15);
 		int dist = _ttoi(szDist);
-		if (dist < 1) dist = 1;
-		if (dist > 8) dist = 8;
+		if (dist < PICKUP_DIST_MIN) dist = PICKUP_DIST_MIN;
+		if (dist > PICKUP_DIST_MAX) dist = PICKUP_DIST_MAX;
 		m_cSettings->all.dwPickDist = (DWORD)dist;
 	}
 

@@ -21,7 +21,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_ulExlFlags = 0;
 	m_ulZenFlags = 0;
 	m_ulCustomFlags = 0;
-	m_iDist = 3;
+	m_iDist = PICKUP_DIST_DEFAULT;
 
 	m_fEnabled = FALSE;
 	m_fDisplayCode = FALSE;
@@ -557,9 +557,9 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 	{
 		m_iDist = *((int*)pData);
 
-		// Enforce min=1, max=8 for pickup radius
-		if (m_iDist < 1) m_iDist = 1;
-		if (m_iDist > 8) m_iDist = 8;
+		// Enforce min/max for pickup radius
+		if (m_iDist < PICKUP_DIST_MIN) m_iDist = PICKUP_DIST_MIN;
+		if (m_iDist > PICKUP_DIST_MAX) m_iDist = PICKUP_DIST_MAX;
 
 		WriteClickerLogFmt("PICKUP", "SetParam: pdist=%d", m_iDist);
 	}
