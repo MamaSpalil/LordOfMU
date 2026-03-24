@@ -8,7 +8,7 @@
 #include "LaunchMuDialog.h"
 #include "AdvSettingsDialog.h"
 #include "UnifiedSettingsDlg.h"
-#include "HUDButtons.h"
+// #include "HUDButtons.h"
 #include "HistoryDialog.h"
 #include "ApiHooker.h"
 
@@ -74,9 +74,9 @@ protected:
 		MESSAGE_HANDLER(WM_MOVE, OnGameWindowChanged)
 		MESSAGE_HANDLER(WM_SIZE, OnGameWindowChanged)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
-		MESSAGE_HANDLER(WM_HUD_SETTINGS, OnHUDSettings)
-		MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
-		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
+		// MESSAGE_HANDLER(WM_HUD_SETTINGS, OnHUDSettings)
+		// MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
+		// MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
 		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
 		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
@@ -132,9 +132,9 @@ protected:
 	LRESULT OnSetVersion(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
+	// LRESULT OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&);
+	// LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
+	// LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
@@ -178,7 +178,7 @@ protected:
 	// CAdvSettingsDialog m_cAdvSettingsDlg;
 	CUnifiedSettingsDlg m_cUnifiedSettingsDlg;
 	CHistoryDialog m_cHistoryDlg;
-	CHUDButtons m_cHUDButtons;
+	// CHUDButtons m_cHUDButtons;
 
 private:
 	HHOOK m_hKbdHook;

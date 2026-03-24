@@ -187,7 +187,7 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	m_cHistoryDlg.Create(m_hWnd);
 
 	// Create HUD overlay buttons (Settings, Start/Stop, History)
-	m_cHUDButtons.Create(m_hWnd, _AtlBaseModule.GetModuleInstance());
+	// m_cHUDButtons.Create(m_hWnd, _AtlBaseModule.GetModuleInstance());
 
 	CRegKey cRegKey;
 	DWORD dwWndMode = 0;
@@ -400,19 +400,19 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandl
 		if (m_fBlockInput && m_pClicker != NULL)
 		{
 			// Check if click lands on HUD - allow through only for HUD interaction
-			if (m_cHUDButtons.IsWindow() && m_cHUDButtons.IsWindowVisible())
-			{
-				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-				ClientToScreen(&pt);
-				RECT rcHUD = {0};
-				::GetWindowRect(m_cHUDButtons.m_hWnd, &rcHUD);
-
-				if (PtInRect(&rcHUD, pt))
-				{
-					bHandled = FALSE;
-					return 0;
-				}
-			}
+			// if (m_cHUDButtons.IsWindow() && m_cHUDButtons.IsWindowVisible())
+			// {
+			// 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			// 	ClientToScreen(&pt);
+			// 	RECT rcHUD = {0};
+			// 	::GetWindowRect(m_cHUDButtons.m_hWnd, &rcHUD);
+			// 
+			// 	if (PtInRect(&rcHUD, pt))
+			// 	{
+			// 		bHandled = FALSE;
+			// 		return 0;
+			// 	}
+			// }
 
 			// Block user clicks while autoclicker is running
 			bHandled = TRUE;
@@ -439,7 +439,7 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	m_fIsWndActive = (BOOL)wParam;
 
 	// Update HUD visibility to match game foreground state
-	m_cHUDButtons.SetGameActive(m_fIsWndActive);
+	// m_cHUDButtons.SetGameActive(m_fIsWndActive);
 
 	if (m_fIsWndActive)
 	{
@@ -519,7 +519,7 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	}
 
 	// Clicker is now stopped — safe to destroy HUD overlay.
-	m_cHUDButtons.Destroy();
+	// m_cHUDButtons.Destroy();
 
 	if (IsWindow())
 	{
@@ -725,7 +725,7 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 		if (m_pClicker->Start())
 		{
 			m_fBlockInput = (fNoMouseMove == 0);
-			m_cHUDButtons.SetClickerRunning(TRUE);
+			// m_cHUDButtons.SetClickerRunning(TRUE);
 			WriteClickerLog("Clicker started");
 		}
 		else
@@ -770,7 +770,7 @@ LRESULT CMuWindow::OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&)
 		m_pClicker = NULL;
 	}
 
-	m_cHUDButtons.SetClickerRunning(FALSE);
+	// m_cHUDButtons.SetClickerRunning(FALSE);
 	WriteClickerLog("Clicker stopped");
 
 	m_fBlockInput = FALSE;
@@ -1224,11 +1224,11 @@ LRESULT CMuWindow::OnCaptureChanged(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	HWND hwndNewCapture = (HWND)lParam;
 
 	// Do not block if capture is transitioning to the HUD buttons window
-	if (m_cHUDButtons.IsWindow() && hwndNewCapture == m_cHUDButtons.m_hWnd)
-	{
-		bHandled = FALSE;
-		return 0;
-	}
+	// if (m_cHUDButtons.IsWindow() && hwndNewCapture == m_cHUDButtons.m_hWnd)
+	// {
+	// 	bHandled = FALSE;
+	// 	return 0;
+	// }
 
 	if (m_pClicker == 0)
 		bHandled = FALSE;
@@ -1557,13 +1557,13 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 		if (bGameFg && !m_fIsWndActive)
 		{
 			m_fIsWndActive = TRUE;
-			m_cHUDButtons.SetGameActive(TRUE);
+			// m_cHUDButtons.SetGameActive(TRUE);
 			RestorePopupDialogs();
 		}
 		else if (!bGameFg && m_fIsWndActive)
 		{
 			m_fIsWndActive = FALSE;
-			m_cHUDButtons.SetGameActive(FALSE);
+			// m_cHUDButtons.SetGameActive(FALSE);
 			HidePopupDialogs();
 		}
 
@@ -1591,19 +1591,19 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
  */
 LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
-	m_cHUDButtons.Reposition();
+	// m_cHUDButtons.Reposition();
 
 	// On minimize, hide popup dialogs and HUD. On restore, bring them back.
 	if (uMsg == WM_SIZE)
 	{
 		if (wParam == SIZE_MINIMIZED)
 		{
-			m_cHUDButtons.SetGameActive(FALSE);
+			// m_cHUDButtons.SetGameActive(FALSE);
 			HidePopupDialogs();
 		}
 		else if (wParam == SIZE_RESTORED)
 		{
-			m_cHUDButtons.SetGameActive(TRUE);
+			// m_cHUDButtons.SetGameActive(TRUE);
 			RestorePopupDialogs();
 		}
 	}
@@ -1618,6 +1618,7 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
  *        and open the unified settings dialog.  Stopping first ensures
  *        the dialog can be opened without conflicts.
  */
+/*
 LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
 {
 	// Stop the autoclicker before opening settings.  Use PostMessage for
@@ -1629,11 +1630,13 @@ LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
 	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 	return 0;
 }
+*/
 
 
 /**
  * \brief HUD Start/Stop button clicked - toggle autoclicker.
  */
+/*
 LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
 {
 	WriteClickerLogFmt("HUD", "StartStop clicked: %s autoclicker, m_pClicker=%p",
@@ -1650,12 +1653,14 @@ LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
 
 	return 0;
 }
+*/
 
 
 /**
  * \brief HUD History button clicked - open the pickup history dialog.
  *        Queries the LordOfMU DLL for pickup history data and displays it.
  */
+/*
 LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
 	// If Settings dialog is currently open, close it first so History can open
@@ -1807,6 +1812,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	return 0;
 }
+*/
 
 
 /**
@@ -1816,7 +1822,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
 {
 	WriteClickerLog("OnCharSelected: Showing HUD buttons");
-	m_cHUDButtons.Show();
+	// m_cHUDButtons.Show();
 	return 0;
 }
 
@@ -1829,7 +1835,7 @@ LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
 {
 	WriteClickerLog("OnCharDeselected: Resetting HUD and hiding dialogs");
 
-	m_cHUDButtons.Reset();
+	// m_cHUDButtons.Reset();
 
 	if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
