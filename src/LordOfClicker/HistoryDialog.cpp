@@ -90,23 +90,22 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		// Re-center over game window
 		CenterWindow(GetParent());
 
-		// Show cursor
+		// Show cursor - snapshot current display count first
 		m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
-		m_iShowCursor = ShowCursor(TRUE);
+		int nBefore = ShowCursor(TRUE) - 1;  // undo the probe increment
+		ShowCursor(FALSE);
+		m_iShowCursor = nBefore;
+		while (ShowCursor(TRUE) < 1);
 
 		PopulateList();
 	}
 	else
 	{
-		// Restore cursor
+		// Restore cursor and display count to the snapshotted value
 		if (m_hOldCursor)
 			SetCursor(m_hOldCursor);
 
-		while (m_iShowCursor > 0)
-		{
-			ShowCursor(FALSE);
-			--m_iShowCursor;
-		}
+		while (ShowCursor(FALSE) > m_iShowCursor);
 	}
 
 	return 0;

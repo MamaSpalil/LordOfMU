@@ -38,14 +38,19 @@ CClickerJob::~CClickerJob()
 				DispatchMessage(&msg);
 			}
 
-			if ((int)GetTickCount() - (int)dwStartWait > 7000)
+			if ((int)GetTickCount() - (int)dwStartWait > 10000)
 			{
-				TerminateThread(m_hThread, 0);
+				// Safe fallback: leak the thread handle instead of calling
+				// TerminateThread which can corrupt process state, leave
+				// critical sections locked, and skip destructors.
+				WriteClickerLogFmt("CLICKER", "WARNING: Thread did not exit within 10s, leaking handle");
+				m_hThread = NULL;
 				break;
 			}
 		}
 
-		CloseHandle(m_hThread);
+		if (m_hThread)
+			CloseHandle(m_hThread);
 	}
 
 	if (m_hStopEvent)

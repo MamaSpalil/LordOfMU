@@ -420,8 +420,8 @@ LRESULT CHUDButtons::OnEraseBkgnd(UINT, WPARAM, LPARAM, BOOL&)
 
 LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
-	int x = LOWORD(lParam);
-	int y = HIWORD(lParam);
+	int x = GET_X_LPARAM(lParam);
+	int y = GET_Y_LPARAM(lParam);
 	int btn = HitTest(x, y);
 
 	if (btn >= 0)
@@ -447,8 +447,8 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
 	if (m_iPressedBtn >= 0)
 	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
 		int btn = HitTest(x, y);
 
 		if (btn == m_iPressedBtn && m_hwndOwner)
@@ -479,8 +479,8 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 
 LRESULT CHUDButtons::OnMouseMove(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
-	int x = LOWORD(lParam);
-	int y = HIWORD(lParam);
+	int x = GET_X_LPARAM(lParam);
+	int y = GET_Y_LPARAM(lParam);
 	int btn = HitTest(x, y);
 
 	if (btn != m_iHoverBtn)

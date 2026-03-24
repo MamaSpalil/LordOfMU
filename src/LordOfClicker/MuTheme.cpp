@@ -141,23 +141,24 @@ void CMuTheme::Cleanup()
 void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 {
 	// Dark-gold gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
-	int height = rc.bottom - rc.top;
-	if (height <= 0) return;
+	// using hardware-accelerated GradientFill API.
+	TRIVERTEX vert[2] = {0};
+	vert[0].x = rc.left;
+	vert[0].y = rc.top;
+	vert[0].Red   = 18 << 8;
+	vert[0].Green = 15 << 8;
+	vert[0].Blue  = 10 << 8;
+	vert[0].Alpha = 0;
 
-	for (int y = rc.top; y < rc.bottom; ++y)
-	{
-		int t = (height > 1) ? ((y - rc.top) * 255) / (height - 1) : 0;
-		int r = 18 + (25 - 18) * t / 255;
-		int g = 15 + (22 - 15) * t / 255;
-		int b = 10 + (16 - 10) * t / 255;
+	vert[1].x = rc.right;
+	vert[1].y = rc.bottom;
+	vert[1].Red   = 25 << 8;
+	vert[1].Green = 22 << 8;
+	vert[1].Blue  = 16 << 8;
+	vert[1].Alpha = 0;
 
-		HPEN hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b));
-		HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
-		MoveToEx(hDC, rc.left, y, NULL);
-		LineTo(hDC, rc.right, y);
-		SelectObject(hDC, hOldPen);
-		DeleteObject(hPen);
-	}
+	GRADIENT_RECT gRect = {0, 1};
+	GradientFill(hDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
 }
 
 

@@ -9,5 +9,6 @@
 
 #define WM_CHAR_SELECTED    (WM_APP + 510)
 #define WM_SET_GAME_VERSION (WM_APP + 509)
+#define WM_CHAR_DESELECTED  (WM_APP + 511)
 
 #endif // __COMMON_MESSAGES_H

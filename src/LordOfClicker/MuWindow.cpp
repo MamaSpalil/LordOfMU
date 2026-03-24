@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <TlHelp32.h>
+#include <windowsx.h>
 #include <sys/stat.h>
 
 CMuWindow* CMuWindow::s_pInstance = NULL;
@@ -38,6 +39,8 @@ CMuWindow::CMuWindow()
 	m_fGuiActive = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
 
 	memset(m_buffDevmode, 0, sizeof(m_buffDevmode));
 	m_ulVersion = 0;
@@ -171,7 +174,9 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 		m_cSettingsDlg.DestroyWindow();
 	}
 
-	m_cSettingsDlg.Create(m_hWnd);
+	// Legacy CSettingsDlg is used only for settings data (GetSettingsObj).
+	// Skip creating its window to avoid wasting HWND and GDI resources.
+	// m_cSettingsDlg.Create(m_hWnd);
 	m_cLaunchMuDlg.Create(m_hWnd);
 	// REDESIGN: Create unified dialog instead of separate advanced dialog
 	// m_cAdvSettingsDlg.Create(m_hWnd);
@@ -370,6 +375,8 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		m_cSettingsDlg.ShowWindow(SW_HIDE);
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
 		m_cHistoryDlg.ShowWindow(SW_HIDE);
+		m_bSettingsWasVisible = FALSE;
+		m_bHistoryWasVisible = FALSE;
 		return TRUE;
 	}
 
@@ -380,16 +387,37 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 /**
  * \brief 
  */
-LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM, BOOL& bHandled)
+LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
-	// Always allow left mouse button messages through so the user can click
-	// on HUD buttons and interact with the game even while the autoclicker
-	// is running.  Other mouse messages (movement, right-click, wheel, etc.)
-	// remain blocked when m_fBlockInput is TRUE to prevent interference
-	// with the autoclicker's programmatic mouse control.
+	// When the autoclicker is running and input is blocked, left-click messages
+	// are only allowed through if they land on HUD buttons.  This prevents
+	// user clicks from conflicting with the autoclicker's synthetic clicks.
 	if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP || uMsg == WM_LBUTTONDBLCLK)
 	{
-		bHandled = FALSE;
+		if (m_fBlockInput && m_pClicker != NULL)
+		{
+			// Check if click lands on HUD - allow through only for HUD interaction
+			if (m_cHUDButtons.IsWindow() && m_cHUDButtons.IsWindowVisible())
+			{
+				POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+				ClientToScreen(&pt);
+				RECT rcHUD = {0};
+				::GetWindowRect(m_cHUDButtons.m_hWnd, &rcHUD);
+
+				if (PtInRect(&rcHUD, pt))
+				{
+					bHandled = FALSE;
+					return 0;
+				}
+			}
+
+			// Block user clicks while autoclicker is running
+			bHandled = TRUE;
+		}
+		else
+		{
+			bHandled = FALSE;
+		}
 	}
 	else
 	{
@@ -414,10 +442,12 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	if (m_fIsWndActive)
 	{
+		RestorePopupDialogs();
 		bHandled = FALSE;
 	}
 	else
 	{
+		HidePopupDialogs();
 		return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 	}
 
@@ -505,10 +535,11 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// If autoclicker is running, stop it first and notify the user
+	// If autoclicker is running, stop it first then re-post to open the dialog
 	if (m_pClicker != NULL)
 	{
 		PostMessage(WM_STOP_CLICKER, 0, 0);
+		PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		MessageBeep(MB_ICONINFORMATION);
 		return 0;
 	}
@@ -1417,15 +1448,19 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 	{
 		bHandled = TRUE;
 
-		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed
+		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed.
+		// Skip reset when dialogs are temporarily hidden during ALT+TAB
+		// (m_bSettingsWasVisible / m_bHistoryWasVisible) so they can be restored.
 		if (m_fGuiActive)
 		{
 			BOOL bSettingsVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
 			BOOL bHistoryVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
 
-			if (!bSettingsVisible && !bHistoryVisible)
+			if (!bSettingsVisible && !bHistoryVisible
+				&& !m_bSettingsWasVisible && !m_bHistoryWasVisible)
 			{
 				m_fGuiActive = FALSE;
+				InvalidateRect(NULL, TRUE);
 			}
 		}
 
@@ -1450,9 +1485,19 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
  * \brief Game window moved or resized - immediately reposition the HUD overlay.
  *        Keeps buttons anchored without waiting for the 200ms reposition timer.
  */
-LRESULT CMuWindow::OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
+LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
 	m_cHUDButtons.Reposition();
+
+	// On minimize, hide popup dialogs. On restore, bring them back.
+	if (uMsg == WM_SIZE)
+	{
+		if (wParam == SIZE_MINIMIZED)
+			HidePopupDialogs();
+		else if (wParam == SIZE_RESTORED)
+			RestorePopupDialogs();
+	}
+
 	bHandled = FALSE; // Let the message pass through to the game
 	return 0;
 }
@@ -1576,7 +1621,10 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	// Show history dialog as non-blocking popup overlay
 	if (!m_cHistoryDlg.IsWindow())
+	{
+		m_fGuiActive = FALSE;
 		return 0;
+	}
 
 	m_fGuiActive = TRUE;
 
@@ -1599,4 +1647,66 @@ LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
 	WriteClickerLog("OnCharSelected: Showing HUD buttons");
 	m_cHUDButtons.Show();
 	return 0;
+}
+
+
+/**
+ * \brief Character deselected (logout/disconnect) - hide HUD and dialogs.
+ *        Posted by CharInfoFilter when it detects a logout or disconnect.
+ */
+LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
+{
+	WriteClickerLog("OnCharDeselected: Resetting HUD and hiding dialogs");
+
+	m_cHUDButtons.Reset();
+
+	if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
+		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
+	if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
+		m_cHistoryDlg.ShowWindow(SW_HIDE);
+
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
+	m_fGuiActive = FALSE;
+
+	return 0;
+}
+
+
+/**
+ * \brief Hide popup dialogs when the game loses foreground (ALT+TAB, minimize).
+ *        Saves visibility state so dialogs can be restored when focus returns.
+ */
+void CMuWindow::HidePopupDialogs()
+{
+	m_bSettingsWasVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
+	m_bHistoryWasVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
+
+	if (m_bSettingsWasVisible)
+		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
+	if (m_bHistoryWasVisible)
+		m_cHistoryDlg.ShowWindow(SW_HIDE);
+}
+
+
+/**
+ * \brief Restore popup dialogs that were visible before ALT+TAB / minimize.
+ */
+void CMuWindow::RestorePopupDialogs()
+{
+	if (m_bSettingsWasVisible && m_cUnifiedSettingsDlg.IsWindow())
+	{
+		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	}
+	if (m_bHistoryWasVisible && m_cHistoryDlg.IsWindow())
+	{
+		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	}
+
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
 }

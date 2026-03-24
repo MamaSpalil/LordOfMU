@@ -24,10 +24,11 @@
 #define WM_HIDE_MU              (WM_APP + 508)
 #define WM_SET_GAME_VERSION     (WM_APP + 509)
 #define WM_CHAR_SELECTED        (WM_APP + 510)
+#define WM_CHAR_DESELECTED      (WM_APP + 511)
 
 
 /**
- * \brief 
+ * \brief
  */
 class CMuWindow 
 	: public CWindowImpl<CMuWindow>
@@ -77,6 +78,7 @@ protected:
 		MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
 		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
+		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
 	END_MSG_MAP()
 
 protected:
@@ -116,6 +118,10 @@ protected:
 	LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
+
+	void HidePopupDialogs();
+	void RestorePopupDialogs();
 
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
@@ -142,6 +148,8 @@ protected:
 	BOOL m_fBlockInput;
 	BOOL m_fGuiActive;
 	BOOL m_fWasLastActiveInstance;
+	BOOL m_bSettingsWasVisible;
+	BOOL m_bHistoryWasVisible;
 
 	int m_iInstanceNumber;
 
