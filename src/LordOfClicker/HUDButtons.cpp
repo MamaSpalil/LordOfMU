@@ -4,6 +4,9 @@
 
 #pragma comment(lib, "msimg32.lib")
 
+// Color key for layered-window transparency (magenta → invisible)
+static const COLORREF HUD_TRANSPARENT_KEY = RGB(255, 0, 255);
+
 
 CHUDButtons::CHUDButtons()
 {
@@ -51,22 +54,24 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	::ClientToScreen(hwndOwner, &ptClient);
 
 	// Position to the right of the FPS counter in the game client area.
-	// FPS label is approximately 70px wide at top-left, so place HUD at x=90, y=48.
-	int x = ptClient.x + 90;
-	int y = ptClient.y + 48;
+	int x = ptClient.x + 70;
+	int y = ptClient.y + 3;
 
 	// Create as owned popup window (stays on top of game), initially hidden.
-	// Show() must be called later (after character selection) to make it visible.
+	// WS_EX_LAYERED enables color-key transparency (no black background).
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
 		hwndOwner,                              // owner window
 		CWindow::rcDefault,                     // position (set below)
 		NULL,                                   // no title
 		WS_POPUP,                               // popup, initially hidden
-		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST  // no taskbar, no focus steal, topmost
+		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST | WS_EX_LAYERED
 	);
 
 	if (!hWnd)
 		return FALSE;
+
+	// Magenta pixels become fully transparent (removes black background).
+	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 0, LWA_COLORKEY);
 
 	// Position and size the window (still hidden)
 	SetWindowPos(NULL, x, y, barWidth, barHeight, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -133,8 +138,8 @@ void CHUDButtons::Reposition()
 	::ClientToScreen(m_hwndOwner, &ptClient);
 
 	// Position to the right of the FPS counter
-	int x = ptClient.x + 90;
-	int y = ptClient.y + 48;
+	int x = ptClient.x + 70;
+	int y = ptClient.y + 3;
 
 	// Keep TOPMOST so the HUD stays visible above the game's
 	// DirectDraw/Direct3D rendering surface.
@@ -179,25 +184,89 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	RECT rc = GetButtonRect(idx);
 	int cx = (rc.left + rc.right) / 2;
 	int cy = (rc.top + rc.bottom) / 2;
-	int r = BTN_SIZE / 2 - 1;
+	int r = BTN_SIZE / 2;
 
-	// Draw circular button background
-	COLORREF clrBg = bPressed ? CMuTheme::ClrBtnPressed() :
-					 bHover ? CMuTheme::ClrBtnHover() : CMuTheme::ClrBtnBg();
-	HBRUSH hBr = CreateSolidBrush(clrBg);
-	HPEN hPen = CreatePen(PS_SOLID, 2,
-		bHover ? CMuTheme::ClrFrameBright() : CMuTheme::ClrFrameGold());
-	HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, hBr);
-	HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
+	// ---- MU Online S3E1 metallic 3D button ----
+	// Dark-gold color palette: outer edge dark, centre lighter (radial gradient).
+	COLORREF clrOuter, clrMid, clrInner, clrBorder, clrHL;
+	if (bPressed) {
+		clrOuter  = RGB(20, 16, 6);
+		clrMid    = RGB(40, 34, 14);
+		clrInner  = RGB(58, 48, 20);
+		clrBorder = RGB(150, 120, 45);
+		clrHL     = RGB(80, 65, 28);
+	} else if (bHover) {
+		clrOuter  = RGB(48, 40, 17);
+		clrMid    = RGB(95, 78, 33);
+		clrInner  = RGB(155, 130, 55);
+		clrBorder = RGB(215, 185, 75);
+		clrHL     = RGB(205, 178, 82);
+	} else {
+		clrOuter  = RGB(32, 26, 11);
+		clrMid    = RGB(62, 50, 22);
+		clrInner  = RGB(95, 76, 32);
+		clrBorder = RGB(125, 100, 42);
+		clrHL     = RGB(135, 112, 50);
+	}
 
-	Ellipse(hDC, cx - r, cy - r, cx + r, cy + r);
+	// 3 concentric ellipses simulate a radial gradient (outer → inner).
+	struct { COLORREF c; int ri; } layers[] = {
+		{ clrOuter, r - 1 },
+		{ clrMid,   r * 2 / 3 },
+		{ clrInner, r / 3 }
+	};
 
-	SelectObject(hDC, hOldBr);
-	SelectObject(hDC, hOldPen);
-	DeleteObject(hBr);
-	DeleteObject(hPen);
+	for (int i = 0; i < 3; ++i)
+	{
+		HBRUSH hBr = CreateSolidBrush(layers[i].c);
+		HPEN   hPn = CreatePen(PS_SOLID, 1, layers[i].c);
+		HGDIOBJ hOB = SelectObject(hDC, hBr);
+		HGDIOBJ hOP = SelectObject(hDC, hPn);
+		int ri = layers[i].ri;
+		Ellipse(hDC, cx - ri, cy - ri, cx + ri, cy + ri);
+		SelectObject(hDC, hOB);
+		SelectObject(hDC, hOP);
+		DeleteObject(hBr);
+		DeleteObject(hPn);
+	}
 
-	// Draw icon bitmap centered in button
+	// Gold border ring
+	{
+		HPEN hPn = CreatePen(PS_SOLID, 1, clrBorder);
+		HGDIOBJ hOP = SelectObject(hDC, hPn);
+		HGDIOBJ hOB = SelectObject(hDC, GetStockObject(NULL_BRUSH));
+		Ellipse(hDC, cx - r + 1, cy - r + 1, cx + r - 1, cy + r - 1);
+		SelectObject(hDC, hOB);
+		SelectObject(hDC, hOP);
+		DeleteObject(hPn);
+	}
+
+	// Specular highlight crescent at the top of the button
+	if (!bPressed)
+	{
+		int clipR = r - 2;
+		if (clipR > 1)
+		{
+			HRGN hClip = CreateEllipticRgn(
+				cx - clipR, cy - clipR, cx + clipR, cy - 1);
+			SelectClipRgn(hDC, hClip);
+
+			HBRUSH hBr = CreateSolidBrush(clrHL);
+			HPEN   hPn = CreatePen(PS_SOLID, 1, clrHL);
+			HGDIOBJ hOB = SelectObject(hDC, hBr);
+			HGDIOBJ hOP = SelectObject(hDC, hPn);
+			Ellipse(hDC, cx - clipR + 1, cy - r, cx + clipR - 1, cy);
+			SelectObject(hDC, hOB);
+			SelectObject(hDC, hOP);
+			DeleteObject(hBr);
+			DeleteObject(hPn);
+
+			SelectClipRgn(hDC, NULL);
+			DeleteObject(hClip);
+		}
+	}
+
+	// Draw icon bitmap scaled to fit the smaller button
 	if (hIcon)
 	{
 		HDC hMemDC = CreateCompatibleDC(hDC);
@@ -206,11 +275,12 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		BITMAP bm = {0};
 		GetObject(hIcon, sizeof(bm), &bm);
 
-		int ix = cx - bm.bmWidth / 2;
-		int iy = cy - bm.bmHeight / 2;
+		int icoSz = BTN_SIZE - 6; // small margin inside circle
+		int ix = cx - icoSz / 2;
+		int iy = cy - icoSz / 2;
 
 		// Use TransparentBlt to skip the background color
-		TransparentBlt(hDC, ix, iy, bm.bmWidth, bm.bmHeight,
+		TransparentBlt(hDC, ix, iy, icoSz, icoSz,
 			hMemDC, 0, 0, bm.bmWidth, bm.bmHeight,
 			RGB(25, 22, 16)); // BG_COLOR used in icon generation
 
@@ -233,21 +303,12 @@ LRESULT CHUDButtons::OnPaint(UINT, WPARAM, LPARAM, BOOL&)
 	HBITMAP hBmp = CreateCompatibleBitmap(hDC, rc.right, rc.bottom);
 	HBITMAP hOldBmp = (HBITMAP)SelectObject(hMemDC, hBmp);
 
-	// Fill background with semi-transparent dark
-	HBRUSH hBgBr = CreateSolidBrush(RGB(10, 8, 5));
+	// Fill background with the transparent color key (magenta → invisible)
+	HBRUSH hBgBr = CreateSolidBrush(HUD_TRANSPARENT_KEY);
 	FillRect(hMemDC, &rc, hBgBr);
 	DeleteObject(hBgBr);
 
-	// Draw thin gold border around the bar
-	HPEN hBorderPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrFrameGold());
-	HPEN hOldPen = (HPEN)SelectObject(hMemDC, hBorderPen);
-	HBRUSH hOldBr = (HBRUSH)SelectObject(hMemDC, GetStockObject(NULL_BRUSH));
-	RoundRect(hMemDC, 0, 0, rc.right, rc.bottom, 6, 6);
-	SelectObject(hMemDC, hOldPen);
-	SelectObject(hMemDC, hOldBr);
-	DeleteObject(hBorderPen);
-
-	// Draw each button
+	// Draw each button (no bar background / border)
 	// Button 0: Settings
 	DrawButton(hMemDC, 0, m_hIcoSettings,
 		m_iHoverBtn == 0, m_iPressedBtn == 0);

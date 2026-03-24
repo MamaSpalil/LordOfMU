@@ -53,9 +53,9 @@ protected:
 
 private:
 	enum { BTN_COUNT = 3 };
-	enum { BTN_SIZE = 32 };
-	enum { BTN_SPACING = 4 };
-	enum { BAR_PADDING = 4 };
+	enum { BTN_SIZE = 16 };
+	enum { BTN_SPACING = 2 };
+	enum { BAR_PADDING = 1 };
 	enum { REPOSITION_TIMER_ID = 2020 };
 
 	int HitTest(int x, int y);
