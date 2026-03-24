@@ -177,6 +177,21 @@ public:
 
 #ifdef __DEBUG_OUT
 		AllocConsole();
+
+		// Disable Quick Edit mode to prevent text selection from blocking output
+		{
+			HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+			if (hIn != INVALID_HANDLE_VALUE)
+			{
+				DWORD dwMode = 0;
+				if (GetConsoleMode(hIn, &dwMode))
+				{
+					dwMode &= ~ENABLE_QUICK_EDIT_MODE;
+					dwMode |= ENABLE_EXTENDED_FLAGS;
+					SetConsoleMode(hIn, dwMode);
+				}
+			}
+		}
 #endif
 
 #ifdef __DEBUG_LOG
