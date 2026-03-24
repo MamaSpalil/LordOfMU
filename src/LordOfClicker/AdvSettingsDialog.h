@@ -6,6 +6,7 @@
 #include "resource.h"       // main symbols
 #include <atlhost.h>
 #include "Settings.h"
+#include "MuTheme.h"
 
 class CAdvSettingsDialog
 	: public CAxDialogImpl<CAdvSettingsDialog>
@@ -22,6 +23,7 @@ BEGIN_MSG_MAP(CAdvSettingsDialog)
 	COMMAND_HANDLER(IDOK, BN_CLICKED, OnClickedOK)
 	COMMAND_HANDLER(IDCANCEL, BN_CLICKED, OnClickedCancel)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
+	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	COMMAND_HANDLER(IDC_ADV_PICKUP, BN_CLICKED, ApplyState)
 	COMMAND_HANDLER(IDC_BLESS, BN_CLICKED, ApplyState)
@@ -39,6 +41,7 @@ END_MSG_MAP()
 protected:
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
+	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnNCPaint(UINT, WPARAM, LPARAM, BOOL&);
@@ -53,6 +56,7 @@ public:
 
 protected:
 	CClickerSettings& m_cSettings;
+	CMuTheme m_cTheme;
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 };
