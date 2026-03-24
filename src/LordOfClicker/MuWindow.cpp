@@ -41,8 +41,6 @@ CMuWindow::CMuWindow()
 	m_bHistoryWasVisible = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
-	m_bSettingsWasVisible = FALSE;
-	m_bHistoryWasVisible = FALSE;
 
 	memset(m_buffDevmode, 0, sizeof(m_buffDevmode));
 	m_ulVersion = 0;
@@ -289,10 +287,10 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		return FALSE;
 
 	// While a dialog (Settings/History) is open, block clicker control keys
-	// to prevent accidental autoclicker toggling behind the dialog.
+	// and the settings key to prevent accidental toggling behind the dialog.
 	if (m_fGuiActive)
 	{
-		if (vkCode >= VK_F5 && vkCode <= VK_F8)
+		if (vkCode >= VK_F5 && vkCode <= VK_F9)
 			return TRUE;  // Swallow the keypress
 	}
 
@@ -438,6 +436,9 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	m_fIsWndActive = (BOOL)wParam;
 
+	// Update HUD visibility to match game foreground state
+	m_cHUDButtons.SetGameActive(m_fIsWndActive);
+
 	if (m_fIsWndActive)
 	{
 		RestorePopupDialogs();
@@ -491,8 +492,8 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cHistoryDlg.m_hWnd))
 		m_cHistoryDlg.DestroyWindow();
 
-	m_cHUDButtons.Destroy();
-
+	// Stop autoclicker before destroying HUD — the clicker may post messages
+	// that reference HUD state, so HUD must remain valid during shutdown.
 	BOOL fHandled = FALSE;
 	OnStopClicker(0, 0, 0, fHandled);
 
@@ -514,6 +515,8 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 
 		Sleep(10);
 	}
+
+	m_cHUDButtons.Destroy();
 
 	if (IsWindow())
 	{
@@ -545,8 +548,21 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	// REDESIGN: F9 and SHIFT+F9 merged into unified dialog
 	CWindow dlg = m_cUnifiedSettingsDlg;
 
-	if (m_fGuiActive || !dlg.IsWindow())
+	if (!dlg.IsWindow())
 		return 0;
+
+	// If History dialog is currently open, close it first so Settings can open
+	if (m_fGuiActive)
+	{
+		if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
+		{
+			m_cHistoryDlg.ShowWindow(SW_HIDE);
+			m_bHistoryWasVisible = FALSE;
+		}
+		// If Settings is already visible, don't reopen
+		if (dlg.IsWindowVisible())
+			return 0;
+	}
 
 	m_fGuiActive = TRUE;
 
@@ -1518,13 +1534,11 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
  */
 LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// Stop the autoclicker before opening settings so the dialog
-	// is not blocked by the running clicker check in OnShowSettingsGUI.
+	// Stop the autoclicker before opening settings.  Use PostMessage for
+	// consistent async flow — OnShowSettingsGUI already handles the case
+	// where the clicker is still running by re-posting itself.
 	if (m_pClicker != NULL)
-	{
-		BOOL bHandled = FALSE;
-		OnStopClicker(0, 0, 0, bHandled);
-	}
+		PostMessage(WM_STOP_CLICKER, 0, 0);
 
 	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 	return 0;
@@ -1558,8 +1572,18 @@ LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
+	// If Settings dialog is currently open, close it first so History can open
 	if (m_fGuiActive)
-		return 0;
+	{
+		if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
+		{
+			m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
+			m_bSettingsWasVisible = FALSE;
+		}
+		// If History is already visible, don't reopen
+		if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
+			return 0;
+	}
 
 	// Query pickup history from LordOfMU DLL
 	std::vector<CHistoryDialog::HistoryEntry> vHistory;
