@@ -224,14 +224,8 @@ int CHUDButtons::HitTest(int x, int y)
 	{
 		RECT rc = GetButtonRect(i);
 
-		// Circular hit test
-		int cx = (rc.left + rc.right) / 2;
-		int cy = (rc.top + rc.bottom) / 2;
-		int dx = x - cx;
-		int dy = y - cy;
-		int r = BTN_SIZE / 2;
-
-		if (dx * dx + dy * dy <= r * r)
+		// Rectangular hit test matching the new rounded-rectangle button shape
+		if (x >= rc.left && x < rc.right && y >= rc.top && y < rc.bottom)
 			return i;
 	}
 	return -1;
@@ -243,100 +237,85 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	RECT rc = GetButtonRect(idx);
 	int cx = (rc.left + rc.right) / 2;
 	int cy = (rc.top + rc.bottom) / 2;
-	int r = BTN_SIZE / 2;
+	int w = rc.right - rc.left;
+	int h = rc.bottom - rc.top;
+	int cornerR = 4; // Corner radius for rounded rectangle
 
-	// ---- MU Online S3E1 metallic 3D button ----
-	// Dark-gold color palette: outer edge dark, centre lighter (radial gradient).
-	COLORREF clrOuter, clrMid, clrInner, clrBorder, clrHL;
+	// ---- MU Online S3E1 modern metallic button ----
+	// Dark metallic panel with gold trim.  Square-ish with rounded corners,
+	// subtle gradient, and a bright gold border that glows on hover.
+	COLORREF clrBg, clrBgLight, clrBorder, clrBorderInner, clrHL;
 	if (bPressed) {
-		clrOuter  = RGB(20, 16, 6);
-		clrMid    = RGB(40, 34, 14);
-		clrInner  = RGB(58, 48, 20);
-		clrBorder = RGB(150, 120, 45);
-		clrHL     = RGB(80, 65, 28);
+		clrBg          = RGB(15, 12, 5);
+		clrBgLight     = RGB(28, 23, 10);
+		clrBorder      = RGB(160, 130, 50);
+		clrBorderInner = RGB(45, 38, 18);
+		clrHL          = RGB(0, 0, 0); // No highlight when pressed
 	} else if (bHover) {
-		clrOuter  = RGB(48, 40, 17);
-		clrMid    = RGB(95, 78, 33);
-		clrInner  = RGB(155, 130, 55);
-		clrBorder = RGB(215, 185, 75);
-		clrHL     = RGB(205, 178, 82);
+		clrBg          = RGB(38, 32, 15);
+		clrBgLight     = RGB(65, 55, 25);
+		clrBorder      = RGB(220, 190, 80);
+		clrBorderInner = RGB(90, 75, 35);
+		clrHL          = RGB(180, 155, 65);
 	} else {
-		clrOuter  = RGB(32, 26, 11);
-		clrMid    = RGB(62, 50, 22);
-		clrInner  = RGB(95, 76, 32);
-		clrBorder = RGB(125, 100, 42);
-		clrHL     = RGB(135, 112, 50);
+		clrBg          = RGB(22, 18, 8);
+		clrBgLight     = RGB(40, 34, 16);
+		clrBorder      = RGB(120, 100, 42);
+		clrBorderInner = RGB(55, 46, 22);
+		clrHL          = RGB(100, 85, 38);
 	}
 
-	// 5 concentric ellipses simulate a smoother radial gradient (outer → inner).
-	struct { COLORREF c; int ri; } layers[5];
+	// Background fill — vertical gradient from darker (top) to lighter (bottom)
+	for (int y = rc.top; y < rc.bottom; ++y)
 	{
-		int r0 = r - 1;
-		int dr = (r0 > 4) ? r0 / 4 : 1;
-		BYTE ro = GetRValue(clrOuter), go = GetGValue(clrOuter), bo = GetBValue(clrOuter);
-		BYTE r_inner = GetRValue(clrInner), g_inner = GetGValue(clrInner), b_inner = GetBValue(clrInner);
-		for (int i = 0; i < 5; ++i)
-		{
-			int t = i * 255 / 4;
-			layers[i].c = RGB(ro + (r_inner - ro) * t / 255,
-			                  go + (g_inner - go) * t / 255,
-			                  bo + (b_inner - bo) * t / 255);
-			layers[i].ri = r0 - i * dr;
-			if (layers[i].ri < 1) layers[i].ri = 1;
-		}
-	}
-
-	for (int i = 0; i < 5; ++i)
-	{
-		HBRUSH hBr = CreateSolidBrush(layers[i].c);
-		HPEN   hPn = CreatePen(PS_SOLID, 1, layers[i].c);
-		HGDIOBJ hOB = SelectObject(hDC, hBr);
+		int t = (y - rc.top) * 255 / (h > 1 ? h - 1 : 1);
+		COLORREF clr = RGB(
+			GetRValue(clrBg) + (GetRValue(clrBgLight) - GetRValue(clrBg)) * t / 255,
+			GetGValue(clrBg) + (GetGValue(clrBgLight) - GetGValue(clrBg)) * t / 255,
+			GetBValue(clrBg) + (GetBValue(clrBgLight) - GetBValue(clrBg)) * t / 255
+		);
+		HPEN hPn = CreatePen(PS_SOLID, 1, clr);
 		HGDIOBJ hOP = SelectObject(hDC, hPn);
-		int ri = layers[i].ri;
-		Ellipse(hDC, cx - ri, cy - ri, cx + ri, cy + ri);
-		SelectObject(hDC, hOB);
+		MoveToEx(hDC, rc.left + 2, y, NULL);
+		LineTo(hDC, rc.right - 2, y);
 		SelectObject(hDC, hOP);
-		DeleteObject(hBr);
 		DeleteObject(hPn);
 	}
 
-	// Gold border ring
+	// Inner border (subtle dark outline)
+	{
+		HPEN hPn = CreatePen(PS_SOLID, 1, clrBorderInner);
+		HGDIOBJ hOP = SelectObject(hDC, hPn);
+		HGDIOBJ hOB = SelectObject(hDC, GetStockObject(NULL_BRUSH));
+		RoundRect(hDC, rc.left + 1, rc.top + 1, rc.right - 1, rc.bottom - 1, cornerR, cornerR);
+		SelectObject(hDC, hOB);
+		SelectObject(hDC, hOP);
+		DeleteObject(hPn);
+	}
+
+	// Outer gold border
 	{
 		HPEN hPn = CreatePen(PS_SOLID, 1, clrBorder);
 		HGDIOBJ hOP = SelectObject(hDC, hPn);
 		HGDIOBJ hOB = SelectObject(hDC, GetStockObject(NULL_BRUSH));
-		Ellipse(hDC, cx - r + 1, cy - r + 1, cx + r - 1, cy + r - 1);
+		RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, cornerR + 1, cornerR + 1);
 		SelectObject(hDC, hOB);
 		SelectObject(hDC, hOP);
 		DeleteObject(hPn);
 	}
 
-	// Specular highlight crescent at the top of the button
-	if (!bPressed)
+	// Top highlight line (specular) — skip if pressed
+	if (!bPressed && clrHL != RGB(0, 0, 0))
 	{
-		int clipR = r - 3;
-		if (clipR > 1)
-		{
-			HRGN hClip = CreateEllipticRgn(
-				cx - clipR, cy - clipR, cx + clipR, cy - 1);
-			SelectClipRgn(hDC, hClip);
-
-			HBRUSH hBr = CreateSolidBrush(clrHL);
-			HPEN   hPn = CreatePen(PS_SOLID, 1, clrHL);
-			HGDIOBJ hOB = SelectObject(hDC, hBr);
-			HGDIOBJ hOP = SelectObject(hDC, hPn);
-			Ellipse(hDC, cx - clipR + 1, cy - r + 2, cx + clipR - 1, cy);
-			SelectObject(hDC, hOB);
-			SelectObject(hDC, hOP);
-			DeleteObject(hBr);
-			DeleteObject(hPn);
-
-			SelectClipRgn(hDC, NULL);
-			DeleteObject(hClip);
-		}
+		HPEN hPn = CreatePen(PS_SOLID, 1, clrHL);
+		HGDIOBJ hOP = SelectObject(hDC, hPn);
+		MoveToEx(hDC, rc.left + 3, rc.top + 2, NULL);
+		LineTo(hDC, rc.right - 3, rc.top + 2);
+		SelectObject(hDC, hOP);
+		DeleteObject(hPn);
 	}
 
-	// Draw icon bitmap scaled to fit the smaller button
+	// Draw icon bitmap scaled to fit the button
 	if (hIcon)
 	{
 		HDC hMemDC = CreateCompatibleDC(hDC);
@@ -345,9 +324,16 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		BITMAP bm = {0};
 		GetObject(hIcon, sizeof(bm), &bm);
 
-		int icoSz = BTN_SIZE * 5 / 8; // ~62% of button, fits inscribed circle
+		int icoSz = BTN_SIZE * 5 / 8; // ~62% of button, fits within borders
 		int ix = cx - icoSz / 2;
 		int iy = cy - icoSz / 2;
+
+		// Slight offset when pressed (simulates push-in)
+		if (bPressed)
+		{
+			ix += 1;
+			iy += 1;
+		}
 
 		// Use TransparentBlt to skip the background color
 		TransparentBlt(hDC, ix, iy, icoSz, icoSz,
@@ -525,9 +511,19 @@ LRESULT CHUDButtons::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
 	if (LOWORD(lParam) == HTCLIENT)
 	{
-		// Use link/select cursor when hovering over a button, normal MU cursor otherwise
-		HCURSOR hCursor = (m_iHoverBtn >= 0 && m_hLinkCursor != NULL)
-			? m_hLinkCursor : m_hMuCursor;
+		// Consistent cursor: normal MU cursor by default, link/select when
+		// LMB is pressed.  This matches the dialog cursor behavior.
+		HCURSOR hCursor = NULL;
+
+		if (m_iPressedBtn >= 0 && m_hLinkCursor != NULL)
+		{
+			hCursor = m_hLinkCursor;
+		}
+		else
+		{
+			hCursor = m_hMuCursor;
+		}
+
 		if (hCursor != NULL)
 		{
 			SetCursor(hCursor);

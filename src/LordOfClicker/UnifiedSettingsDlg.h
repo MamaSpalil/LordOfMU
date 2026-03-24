@@ -29,6 +29,8 @@ BEGIN_MSG_MAP(CUnifiedSettingsDlg)
 	MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+	MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+	MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
@@ -65,6 +67,25 @@ protected:
 	LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = TRUE;
+		// Force cursor update to show link/select cursor
+		SetCursor(m_cTheme.GetLinkCursor() ? m_cTheme.GetLinkCursor() :
+				  m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
+				  LoadCursor(NULL, IDC_ARROW));
+		bHandled = FALSE; // Let controls process the click
+		return 0;
+	}
+	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = FALSE;
+		// Restore normal cursor
+		SetCursor(m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
+				  LoadCursor(NULL, IDC_ARROW));
+		bHandled = FALSE; // Let controls process the click
+		return 0;
+	}
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	{
 		// Allow the dialog to be activated on click so that controls
@@ -119,6 +140,7 @@ protected:
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 	int m_nCurrentTab;
+	BOOL m_bLButtonDown;  // track LMB state for cursor switching
 
 	// Brushes for edit controls
 	HBRUSH m_hEditBrush;

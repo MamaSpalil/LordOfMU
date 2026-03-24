@@ -569,12 +569,15 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_fGuiActive = TRUE;
 
-	// Show as non-blocking popup overlay - game continues rendering behind it
-	dlg.ShowWindow(SW_SHOWNOACTIVATE);
+	// Show the dialog and activate it so mouse clicks work immediately.
+	// Previous approach used SW_SHOWNOACTIVATE + SWP_NOACTIVATE which required
+	// a separate activation click before controls would respond.
+	dlg.ShowWindow(SW_SHOW);
 
-	// Ensure the dialog is on top of the game window
+	// Ensure the dialog is on top of the game window and receives input
 	::SetWindowPos(dlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	::SetForegroundWindow(dlg.m_hWnd);
 
 	return 0;
 }
@@ -1705,11 +1708,13 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_fGuiActive = TRUE;
 
-	m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
+	// Show the dialog and activate it so mouse clicks work immediately.
+	m_cHistoryDlg.ShowWindow(SW_SHOW);
 
-	// Ensure the dialog is on top of the game window
+	// Ensure the dialog is on top of the game window and receives input
 	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	::SetForegroundWindow(m_cHistoryDlg.m_hWnd);
 
 	return 0;
 }
@@ -1797,14 +1802,16 @@ void CMuWindow::RestorePopupDialogs()
 
 	if (bRestoreSettings && m_cUnifiedSettingsDlg.IsWindow())
 	{
-		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOW);
 		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+			SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+		::SetForegroundWindow(m_cUnifiedSettingsDlg.m_hWnd);
 	}
 	if (bRestoreHistory && m_cHistoryDlg.IsWindow())
 	{
-		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		m_cHistoryDlg.ShowWindow(SW_SHOW);
 		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+			SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+		::SetForegroundWindow(m_cHistoryDlg.m_hWnd);
 	}
 }

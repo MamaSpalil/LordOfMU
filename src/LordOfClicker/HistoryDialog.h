@@ -35,6 +35,8 @@ BEGIN_MSG_MAP(CHistoryDialog)
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+	MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+	MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
@@ -52,6 +54,23 @@ protected:
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = TRUE;
+		SetCursor(m_cTheme.GetLinkCursor() ? m_cTheme.GetLinkCursor() :
+				  m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
+				  LoadCursor(NULL, IDC_ARROW));
+		bHandled = FALSE;
+		return 0;
+	}
+	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = FALSE;
+		SetCursor(m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
+				  LoadCursor(NULL, IDC_ARROW));
+		bHandled = FALSE;
+		return 0;
+	}
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	{
 		// Allow the dialog to be activated on click so that controls
@@ -75,6 +94,7 @@ private:
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 	BOOL m_bCursorShown;   // track whether we added cursor visibility
+	BOOL m_bLButtonDown;   // track LMB state for cursor switching
 	HBRUSH m_hListBrush;
 	HBRUSH m_hTitleBrush;  // cached brush for OnNCPaint title bar
 };

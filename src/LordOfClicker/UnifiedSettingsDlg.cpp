@@ -47,6 +47,12 @@ INT_PTR CALLBACK CUnifiedSettingsDlg::TabPageDlgProc(HWND hDlg, UINT uMsg, WPARA
 
 	case WM_SETCURSOR:
 		return (INT_PTR)::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
+
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+		// Forward LMB events to parent for cursor state tracking
+		::SendMessage(::GetParent(hDlg), uMsg, wParam, lParam);
+		break; // Also let the child process the message
 	}
 
 	return FALSE;
@@ -65,6 +71,7 @@ CUnifiedSettingsDlg::CUnifiedSettingsDlg(CClickerSettings& cSettings)
 	m_hOldCursor = 0;
 	m_iShowCursor = 0;
 	m_nCurrentTab = 0;
+	m_bLButtonDown = FALSE;
 	m_hwndTabGeneral = NULL;
 	m_hwndTabClass = NULL;
 	m_hwndTabPickup = NULL;
@@ -382,26 +389,13 @@ LRESULT CUnifiedSettingsDlg::OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOO
 {
 	if (LOWORD(lParam) == HTCLIENT)
 	{
-		// Determine which cursor to use based on the child control under the mouse
+		// Consistent cursor: normal by default, link/select when LMB is pressed.
+		// This matches MU Online's in-game cursor behavior.
 		HCURSOR hCursor = NULL;
-		POINT pt;
-		if (GetCursorPos(&pt))
+
+		if (m_bLButtonDown)
 		{
-			HWND hwndChild = ::WindowFromPoint(pt);
-			if (hwndChild != NULL)
-			{
-				TCHAR szClass[32] = {0};
-				::GetClassName(hwndChild, szClass, 31);
-				if (_tcsicmp(szClass, _T("Edit")) == 0)
-				{
-					hCursor = m_cTheme.GetTextCursor();
-				}
-				else if (_tcsicmp(szClass, _T("Button")) == 0 ||
-				         _tcsicmp(szClass, _T("ComboBox")) == 0)
-				{
-					hCursor = m_cTheme.GetLinkCursor();
-				}
-			}
+			hCursor = m_cTheme.GetLinkCursor();
 		}
 
 		// Fall back to normal themed cursor
