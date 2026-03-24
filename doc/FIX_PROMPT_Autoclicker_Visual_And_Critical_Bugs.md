@@ -11,6 +11,79 @@
 
 ---
 
+## 0. ОШИБКИ КОМПИЛЯЦИИ (проект не собирается)
+
+> Эти ошибки БЛОКИРУЮТ сборку проекта и должны быть исправлены В ПЕРВУЮ ОЧЕРЕДЬ перед всеми остальными пунктами.
+
+### 0.1. MuWindow.cpp — конфликт макроса SubclassWindow из `<windowsx.h>` с методом ATL CWindowImpl::SubclassWindow
+
+**Файл:** `src/LordOfClicker/MuWindow.cpp`, строка 108
+
+**Ошибки компиляции:**
+```
+warning C4003: недостаточно аргументов для вызова макроса, подобного функции, "SubclassWindow"
+error C2059: синтаксическая ошибка: (
+error C2143: синтаксическая ошибка: отсутствие ";" перед "{"
+```
+
+**Причина:** В `MuWindow.cpp` строка 13 подключается `<windowsx.h>`, который определяет макрос:
+```cpp
+#define SubclassWindow(hwnd, lpfn) ((WNDPROC)SetWindowLongPtr((hwnd), GWLP_WNDPROC, (LPARAM)(WNDPROC)(lpfn)))
+```
+Этот макрос принимает 2 аргумента `(hwnd, lpfn)`, но вызов ATL-метода `s_pInstance->SubclassWindow(hwndMuWindow)` на строке 108 передаёт только 1 аргумент. Препроцессор видит макрос с одним аргументом вместо двух и выдаёт ошибку.
+
+**Исправление:** Добавить `#undef SubclassWindow` после `#include <windowsx.h>` в MuWindow.cpp, чтобы убрать конфликтующий макрос и позволить вызвать ATL-метод `CWindowImpl::SubclassWindow`:
+
+```cpp
+// БЫЛО (строки 13-14):
+#include <windowsx.h>
+#include <sys/stat.h>
+
+// СТАЛО:
+#include <windowsx.h>
+#ifdef SubclassWindow
+#undef SubclassWindow
+#endif
+#include <sys/stat.h>
+```
+
+**Альтернативное исправление:** Если `SubclassWindow` из `<windowsx.h>` используется где-то ещё в файле (не используется), можно ограничить undef только вокруг вызова. Но поскольку в MuWindow.cpp макрос SubclassWindow нигде больше не используется, глобальный undef после include — самое чистое решение.
+
+### 0.2. HUDButtons.cpp — тип CRect не объявлен (отсутствует `<atltypes.h>`)
+
+**Файл:** `src/LordOfClicker/HUDButtons.cpp`, строка 69
+
+**Ошибки компиляции:**
+```
+error C2065: CRect: необъявленный идентификатор
+error C2146: синтаксическая ошибка: отсутствие ";" перед идентификатором "rcPos"
+error C3861: rcPos: идентификатор не найден
+error C2065: rcPos: необъявленный идентификатор
+```
+
+**Причина:** На строке 69 используется `CRect rcPos(0, 0, barWidth, barHeight);`, но `CRect` — это ATL-класс из заголовка `<atltypes.h>`, который НЕ подключён ни в `HUDButtons.cpp`, ни в `stdafx.h`. Файл `stdafx.h` включает `<atlbase.h>`, `<atlcom.h>`, `<atlwin.h>`, `<atlstr.h>`, но НЕ `<atltypes.h>`.
+
+**Исправление (вариант A — рекомендуемый):** Заменить `CRect` на стандартный Win32 тип `RECT`, который не требует дополнительных заголовков:
+
+```cpp
+// БЫЛО (строка 69):
+CRect rcPos(0, 0, barWidth, barHeight);
+
+// СТАЛО:
+RECT rcPos = { 0, 0, barWidth, barHeight };
+```
+
+**Исправление (вариант B — альтернативный):** Добавить `#include <atltypes.h>` в `stdafx.h` или в начало `HUDButtons.cpp`:
+
+```cpp
+// В stdafx.h после #include <atlstr.h> (строка 41):
+#include <atltypes.h>   // CRect, CPoint, CSize
+```
+
+> **Рекомендация:** Вариант A предпочтительнее, так как `CRect` используется только в одном месте, а `RECT` — стандартный Win32 тип, доступный везде. Это также уменьшает зависимость от ATL-расширений.
+
+---
+
 ## 1. КРИТИЧЕСКИЕ БАГИ (функциональность сломана)
 
 ### 1.1. OnLaunchMu ПОЛНОСТЬЮ СЛОМАН — диалог запуска нового экземпляра MU никогда не показывается
@@ -415,6 +488,8 @@ if (nIdx >= (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
 
 | Приоритет | Пункт | Описание |
 |-----------|-------|----------|
+| **BLOCKER** | 0.1 | Ошибка компиляции: SubclassWindow макрос конфликт |
+| **BLOCKER** | 0.2 | Ошибка компиляции: CRect не объявлен |
 | **CRITICAL** | 1.1 | OnLaunchMu сломан — F10 не работает |
 | **CRITICAL** | 1.2 | ESC не сбрасывает m_fGuiActive |
 | **HIGH** | 2.1 | HUD-кнопки без MU-курсора |
@@ -431,13 +506,15 @@ if (nIdx >= (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
 
 ## 8. ПОРЯДОК ПРИМЕНЕНИЯ ИСПРАВЛЕНИЙ
 
-1. **Сначала:** Исправить п. 1.1 (OnLaunchMu) — восстанавливает сломанную функциональность
-2. **Затем:** Исправить п. 1.2 (ESC + m_fGuiActive) — устраняет блокировку клавиш
-3. **Затем:** Исправить п. 4.1 (удалить мёртвый код m_cSettingsDlg в ESC)
-4. **Затем:** Исправить п. 2.1 (HUD cursor) — улучшает визуальную целостность
-5. **Затем:** Исправить п. 2.2 (History cursor) — согласует стиль курсора
-6. **Затем:** Исправить п. 3.1-3.3 (hover кнопок) — улучшает UX
-7. **По желанию:** Исправить п. 4.2, 5.3, 6.1-6.3
+1. **ПЕРВЫМ ДЕЛОМ:** Исправить п. 0.1 (SubclassWindow макрос) — без этого проект НЕ компилируется
+2. **ПЕРВЫМ ДЕЛОМ:** Исправить п. 0.2 (CRect → RECT) — без этого проект НЕ компилируется
+3. **Затем:** Исправить п. 1.1 (OnLaunchMu) — восстанавливает сломанную функциональность
+4. **Затем:** Исправить п. 1.2 (ESC + m_fGuiActive) — устраняет блокировку клавиш
+5. **Затем:** Исправить п. 4.1 (удалить мёртвый код m_cSettingsDlg в ESC)
+6. **Затем:** Исправить п. 2.1 (HUD cursor) — улучшает визуальную целостность
+7. **Затем:** Исправить п. 2.2 (History cursor) — согласует стиль курсора
+8. **Затем:** Исправить п. 3.1-3.3 (hover кнопок) — улучшает UX
+9. **По желанию:** Исправить п. 4.2, 5.3, 6.1-6.3
 
 ---
 
@@ -445,9 +522,9 @@ if (nIdx >= (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
 
 | Файл | Пункты |
 |------|--------|
-| `src/LordOfClicker/MuWindow.cpp` | 1.1, 1.2, 4.1 |
+| `src/LordOfClicker/MuWindow.cpp` | 0.1, 1.1, 1.2, 4.1 |
 | `src/LordOfClicker/HUDButtons.h` | 2.1 |
-| `src/LordOfClicker/HUDButtons.cpp` | 2.1 |
+| `src/LordOfClicker/HUDButtons.cpp` | 0.2, 2.1 |
 | `src/LordOfClicker/HistoryDialog.h` | (возможно для hover subclass) |
 | `src/LordOfClicker/HistoryDialog.cpp` | 2.2, 3.1 |
 | `src/LordOfClicker/UnifiedSettingsDlg.cpp` | 3.2, 3.3 |
