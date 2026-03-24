@@ -39,6 +39,7 @@ CHistoryDialog::CHistoryDialog()
 	m_hOldCursor = NULL;
 	m_iShowCursor = 0;
 	m_bCursorShown = FALSE;
+	m_bLButtonDown = FALSE;
 	m_hListBrush = NULL;
 	m_hTitleBrush = NULL;
 }
@@ -162,22 +163,13 @@ LRESULT CHistoryDialog::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
 	if (LOWORD(lParam) == HTCLIENT)
 	{
-		// Determine which cursor to use based on the child control under the mouse
+		// Consistent cursor: normal by default, link/select when LMB is pressed.
+		// This matches MU Online's in-game cursor behavior.
 		HCURSOR hCursor = NULL;
-		POINT pt;
-		if (GetCursorPos(&pt))
+
+		if (m_bLButtonDown)
 		{
-			HWND hwndChild = ::WindowFromPoint(pt);
-			if (hwndChild != NULL)
-			{
-				TCHAR szClass[32] = {0};
-				::GetClassName(hwndChild, szClass, 31);
-				if (_tcsicmp(szClass, _T("Button")) == 0 ||
-				    _tcsicmp(szClass, _T("ListBox")) == 0)
-				{
-					hCursor = m_cTheme.GetLinkCursor();
-				}
-			}
+			hCursor = m_cTheme.GetLinkCursor();
 		}
 
 		// Fall back to normal themed cursor

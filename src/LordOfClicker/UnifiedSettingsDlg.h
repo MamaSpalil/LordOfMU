@@ -29,6 +29,8 @@ BEGIN_MSG_MAP(CUnifiedSettingsDlg)
 	MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+	MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+	MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
@@ -65,6 +67,20 @@ protected:
 	LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = TRUE;
+		UpdateCursorForLMBState();
+		bHandled = FALSE; // Let controls process the click
+		return 0;
+	}
+	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	{
+		m_bLButtonDown = FALSE;
+		UpdateCursorForLMBState();
+		bHandled = FALSE; // Let controls process the click
+		return 0;
+	}
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	{
 		// Allow the dialog to be activated on click so that controls
@@ -102,6 +118,14 @@ protected:
 	void SubclassSeparators(HWND hwndParent);
 	void DisableChildThemes(HWND hwndParent);
 	void DrawThemedTab(LPDRAWITEMSTRUCT lpDIS);
+	void UpdateCursorForLMBState()
+	{
+		HCURSOR hCursor = m_bLButtonDown ? m_cTheme.GetLinkCursor() : NULL;
+		if (hCursor == NULL) hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL) hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL) hCursor = LoadCursor(NULL, IDC_ARROW);
+		SetCursor(hCursor);
+	}
 
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK TabSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
@@ -119,6 +143,7 @@ protected:
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 	int m_nCurrentTab;
+	BOOL m_bLButtonDown;  // track LMB state for cursor switching
 
 	// Brushes for edit controls
 	HBRUSH m_hEditBrush;
