@@ -77,7 +77,7 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 		rcPos,                                  // initial size (repositioned later)
 		NULL,                                   // no title
 		WS_POPUP,                               // popup overlay, initially hidden
-		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOPMOST  // layered + no-activate + topmost
+		WS_EX_LAYERED | WS_EX_NOACTIVATE  // layered + no-activate (owned popup stays above game)
 	);
 
 	if (!hWnd)
@@ -574,7 +574,7 @@ void CHUDButtons::Reposition()
 	if (!IsWindowVisible())
 		dwFlags |= SWP_SHOWWINDOW;
 
-	::SetWindowPos(m_hWnd, HWND_TOPMOST,
+	::SetWindowPos(m_hWnd, HWND_TOP,
 		ptScreen.x, ptScreen.y, 0, 0, dwFlags);
 }
 

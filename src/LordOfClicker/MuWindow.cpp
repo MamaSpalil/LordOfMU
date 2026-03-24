@@ -572,8 +572,8 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	// Show as non-blocking popup overlay - game continues rendering behind it
 	dlg.ShowWindow(SW_SHOWNOACTIVATE);
 
-	// Ensure the dialog is topmost and visible
-	::SetWindowPos(dlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+	// Ensure the dialog is on top of the game window
+	::SetWindowPos(dlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
 	return 0;
@@ -1707,8 +1707,8 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
 
-	// Ensure the dialog is topmost and visible
-	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+	// Ensure the dialog is on top of the game window
+	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
 	return 0;
@@ -1716,7 +1716,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 
 /**
- * \brief Character selected in game - show HUD buttons.
+ * \brief Character selected in game- show HUD buttons.
  *        Posted by CharInfoFilter when it detects the CCharSelectedPacket.
  */
 LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
@@ -1798,13 +1798,13 @@ void CMuWindow::RestorePopupDialogs()
 	if (bRestoreSettings && m_cUnifiedSettingsDlg.IsWindow())
 	{
 		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
-		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 	}
 	if (bRestoreHistory && m_cHistoryDlg.IsWindow())
 	{
 		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
-		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 	}
 }

@@ -29,6 +29,7 @@ BEGIN_MSG_MAP(CUnifiedSettingsDlg)
 	MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 	MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
@@ -64,6 +65,12 @@ protected:
 	LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
+	{
+		// Allow the dialog to be activated on click so that controls
+		// (buttons, checkboxes, etc.) receive mouse input.
+		return MA_ACTIVATE;
+	}
 	LRESULT OnNCPaint(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnEraseBkgnd(UINT, WPARAM wParam, LPARAM, BOOL& bHandled);
 	LRESULT OnCtlColorStatic(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
