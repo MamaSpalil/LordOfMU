@@ -375,6 +375,11 @@ IDB_ICO_HISTORY         BITMAP  "res\\ico_history.bmp"
 //
 
 IDC_MU_CURSOR           CURSOR  "res\\mu_cursor.cur"
+IDC_NORMAL_CURSOR       CURSOR  "res\\normal cursor.cur"
+IDC_TEXT_CURSOR         CURSOR  "res\\text.cur"
+IDC_LINK_CURSOR         CURSOR  "res\\link select.cur"
+IDC_BUSY_CURSOR         CURSOR  "res\\busy.cur"
+IDC_WIB_CURSOR          CURSOR  "res\\wib.cur"
 
 
 /////////////////////////////////////////////////////////////////////////////

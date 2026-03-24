@@ -44,8 +44,13 @@ public:
 	HBITMAP GetChkUncheckedDis()  const { return m_hChkUncheckedDis; }
 	HBITMAP GetChkCheckedDis()    const { return m_hChkCheckedDis; }
 
-	// Cursor
+	// Cursors
 	HCURSOR GetMuCursor()      const { return m_hMuCursor; }
+	HCURSOR GetNormalCursor()  const { return m_hNormalCursor; }
+	HCURSOR GetTextCursor()    const { return m_hTextCursor; }
+	HCURSOR GetLinkCursor()    const { return m_hLinkCursor; }
+	HCURSOR GetBusyCursor()    const { return m_hBusyCursor; }
+	HCURSOR GetWibCursor()     const { return m_hWibCursor; }
 
 	// Fonts
 	HFONT GetTitleFont()       const { return m_hTitleFont; }
@@ -93,6 +98,11 @@ private:
 	HBITMAP m_hChkUnchecked, m_hChkChecked, m_hChkUncheckedDis, m_hChkCheckedDis;
 
 	HCURSOR m_hMuCursor;
+	HCURSOR m_hNormalCursor;
+	HCURSOR m_hTextCursor;
+	HCURSOR m_hLinkCursor;
+	HCURSOR m_hBusyCursor;
+	HCURSOR m_hWibCursor;
 
 	HFONT m_hTitleFont, m_hTabFont, m_hSectionFont, m_hBodyFont, m_hSmallFont;
 	HBRUSH m_hBgBrush, m_hPanelBrush;

@@ -122,8 +122,13 @@
 #define IDB_ICO_HELM                    520
 #define IDB_ICO_JEWEL                   521
 
-// Cursor resource for MU Online game cursor
+// Cursor resources for MU Online game cursors
 #define IDC_MU_CURSOR                   522
+#define IDC_NORMAL_CURSOR               527
+#define IDC_TEXT_CURSOR                  528
+#define IDC_LINK_CURSOR                 529
+#define IDC_BUSY_CURSOR                 600
+#define IDC_WIB_CURSOR                  601
 
 // HUD button icon bitmaps
 #define IDB_ICO_SETTINGS                523
@@ -139,9 +144,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        532
+#define _APS_NEXT_RESOURCE_VALUE        602
 #define _APS_NEXT_COMMAND_VALUE         32768
-#define _APS_NEXT_CONTROL_VALUE         532
+#define _APS_NEXT_CONTROL_VALUE         602
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

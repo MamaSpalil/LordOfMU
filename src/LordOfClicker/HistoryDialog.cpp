@@ -132,7 +132,9 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		CenterWindow(GetParent());
 
 		// Show cursor - snapshot current display count first
-		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		HCURSOR hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
 		if (hCursor == NULL)
 			hCursor = LoadCursor(NULL, IDC_ARROW);
 		m_hOldCursor = SetCursor(hCursor);
@@ -160,9 +162,32 @@ LRESULT CHistoryDialog::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
 	if (LOWORD(lParam) == HTCLIENT)
 	{
-		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		// Determine which cursor to use based on the child control under the mouse
+		HCURSOR hCursor = NULL;
+		POINT pt;
+		if (GetCursorPos(&pt))
+		{
+			HWND hwndChild = ::WindowFromPoint(pt);
+			if (hwndChild != NULL)
+			{
+				TCHAR szClass[32] = {0};
+				::GetClassName(hwndChild, szClass, 31);
+				if (_tcsicmp(szClass, _T("Button")) == 0 ||
+				    _tcsicmp(szClass, _T("ListBox")) == 0)
+				{
+					hCursor = m_cTheme.GetLinkCursor();
+				}
+			}
+		}
+
+		// Fall back to normal themed cursor
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
 		if (hCursor == NULL)
 			hCursor = LoadCursor(NULL, IDC_ARROW);
+
 		SetCursor(hCursor);
 		bHandled = TRUE;
 		return TRUE;

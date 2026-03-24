@@ -5,6 +5,7 @@
 #include "resource.h"       // main symbols
 #include <atlhost.h>
 #include "Settings.h"
+#include "MuTheme.h"
 #include "DarkLordSettings.h"
 #include "EElfSettings.h"
 #include "AElfSettings.h"
@@ -51,6 +52,7 @@ BEGIN_MSG_MAP(CSettingsDlg)
 	COMMAND_HANDLER(IDC_AUTOHEAL, BN_CLICKED, OnCheckAutoHeal)
 	COMMAND_HANDLER(IDC_STOPPICK, BN_CLICKED, OnCheckStopPick)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
+	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	CHAIN_MSG_MAP(CAxDialogImpl<CSettingsDlg>)
 END_MSG_MAP()
@@ -58,6 +60,7 @@ END_MSG_MAP()
 protected:
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
+	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnSelectCharClass(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
@@ -70,6 +73,7 @@ protected:
 	void Apply();
 
 protected:
+	CMuTheme m_cTheme;
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
 
