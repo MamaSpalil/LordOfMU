@@ -1490,6 +1490,32 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 			}
 		}
 
+		// Robust foreground-window tracking: detect when the game (or its
+		// overlay dialogs) loses/gains the foreground even if WM_ACTIVATEAPP
+		// is not delivered (e.g. exclusive fullscreen, Alt+Tab edge cases).
+		// Uses the real (unhooked) GetForegroundWindow via the trampoline.
+		HWND hwndFg = GetForegroundWindowTr();
+		BOOL bGameFg = (hwndFg == m_hWnd);
+		if (!bGameFg && m_cUnifiedSettingsDlg.IsWindow() && hwndFg == m_cUnifiedSettingsDlg.m_hWnd)
+			bGameFg = TRUE;
+		if (!bGameFg && m_cHistoryDlg.IsWindow() && hwndFg == m_cHistoryDlg.m_hWnd)
+			bGameFg = TRUE;
+		if (!bGameFg && m_cLaunchMuDlg.IsWindow() && hwndFg == m_cLaunchMuDlg.m_hWnd)
+			bGameFg = TRUE;
+
+		if (bGameFg && !m_fIsWndActive)
+		{
+			m_fIsWndActive = TRUE;
+			m_cHUDButtons.SetGameActive(TRUE);
+			RestorePopupDialogs();
+		}
+		else if (!bGameFg && m_fIsWndActive)
+		{
+			m_fIsWndActive = FALSE;
+			m_cHUDButtons.SetGameActive(FALSE);
+			HidePopupDialogs();
+		}
+
 		for (int i=0; m_vFnKeys[i].vk != 0; ++i)
 		{
 			bool fOldState = m_vFnKeys[i].fPressed;
@@ -1516,13 +1542,19 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
 {
 	m_cHUDButtons.Reposition();
 
-	// On minimize, hide popup dialogs. On restore, bring them back.
+	// On minimize, hide popup dialogs and HUD. On restore, bring them back.
 	if (uMsg == WM_SIZE)
 	{
 		if (wParam == SIZE_MINIMIZED)
+		{
+			m_cHUDButtons.SetGameActive(FALSE);
 			HidePopupDialogs();
+		}
 		else if (wParam == SIZE_RESTORED)
+		{
+			m_cHUDButtons.SetGameActive(TRUE);
 			RestorePopupDialogs();
+		}
 	}
 
 	bHandled = FALSE; // Let the message pass through to the game
@@ -1714,6 +1746,23 @@ LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
 	m_bHistoryWasVisible = FALSE;
 	m_fGuiActive = FALSE;
 
+	return 0;
+}
+
+
+/**
+ * \brief WM_MOUSEACTIVATE handler — ensures that clicks on owned popup
+ *        dialogs (Settings, History) are not eaten by the game's WndProc.
+ *        The game may return MA_NOACTIVATEANDEAT which silently discards
+ *        the mouse event that triggered the activation.  When a dialog is
+ *        open we return MA_ACTIVATE so the dialog receives the click.
+ */
+LRESULT CMuWindow::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL& bHandled)
+{
+	if (m_fGuiActive)
+		return MA_ACTIVATE;
+
+	bHandled = FALSE;
 	return 0;
 }
 

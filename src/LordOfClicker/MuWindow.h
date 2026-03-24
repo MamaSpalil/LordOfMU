@@ -79,6 +79,7 @@ protected:
 		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
 		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
+		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	END_MSG_MAP()
 
 protected:
@@ -96,8 +97,12 @@ protected:
 	
 	LRESULT OnSetCursor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		//bHandled = FALSE;
-		return 1;
+		// Pass WM_SETCURSOR through to the game's original WndProc.
+		// The game relies on processing WM_SETCURSOR to maintain its internal
+		// mouse/click state.  Blocking it prevents LMB clicks from registering
+		// on the server selection screen and other UI elements.
+		bHandled = FALSE;
+		return 0;
 	}
 
 	LRESULT OnClickerMouseMove(UINT, WPARAM, LPARAM, BOOL&);
@@ -119,6 +124,7 @@ protected:
 	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
 
 	void HidePopupDialogs();
 	void RestorePopupDialogs();
