@@ -399,6 +399,11 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	m_fIsWndActive = (BOOL)wParam;
 
+	// Immediately show/hide HUD buttons when the game application
+	// gains or loses foreground.  Buttons must only be visible
+	// and clickable inside the game client (main.exe).
+	m_cHUDButtons.SetGameActive(m_fIsWndActive);
+
 	if (m_fIsWndActive)
 	{
 		bHandled = FALSE;
