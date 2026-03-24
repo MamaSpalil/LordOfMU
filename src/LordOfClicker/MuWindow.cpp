@@ -364,6 +364,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		m_cSettingsDlg.ShowWindow(SW_HIDE);
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
 		m_cHistoryDlg.ShowWindow(SW_HIDE);
+		m_fGuiActive = FALSE;
 		return TRUE;
 	}
 
@@ -696,6 +697,15 @@ LRESULT CMuWindow::OnClickerRButtonDown(UINT, WPARAM wParam, LPARAM lParam, BOOL
  */
 LRESULT CMuWindow::OnClickerRButtonUp(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
 {
+	// wParam == 1 is a special "release capture" flag from the clicker thread.
+	// ReleaseCapture/ClipCursor must be called from the UI thread.
+	if (wParam == 1)
+	{
+		ReleaseCapture();
+		ClipCursor(0);
+		return 0;
+	}
+
 	return CallWindowProc(m_pfnSuperWindowProc, m_hWnd, WM_RBUTTONUP, wParam, lParam);
 }
 
@@ -1464,6 +1474,9 @@ void CMuWindow::RestorePopupDialogs()
 
 	if (m_bSettingsWasVisible && m_cUnifiedSettingsDlg.IsWindow())
 	{
+		// Re-center dialog over game window before showing
+		m_cUnifiedSettingsDlg.CenterWindow(m_hWnd);
+
 		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
 		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
@@ -1473,6 +1486,9 @@ void CMuWindow::RestorePopupDialogs()
 
 	if (m_bHistoryWasVisible && m_cHistoryDlg.IsWindow())
 	{
+		// Re-center dialog over game window before showing
+		m_cHistoryDlg.CenterWindow(m_hWnd);
+
 		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
 		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);

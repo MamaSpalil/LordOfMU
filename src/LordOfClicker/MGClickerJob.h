@@ -32,7 +32,7 @@ protected:
 
 		DWORD dwTicks = GetTickCount();
 
-		if ((int)dwTicks - (int)m_dwChDirTicks > (int)m_tSettings.ae.dwChangeDirTime)
+		if ((int)dwTicks - (int)m_dwChDirTicks > (int)m_tSettings.mg.dwChangeDirTime)
 		{
 			int x = (int)((float)m_cHudParams.x0 + (float)m_cHudParams.width*MG_ATTACK_RADIUS()*cosf(_CurrentAngle));
 			int y = (int)((float)m_cHudParams.y0 + (float)m_cHudParams.width*MG_ATTACK_RADIUS()*sinf(_CurrentAngle));

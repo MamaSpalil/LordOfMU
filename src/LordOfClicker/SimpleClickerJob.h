@@ -50,8 +50,9 @@ protected:
 				SendMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONDOWN, (WPARAM)MK_RBUTTON, (LPARAM)MAKELONG(ptClick.x, ptClick.y));
 			}
 
-			ReleaseCapture();
-			ClipCursor(0);
+			// Release capture from UI thread (wParam=1 is the release flag)
+			if (IsWindow(m_hWnd))
+				PostMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONUP, (WPARAM)1, 0);
 
 			m_dwClickTicks = GetTickCount();
 		}

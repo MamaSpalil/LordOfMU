@@ -9,6 +9,9 @@
 // Color key for layered-window transparency (magenta → invisible)
 static const COLORREF HUD_TRANSPARENT_KEY = RGB(255, 0, 255);
 
+// Background color used in icon bitmap generation; must match the .bmp icon background.
+static const COLORREF HUD_ICON_BG_COLOR = RGB(25, 22, 16);
+
 
 CHUDButtons::CHUDButtons()
 {
@@ -104,7 +107,7 @@ void CHUDButtons::Show()
 	// Start periodic reposition timer to track game window movement.
 	if (!m_bTimerActive)
 	{
-		if (SetTimer(TIMER_REPOSITION, 200))
+		if (SetTimer(TIMER_REPOSITION, TIMER_REPOSITION_INTERVAL))
 			m_bTimerActive = TRUE;
 	}
 
@@ -209,14 +212,25 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		clrHL     = RGB(135, 112, 50);
 	}
 
-	// 3 concentric ellipses simulate a radial gradient (outer → inner).
-	struct { COLORREF c; int ri; } layers[] = {
-		{ clrOuter, r - 1 },
-		{ clrMid,   r * 2 / 3 },
-		{ clrInner, r / 3 }
-	};
+	// 5 concentric ellipses simulate a smoother radial gradient (outer → inner).
+	struct { COLORREF c; int ri; } layers[5];
+	{
+		int r0 = r - 1;
+		int dr = (r0 > 4) ? r0 / 4 : 1;
+		BYTE ro = GetRValue(clrOuter), go = GetGValue(clrOuter), bo = GetBValue(clrOuter);
+		BYTE ri_r = GetRValue(clrInner), gi = GetGValue(clrInner), bi = GetBValue(clrInner);
+		for (int i = 0; i < 5; ++i)
+		{
+			int t = i * 255 / 4;
+			layers[i].c = RGB(ro + (ri_r - ro) * t / 255,
+			                  go + (gi - go) * t / 255,
+			                  bo + (bi - bo) * t / 255);
+			layers[i].ri = r0 - i * dr;
+			if (layers[i].ri < 1) layers[i].ri = 1;
+		}
+	}
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		HBRUSH hBr = CreateSolidBrush(layers[i].c);
 		HPEN   hPn = CreatePen(PS_SOLID, 1, layers[i].c);
@@ -244,7 +258,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	// Specular highlight crescent at the top of the button
 	if (!bPressed)
 	{
-		int clipR = r - 2;
+		int clipR = r - 3;
 		if (clipR > 1)
 		{
 			HRGN hClip = CreateEllipticRgn(
@@ -255,7 +269,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 			HPEN   hPn = CreatePen(PS_SOLID, 1, clrHL);
 			HGDIOBJ hOB = SelectObject(hDC, hBr);
 			HGDIOBJ hOP = SelectObject(hDC, hPn);
-			Ellipse(hDC, cx - clipR + 1, cy - r, cx + clipR - 1, cy);
+			Ellipse(hDC, cx - clipR + 1, cy - r + 2, cx + clipR - 1, cy);
 			SelectObject(hDC, hOB);
 			SelectObject(hDC, hOP);
 			DeleteObject(hBr);
@@ -282,7 +296,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		// Use TransparentBlt to skip the background color
 		TransparentBlt(hDC, ix, iy, icoSz, icoSz,
 			hMemDC, 0, 0, bm.bmWidth, bm.bmHeight,
-			RGB(25, 22, 16)); // BG_COLOR used in icon generation
+			HUD_ICON_BG_COLOR);
 
 		SelectObject(hMemDC, hOldBmp);
 		DeleteDC(hMemDC);
@@ -342,8 +356,8 @@ LRESULT CHUDButtons::OnEraseBkgnd(UINT, WPARAM, LPARAM, BOOL&)
 
 LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
-	int x = LOWORD(lParam);
-	int y = HIWORD(lParam);
+	int x = GET_X_LPARAM(lParam);
+	int y = GET_Y_LPARAM(lParam);
 	int btn = HitTest(x, y);
 
 	if (btn >= 0)
@@ -361,8 +375,8 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
 	if (m_iPressedBtn >= 0)
 	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
 		int btn = HitTest(x, y);
 
 		if (btn == m_iPressedBtn && m_hwndParent)
@@ -393,8 +407,8 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 
 LRESULT CHUDButtons::OnMouseMove(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
-	int x = LOWORD(lParam);
-	int y = HIWORD(lParam);
+	int x = GET_X_LPARAM(lParam);
+	int y = GET_Y_LPARAM(lParam);
 	int btn = HitTest(x, y);
 
 	if (btn != m_iHoverBtn)

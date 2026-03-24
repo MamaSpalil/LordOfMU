@@ -6,7 +6,9 @@ CHistoryDialog::CHistoryDialog()
 {
 	m_hOldCursor = NULL;
 	m_iShowCursor = 0;
+	m_bCursorShown = FALSE;
 	m_hListBrush = NULL;
+	m_hTitleBrush = NULL;
 }
 
 
@@ -14,6 +16,8 @@ CHistoryDialog::~CHistoryDialog()
 {
 	if (m_hListBrush)
 		DeleteObject(m_hListBrush);
+	if (m_hTitleBrush)
+		DeleteObject(m_hTitleBrush);
 }
 
 
@@ -63,6 +67,7 @@ LRESULT CHistoryDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	CenterWindow(GetParent());
 
 	m_hListBrush = CreateSolidBrush(RGB(20, 17, 12));
+	m_hTitleBrush = CreateSolidBrush(RGB(30, 25, 15));
 
 	// Set list box font
 	HWND hList = GetDlgItem(IDC_HISTORY_LIST);
@@ -90,22 +95,33 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		// Re-center over game window
 		CenterWindow(GetParent());
 
-		// Show cursor
-		m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
-		m_iShowCursor = ShowCursor(TRUE);
+		// Show cursor (guard against double-show)
+		if (!m_bCursorShown)
+		{
+			m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+			m_iShowCursor = 0;
+			while (ShowCursor(TRUE) < 1 && m_iShowCursor < 100)
+				++m_iShowCursor;
+
+			m_bCursorShown = TRUE;
+		}
 
 		PopulateList();
 	}
 	else
 	{
 		// Restore cursor
-		if (m_hOldCursor)
-			SetCursor(m_hOldCursor);
-
-		while (m_iShowCursor > 0)
+		if (m_bCursorShown)
 		{
-			ShowCursor(FALSE);
-			--m_iShowCursor;
+			if (m_hOldCursor)
+				SetCursor(m_hOldCursor);
+
+			for (int i = m_iShowCursor; i >= 0; --i)
+				ShowCursor(FALSE);
+
+			m_iShowCursor = 0;
+			m_bCursorShown = FALSE;
 		}
 	}
 
@@ -139,9 +155,8 @@ LRESULT CHistoryDialog::OnNCPaint(UINT, WPARAM, LPARAM, BOOL&)
 	rcTitle.right -= 4;
 	rcTitle.bottom = rcTitle.top + 20;
 
-	HBRUSH hTitleBr = CreateSolidBrush(RGB(30, 25, 15));
+	HBRUSH hTitleBr = m_hTitleBrush ? m_hTitleBrush : (HBRUSH)GetStockObject(BLACK_BRUSH);
 	FillRect(hDC, &rcTitle, hTitleBr);
-	DeleteObject(hTitleBr);
 
 	SetBkMode(hDC, TRANSPARENT);
 	SetTextColor(hDC, CMuTheme::ClrTitleText());

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MuTheme.h"
 
+#pragma comment(lib, "msimg32.lib")  // for GradientFill
+
 CMuTheme::CMuTheme()
 {
 	m_hBgPanel = NULL;
@@ -140,24 +142,25 @@ void CMuTheme::Cleanup()
 
 void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 {
-	// Dark-gold gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
-	int height = rc.bottom - rc.top;
-	if (height <= 0) return;
+	// Dark-gold vertical gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
+	// Uses GradientFill API for efficient hardware-accelerated rendering.
+	TRIVERTEX vtx[2];
+	vtx[0].x = rc.left;
+	vtx[0].y = rc.top;
+	vtx[0].Red   = 18 << 8;
+	vtx[0].Green  = 15 << 8;
+	vtx[0].Blue   = 10 << 8;
+	vtx[0].Alpha  = 0;
 
-	for (int y = rc.top; y < rc.bottom; ++y)
-	{
-		int t = (height > 1) ? ((y - rc.top) * 255) / (height - 1) : 0;
-		int r = 18 + (25 - 18) * t / 255;
-		int g = 15 + (22 - 15) * t / 255;
-		int b = 10 + (16 - 10) * t / 255;
+	vtx[1].x = rc.right;
+	vtx[1].y = rc.bottom;
+	vtx[1].Red   = 25 << 8;
+	vtx[1].Green  = 22 << 8;
+	vtx[1].Blue   = 16 << 8;
+	vtx[1].Alpha  = 0;
 
-		HPEN hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b));
-		HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
-		MoveToEx(hDC, rc.left, y, NULL);
-		LineTo(hDC, rc.right, y);
-		SelectObject(hDC, hOldPen);
-		DeleteObject(hPen);
-	}
+	GRADIENT_RECT gr = { 0, 1 };
+	GradientFill(hDC, vtx, 2, &gr, 1, GRADIENT_FILL_RECT_V);
 }
 
 
