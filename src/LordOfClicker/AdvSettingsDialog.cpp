@@ -192,19 +192,18 @@ LRESULT CAdvSettingsDialog::OnNCPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 
 	RECT rcWnd;
 	GetWindowRect(&rcWnd);
+
+	// Compute caption height before normalizing rcWnd
+	RECT rcClient;
+	GetClientRect(&rcClient);
+	ClientToScreen(&rcClient);
+	int iCapSize = (rcClient.top - rcWnd.top);
+
 	OffsetRect(&rcWnd, -rcWnd.left, -rcWnd.top);
 
 	CMuTheme::DrawMuFrame(hDC, rcWnd);
 
 	// Draw title bar
-	RECT rcClient;
-	GetClientRect(&rcClient);
-	ClientToScreen(&rcClient);
-
-	RECT rcWnd2;
-	GetWindowRect(&rcWnd2);
-	int iCapSize = (rcClient.top - rcWnd2.top);
-
 	RECT rcTitle = rcWnd;
 	rcTitle.left += 4;
 	rcTitle.top += 4;
