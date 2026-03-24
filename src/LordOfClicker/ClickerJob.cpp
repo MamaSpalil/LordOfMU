@@ -41,8 +41,10 @@ CClickerJob::~CClickerJob()
 
 			if ((int)GetTickCount() - (int)dwStartWait > 10000)
 			{
-				// Thread did not exit within 10 seconds.  Leaking the thread handle
-				// is safer than TerminateThread which corrupts CRT state.
+				// Thread did not exit within 10 seconds.  Leaking the thread
+				// handle is safer than TerminateThread which corrupts CRT state.
+				// This is an exceptional case and should not happen during
+				// normal operation.
 				break;
 			}
 		}

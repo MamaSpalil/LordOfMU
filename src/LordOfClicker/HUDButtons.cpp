@@ -218,13 +218,13 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		int r0 = r - 1;
 		int dr = (r0 > 4) ? r0 / 4 : 1;
 		BYTE ro = GetRValue(clrOuter), go = GetGValue(clrOuter), bo = GetBValue(clrOuter);
-		BYTE ri_r = GetRValue(clrInner), gi = GetGValue(clrInner), bi = GetBValue(clrInner);
+		BYTE r_inner = GetRValue(clrInner), g_inner = GetGValue(clrInner), b_inner = GetBValue(clrInner);
 		for (int i = 0; i < 5; ++i)
 		{
 			int t = i * 255 / 4;
-			layers[i].c = RGB(ro + (ri_r - ro) * t / 255,
-			                  go + (gi - go) * t / 255,
-			                  bo + (bi - bo) * t / 255);
+			layers[i].c = RGB(ro + (r_inner - ro) * t / 255,
+			                  go + (g_inner - go) * t / 255,
+			                  bo + (b_inner - bo) * t / 255);
 			layers[i].ri = r0 - i * dr;
 			if (layers[i].ri < 1) layers[i].ri = 1;
 		}

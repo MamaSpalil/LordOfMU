@@ -100,6 +100,9 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		{
 			m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
 
+			// ShowCursor increments/decrements an internal counter.
+			// Loop up to 100 times as a safety limit (MU Online hides the
+			// cursor deeply; normal games need at most 2-3 increments).
 			m_iShowCursor = 0;
 			while (ShowCursor(TRUE) < 1 && m_iShowCursor < 100)
 				++m_iShowCursor;
