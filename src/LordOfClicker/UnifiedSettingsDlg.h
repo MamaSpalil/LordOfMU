@@ -70,19 +70,14 @@ protected:
 	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
 		m_bLButtonDown = TRUE;
-		// Force cursor update to show link/select cursor
-		SetCursor(m_cTheme.GetLinkCursor() ? m_cTheme.GetLinkCursor() :
-				  m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
-				  LoadCursor(NULL, IDC_ARROW));
+		UpdateCursorForLMBState();
 		bHandled = FALSE; // Let controls process the click
 		return 0;
 	}
 	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
 		m_bLButtonDown = FALSE;
-		// Restore normal cursor
-		SetCursor(m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
-				  LoadCursor(NULL, IDC_ARROW));
+		UpdateCursorForLMBState();
 		bHandled = FALSE; // Let controls process the click
 		return 0;
 	}
@@ -123,6 +118,14 @@ protected:
 	void SubclassSeparators(HWND hwndParent);
 	void DisableChildThemes(HWND hwndParent);
 	void DrawThemedTab(LPDRAWITEMSTRUCT lpDIS);
+	void UpdateCursorForLMBState()
+	{
+		HCURSOR hCursor = m_bLButtonDown ? m_cTheme.GetLinkCursor() : NULL;
+		if (hCursor == NULL) hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL) hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL) hCursor = LoadCursor(NULL, IDC_ARROW);
+		SetCursor(hCursor);
+	}
 
 	static INT_PTR CALLBACK TabPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK TabSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,

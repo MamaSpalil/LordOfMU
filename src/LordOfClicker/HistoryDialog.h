@@ -57,17 +57,14 @@ protected:
 	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
 		m_bLButtonDown = TRUE;
-		SetCursor(m_cTheme.GetLinkCursor() ? m_cTheme.GetLinkCursor() :
-				  m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
-				  LoadCursor(NULL, IDC_ARROW));
+		UpdateCursorForLMBState();
 		bHandled = FALSE;
 		return 0;
 	}
 	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
 		m_bLButtonDown = FALSE;
-		SetCursor(m_cTheme.GetNormalCursor() ? m_cTheme.GetNormalCursor() :
-				  LoadCursor(NULL, IDC_ARROW));
+		UpdateCursorForLMBState();
 		bHandled = FALSE;
 		return 0;
 	}
@@ -87,6 +84,14 @@ protected:
 
 private:
 	void PopulateList();
+	void UpdateCursorForLMBState()
+	{
+		HCURSOR hCursor = m_bLButtonDown ? m_cTheme.GetLinkCursor() : NULL;
+		if (hCursor == NULL) hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL) hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL) hCursor = LoadCursor(NULL, IDC_ARROW);
+		SetCursor(hCursor);
+	}
 
 	CMuTheme m_cTheme;
 	std::vector<HistoryEntry> m_vHistory;

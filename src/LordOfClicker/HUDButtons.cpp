@@ -245,12 +245,15 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	// Dark metallic panel with gold trim.  Square-ish with rounded corners,
 	// subtle gradient, and a bright gold border that glows on hover.
 	COLORREF clrBg, clrBgLight, clrBorder, clrBorderInner, clrHL;
+	BOOL bShowHighlight = TRUE;
+
 	if (bPressed) {
 		clrBg          = RGB(15, 12, 5);
 		clrBgLight     = RGB(28, 23, 10);
 		clrBorder      = RGB(160, 130, 50);
 		clrBorderInner = RGB(45, 38, 18);
-		clrHL          = RGB(0, 0, 0); // No highlight when pressed
+		clrHL          = RGB(0, 0, 0);
+		bShowHighlight = FALSE;  // No highlight when pressed
 	} else if (bHover) {
 		clrBg          = RGB(38, 32, 15);
 		clrBgLight     = RGB(65, 55, 25);
@@ -266,9 +269,10 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	}
 
 	// Background fill — vertical gradient from darker (top) to lighter (bottom)
+	int gradientSteps = (h > 1) ? (h - 1) : 1;
 	for (int y = rc.top; y < rc.bottom; ++y)
 	{
-		int t = (y - rc.top) * 255 / (h > 1 ? h - 1 : 1);
+		int t = (y - rc.top) * 255 / gradientSteps;
 		COLORREF clr = RGB(
 			GetRValue(clrBg) + (GetRValue(clrBgLight) - GetRValue(clrBg)) * t / 255,
 			GetGValue(clrBg) + (GetGValue(clrBgLight) - GetGValue(clrBg)) * t / 255,
@@ -305,7 +309,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	}
 
 	// Top highlight line (specular) — skip if pressed
-	if (!bPressed && clrHL != RGB(0, 0, 0))
+	if (bShowHighlight && !bPressed)
 	{
 		HPEN hPn = CreatePen(PS_SOLID, 1, clrHL);
 		HGDIOBJ hOP = SelectObject(hDC, hPn);
