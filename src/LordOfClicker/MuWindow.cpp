@@ -1473,7 +1473,8 @@ LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
 {
-	WriteClickerLogFmt("HUD", "StartStop clicked, m_pClicker=%p", m_pClicker);
+	WriteClickerLogFmt("HUD", "StartStop clicked: %s autoclicker, m_pClicker=%p",
+		m_pClicker != NULL ? "stopping" : "starting", m_pClicker);
 
 	if (m_pClicker != NULL)
 	{

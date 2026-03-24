@@ -436,7 +436,7 @@ LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 		POINT pt = { x, y };
 		ClientToScreen(&pt);
 		::ScreenToClient(m_hwndOwner, &pt);
-		::PostMessage(m_hwndOwner, WM_LBUTTONDOWN, 0, MAKELPARAM(pt.x, pt.y));
+		::PostMessage(m_hwndOwner, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(pt.x, pt.y));
 	}
 
 	return 0;
