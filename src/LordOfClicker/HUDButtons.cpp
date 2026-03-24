@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "HUDButtons.h"
 #include "MuTheme.h"
-#include <windowsx.h>
-
 #include <windowsx.h>  // GET_X_LPARAM, GET_Y_LPARAM
 
 #pragma comment(lib, "msimg32.lib")
@@ -19,7 +17,6 @@ CHUDButtons::CHUDButtons()
 	m_hwndParent = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
-	m_bGameActive = FALSE;
 	m_bEnabled = FALSE;
 	m_bGameActive = FALSE;
 	m_hIcoSettings = NULL;
@@ -68,12 +65,8 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	int barWidth = BAR_PADDING * 2 + BTN_COUNT * BTN_SIZE + (BTN_COUNT - 1) * BTN_SPACING;
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
 
-	// Position in client coordinates of the parent (right of FPS counter).
-	// Actual screen position is set by Reposition() after creation.
-
-	// Position to the right of the FPS counter in the game client area.
-	int x = ptClient.x + 90;
-	int y = ptClient.y + 48;
+	// Initial rect — actual screen position is set by Reposition() after creation.
+	CRect rcPos(0, 0, barWidth, barHeight);
 
 	// Create as owned popup window (stays on top of game), initially hidden.
 	// WS_EX_LAYERED enables color-key transparency (no black background).
@@ -153,7 +146,17 @@ void CHUDButtons::Reset()
 	m_bEnabled = FALSE;
 	m_bClickerRunning = FALSE;
 	m_bGameActive = FALSE;
-	Hide();
+	if (IsWindow())
+	{
+		if (m_bTimerActive)
+		{
+			KillTimer(REPOSITION_TIMER_ID);
+			m_bTimerActive = FALSE;
+		}
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		InvalidateRect(NULL, FALSE);
+	}
 }
 
 
@@ -185,61 +188,13 @@ void CHUDButtons::SetGameActive(BOOL bActive)
 	{
 		// Game regained foreground - show HUD if character was selected
 		if (m_bEnabled && !IsWindowVisible())
+		{
 			Reposition();
+			InvalidateRect(NULL, FALSE);
+		}
 	}
 }
 
-
-void CHUDButtons::Reposition()
-{
-	if (!IsWindow() || !::IsWindow(m_hwndOwner))
-		return;
-
-	// Hide when the game window is hidden or minimized
-	if (!::IsWindowVisible(m_hwndOwner) || ::IsIconic(m_hwndOwner))
-	{
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-		return;
-	}
-
-	// Hide when the game application is not the foreground app.
-	// Buttons must be visible and clickable exclusively inside the game client.
-	if (!m_bGameActive)
-	{
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-		return;
-	}
-
-	RECT rcClient = {0};
-	::GetClientRect(m_hwndOwner, &rcClient);
-	POINT ptClient = {0, 0};
-	::ClientToScreen(m_hwndOwner, &ptClient);
-
-	// Position to the right of the FPS counter
-	int x = ptClient.x + 90;
-	int y = ptClient.y + 48;
-
-	// Keep TOPMOST so the HUD stays visible above the game's
-	// DirectDraw/Direct3D rendering surface.
-	SetWindowPos(HWND_TOPMOST, x, y, 0, 0,
-		SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-}
-
-
-void CHUDButtons::Reset()
-{
-	m_bEnabled = FALSE;
-	m_bClickerRunning = FALSE;
-	if (IsWindow())
-	{
-		KillTimer(REPOSITION_TIMER_ID);
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-		InvalidateRect(NULL, FALSE);
-	}
-}
 
 
 RECT CHUDButtons::GetButtonRect(int idx)
@@ -462,8 +417,8 @@ LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 		// Click missed all buttons - forward to game window
 		POINT pt = { x, y };
 		ClientToScreen(&pt);
-		::ScreenToClient(m_hwndOwner, &pt);
-		::PostMessage(m_hwndOwner, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(pt.x, pt.y));
+		::ScreenToClient(m_hwndParent, &pt);
+		::PostMessage(m_hwndParent, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(pt.x, pt.y));
 	}
 
 	return 0;
@@ -563,36 +518,6 @@ LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	return MA_NOACTIVATE;
 }
 
-
-LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
-{
-	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-	ScreenToClient(&pt);
-
-	if (HitTest(pt.x, pt.y) >= 0)
-		return HTCLIENT;      // Over a button - handle the click
-
-	return HTTRANSPARENT;      // Empty space - click passes through to game
-}
-
-
-LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
-{
-	m_bGameActive = bActive;
-
-	if (!m_bEnabled || !IsWindow())
-		return;
-
-	if (bActive)
-	{
-		Reposition();
-	}
-	else
-	{
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-	}
-}
 
 
 void CHUDButtons::Reposition()
