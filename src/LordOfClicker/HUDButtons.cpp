@@ -103,9 +103,19 @@ void CHUDButtons::Show()
 	if (IsWindowVisible())
 		return;
 
+	Reposition();
 	ShowWindow(SW_SHOWNOACTIVATE);
 	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
-	Reposition();
+}
+
+
+void CHUDButtons::Hide()
+{
+	if (!IsWindow())
+		return;
+
+	if (IsWindowVisible())
+		ShowWindow(SW_HIDE);
 }
 
 
@@ -125,10 +135,11 @@ void CHUDButtons::Reposition()
 	if (!IsWindow() || !::IsWindow(m_hwndOwner))
 		return;
 
-	// Only show when the game window is visible
-	if (!::IsWindowVisible(m_hwndOwner))
+	// Hide when the game window is hidden or minimized
+	if (!::IsWindowVisible(m_hwndOwner) || ::IsIconic(m_hwndOwner))
 	{
-		ShowWindow(SW_HIDE);
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
 		return;
 	}
 

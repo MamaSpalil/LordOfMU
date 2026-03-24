@@ -1407,6 +1407,18 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 
 /**
+ * \brief Game window moved or resized - immediately reposition the HUD overlay.
+ *        Keeps buttons anchored without waiting for the 200ms reposition timer.
+ */
+LRESULT CMuWindow::OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
+{
+	m_cHUDButtons.Reposition();
+	bHandled = FALSE; // Let the message pass through to the game
+	return 0;
+}
+
+
+/**
  * \brief HUD Settings button clicked - open the F9 settings dialog.
  */
 LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)

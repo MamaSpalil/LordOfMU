@@ -28,6 +28,7 @@ public:
 	BOOL Create(HWND hwndOwner, HINSTANCE hInstance);
 	void Destroy();
 	void Show();
+	void Hide();
 
 	void SetClickerRunning(BOOL bRunning);
 	void Reposition();
