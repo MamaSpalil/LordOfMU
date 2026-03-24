@@ -10,10 +10,9 @@ static const COLORREF HUD_TRANSPARENT_KEY = RGB(255, 0, 255);
 
 CHUDButtons::CHUDButtons()
 {
-	m_hwndOwner = NULL;
+	m_hwndParent = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
-	m_bGameActive = TRUE;
 	m_bEnabled = FALSE;
 	m_hIcoSettings = NULL;
 	m_hIcoPlay = NULL;
@@ -31,9 +30,9 @@ CHUDButtons::~CHUDButtons()
 }
 
 
-BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
+BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 {
-	m_hwndOwner = hwndOwner;
+	m_hwndParent = hwndParent;
 	m_hInstance = hInstance;
 
 	// Load icon bitmaps
@@ -46,27 +45,21 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	int barWidth = BAR_PADDING * 2 + BTN_COUNT * BTN_SIZE + (BTN_COUNT - 1) * BTN_SPACING;
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
 
-	// Get game window position for initial placement
-	RECT rcOwner = {0};
-	::GetWindowRect(hwndOwner, &rcOwner);
+	// Position in client coordinates of the parent (right of FPS counter).
+	int x = 70;
+	int y = 3;
 
-	RECT rcClient = {0};
-	::GetClientRect(hwndOwner, &rcClient);
-	POINT ptClient = {0, 0};
-	::ClientToScreen(hwndOwner, &ptClient);
-
-	// Position to the right of the FPS counter in the game client area.
-	int x = ptClient.x + 70;
-	int y = ptClient.y + 3;
-
-	// Create as owned popup window (stays on top of game), initially hidden.
-	// WS_EX_LAYERED enables color-key transparency (no black background).
+	// Create as a child window of the game window.  WS_CHILD makes the HUD
+	// an integral part of the game window: it moves, shows and hides together
+	// with the parent automatically, no separate positioning or z-order needed.
+	// WS_EX_LAYERED + color-key transparency lets the game scene show through.
+	RECT rcPos = { x, y, x + barWidth, y + barHeight };
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
-		hwndOwner,                              // owner window
-		CWindow::rcDefault,                     // position (set below)
+		hwndParent,                             // parent window
+		rcPos,                                  // position in client coords
 		NULL,                                   // no title
-		WS_POPUP,                               // popup, initially hidden
-		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST | WS_EX_LAYERED
+		WS_CHILD | WS_CLIPSIBLINGS,            // child, initially hidden
+		WS_EX_LAYERED                           // layered for color-key transparency
 	);
 
 	if (!hWnd)
@@ -74,9 +67,6 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 
 	// Magenta pixels become fully transparent (removes black background).
 	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 0, LWA_COLORKEY);
-
-	// Position and size the window (still hidden)
-	SetWindowPos(NULL, x, y, barWidth, barHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -91,7 +81,6 @@ void CHUDButtons::Destroy()
 
 	if (IsWindow())
 	{
-		KillTimer(REPOSITION_TIMER_ID);
 		DestroyWindow();
 	}
 }
@@ -104,14 +93,8 @@ void CHUDButtons::Show()
 
 	m_bEnabled = TRUE;
 
-	// Always start the reposition timer (even if game is not active,
-	// the timer will show the HUD when the game becomes active again).
-	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
-
-	if (!m_bGameActive || IsWindowVisible())
-		return;
-
-	Reposition();
+	if (!IsWindowVisible())
+		ShowWindow(SW_SHOWNA);
 }
 
 
@@ -125,6 +108,14 @@ void CHUDButtons::Hide()
 }
 
 
+void CHUDButtons::Reset()
+{
+	m_bEnabled = FALSE;
+	m_bClickerRunning = FALSE;
+	Hide();
+}
+
+
 void CHUDButtons::SetClickerRunning(BOOL bRunning)
 {
 	if (m_bClickerRunning != bRunning)
@@ -133,66 +124,6 @@ void CHUDButtons::SetClickerRunning(BOOL bRunning)
 		if (IsWindow())
 			InvalidateRect(NULL, FALSE);
 	}
-}
-
-
-void CHUDButtons::SetGameActive(BOOL bActive)
-{
-	m_bGameActive = bActive;
-
-	if (!IsWindow())
-		return;
-
-	if (!bActive)
-	{
-		// Game lost foreground - hide HUD immediately
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-	}
-	else
-	{
-		// Game regained foreground - show HUD if character was selected
-		if (m_bEnabled && !IsWindowVisible())
-			Reposition();
-	}
-}
-
-
-void CHUDButtons::Reposition()
-{
-	if (!IsWindow() || !::IsWindow(m_hwndOwner))
-		return;
-
-	// Hide when the game window is hidden or minimized
-	if (!::IsWindowVisible(m_hwndOwner) || ::IsIconic(m_hwndOwner))
-	{
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-		return;
-	}
-
-	// Hide when the game application is not the foreground app.
-	// Buttons must be visible and clickable exclusively inside the game client.
-	if (!m_bGameActive)
-	{
-		if (IsWindowVisible())
-			ShowWindow(SW_HIDE);
-		return;
-	}
-
-	RECT rcClient = {0};
-	::GetClientRect(m_hwndOwner, &rcClient);
-	POINT ptClient = {0, 0};
-	::ClientToScreen(m_hwndOwner, &ptClient);
-
-	// Position to the right of the FPS counter
-	int x = ptClient.x + 70;
-	int y = ptClient.y + 3;
-
-	// Keep TOPMOST so the HUD stays visible above the game's
-	// DirectDraw/Direct3D rendering surface.
-	SetWindowPos(HWND_TOPMOST, x, y, 0, 0,
-		SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
 
@@ -413,19 +344,19 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 		int y = HIWORD(lParam);
 		int btn = HitTest(x, y);
 
-		if (btn == m_iPressedBtn && m_hwndOwner)
+		if (btn == m_iPressedBtn && m_hwndParent)
 		{
 			// Send appropriate message to parent
 			switch (btn)
 			{
 			case 0:
-				::PostMessage(m_hwndOwner, WM_HUD_SETTINGS, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_SETTINGS, 0, 0);
 				break;
 			case 1:
-				::PostMessage(m_hwndOwner, WM_HUD_STARTSTOP, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_STARTSTOP, 0, 0);
 				break;
 			case 2:
-				::PostMessage(m_hwndOwner, WM_HUD_HISTORY, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_HISTORY, 0, 0);
 				break;
 			}
 		}
@@ -480,20 +411,4 @@ LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	// Prevent the HUD from stealing focus when the user clicks on a button.
 	// This keeps the game window as the active/foreground window.
 	return MA_NOACTIVATE;
-}
-
-
-LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
-{
-	if (wParam == REPOSITION_TIMER_ID)
-	{
-		Reposition();
-		bHandled = TRUE;
-	}
-	else
-	{
-		bHandled = FALSE;
-	}
-
-	return 0;
 }
