@@ -73,7 +73,7 @@ CProxy* CProxyBuilder::CreateGameProxy(SOCKET s)
 	pProxy->AddFilter(new CScriptProcessorFilter(pProxy));
 #endif
 
-#if defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__) || defined(DEBUG)
+#if defined(__HACK_STUFF__) || defined(DEBUG) || defined(__INCLUDE_ALL_STUFF__)
 	pProxy->AddFilter(new CAutoKillFilter(pProxy));
 	pProxy->AddFilter(new CMultihitPacketFilter(pProxy));
 	pProxy->AddFilter(new CFastMoveFilter(pProxy));
