@@ -94,6 +94,7 @@ private:
 	BOOL m_bTracking;   // mouse tracking active
 	BOOL m_bTimerActive; // reposition timer running
 	HCURSOR m_hMuCursor; // MU-themed cursor for HUD buttons
+	HCURSOR m_hLinkCursor; // Link/select cursor for HUD button hover
 };
 
 #endif //__HUDButtons_H

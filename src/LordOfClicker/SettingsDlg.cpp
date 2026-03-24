@@ -13,6 +13,8 @@ LRESULT CSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	CAxDialogImpl<CSettingsDlg>::OnInitDialog(uMsg, wParam, lParam, bHandled);
 	bHandled = TRUE;
 
+	m_cTheme.Initialize(_AtlBaseModule.GetResourceInstance());
+
 	RECT rc = {0};
 	RECT rcParent = {0};
 
@@ -115,7 +117,11 @@ LRESULT CSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 	{
 		InitValues();
 
-		HCURSOR hCursor = LoadCursor(0, IDC_ARROW);
+		HCURSOR hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(0, IDC_ARROW);
 		m_hOldCursor = SetCursor(hCursor);
 
 		for (m_iShowCursor=0; ShowCursor(TRUE) < 1 && m_iShowCursor < 100; ++m_iShowCursor);
@@ -130,6 +136,48 @@ LRESULT CSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 	}
 
 	return 0;
+}
+
+LRESULT CSettingsDlg::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
+{
+	if (LOWORD(lParam) == HTCLIENT)
+	{
+		// Use context-aware cursors based on child control under the mouse
+		HCURSOR hCursor = NULL;
+		POINT pt;
+		if (GetCursorPos(&pt))
+		{
+			HWND hwndChild = ::WindowFromPoint(pt);
+			if (hwndChild != NULL)
+			{
+				TCHAR szClass[32] = {0};
+				::GetClassName(hwndChild, szClass, 31);
+				if (_tcsicmp(szClass, _T("Edit")) == 0)
+				{
+					hCursor = m_cTheme.GetTextCursor();
+				}
+				else if (_tcsicmp(szClass, _T("Button")) == 0 ||
+				         _tcsicmp(szClass, _T("ComboBox")) == 0)
+				{
+					hCursor = m_cTheme.GetLinkCursor();
+				}
+			}
+		}
+
+		// Fall back to normal themed cursor
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(NULL, IDC_ARROW);
+
+		SetCursor(hCursor);
+		bHandled = TRUE;
+		return TRUE;
+	}
+	bHandled = FALSE;
+	return FALSE;
 }
 
 LRESULT CSettingsDlg::OnClickedOK(WORD, WORD, HWND, BOOL&)

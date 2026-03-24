@@ -25,6 +25,11 @@ CMuTheme::CMuTheme()
 	m_hChkUncheckedDis = NULL;
 	m_hChkCheckedDis = NULL;
 	m_hMuCursor = NULL;
+	m_hNormalCursor = NULL;
+	m_hTextCursor = NULL;
+	m_hLinkCursor = NULL;
+	m_hBusyCursor = NULL;
+	m_hWibCursor = NULL;
 	m_hTitleFont = NULL;
 	m_hTabFont = NULL;
 	m_hSectionFont = NULL;
@@ -69,6 +74,18 @@ BOOL CMuTheme::Initialize(HINSTANCE hInst)
 
 	// Load MU Online game cursor
 	m_hMuCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_MU_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+
+	// Load themed cursors
+	m_hNormalCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_NORMAL_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	m_hTextCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_TEXT_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	m_hLinkCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_LINK_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	m_hBusyCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_BUSY_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	m_hWibCursor = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_WIB_CURSOR),
 		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
 	// Create fonts (Tahoma - standard MU Online font)
@@ -137,6 +154,11 @@ void CMuTheme::Cleanup()
 	if (m_hBgBrush != NULL) { DeleteObject(m_hBgBrush); m_hBgBrush = NULL; }
 	if (m_hPanelBrush != NULL) { DeleteObject(m_hPanelBrush); m_hPanelBrush = NULL; }
 	if (m_hMuCursor != NULL) { DestroyCursor(m_hMuCursor); m_hMuCursor = NULL; }
+	if (m_hNormalCursor != NULL) { DestroyCursor(m_hNormalCursor); m_hNormalCursor = NULL; }
+	if (m_hTextCursor != NULL) { DestroyCursor(m_hTextCursor); m_hTextCursor = NULL; }
+	if (m_hLinkCursor != NULL) { DestroyCursor(m_hLinkCursor); m_hLinkCursor = NULL; }
+	if (m_hBusyCursor != NULL) { DestroyCursor(m_hBusyCursor); m_hBusyCursor = NULL; }
+	if (m_hWibCursor != NULL) { DestroyCursor(m_hWibCursor); m_hWibCursor = NULL; }
 }
 
 

@@ -28,6 +28,7 @@ CHUDButtons::CHUDButtons()
 	m_bTracking = FALSE;
 	m_bTimerActive = FALSE;
 	m_hMuCursor = NULL;
+	m_hLinkCursor = NULL;
 }
 
 
@@ -89,6 +90,8 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	// Load MU-themed cursor
 	m_hMuCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_MU_CURSOR),
 		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	m_hLinkCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_LINK_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
 	return TRUE;
 }
@@ -101,6 +104,7 @@ void CHUDButtons::Destroy()
 	if (m_hIcoStop) { DeleteObject(m_hIcoStop); m_hIcoStop = NULL; }
 	if (m_hIcoHistory) { DeleteObject(m_hIcoHistory); m_hIcoHistory = NULL; }
 	if (m_hMuCursor) { DestroyCursor(m_hMuCursor); m_hMuCursor = NULL; }
+	if (m_hLinkCursor) { DestroyCursor(m_hLinkCursor); m_hLinkCursor = NULL; }
 
 	if (IsWindow())
 	{
@@ -519,11 +523,17 @@ LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL&)
 
 LRESULT CHUDButtons::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
-	if (LOWORD(lParam) == HTCLIENT && m_hMuCursor != NULL)
+	if (LOWORD(lParam) == HTCLIENT)
 	{
-		SetCursor(m_hMuCursor);
-		bHandled = TRUE;
-		return TRUE;
+		// Use link/select cursor when hovering over a button, normal MU cursor otherwise
+		HCURSOR hCursor = (m_iHoverBtn >= 0 && m_hLinkCursor != NULL)
+			? m_hLinkCursor : m_hMuCursor;
+		if (hCursor != NULL)
+		{
+			SetCursor(hCursor);
+			bHandled = TRUE;
+			return TRUE;
+		}
 	}
 	bHandled = FALSE;
 	return FALSE;

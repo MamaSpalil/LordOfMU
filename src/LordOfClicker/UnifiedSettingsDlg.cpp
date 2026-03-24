@@ -345,7 +345,9 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		InitClassValues();
 		InitPickupValues();
 
-		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		HCURSOR hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
 		if (hCursor == NULL)
 			hCursor = LoadCursor(0, IDC_ARROW);
 		m_hOldCursor = SetCursor(hCursor);
@@ -378,9 +380,39 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 
 LRESULT CUnifiedSettingsDlg::OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if (LOWORD(lParam) == HTCLIENT && m_cTheme.GetMuCursor() != NULL)
+	if (LOWORD(lParam) == HTCLIENT)
 	{
-		SetCursor(m_cTheme.GetMuCursor());
+		// Determine which cursor to use based on the child control under the mouse
+		HCURSOR hCursor = NULL;
+		POINT pt;
+		if (GetCursorPos(&pt))
+		{
+			HWND hwndChild = ::WindowFromPoint(pt);
+			if (hwndChild != NULL)
+			{
+				TCHAR szClass[32] = {0};
+				::GetClassName(hwndChild, szClass, 31);
+				if (_tcsicmp(szClass, _T("Edit")) == 0)
+				{
+					hCursor = m_cTheme.GetTextCursor();
+				}
+				else if (_tcsicmp(szClass, _T("Button")) == 0 ||
+				         _tcsicmp(szClass, _T("ComboBox")) == 0)
+				{
+					hCursor = m_cTheme.GetLinkCursor();
+				}
+			}
+		}
+
+		// Fall back to normal themed cursor
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetNormalCursor();
+		if (hCursor == NULL)
+			hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(NULL, IDC_ARROW);
+
+		SetCursor(hCursor);
 		bHandled = TRUE;
 		return TRUE;
 	}
