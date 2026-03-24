@@ -387,32 +387,37 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 
 LRESULT CUnifiedSettingsDlg::OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if (LOWORD(lParam) == HTCLIENT)
+	// Set the themed cursor for ALL areas of the dialog (client and
+	// non-client).  Handling all hit tests prevents the message from
+	// being forwarded to the owner window (game) through DefWindowProc,
+	// where the game's WndProc could call SetCursor(NULL) and make the
+	// cursor invisible when transitioning from the game window.
+	HCURSOR hCursor = NULL;
+
+	if (m_bLButtonDown)
 	{
-		// Consistent cursor: normal by default, link/select when LMB is pressed.
-		// This matches MU Online's in-game cursor behavior.
-		HCURSOR hCursor = NULL;
-
-		if (m_bLButtonDown)
-		{
-			hCursor = m_cTheme.GetLinkCursor();
-		}
-
-		// Fall back to normal themed cursor
-		if (hCursor == NULL)
-			hCursor = m_cTheme.GetNormalCursor();
-		if (hCursor == NULL)
-			hCursor = m_cTheme.GetMuCursor();
-		if (hCursor == NULL)
-			hCursor = LoadCursor(NULL, IDC_ARROW);
-
-		SetCursor(hCursor);
-		bHandled = TRUE;
-		return TRUE;
+		hCursor = m_cTheme.GetLinkCursor();
 	}
 
-	bHandled = FALSE;
-	return FALSE;
+	// Fall back to normal themed cursor
+	if (hCursor == NULL)
+		hCursor = m_cTheme.GetNormalCursor();
+	if (hCursor == NULL)
+		hCursor = m_cTheme.GetMuCursor();
+	if (hCursor == NULL)
+		hCursor = LoadCursor(NULL, IDC_ARROW);
+
+	// Ensure the cursor display counter is non-negative so the system
+	// cursor is visible.  The game may call ShowCursor(FALSE) which
+	// decrements the global counter below zero, hiding the cursor even
+	// when a valid shape is set via SetCursor.
+	int nCount = ShowCursor(TRUE);  // probe: returns count after increment
+	if (nCount > 1)
+		ShowCursor(FALSE);  // was already visible, undo the probe
+
+	SetCursor(hCursor);
+	bHandled = TRUE;
+	return TRUE;
 }
 
 

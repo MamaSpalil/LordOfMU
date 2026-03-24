@@ -97,10 +97,23 @@ protected:
 	
 	LRESULT OnSetCursor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		// Pass WM_SETCURSOR through to the game's original WndProc.
-		// The game relies on processing WM_SETCURSOR to maintain its internal
-		// mouse/click state.  Blocking it prevents LMB clicks from registering
-		// on the server selection screen and other UI elements.
+		// When a popup dialog (Settings, History) is open, prevent the game's
+		// original WndProc from interfering with cursor management.  The
+		// dialog's DefWindowProc may forward WM_SETCURSOR to us (the owner
+		// window) for non-client hit tests.  If we pass this through to the
+		// game's WndProc, it can call SetCursor(NULL) and hide the cursor
+		// over the dialog.  Block the forwarding so the dialog keeps its
+		// own cursor.
+		if (m_fGuiActive && (HWND)wParam != m_hWnd)
+		{
+			bHandled = TRUE;
+			return TRUE;
+		}
+
+		// Normal operation: pass WM_SETCURSOR through to the game's original
+		// WndProc.  The game relies on processing WM_SETCURSOR to maintain
+		// its internal mouse/click state.  Blocking it prevents LMB clicks
+		// from registering on the server selection screen and other UI.
 		bHandled = FALSE;
 		return 0;
 	}
