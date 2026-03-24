@@ -36,6 +36,8 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -401,10 +403,17 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	if (m_fIsWndActive)
 	{
+		// Restore dialogs that were visible before the game was deactivated.
+		RestorePopupDialogs();
+
 		bHandled = FALSE;
 	}
 	else
 	{
+		// Hide popup dialogs so they don't remain visible on the desktop
+		// when the game is minimised or loses focus via ALT+TAB.
+		HidePopupDialogs();
+
 		return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 	}
 
@@ -1390,8 +1399,10 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 	{
 		bHandled = TRUE;
 
-		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed
-		if (m_fGuiActive)
+		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed.
+		// Skip this check while dialogs are temporarily hidden due to app
+		// deactivation (they will be restored in OnActivateApp).
+		if (m_fGuiActive && !m_bSettingsWasVisible && !m_bHistoryWasVisible)
 		{
 			BOOL bSettingsVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
 			BOOL bHistoryVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
@@ -1420,11 +1431,77 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 
 /**
- * \brief Game window moved or resized - child HUD buttons move automatically
- *        with the parent, no manual repositioning needed.
+ * \brief Hide popup dialogs so they don't float on the desktop when the
+ *        game loses focus or is minimised.  Remembers which dialogs were
+ *        visible so they can be restored later via RestorePopupDialogs().
  */
-LRESULT CMuWindow::OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
+void CMuWindow::HidePopupDialogs()
 {
+	if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
+	{
+		m_bSettingsWasVisible = TRUE;
+		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
+	}
+
+	if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
+	{
+		m_bHistoryWasVisible = TRUE;
+		m_cHistoryDlg.ShowWindow(SW_HIDE);
+	}
+}
+
+
+/**
+ * \brief Restore popup dialogs that were hidden by HidePopupDialogs().
+ *        Re-applies HWND_TOPMOST so they appear above the game surface.
+ */
+void CMuWindow::RestorePopupDialogs()
+{
+	BOOL bRestored = FALSE;
+
+	if (m_bSettingsWasVisible && m_cUnifiedSettingsDlg.IsWindow())
+	{
+		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+		m_bSettingsWasVisible = FALSE;
+		bRestored = TRUE;
+	}
+
+	if (m_bHistoryWasVisible && m_cHistoryDlg.IsWindow())
+	{
+		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
+		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+		m_bHistoryWasVisible = FALSE;
+		bRestored = TRUE;
+	}
+
+	if (bRestored)
+		m_fGuiActive = TRUE;
+}
+
+
+/**
+ * \brief Game window moved or resized.  Child HUD buttons move automatically
+ *        with the parent.  We also hide popup dialogs when the game is
+ *        minimised and restore them on restore as a safety net (the main
+ *        hide/restore logic is in OnActivateApp).
+ */
+LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
+{
+	if (uMsg == WM_SIZE)
+	{
+		if (wParam == SIZE_MINIMIZED)
+		{
+			HidePopupDialogs();
+		}
+		else if (wParam == SIZE_RESTORED)
+		{
+			RestorePopupDialogs();
+		}
+	}
+
 	bHandled = FALSE; // Let the message pass through to the game
 	return 0;
 }

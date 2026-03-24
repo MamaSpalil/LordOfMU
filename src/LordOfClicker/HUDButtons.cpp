@@ -2,6 +2,8 @@
 #include "HUDButtons.h"
 #include "MuTheme.h"
 
+#include <windowsx.h>  // GET_X_LPARAM, GET_Y_LPARAM
+
 #pragma comment(lib, "msimg32.lib")
 
 // Color key for layered-window transparency (magenta → invisible)
@@ -403,6 +405,22 @@ LRESULT CHUDButtons::OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&)
 	m_bTracking = FALSE;
 	InvalidateRect(NULL, FALSE);
 	return 0;
+}
+
+
+LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL&)
+{
+	// Convert screen coordinates to client coordinates.
+	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+	ScreenToClient(&pt);
+
+	// If the point lands on one of the circular buttons, return HTCLIENT
+	// so the click is processed by the HUD.  Otherwise return HTTRANSPARENT
+	// so the click passes through to the game window underneath.
+	if (HitTest(pt.x, pt.y) >= 0)
+		return HTCLIENT;
+
+	return HTTRANSPARENT;
 }
 
 
