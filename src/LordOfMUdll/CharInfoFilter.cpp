@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "CharInfoFilter.h"
 #include "CommonPackets.h"
+#include "CommonMessages.h"
 #include "MuWindowUtil.h"
 #include "version.h"
-
-#define WM_CHAR_SELECTED	WM_APP + 510
 
 
 /**

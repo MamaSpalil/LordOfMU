@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "PacketDecryptFilter.h"
 #include "CommonPackets.h"
+#include "CommonMessages.h"
 #include "EncDec.h"
 #include "BufferUtil.h"
 #include "DebugOut.h"
 #include "MuWindowUtil.h"
 
-
-#define WM_SET_GAME_VERSION	WM_APP + 509
 
 /**
  * \brief 

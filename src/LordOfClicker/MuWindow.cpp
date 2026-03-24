@@ -281,6 +281,14 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	if (fCheckFgWnd && CMuWindow::GetForegroundWindowTr() != m_hWnd)
 		return FALSE;
 
+	// While a dialog (Settings/History) is open, block clicker control keys
+	// to prevent accidental autoclicker toggling behind the dialog.
+	if (m_fGuiActive)
+	{
+		if (vkCode >= VK_F5 && vkCode <= VK_F8)
+			return TRUE;  // Swallow the keypress
+	}
+
 #if defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__)
 	if (vkCode == VK_F5 && uMsg == WM_KEYUP)
 	{
@@ -497,8 +505,13 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
+	// If autoclicker is running, stop it first and notify the user
 	if (m_pClicker != NULL)
+	{
+		PostMessage(WM_STOP_CLICKER, 0, 0);
+		MessageBeep(MB_ICONINFORMATION);
 		return 0;
+	}
 
 	// REDESIGN: F9 and SHIFT+F9 merged into unified dialog
 	CWindow dlg = m_cUnifiedSettingsDlg;
@@ -1098,8 +1111,17 @@ LRESULT CMuWindow::OnNCActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 /**
  * \brief 
  */
-LRESULT CMuWindow::OnCaptureChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
+LRESULT CMuWindow::OnCaptureChanged(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
+	HWND hwndNewCapture = (HWND)lParam;
+
+	// Do not block if capture is transitioning to the HUD buttons window
+	if (m_cHUDButtons.IsWindow() && hwndNewCapture == m_cHUDButtons.m_hWnd)
+	{
+		bHandled = FALSE;
+		return 0;
+	}
+
 	if (m_pClicker == 0)
 		bHandled = FALSE;
 	
@@ -1451,6 +1473,8 @@ LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
 {
+	WriteClickerLogFmt("HUD", "StartStop clicked, m_pClicker=%p", m_pClicker);
+
 	if (m_pClicker != NULL)
 	{
 		PostMessage(WM_STOP_CLICKER, 0, 0);
@@ -1571,6 +1595,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
 {
+	WriteClickerLog("OnCharSelected: Showing HUD buttons");
 	m_cHUDButtons.Show();
 	return 0;
 }

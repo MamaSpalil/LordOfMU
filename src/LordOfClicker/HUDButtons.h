@@ -7,9 +7,9 @@
 #include <atlwin.h>
 
 // Messages sent from HUD buttons to the parent (CMuWindow)
-#define WM_HUD_SETTINGS     WM_APP + 601
-#define WM_HUD_STARTSTOP    WM_APP + 602
-#define WM_HUD_HISTORY      WM_APP + 603
+#define WM_HUD_SETTINGS     (WM_APP + 601)
+#define WM_HUD_STARTSTOP    (WM_APP + 602)
+#define WM_HUD_HISTORY      (WM_APP + 603)
 
 /**
  * \brief Floating HUD button bar overlaid on the game window.
@@ -33,6 +33,7 @@ public:
 	void SetClickerRunning(BOOL bRunning);
 	void SetGameActive(BOOL bActive);
 	void Reposition();
+	void Reset();
 
 BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -42,6 +43,7 @@ BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 	MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+	MESSAGE_HANDLER(WM_NCHITTEST, OnNCHitTest)
 	MESSAGE_HANDLER(WM_TIMER, OnTimer)
 END_MSG_MAP()
 
@@ -53,13 +55,14 @@ protected:
 	LRESULT OnMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnNCHitTest(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 
 private:
 	enum { BTN_COUNT = 3 };
-	enum { BTN_SIZE = 16 };
-	enum { BTN_SPACING = 2 };
-	enum { BAR_PADDING = 1 };
+	enum { BTN_SIZE = 24 };
+	enum { BTN_SPACING = 3 };
+	enum { BAR_PADDING = 2 };
 	enum { REPOSITION_TIMER_ID = 2020 };
 
 	int HitTest(int x, int y);

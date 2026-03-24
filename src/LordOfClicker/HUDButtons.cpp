@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "HUDButtons.h"
 #include "MuTheme.h"
+#include <windowsx.h>
 
 #pragma comment(lib, "msimg32.lib")
 
@@ -13,7 +14,7 @@ CHUDButtons::CHUDButtons()
 	m_hwndOwner = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
-	m_bGameActive = TRUE;
+	m_bGameActive = FALSE;
 	m_bEnabled = FALSE;
 	m_hIcoSettings = NULL;
 	m_hIcoPlay = NULL;
@@ -42,6 +43,20 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	m_hIcoStop = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(IDB_ICO_STOP), IMAGE_BITMAP, 0, 0, 0);
 	m_hIcoHistory = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(IDB_ICO_HISTORY), IMAGE_BITMAP, 0, 0, 0);
 
+	// Validate that all icon bitmaps loaded successfully
+	if (!m_hIcoSettings || !m_hIcoPlay || !m_hIcoStop || !m_hIcoHistory)
+	{
+		OutputDebugStringA("HUD: Failed to load icon bitmaps from hInstance, trying NULL\n");
+		if (!m_hIcoSettings)
+			m_hIcoSettings = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_SETTINGS), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoPlay)
+			m_hIcoPlay = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_PLAY), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoStop)
+			m_hIcoStop = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_STOP), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoHistory)
+			m_hIcoHistory = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_HISTORY), IMAGE_BITMAP, 0, 0, 0);
+	}
+
 	// Calculate bar size
 	int barWidth = BAR_PADDING * 2 + BTN_COUNT * BTN_SIZE + (BTN_COUNT - 1) * BTN_SPACING;
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
@@ -56,8 +71,8 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	::ClientToScreen(hwndOwner, &ptClient);
 
 	// Position to the right of the FPS counter in the game client area.
-	int x = ptClient.x + 70;
-	int y = ptClient.y + 3;
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
 
 	// Create as owned popup window (stays on top of game), initially hidden.
 	// WS_EX_LAYERED enables color-key transparency (no black background).
@@ -73,7 +88,8 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 		return FALSE;
 
 	// Magenta pixels become fully transparent (removes black background).
-	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 0, LWA_COLORKEY);
+	// Add slight alpha transparency so buttons blend with the game scene.
+	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 220, LWA_COLORKEY | LWA_ALPHA);
 
 	// Position and size the window (still hidden)
 	SetWindowPos(NULL, x, y, barWidth, barHeight, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -186,13 +202,27 @@ void CHUDButtons::Reposition()
 	::ClientToScreen(m_hwndOwner, &ptClient);
 
 	// Position to the right of the FPS counter
-	int x = ptClient.x + 70;
-	int y = ptClient.y + 3;
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
 
 	// Keep TOPMOST so the HUD stays visible above the game's
 	// DirectDraw/Direct3D rendering surface.
 	SetWindowPos(HWND_TOPMOST, x, y, 0, 0,
 		SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
+
+void CHUDButtons::Reset()
+{
+	m_bEnabled = FALSE;
+	m_bClickerRunning = FALSE;
+	if (IsWindow())
+	{
+		KillTimer(REPOSITION_TIMER_ID);
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		InvalidateRect(NULL, FALSE);
+	}
 }
 
 
@@ -400,6 +430,14 @@ LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 		SetCapture();
 		InvalidateRect(NULL, FALSE);
 	}
+	else
+	{
+		// Click missed all buttons - forward to game window
+		POINT pt = { x, y };
+		ClientToScreen(&pt);
+		::ScreenToClient(m_hwndOwner, &pt);
+		::PostMessage(m_hwndOwner, WM_LBUTTONDOWN, 0, MAKELPARAM(pt.x, pt.y));
+	}
 
 	return 0;
 }
@@ -480,6 +518,18 @@ LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	// Prevent the HUD from stealing focus when the user clicks on a button.
 	// This keeps the game window as the active/foreground window.
 	return MA_NOACTIVATE;
+}
+
+
+LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
+{
+	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+	ScreenToClient(&pt);
+
+	if (HitTest(pt.x, pt.y) >= 0)
+		return HTCLIENT;      // Over a button - handle the click
+
+	return HTTRANSPARENT;      // Empty space - click passes through to game
 }
 
 
