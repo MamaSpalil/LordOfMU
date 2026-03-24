@@ -372,9 +372,22 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 /**
  * \brief 
  */
-LRESULT CMuWindow::OnMouseMessage(UINT, WPARAM, LPARAM, BOOL& bHandled)
+LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM, BOOL& bHandled)
 {
-	bHandled = m_fBlockInput;
+	// Always allow left mouse button messages through so the user can click
+	// on HUD buttons and interact with the game even while the autoclicker
+	// is running.  Other mouse messages (movement, right-click, wheel, etc.)
+	// remain blocked when m_fBlockInput is TRUE to prevent interference
+	// with the autoclicker's programmatic mouse control.
+	if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP || uMsg == WM_LBUTTONDBLCLK)
+	{
+		bHandled = FALSE;
+	}
+	else
+	{
+		bHandled = m_fBlockInput;
+	}
+
 	return 0;
 }
 
