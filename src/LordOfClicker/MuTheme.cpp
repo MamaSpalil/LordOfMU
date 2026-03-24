@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MuTheme.h"
 
+#pragma comment(lib, "msimg32.lib")
+
 CMuTheme::CMuTheme()
 {
 	m_hBgPanel = NULL;

@@ -372,7 +372,8 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_ESCAPE && uMsg == WM_KEYUP && m_fGuiActive)
 	{
-		m_cSettingsDlg.ShowWindow(SW_HIDE);
+		if (m_cSettingsDlg.IsWindow())
+			m_cSettingsDlg.ShowWindow(SW_HIDE);
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
 		m_cHistoryDlg.ShowWindow(SW_HIDE);
 		m_bSettingsWasVisible = FALSE;
