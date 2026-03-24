@@ -32,15 +32,19 @@ CClickerJob::~CClickerJob()
 		while (WaitForSingleObject(m_hThread, 10) == WAIT_TIMEOUT)
 		{
 			MSG msg = {0};
-			while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
+			// Only dispatch clicker-related messages to avoid recursion / side effects.
+			while (PeekMessage(&msg, 0, WM_CLICKER_JOB_FINISHED, WM_CLICKER_JOB_LBUTTONUP, PM_REMOVE) != 0)
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
 
-			if ((int)GetTickCount() - (int)dwStartWait > 7000)
+			if ((int)GetTickCount() - (int)dwStartWait > 10000)
 			{
-				TerminateThread(m_hThread, 0);
+				// Thread did not exit within 10 seconds.  Leaking the thread
+				// handle is safer than TerminateThread which corrupts CRT state.
+				// This is an exceptional case and should not happen during
+				// normal operation.
 				break;
 			}
 		}
@@ -99,7 +103,7 @@ DWORD WINAPI CClickerJob::ThreadProc(void* pData)
 	while (WaitForSingleObject(pThis->m_hStopEvent, 0) == WAIT_TIMEOUT)
 	{
 		pThis->DoClicker();
-		Sleep(0);
+		Sleep(10);
 	}
 
 	pThis->TermClicker();
@@ -375,11 +379,13 @@ void CClickerJob::DoClicker()
 				WriteClickerLogFmt("CLICKER", "Attack: right-click at (%d,%d)", x, y);
 
 			SendMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONUP, (WPARAM)0, (LPARAM)MAKELONG(x, y));
+			Sleep(50);
 			SendMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONDOWN, (WPARAM)(MK_RBUTTON | MK_SHIFT), (LPARAM)MAKELONG(x, y));
 		}
 
-		ReleaseCapture();
-		ClipCursor(0);
+		// Release capture/clip from the UI thread to avoid cross-thread issues.
+		if (IsWindow(m_hWnd))
+			PostMessage(m_hWnd, WM_CLICKER_JOB_RBUTTONUP, (WPARAM)1 /*release flag*/, 0);
 
 		m_dwClickTicks = dwTick;
 	}

@@ -99,8 +99,10 @@ public:
 	{
 		EnterCriticalSection(&m_cs);
 		
-		m_vQueue.insert(std::pair<int,int>(vk, 0));
-		m_iNonpermSize++;
+		// Only increment counter if key was actually inserted (not already in map from PressKey).
+		std::pair<std::map<int,int>::iterator, bool> result = m_vQueue.insert(std::pair<int,int>(vk, 0));
+		if (result.second)
+			m_iNonpermSize++;
 
 		if (m_iNonpermSize >= 1)
 			ResetEvent(m_hEmptyEvent);
