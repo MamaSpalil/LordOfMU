@@ -13,6 +13,8 @@ CHUDButtons::CHUDButtons()
 	m_hwndOwner = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
+	m_bGameActive = TRUE;
+	m_bEnabled = FALSE;
 	m_hIcoSettings = NULL;
 	m_hIcoPlay = NULL;
 	m_hIcoStop = NULL;
@@ -100,12 +102,16 @@ void CHUDButtons::Show()
 	if (!IsWindow())
 		return;
 
-	if (IsWindowVisible())
+	m_bEnabled = TRUE;
+
+	// Always start the reposition timer (even if game is not active,
+	// the timer will show the HUD when the game becomes active again).
+	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
+
+	if (!m_bGameActive || IsWindowVisible())
 		return;
 
 	Reposition();
-	ShowWindow(SW_SHOWNOACTIVATE);
-	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
 }
 
 
@@ -130,6 +136,28 @@ void CHUDButtons::SetClickerRunning(BOOL bRunning)
 }
 
 
+void CHUDButtons::SetGameActive(BOOL bActive)
+{
+	m_bGameActive = bActive;
+
+	if (!IsWindow())
+		return;
+
+	if (!bActive)
+	{
+		// Game lost foreground - hide HUD immediately
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+	}
+	else
+	{
+		// Game regained foreground - show HUD if character was selected
+		if (m_bEnabled && !IsWindowVisible())
+			Reposition();
+	}
+}
+
+
 void CHUDButtons::Reposition()
 {
 	if (!IsWindow() || !::IsWindow(m_hwndOwner))
@@ -137,6 +165,15 @@ void CHUDButtons::Reposition()
 
 	// Hide when the game window is hidden or minimized
 	if (!::IsWindowVisible(m_hwndOwner) || ::IsIconic(m_hwndOwner))
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		return;
+	}
+
+	// Hide when the game application is not the foreground app.
+	// Buttons must be visible and clickable exclusively inside the game client.
+	if (!m_bGameActive)
 	{
 		if (IsWindowVisible())
 			ShowWindow(SW_HIDE);
@@ -435,6 +472,14 @@ LRESULT CHUDButtons::OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&)
 	m_bTracking = FALSE;
 	InvalidateRect(NULL, FALSE);
 	return 0;
+}
+
+
+LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
+{
+	// Prevent the HUD from stealing focus when the user clicks on a button.
+	// This keeps the game window as the active/foreground window.
+	return MA_NOACTIVATE;
 }
 
 

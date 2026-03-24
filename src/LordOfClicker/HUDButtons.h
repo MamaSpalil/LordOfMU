@@ -31,6 +31,7 @@ public:
 	void Hide();
 
 	void SetClickerRunning(BOOL bRunning);
+	void SetGameActive(BOOL bActive);
 	void Reposition();
 
 BEGIN_MSG_MAP(CHUDButtons)
@@ -40,6 +41,7 @@ BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 	MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 	MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
+	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_TIMER, OnTimer)
 END_MSG_MAP()
 
@@ -50,6 +52,7 @@ protected:
 	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 
 private:
@@ -66,6 +69,8 @@ private:
 	HWND m_hwndOwner;
 	HINSTANCE m_hInstance;
 	BOOL m_bClickerRunning;
+	BOOL m_bGameActive;   // TRUE when game application is the foreground app
+	BOOL m_bEnabled;       // TRUE after Show() called (character selected)
 
 	HBITMAP m_hIcoSettings;
 	HBITMAP m_hIcoPlay;
