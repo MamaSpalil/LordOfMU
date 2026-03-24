@@ -50,8 +50,10 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	POINT ptClient = {0, 0};
 	::ClientToScreen(hwndOwner, &ptClient);
 
-	int x = ptClient.x + 8;
-	int y = ptClient.y + 8;
+	// Position to the right of the FPS counter in the game client area.
+	// FPS label is approximately 70px wide at top-left, so place HUD at x=90, y=48.
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
 
 	// Create as owned popup window (stays on top of game), initially hidden.
 	// Show() must be called later (after character selection) to make it visible.
@@ -130,8 +132,9 @@ void CHUDButtons::Reposition()
 	POINT ptClient = {0, 0};
 	::ClientToScreen(m_hwndOwner, &ptClient);
 
-	int x = ptClient.x + 8;
-	int y = ptClient.y + 8;
+	// Position to the right of the FPS counter
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
 
 	// Keep TOPMOST so the HUD stays visible above the game's
 	// DirectDraw/Direct3D rendering surface.

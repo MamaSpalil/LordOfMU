@@ -452,13 +452,13 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// Display "[PICKUP] - {amount} Zen Obtained" notification
-			CServerMessagePacket pktMsg("[PICKUP] - %lu Zen Obtained", (unsigned long)dwDelta);
+			// Display "[PICKUP] - Zen 'amount' Obtained" notification
+			CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
 			GetProxy()->recv_direct(pktMsg);
 
 			// Record to pickup history
 			char szHistory[64];
-			sprintf_s(szHistory, sizeof(szHistory), "%lu Zen", (unsigned long)dwDelta);
+			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory);
 		}
 
@@ -1258,15 +1258,688 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
  * \brief Returns a human-readable display name for a MU Online item type code.
  *
  * Item type encoding: bits 0-7 = item index, bits 8-11 = item group (0-15).
+ * Item database covers MU Online Season 3 Episode 1 items.
  */
 const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 {
 	BYTE bGroup = (wType >> 8) & 0x0F;
 	BYTE bIndex = wType & 0xFF;
 
-	// Group 14 (0x0E) - Consumables & Jewels
-	if (bGroup == 14)
+	switch (bGroup)
 	{
+	// ---------------------------------------------------------------
+	// Group 0 - Swords
+	// ---------------------------------------------------------------
+	case 0:
+		switch (bIndex)
+		{
+		case 0x01: return "Short Sword";
+		case 0x02: return "Rapier";
+		case 0x03: return "Katana";
+		case 0x04: return "Sword of Assassin";
+		case 0x05: return "Blade";
+		case 0x06: return "Gladius";
+		case 0x07: return "Falchion";
+		case 0x08: return "Serpent Sword";
+		case 0x09: return "Sword of Salamander";
+		case 0x0A: return "Light Saber";
+		case 0x0B: return "Legendary Sword";
+		case 0x0C: return "Heliacal Sword";
+		case 0x0D: return "Double Blade";
+		case 0x0E: return "Lightning Sword";
+		case 0x0F: return "Giant Sword";
+		case 0x10: return "Sword of Destruction";
+		case 0x11: return "Dark Breaker";
+		case 0x12: return "Thunder Blade";
+		case 0x13: return "Divine Sword of Archangel";
+		case 0x14: return "Knight Blade";
+		case 0x15: return "Dark Reign Blade";
+		case 0x16: return "Bone Blade";
+		case 0x17: return "Explosion Blade";
+		case 0x18: return "Daybreak";
+		case 0x19: return "Sword Dancer";
+		case 0x1A: return "Flameberge";
+		case 0x1B: return "Sword Breaker";
+		case 0x1C: return "Rune Bastard Sword";
+		case 0x1D: return "Sonic Blade";
+		case 0x1E: return "Asura";
+		case 0x1F: return "Rune Blade";
+		case 0x20: return "Sacred Glove";
+		case 0x21: return "Holy Storm Claw";
+		case 0x22: return "Piercing Blade Glove";
+		case 0x23: return "Phoenix Soul Star";
+		case 0x24: return "Cyclone Sword";
+		case 0x25: return "Blast Break";
+		case 0x26: return "Prickle Glove";
+		}
+		return "Sword";
+
+	// ---------------------------------------------------------------
+	// Group 1 - Axes
+	// ---------------------------------------------------------------
+	case 1:
+		switch (bIndex)
+		{
+		case 0x00: return "Small Axe";
+		case 0x01: return "Hand Axe";
+		case 0x02: return "Double Axe";
+		case 0x03: return "Tomahawk";
+		case 0x04: return "Elven Axe";
+		case 0x05: return "Battle Axe";
+		case 0x06: return "Nikea Axe";
+		case 0x07: return "Larkan Axe";
+		case 0x08: return "Crescent Axe";
+		}
+		return "Axe";
+
+	// ---------------------------------------------------------------
+	// Group 2 - Maces & Scepters
+	// ---------------------------------------------------------------
+	case 2:
+		switch (bIndex)
+		{
+		case 0x00: return "Mace";
+		case 0x01: return "Morning Star";
+		case 0x02: return "Flail";
+		case 0x03: return "Great Hammer";
+		case 0x04: return "Crystal Morning Star";
+		case 0x05: return "Crystal Sword";
+		case 0x06: return "Chaos Dragon Axe";
+		case 0x07: return "Elemental Mace";
+		case 0x08: return "Battle Scepter";
+		case 0x09: return "Master Scepter";
+		case 0x0A: return "Great Scepter";
+		case 0x0B: return "Lord Scepter";
+		case 0x0C: return "Great Lord Scepter";
+		case 0x0D: return "Divine Scepter of Archangel";
+		case 0x0E: return "Soleil Scepter";
+		case 0x0F: return "Shining Scepter";
+		case 0x10: return "Frost Mace";
+		case 0x11: return "Absolute Scepter";
+		case 0x12: return "Striker Scepter";
+		case 0x13: return "Thunderbolt";
+		case 0x14: return "Horn of Steel";
+		}
+		return "Mace";
+
+	// ---------------------------------------------------------------
+	// Group 3 - Spears
+	// ---------------------------------------------------------------
+	case 3:
+		switch (bIndex)
+		{
+		case 0x00: return "Light Spear";
+		case 0x01: return "Spear";
+		case 0x02: return "Dragon Lance";
+		case 0x03: return "Giant Trident";
+		case 0x04: return "Serpent Spear";
+		case 0x05: return "Double Poleaxe";
+		case 0x06: return "Halberd";
+		case 0x07: return "Berdysh";
+		case 0x08: return "Great Scythe";
+		case 0x09: return "Bill of Balrog";
+		case 0x0A: return "Dragon Spear";
+		case 0x0B: return "Brova";
+		case 0x0C: return "Magmus Peer";
+		}
+		return "Spear";
+
+	// ---------------------------------------------------------------
+	// Group 4 - Bows & Crossbows
+	// ---------------------------------------------------------------
+	case 4:
+		switch (bIndex)
+		{
+		case 0x00: return "Short Bow";
+		case 0x01: return "Bow";
+		case 0x02: return "Elven Bow";
+		case 0x03: return "Battle Bow";
+		case 0x04: return "Tiger Bow";
+		case 0x05: return "Silver Bow";
+		case 0x06: return "Chaos Nature Bow";
+		case 0x07: return "Bolt";
+		case 0x08: return "Crossbow";
+		case 0x09: return "Golden Crossbow";
+		case 0x0A: return "Arquebus";
+		case 0x0B: return "Light Crossbow";
+		case 0x0C: return "Serpent Crossbow";
+		case 0x0D: return "Bluewing Crossbow";
+		case 0x0E: return "Aquagold Crossbow";
+		case 0x0F: return "Arrow";
+		case 0x10: return "Saint Crossbow";
+		case 0x11: return "Celestial Bow";
+		case 0x12: return "Divine Crossbow of Archangel";
+		case 0x13: return "Great Reign Crossbow";
+		case 0x14: return "Arrow Viper Bow";
+		case 0x15: return "Sylph Wind Bow";
+		case 0x16: return "Albatross Bow";
+		case 0x17: return "Dark Stinger";
+		case 0x18: return "Aileen Bow";
+		case 0x19: return "Angelic Bow";
+		case 0x1A: return "Devil Crossbow";
+		}
+		return "Bow";
+
+	// ---------------------------------------------------------------
+	// Group 5 - Staffs & Sticks & Books
+	// ---------------------------------------------------------------
+	case 5:
+		switch (bIndex)
+		{
+		case 0x00: return "Skull Staff";
+		case 0x01: return "Angelic Staff";
+		case 0x02: return "Serpent Staff";
+		case 0x03: return "Thunder Staff";
+		case 0x04: return "Gorgon Staff";
+		case 0x05: return "Legendary Staff";
+		case 0x06: return "Staff of Resurrection";
+		case 0x07: return "Chaos Lighting Staff";
+		case 0x08: return "Staff of Destruction";
+		case 0x09: return "Dragon Soul Staff";
+		case 0x0A: return "Divine Staff of Archangel";
+		case 0x0B: return "Staff of Kundun";
+		case 0x0C: return "Grand Viper Staff";
+		case 0x0D: return "Platina Staff";
+		case 0x0E: return "Mystery Stick";
+		case 0x0F: return "Violent Wind Stick";
+		case 0x10: return "Red Wing Stick";
+		case 0x11: return "Ancient Stick";
+		case 0x12: return "Demonic Stick";
+		case 0x13: return "Storm Blitz Stick";
+		case 0x14: return "Eternal Wing Stick";
+		case 0x15: return "Book of Samut";
+		case 0x16: return "Book of Neil";
+		case 0x17: return "Book of Lagle";
+		case 0x1E: return "Deadly Staff";
+		case 0x1F: return "Imperial Staff";
+		case 0x20: return "Summon Spirit Stick";
+		case 0x21: return "Chrome Staff";
+		case 0x22: return "Raven Stick";
+		case 0x23: return "Miracle Staff";
+		case 0x24: return "Divine Stick of Archangel";
+		case 0x25: return "Spite Staff";
+		}
+		return "Staff";
+
+	// ---------------------------------------------------------------
+	// Group 6 - Shields
+	// ---------------------------------------------------------------
+	case 6:
+		switch (bIndex)
+		{
+		case 0x00: return "Small Shield";
+		case 0x01: return "Horn Shield";
+		case 0x02: return "Kite Shield";
+		case 0x03: return "Elven Shield";
+		case 0x04: return "Buckler";
+		case 0x05: return "Dragon Slayer Shield";
+		case 0x06: return "Skull Shield";
+		case 0x07: return "Spiked Shield";
+		case 0x08: return "Tower Shield";
+		case 0x09: return "Plate Shield";
+		case 0x0A: return "Large Round Shield";
+		case 0x0B: return "Serpent Shield";
+		case 0x0C: return "Bronze Shield";
+		case 0x0D: return "Dragon Shield";
+		case 0x0E: return "Legendary Shield";
+		case 0x0F: return "Grand Soul Shield";
+		case 0x10: return "Elemental Shield";
+		case 0x11: return "Crimson Glory";
+		case 0x12: return "Salamander Shield";
+		case 0x13: return "Frost Barrier";
+		case 0x14: return "Guardian Shield";
+		case 0x15: return "Cross Shield";
+		case 0x16: return "Lazy Wind Shield";
+		case 0x17: return "Light Lord Shield";
+		case 0x18: return "Dark Devil Shield";
+		case 0x19: return "Magic Knight Shield";
+		case 0x1A: return "Ambition Shield";
+		}
+		return "Shield";
+
+	// ---------------------------------------------------------------
+	// Group 7 - Helms
+	// ---------------------------------------------------------------
+	case 7:
+		switch (bIndex)
+		{
+		case 0x00: return "Bronze Helm";
+		case 0x01: return "Dragon Helm";
+		case 0x02: return "Pad Helm";
+		case 0x03: return "Legendary Helm";
+		case 0x04: return "Bone Helm";
+		case 0x05: return "Leather Helm";
+		case 0x06: return "Scale Helm";
+		case 0x07: return "Sphinx Mask";
+		case 0x08: return "Brass Helm";
+		case 0x09: return "Plate Helm";
+		case 0x0A: return "Vine Helm";
+		case 0x0B: return "Silk Helm";
+		case 0x0C: return "Wind Helm";
+		case 0x0D: return "Spirit Helm";
+		case 0x0E: return "Guardian Helm";
+		case 0x10: return "Black Dragon Helm";
+		case 0x11: return "Dark Phoenix Helm";
+		case 0x12: return "Grand Soul Helm";
+		case 0x13: return "Holy Spirit Helm";
+		case 0x15: return "Great Dragon Helm";
+		case 0x16: return "Dark Soul Helm";
+		case 0x18: return "Red Spirit Helm";
+		case 0x19: return "Light Plate Mask";
+		case 0x1A: return "Adamantine Mask";
+		case 0x1B: return "Dark Steel Mask";
+		case 0x1C: return "Dark Master Mask";
+		case 0x1D: return "Dragon Knight Helm";
+		case 0x1E: return "Venom Mist Helm";
+		case 0x1F: return "Sylphid Ray Helm";
+		case 0x21: return "Sunlight Mask";
+		case 0x22: return "Ashcrow Helm";
+		case 0x23: return "Eclipse Helm";
+		case 0x24: return "Iris Helm";
+		case 0x26: return "Glorious Mask";
+		case 0x27: return "Violent Wind Helm";
+		case 0x28: return "Red Wing Helm";
+		case 0x29: return "Ancient Helm";
+		case 0x2A: return "Demonic Helm";
+		case 0x2B: return "Storm Blitz Helm";
+		case 0x2C: return "Eternal Wing Helm";
+		case 0x2D: return "Titan Helm";
+		case 0x2E: return "Brave Helm";
+		case 0x31: return "Seraphim Helm";
+		case 0x32: return "Divine Helm";
+		case 0x33: return "Royal Mask";
+		case 0x34: return "Hades Helm";
+		case 0x35: return "Succubus Helm";
+		case 0x3B: return "Sacred Fire Helm";
+		case 0x3C: return "Storm Jahad Helm";
+		case 0x3D: return "Piercing Helm";
+		case 0x49: return "Phoenix Soul Helmet";
+		}
+		return "Helm";
+
+	// ---------------------------------------------------------------
+	// Group 8 - Armors
+	// ---------------------------------------------------------------
+	case 8:
+		switch (bIndex)
+		{
+		case 0x00: return "Bronze Armor";
+		case 0x01: return "Dragon Armor";
+		case 0x02: return "Pad Armor";
+		case 0x03: return "Legendary Armor";
+		case 0x04: return "Bone Armor";
+		case 0x05: return "Leather Armor";
+		case 0x06: return "Scale Armor";
+		case 0x07: return "Sphinx Armor";
+		case 0x08: return "Brass Armor";
+		case 0x09: return "Plate Armor";
+		case 0x0A: return "Vine Armor";
+		case 0x0B: return "Silk Armor";
+		case 0x0C: return "Wind Armor";
+		case 0x0D: return "Spirit Armor";
+		case 0x0E: return "Guardian Armor";
+		case 0x0F: return "Storm Crow Armor";
+		case 0x10: return "Black Dragon Armor";
+		case 0x11: return "Dark Phoenix Armor";
+		case 0x12: return "Grand Soul Armor";
+		case 0x13: return "Holy Spirit Armor";
+		case 0x14: return "Thunder Hawk Armor";
+		case 0x15: return "Great Dragon Armor";
+		case 0x16: return "Dark Soul Armor";
+		case 0x17: return "Hurricane Armor";
+		case 0x18: return "Red Spirit Armor";
+		case 0x19: return "Light Plate Armor";
+		case 0x1A: return "Adamantine Armor";
+		case 0x1B: return "Dark Steel Armor";
+		case 0x1C: return "Dark Master Armor";
+		case 0x1D: return "Dragon Knight Armor";
+		case 0x1E: return "Venom Mist Armor";
+		case 0x1F: return "Sylphid Ray Armor";
+		case 0x20: return "Volcano Armor";
+		case 0x21: return "Sunlight Armor";
+		case 0x22: return "Ashcrow Armor";
+		case 0x23: return "Eclipse Armor";
+		case 0x24: return "Iris Armor";
+		case 0x25: return "Valiant Armor";
+		case 0x26: return "Glorious Armor";
+		case 0x27: return "Violent Wind Armor";
+		case 0x28: return "Red Wing Armor";
+		case 0x29: return "Ancient Armor";
+		case 0x2A: return "Demonic Armor";
+		case 0x2B: return "Storm Blitz Armor";
+		case 0x2C: return "Eternal Wing Armor";
+		case 0x2D: return "Titan Armor";
+		case 0x2E: return "Brave Armor";
+		case 0x2F: return "Phantom Armor";
+		case 0x30: return "Destroy Armor";
+		case 0x31: return "Seraphim Armor";
+		case 0x32: return "Divine Armor";
+		case 0x33: return "Royal Armor";
+		case 0x34: return "Hades Armor";
+		case 0x35: return "Succubus Armor";
+		case 0x3B: return "Sacred Fire Armor";
+		case 0x3C: return "Storm Jahad Armor";
+		case 0x3D: return "Piercing Armor";
+		case 0x49: return "Phoenix Soul Armor";
+		}
+		return "Armor";
+
+	// ---------------------------------------------------------------
+	// Group 9 - Pants
+	// ---------------------------------------------------------------
+	case 9:
+		switch (bIndex)
+		{
+		case 0x00: return "Bronze Pants";
+		case 0x01: return "Dragon Pants";
+		case 0x02: return "Pad Pants";
+		case 0x03: return "Legendary Pants";
+		case 0x04: return "Bone Pants";
+		case 0x05: return "Leather Pants";
+		case 0x06: return "Scale Pants";
+		case 0x07: return "Sphinx Pants";
+		case 0x08: return "Brass Pants";
+		case 0x09: return "Plate Pants";
+		case 0x0A: return "Vine Pants";
+		case 0x0B: return "Silk Pants";
+		case 0x0C: return "Wind Pants";
+		case 0x0D: return "Spirit Pants";
+		case 0x0E: return "Guardian Pants";
+		case 0x0F: return "Storm Crow Pants";
+		case 0x10: return "Black Dragon Pants";
+		case 0x11: return "Dark Phoenix Pants";
+		case 0x12: return "Grand Soul Pants";
+		case 0x13: return "Holy Spirit Pants";
+		case 0x14: return "Thunder Hawk Pants";
+		case 0x15: return "Great Dragon Pants";
+		case 0x16: return "Dark Soul Pants";
+		case 0x17: return "Hurricane Pants";
+		case 0x18: return "Red Spirit Pants";
+		case 0x19: return "Light Plate Pants";
+		case 0x1A: return "Adamantine Pants";
+		case 0x1B: return "Dark Steel Pants";
+		case 0x1C: return "Dark Master Pants";
+		case 0x1D: return "Dragon Knight Pants";
+		case 0x1E: return "Venom Mist Pants";
+		case 0x1F: return "Sylphid Ray Pants";
+		case 0x20: return "Volcano Pants";
+		case 0x21: return "Sunlight Pants";
+		case 0x22: return "Ashcrow Pants";
+		case 0x23: return "Eclipse Pants";
+		case 0x24: return "Iris Pants";
+		case 0x25: return "Valiant Pants";
+		case 0x26: return "Glorious Pants";
+		case 0x27: return "Violent Wind Pants";
+		case 0x28: return "Red Wing Pants";
+		case 0x29: return "Ancient Pants";
+		case 0x2A: return "Demonic Pants";
+		case 0x2B: return "Storm Blitz Pants";
+		case 0x2C: return "Eternal Wing Pants";
+		case 0x2D: return "Titan Pants";
+		case 0x2E: return "Brave Pants";
+		case 0x2F: return "Phantom Pants";
+		case 0x30: return "Destroy Pants";
+		case 0x31: return "Seraphim Pants";
+		case 0x32: return "Divine Pants";
+		case 0x33: return "Royal Pants";
+		case 0x34: return "Hades Pants";
+		case 0x35: return "Succubus Pants";
+		case 0x3B: return "Sacred Fire Pants";
+		case 0x3C: return "Storm Jahad Pants";
+		case 0x3D: return "Piercing Pants";
+		case 0x49: return "Phoenix Soul Pants";
+		}
+		return "Pants";
+
+	// ---------------------------------------------------------------
+	// Group 10 - Gloves
+	// ---------------------------------------------------------------
+	case 10:
+		switch (bIndex)
+		{
+		case 0x00: return "Bronze Gloves";
+		case 0x01: return "Dragon Gloves";
+		case 0x02: return "Pad Gloves";
+		case 0x03: return "Legendary Gloves";
+		case 0x04: return "Bone Gloves";
+		case 0x05: return "Leather Gloves";
+		case 0x06: return "Scale Gloves";
+		case 0x07: return "Sphinx Gloves";
+		case 0x08: return "Brass Gloves";
+		case 0x09: return "Plate Gloves";
+		case 0x0A: return "Vine Gloves";
+		case 0x0B: return "Silk Gloves";
+		case 0x0C: return "Wind Gloves";
+		case 0x0D: return "Spirit Gloves";
+		case 0x0E: return "Guardian Gloves";
+		case 0x0F: return "Storm Crow Gloves";
+		case 0x10: return "Black Dragon Gloves";
+		case 0x11: return "Dark Phoenix Gloves";
+		case 0x12: return "Grand Soul Gloves";
+		case 0x13: return "Holy Spirit Gloves";
+		case 0x14: return "Thunder Hawk Gloves";
+		case 0x15: return "Great Dragon Gloves";
+		case 0x16: return "Dark Soul Gloves";
+		case 0x17: return "Hurricane Gloves";
+		case 0x18: return "Red Spirit Gloves";
+		case 0x19: return "Light Plate Gloves";
+		case 0x1A: return "Adamantine Gloves";
+		case 0x1B: return "Dark Steel Gloves";
+		case 0x1C: return "Dark Master Gloves";
+		case 0x1D: return "Dragon Knight Gloves";
+		case 0x1E: return "Venom Mist Gloves";
+		case 0x1F: return "Sylphid Ray Gloves";
+		case 0x20: return "Volcano Gloves";
+		case 0x21: return "Sunlight Gloves";
+		case 0x22: return "Ashcrow Gloves";
+		case 0x23: return "Eclipse Gloves";
+		case 0x24: return "Iris Gloves";
+		case 0x25: return "Valiant Gloves";
+		case 0x26: return "Glorious Gloves";
+		case 0x27: return "Violent Wind Gloves";
+		case 0x28: return "Red Wing Gloves";
+		case 0x29: return "Ancient Gloves";
+		case 0x2A: return "Demonic Gloves";
+		case 0x2B: return "Storm Blitz Gloves";
+		case 0x2C: return "Eternal Wing Gloves";
+		case 0x2D: return "Titan Gloves";
+		case 0x2E: return "Brave Gloves";
+		case 0x2F: return "Phantom Gloves";
+		case 0x30: return "Destroy Gloves";
+		case 0x31: return "Seraphim Gloves";
+		case 0x32: return "Divine Gloves";
+		case 0x33: return "Royal Gloves";
+		case 0x34: return "Hades Gloves";
+		case 0x35: return "Succubus Gloves";
+		}
+		return "Gloves";
+
+	// ---------------------------------------------------------------
+	// Group 11 - Boots
+	// ---------------------------------------------------------------
+	case 11:
+		switch (bIndex)
+		{
+		case 0x00: return "Bronze Boots";
+		case 0x01: return "Dragon Boots";
+		case 0x02: return "Pad Boots";
+		case 0x03: return "Legendary Boots";
+		case 0x04: return "Bone Boots";
+		case 0x05: return "Leather Boots";
+		case 0x06: return "Scale Boots";
+		case 0x07: return "Sphinx Boots";
+		case 0x08: return "Brass Boots";
+		case 0x09: return "Plate Boots";
+		case 0x0A: return "Vine Boots";
+		case 0x0B: return "Silk Boots";
+		case 0x0C: return "Wind Boots";
+		case 0x0D: return "Spirit Boots";
+		case 0x0E: return "Guardian Boots";
+		case 0x0F: return "Storm Crow Boots";
+		case 0x10: return "Black Dragon Boots";
+		case 0x11: return "Dark Phoenix Boots";
+		case 0x12: return "Grand Soul Boots";
+		case 0x13: return "Holy Spirit Boots";
+		case 0x14: return "Thunder Hawk Boots";
+		case 0x15: return "Great Dragon Boots";
+		case 0x16: return "Dark Soul Boots";
+		case 0x17: return "Hurricane Boots";
+		case 0x18: return "Red Spirit Boots";
+		case 0x19: return "Light Plate Boots";
+		case 0x1A: return "Adamantine Boots";
+		case 0x1B: return "Dark Steel Boots";
+		case 0x1C: return "Dark Master Boots";
+		case 0x1D: return "Dragon Knight Boots";
+		case 0x1E: return "Venom Mist Boots";
+		case 0x1F: return "Sylphid Ray Boots";
+		case 0x20: return "Volcano Boots";
+		case 0x21: return "Sunlight Boots";
+		case 0x22: return "Ashcrow Boots";
+		case 0x23: return "Eclipse Boots";
+		case 0x24: return "Iris Boots";
+		case 0x25: return "Valiant Boots";
+		case 0x26: return "Glorious Boots";
+		case 0x27: return "Violent Wind Boots";
+		case 0x28: return "Red Wing Boots";
+		case 0x29: return "Ancient Boots";
+		case 0x2A: return "Demonic Boots";
+		case 0x2B: return "Storm Blitz Boots";
+		case 0x2C: return "Eternal Wing Boots";
+		case 0x2D: return "Titan Boots";
+		case 0x2E: return "Brave Boots";
+		case 0x2F: return "Phantom Boots";
+		case 0x30: return "Destroy Boots";
+		case 0x31: return "Seraphim Boots";
+		case 0x32: return "Divine Boots";
+		case 0x33: return "Royal Boots";
+		case 0x34: return "Hades Boots";
+		case 0x35: return "Succubus Boots";
+		case 0x3B: return "Sacred Fire Boots";
+		case 0x3C: return "Storm Jahad Boots";
+		case 0x3D: return "Piercing Boots";
+		case 0x49: return "Phoenix Soul Boots";
+		}
+		return "Boots";
+
+	// ---------------------------------------------------------------
+	// Group 12 - Wings / Capes / Orbs / Special
+	// ---------------------------------------------------------------
+	case 12:
+		switch (bIndex)
+		{
+		case 0x00: return "Wings of Elf";
+		case 0x01: return "Wings of Heaven";
+		case 0x02: return "Wings of Satan";
+		case 0x03: return "Wings of Spirits";
+		case 0x04: return "Wings of Soul";
+		case 0x05: return "Wings of Dragon";
+		case 0x06: return "Wings of Darkness";
+		case 0x07: return "Cape of Lord";
+		case 0x08: return "Healing Orb";
+		case 0x09: return "Orb of Greater Fortitude";
+		case 0x0A: return "Dinorant";
+		case 0x0B: return "Dark Horse";
+		case 0x0C: return "Dark Raven";
+		case 0x0D: return "Horn of Uniria";
+		case 0x0E: return "Spirit of Guardian";
+		case 0x0F: return "Jewel of Chaos";
+		case 0x10: return "Orb of Fire Slash";
+		case 0x11: return "Orb of Penetration";
+		case 0x12: return "Orb of Ice Arrow";
+		case 0x13: return "Orb of Death Stab";
+		case 0x15: return "Scroll of FireBurst";
+		case 0x16: return "Scroll of Summon";
+		case 0x17: return "Scroll of Critical Damage";
+		case 0x18: return "Scroll of Electric Spark";
+		case 0x1A: return "Gem of Secret";
+		case 0x1E: return "Bundle of Jewel of Bless";
+		case 0x1F: return "Bundle of Jewel of Soul";
+		case 0x23: return "Scroll of Fire Scream";
+		case 0x24: return "Wings of Storm";
+		case 0x25: return "Wings of Eternal";
+		case 0x26: return "Wings of Illusion";
+		case 0x27: return "Wings of Ruin";
+		case 0x28: return "Cape of Emperor";
+		case 0x29: return "Wings of Dimension";
+		case 0x2A: return "Cape of Fighter";
+		case 0x2B: return "Wing of Curse";
+		case 0x2C: return "Crystal of Destruction";
+		case 0x2D: return "Crystal of Multi-Shot";
+		case 0x2E: return "Crystal of Recovery";
+		case 0x2F: return "Crystal of Flame Strike";
+		case 0x30: return "Small Cape of Lord";
+		case 0x31: return "Small Wings of Mystery";
+		case 0x32: return "Small Wings of Elf";
+		case 0x33: return "Small Wings of Heaven";
+		case 0x34: return "Small Wings of Satan";
+		case 0x35: return "Little Warrior's Cloak";
+		}
+		return "Wings";
+
+	// ---------------------------------------------------------------
+	// Group 13 - Misc (Pets, Rings, Pendants, Event)
+	// ---------------------------------------------------------------
+	case 13:
+		switch (bIndex)
+		{
+		case 0x00: return "Guardian Angel";
+		case 0x01: return "Imp";
+		case 0x02: return "Horn of Uniria";
+		case 0x03: return "Horn of Dinorant";
+		case 0x04: return "Dark Horse";
+		case 0x05: return "Dark Raven";
+		case 0x07: return "Contract of Summon";
+		case 0x08: return "Ring of Ice";
+		case 0x09: return "Ring of Poison";
+		case 0x0A: return "Transformation Ring";
+		case 0x0B: return "Order of Guardian/Life Stone";
+		case 0x0C: return "Pendant of Lightning";
+		case 0x0D: return "Pendant of Fire";
+		case 0x0E: return "Loch's Feather";
+		case 0x0F: return "Fruits";
+		case 0x10: return "Scroll of Archangel";
+		case 0x11: return "Blood Bone";
+		case 0x12: return "Invisibility Cloak";
+		case 0x13: return "Weapon of Archangel";
+		case 0x14: return "Wizards Ring";
+		case 0x15: return "Ring of Fire";
+		case 0x16: return "Ring of Earth";
+		case 0x17: return "Ring of Wind";
+		case 0x18: return "Ring of Magic";
+		case 0x19: return "Pendant of Ice";
+		case 0x1A: return "Pendant of Wind";
+		case 0x1B: return "Pendant of Water";
+		case 0x1C: return "Pendant of Ability";
+		case 0x1D: return "Armor of Guardsman";
+		case 0x1E: return "Cape of Lord";
+		case 0x1F: return "Spirit";
+		case 0x20: return "Splinter of Armor";
+		case 0x21: return "Bless of Guardian";
+		case 0x22: return "Claw of Beast";
+		case 0x23: return "Fragment of Horn";
+		case 0x24: return "Broken Horn";
+		case 0x25: return "Horn of Fenrir";
+		case 0x26: return "Moonstone Pendant";
+		case 0x2E: return "Devil Square Ticket";
+		case 0x2F: return "Blood Castle Ticket";
+		case 0x30: return "Kalima Ticket";
+		case 0x31: return "Old Scroll";
+		case 0x32: return "Illusion Sorcerer Covenant";
+		case 0x33: return "Scroll of Blood";
+		case 0x34: return "Condor Flame";
+		case 0x35: return "Condor Feather";
+		case 0x40: return "Demon";
+		case 0x41: return "Spirit of Guardian";
+		case 0x43: return "Pet Rudolf";
+		case 0x45: return "Talisman of Resurrection";
+		case 0x50: return "Pet Panda";
+		}
+		return "Misc";
+
+	// ---------------------------------------------------------------
+	// Group 14 - Consumables & Jewels
+	// ---------------------------------------------------------------
+	case 14:
 		switch (bIndex)
 		{
 		case 0x00: return "Apple";
@@ -1276,6 +1949,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x04: return "Small Mana Potion";
 		case 0x05: return "Medium Mana Potion";
 		case 0x06: return "Large Mana Potion";
+		case 0x07: return "Siege Potion";
 		case 0x08: return "Antidote";
 		case 0x09: return "Ale";
 		case 0x0A: return "Town Portal Scroll";
@@ -1292,7 +1966,10 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x15: return "Box of Kundun +4";
 		case 0x16: return "Jewel of Creation";
 		case 0x17: return "Box of Kundun +5";
+		case 0x18: return "Broken Sword";
+		case 0x19: return "Tear of Elf";
 		case 0x1A: return "Symbol of Kundun";
+		case 0x1B: return "Lost Map";
 		case 0x1C: return "Loch's Feather";
 		case 0x1D: return "Gemstone";
 		case 0x1E: return "Jewel of Harmony";
@@ -1304,10 +1981,16 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x24: return "Pink Chocolate Box";
 		case 0x25: return "Red Chocolate Box";
 		case 0x26: return "Firecracker";
+		case 0x27: return "Small SD Potion";
+		case 0x28: return "SD Potion";
+		case 0x29: return "Large SD Potion";
 		case 0x2A: return "Cherry Blossom Wine";
 		case 0x2B: return "Cherry Blossom Rice Cake";
 		case 0x2C: return "Cherry Blossom Flower Petal";
+		case 0x2D: return "Summoner Card";
 		case 0x2E: return "Scroll of Emperor";
+		case 0x2F: return "Lower Refining Stone";
+		case 0x30: return "Higher Refining Stone";
 		case 0x31: return "Old Scroll";
 		case 0x32: return "Illusion Sorcerer Covenant";
 		case 0x33: return "Scroll of Blood";
@@ -1316,92 +1999,75 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x37: return "Horn of Fenrir";
 		case 0x38: return "Broken Horn";
 		case 0x39: return "Jewel of Chaos";
+		case 0x3A: return "Small Complex Potion";
+		case 0x3B: return "Complex Potion";
+		case 0x3C: return "Large Complex Potion";
+		case 0x46: return "Elite Healing Potion";
+		case 0x47: return "Elite Mana Potion";
+		case 0x4E: return "Scroll of Quickness";
+		case 0x4F: return "Scroll of Defense";
+		case 0x50: return "Scroll of Wrath";
+		case 0x51: return "Scroll of Wizardry";
+		case 0x52: return "Scroll of Health";
+		case 0x53: return "Scroll of Mana";
+		case 0x64: return "Lucky Coin";
+		case 0x6E: return "Sign of Dimensions";
+		case 0x6F: return "Mirror of Dimensions";
+		case 0x85: return "Elite SD Potion";
+		case 0x8C: return "Scroll of Healing";
+		case 0xA0: return "Jewel of Extension";
+		case 0xA1: return "Jewel of Elevation";
 		}
-	}
+		return "Item";
 
-	// Group 12 (0x0C) - Wings / Capes / Special
-	if (bGroup == 12)
-	{
+	// ---------------------------------------------------------------
+	// Group 15 - Scrolls & Parchments
+	// ---------------------------------------------------------------
+	case 15:
 		switch (bIndex)
 		{
-		case 0x00: return "Wings of Elf";
-		case 0x01: return "Wings of Heaven";
-		case 0x02: return "Wings of Satan";
-		case 0x03: return "Wings of Spirits";
-		case 0x04: return "Wings of Soul";
-		case 0x05: return "Wings of Dragon";
-		case 0x06: return "Wings of Darkness";
-		case 0x07: return "Cape of Lord";
-		case 0x0A: return "Dinorant";
-		case 0x0B: return "Dark Horse";
-		case 0x0C: return "Dark Raven";
-		case 0x0D: return "Horn of Uniria";
-		case 0x0E: return "Spirit of Guardian";
-		case 0x0F: return "Jewel of Chaos";
-		case 0x24: return "Wings of Storm";
-		case 0x25: return "Wings of Eternal";
-		case 0x26: return "Wings of Illusion";
-		case 0x27: return "Wings of Ruin";
-		case 0x28: return "Cape of Emperor";
-		case 0x29: return "Wings of Dimension";
-		case 0x2A: return "Cape of Fighter";
-		case 0x30: return "Small Cape of Lord";
-		case 0x31: return "Small Wings of Mystery";
-		case 0x32: return "Small Wings of Elf";
-		case 0x33: return "Small Wings of Heaven";
-		case 0x34: return "Small Wings of Satan";
-		}
-	}
-
-	// Group 15 (0x0F) - Scrolls
-	if (bGroup == 15)
-	{
-		switch (bIndex)
-		{
-		case 0x00: return "Scroll of Fire Ball";
-		case 0x01: return "Scroll of Power Wave";
+		case 0x00: return "Scroll of Poison";
+		case 0x01: return "Scroll of Meteorite";
 		case 0x02: return "Scroll of Lightning";
-		case 0x03: return "Scroll of Meteor";
-		case 0x04: return "Scroll of Ice";
-		case 0x05: return "Scroll of Poison";
-		case 0x06: return "Scroll of Flame";
+		case 0x03: return "Scroll of Fire Ball";
+		case 0x04: return "Scroll of Flame";
+		case 0x05: return "Scroll of Teleport";
+		case 0x06: return "Scroll of Ice";
 		case 0x07: return "Scroll of Twister";
 		case 0x08: return "Scroll of Evil Spirit";
 		case 0x09: return "Scroll of Hellfire";
-		case 0x0A: return "Scroll of Aqua Flash";
-		case 0x0B: return "Scroll of Cometfall";
-		case 0x0C: return "Scroll of Inferno";
-		case 0x0D: return "Scroll of Blast";
-		case 0x0E: return "Scroll of Force";
+		case 0x0A: return "Scroll of Power Wave";
+		case 0x0B: return "Scroll of Aqua Beam";
+		case 0x0C: return "Scroll of Cometfall";
+		case 0x0D: return "Scroll of Inferno";
+		case 0x0E: return "Scroll of Teleport Ally";
+		case 0x0F: return "Scroll of Soul Barrier";
 		case 0x10: return "Scroll of Decay";
 		case 0x11: return "Scroll of Ice Storm";
 		case 0x12: return "Scroll of Nova";
+		case 0x13: return "Chain Lightning Parchment";
+		case 0x14: return "Drain Life Parchment";
+		case 0x15: return "Lightning Shock Parchment";
+		case 0x16: return "Damage Reflection Parchment";
+		case 0x17: return "Berserker Parchment";
+		case 0x18: return "Sleep Parchment";
+		case 0x1A: return "Weakness Parchment";
+		case 0x1B: return "Innovation Parchment";
+		case 0x1C: return "Scroll of Wizardry Enhance";
+		case 0x1D: return "Scroll of Gigantic Storm";
+		case 0x1E: return "Chain Drive Parchment";
+		case 0x1F: return "Dark Side Parchment";
+		case 0x20: return "Dragon Roar Parchment";
+		case 0x21: return "Dragon Slasher Parchment";
+		case 0x22: return "Ignore Defense Parchment";
+		case 0x23: return "Increase Health Parchment";
+		case 0x24: return "Increase Block Parchment";
 		}
+		return "Scroll";
+
+	default:
+		break;
 	}
-
-	// Equipment group names for generic fallback
-	static const char* s_szGroupNames[] =
-	{
-		"Sword",     // 0
-		"Axe",       // 1
-		"Mace",      // 2
-		"Spear",     // 3
-		"Bow",       // 4
-		"Staff",     // 5
-		"Shield",    // 6
-		"Helm",      // 7
-		"Armor",     // 8
-		"Pants",     // 9
-		"Gloves",    // 10
-		"Boots",     // 11
-		"Wings",     // 12
-		"Misc",      // 13
-		"Item",      // 14
-		"Scroll",    // 15
-	};
-
-	if (bGroup < 16)
-		return s_szGroupNames[bGroup];
 
 	return "Item";
 }

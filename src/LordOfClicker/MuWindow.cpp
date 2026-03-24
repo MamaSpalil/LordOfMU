@@ -361,6 +361,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	{
 		m_cSettingsDlg.ShowWindow(SW_HIDE);
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
+		m_cHistoryDlg.ShowWindow(SW_HIDE);
 		return TRUE;
 	}
 
@@ -484,64 +485,17 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	// REDESIGN: F9 and SHIFT+F9 merged into unified dialog
 	CWindow dlg = m_cUnifiedSettingsDlg;
 
-	// DEPRECATED: SHIFT+F9 no longer used
-	// if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
-	// {
-	//     dlg = m_cAdvSettingsDlg;
-	// }
-
 	if (m_fGuiActive || !dlg.IsWindow())
 		return 0;
 
 	m_fGuiActive = TRUE;
 
-	dlg.ShowWindow(SW_SHOWNORMAL);
+	// Show as non-blocking popup overlay - game continues rendering behind it
+	dlg.ShowWindow(SW_SHOWNOACTIVATE);
 
-	InvalidateRect(0, TRUE);
-	UpdateWindow();
-
-	PostMessage(WM_NULL, 0, 0);
-
-	BOOL fOldBlockInput = m_fBlockInput;
-	m_fBlockInput = FALSE;
-
-	MSG msg = {0};
-	while (true)
-	{
-		if (GetMessage(&msg, 0, 0, 0) > 0)
-		{
-			if (msg.message == WM_SYSCOMMAND && msg.wParam == SC_CLOSE)
-			{
-				dlg.ShowWindow(SW_HIDE);
-			}
-			else if (!dlg.IsDialogMessage(&msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-		{
-			dlg.ShowWindow(SW_HIDE);
-		}
-
-		if (!dlg.IsWindowVisible())
-			break;
-	}
-
-	while (CMuWindow::GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		Sleep(10);
-	}
-
-	m_fBlockInput = fOldBlockInput;
-	m_fGuiActive = FALSE;
+	// Ensure the dialog is topmost and visible
+	::SetWindowPos(dlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
 	return 0;
 }
@@ -1423,6 +1377,18 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 	{
 		bHandled = TRUE;
 
+		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed
+		if (m_fGuiActive)
+		{
+			BOOL bSettingsVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
+			BOOL bHistoryVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
+
+			if (!bSettingsVisible && !bHistoryVisible)
+			{
+				m_fGuiActive = FALSE;
+			}
+		}
+
 		for (int i=0; m_vFnKeys[i].vk != 0; ++i)
 		{
 			bool fOldState = m_vFnKeys[i].fPressed;
@@ -1553,59 +1519,17 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_cHistoryDlg.SetHistory(vHistory);
 
-	// Show history dialog (same modal loop as settings)
+	// Show history dialog as non-blocking popup overlay
 	if (!m_cHistoryDlg.IsWindow())
 		return 0;
 
 	m_fGuiActive = TRUE;
 
-	m_cHistoryDlg.ShowWindow(SW_SHOWNORMAL);
+	m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
 
-	InvalidateRect(0, TRUE);
-	UpdateWindow();
-
-	PostMessage(WM_NULL, 0, 0);
-
-	BOOL fOldBlockInput = m_fBlockInput;
-	m_fBlockInput = FALSE;
-
-	MSG msg = {0};
-	while (true)
-	{
-		if (GetMessage(&msg, 0, 0, 0) > 0)
-		{
-			if (msg.message == WM_SYSCOMMAND && msg.wParam == SC_CLOSE)
-			{
-				m_cHistoryDlg.ShowWindow(SW_HIDE);
-			}
-			else if (!m_cHistoryDlg.IsDialogMessage(&msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-		{
-			m_cHistoryDlg.ShowWindow(SW_HIDE);
-		}
-
-		if (!m_cHistoryDlg.IsWindowVisible())
-			break;
-	}
-
-	while (CMuWindow::GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) != 0)
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		Sleep(10);
-	}
-
-	m_fBlockInput = fOldBlockInput;
-	m_fGuiActive = FALSE;
+	// Ensure the dialog is topmost and visible
+	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
 	return 0;
 }
