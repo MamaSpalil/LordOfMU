@@ -275,7 +275,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		BITMAP bm = {0};
 		GetObject(hIcon, sizeof(bm), &bm);
 
-		int icoSz = BTN_SIZE - 6; // small margin inside circle
+		int icoSz = BTN_SIZE * 5 / 8; // ~62% of button, fits inscribed circle
 		int ix = cx - icoSz / 2;
 		int iy = cy - icoSz / 2;
 
