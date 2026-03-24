@@ -66,13 +66,13 @@ protected:
 
 private:
 	enum { BTN_COUNT = 3 };
-	enum { BTN_SIZE = 24 };
+	enum { BTN_SIZE = 20 };
 	enum { BTN_SPACING = 3 };
 	enum { BAR_PADDING = 2 };
 	enum { TIMER_REPOSITION = 2020 };
 	enum { TIMER_REPOSITION_INTERVAL = 200 };
 	enum { HUD_OFFSET_X = 90 };
-	enum { HUD_OFFSET_Y = 48 };
+	enum { HUD_OFFSET_Y = 5 };
 
 	int HitTest(int x, int y);
 	void DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL bPressed);
