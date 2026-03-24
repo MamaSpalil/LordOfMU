@@ -11,6 +11,9 @@
 #include <string>
 #include <TlHelp32.h>
 #include <windowsx.h>
+#ifdef SubclassWindow
+#undef SubclassWindow
+#endif
 #include <sys/stat.h>
 
 CMuWindow* CMuWindow::s_pInstance = NULL;
@@ -372,12 +375,11 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_ESCAPE && uMsg == WM_KEYUP && m_fGuiActive)
 	{
-		if (m_cSettingsDlg.IsWindow())
-			m_cSettingsDlg.ShowWindow(SW_HIDE);
 		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
 		m_cHistoryDlg.ShowWindow(SW_HIDE);
 		m_bSettingsWasVisible = FALSE;
 		m_bHistoryWasVisible = FALSE;
+		m_fGuiActive = FALSE;
 		return TRUE;
 	}
 
@@ -787,7 +789,7 @@ LRESULT CMuWindow::OnLaunchMu(UINT, WPARAM, LPARAM, BOOL&)
 	if (m_pClicker != NULL)
 		return 0;
 
-	if (m_fGuiActive || !m_cSettingsDlg.IsWindow())
+	if (m_fGuiActive || !m_cUnifiedSettingsDlg.IsWindow())
 		return 0;
 
 	m_fGuiActive = TRUE;
@@ -1737,19 +1739,23 @@ void CMuWindow::HidePopupDialogs()
  */
 void CMuWindow::RestorePopupDialogs()
 {
-	if (m_bSettingsWasVisible && m_cUnifiedSettingsDlg.IsWindow())
+	BOOL bRestoreSettings = m_bSettingsWasVisible;
+	BOOL bRestoreHistory = m_bHistoryWasVisible;
+
+	// Reset flags BEFORE showing windows to guard against re-entrant calls
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
+
+	if (bRestoreSettings && m_cUnifiedSettingsDlg.IsWindow())
 	{
 		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOWNOACTIVATE);
 		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 	}
-	if (m_bHistoryWasVisible && m_cHistoryDlg.IsWindow())
+	if (bRestoreHistory && m_cHistoryDlg.IsWindow())
 	{
 		m_cHistoryDlg.ShowWindow(SW_SHOWNOACTIVATE);
 		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 	}
-
-	m_bSettingsWasVisible = FALSE;
-	m_bHistoryWasVisible = FALSE;
 }

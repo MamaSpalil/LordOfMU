@@ -44,7 +44,7 @@
 #define IDC_COMBO5                      237
 #define IDC_HEALSKILLSLOT               238
 #define IDC_AUTOREOFF3                  239
-#define IDC_AUTOSAY                     285
+// #define IDC_AUTOSAY                     285  // UNUSED
 #define IDC_COMBO6                      241
 #define IDC_PARTYMEMBERS                242
 #define IDC_AUTOPICK                    243

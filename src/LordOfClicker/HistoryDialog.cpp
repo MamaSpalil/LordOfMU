@@ -1,5 +1,37 @@
 #include "stdafx.h"
 #include "HistoryDialog.h"
+#include <commctrl.h>  // SetWindowSubclass
+
+
+// -----------------------------------------------------------------------
+// Button hover subclass: invalidates owner-draw buttons on mouse
+// enter/leave so the parent OnDrawItem repaints with correct hover state.
+// -----------------------------------------------------------------------
+static LRESULT CALLBACK ButtonHoverSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR /*dwRefData*/)
+{
+	switch (uMsg)
+	{
+	case WM_MOUSEMOVE:
+		{
+			TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, hWnd, 0 };
+			TrackMouseEvent(&tme);
+			::InvalidateRect(hWnd, NULL, FALSE);
+		}
+		break;
+
+	case WM_MOUSELEAVE:
+		::InvalidateRect(hWnd, NULL, FALSE);
+		break;
+
+	case WM_NCDESTROY:
+		RemoveWindowSubclass(hWnd, ButtonHoverSubclassProc, uIdSubclass);
+		break;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
 
 
 CHistoryDialog::CHistoryDialog()
@@ -81,6 +113,10 @@ LRESULT CHistoryDialog::OnInitDialog(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	if (hOK && m_cTheme.GetTabFont())
 		::SendMessage(hOK, WM_SETFONT, (WPARAM)m_cTheme.GetTabFont(), TRUE);
 
+	// Subclass owner-draw buttons for hover tracking
+	if (hOK)
+		SetWindowSubclass(hOK, ButtonHoverSubclassProc, 100, 0);
+
 	PopulateList();
 
 	bHandled = TRUE;
@@ -96,7 +132,10 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		CenterWindow(GetParent());
 
 		// Show cursor - snapshot current display count first
-		m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
+		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(NULL, IDC_ARROW);
+		m_hOldCursor = SetCursor(hCursor);
 		int nBefore = ShowCursor(TRUE) - 1;  // undo the probe increment
 		ShowCursor(FALSE);
 		m_iShowCursor = nBefore;
@@ -117,10 +156,19 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 }
 
 
-LRESULT CHistoryDialog::OnSetCursor(UINT, WPARAM, LPARAM, BOOL&)
+LRESULT CHistoryDialog::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
-	SetCursor(LoadCursor(NULL, IDC_ARROW));
-	return TRUE;
+	if (LOWORD(lParam) == HTCLIENT)
+	{
+		HCURSOR hCursor = m_cTheme.GetMuCursor();
+		if (hCursor == NULL)
+			hCursor = LoadCursor(NULL, IDC_ARROW);
+		SetCursor(hCursor);
+		bHandled = TRUE;
+		return TRUE;
+	}
+	bHandled = FALSE;
+	return FALSE;
 }
 
 
@@ -196,7 +244,12 @@ LRESULT CHistoryDialog::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHa
 	if (lpDIS->CtlType == ODT_BUTTON)
 	{
 		BOOL bPressed = (lpDIS->itemState & ODS_SELECTED) != 0;
-		BOOL bHover = FALSE;
+
+		POINT pt;
+		GetCursorPos(&pt);
+		RECT rcScreen;
+		::GetWindowRect(lpDIS->hwndItem, &rcScreen);
+		BOOL bHover = PtInRect(&rcScreen, pt);
 
 		TCHAR szText[64] = {0};
 		::GetWindowText(lpDIS->hwndItem, szText, 63);
