@@ -44,16 +44,36 @@ static void GetClickerLogPath(char* szPath, size_t nMaxLen)
 
 
 /**
+ * \brief Returns the shared mutex handle for log serialization.
+ *        Created once on first use and reused across all log calls.
+ */
+static HANDLE GetClickerLogMutex()
+{
+	static HANDLE s_hMutex = NULL;
+	if (!s_hMutex)
+	{
+		HANDLE hNew = CreateMutexA(NULL, FALSE, "LordOfMU_ClickerLog_Mutex");
+		if (InterlockedCompareExchangePointer((PVOID*)&s_hMutex, hNew, NULL) != NULL)
+		{
+			// Another thread already created it — close the duplicate.
+			CloseHandle(hNew);
+		}
+	}
+	return s_hMutex;
+}
+
+
+/**
  * \brief Writes a formatted log entry with timestamp to ClickerLog.txt.
  *        When debug mode is enabled, also outputs to the debug console window.
  *        Supports printf-style format strings.
  */
 static void WriteClickerLogFmt(const char* szCategory, const char* szFormat, ...)
 {
-	HANDLE hMutex = CreateMutexA(NULL, FALSE, "LordOfMU_ClickerLog_Mutex");
+	HANDLE hMutex = GetClickerLogMutex();
 	if (!hMutex)
 	{
-		OutputDebugStringA("ClickerLogger: Failed to create mutex\n");
+		OutputDebugStringA("ClickerLogger: Failed to obtain mutex\n");
 		return;
 	}
 
@@ -92,7 +112,6 @@ static void WriteClickerLogFmt(const char* szCategory, const char* szFormat, ...
 	}
 
 	ReleaseMutex(hMutex);
-	CloseHandle(hMutex);
 }
 
 
@@ -111,7 +130,7 @@ static void WriteClickerLog(const char* szMessage)
  */
 static void WriteHookLog(const char* szFormat, ...)
 {
-	HANDLE hMutex = CreateMutexA(NULL, FALSE, "LordOfMU_ClickerLog_Mutex");
+	HANDLE hMutex = GetClickerLogMutex();
 	if (!hMutex)
 		return;
 
@@ -147,7 +166,6 @@ static void WriteHookLog(const char* szFormat, ...)
 	}
 
 	ReleaseMutex(hMutex);
-	CloseHandle(hMutex);
 }
 
 
@@ -168,7 +186,7 @@ static void WritePacketLog(const char* szDirection, const char* szDescription, i
  */
 static void WriteSocketLog(const char* szFormat, ...)
 {
-	HANDLE hMutex = CreateMutexA(NULL, FALSE, "LordOfMU_ClickerLog_Mutex");
+	HANDLE hMutex = GetClickerLogMutex();
 	if (!hMutex)
 		return;
 
@@ -204,7 +222,6 @@ static void WriteSocketLog(const char* szFormat, ...)
 	}
 
 	ReleaseMutex(hMutex);
-	CloseHandle(hMutex);
 }
 
 
@@ -214,7 +231,7 @@ static void WriteSocketLog(const char* szFormat, ...)
  */
 static void WriteDebugLog(const char* szFormat, ...)
 {
-	HANDLE hMutex = CreateMutexA(NULL, FALSE, "LordOfMU_ClickerLog_Mutex");
+	HANDLE hMutex = GetClickerLogMutex();
 	if (!hMutex)
 		return;
 
@@ -250,7 +267,6 @@ static void WriteDebugLog(const char* szFormat, ...)
 	}
 
 	ReleaseMutex(hMutex);
-	CloseHandle(hMutex);
 }
 
 

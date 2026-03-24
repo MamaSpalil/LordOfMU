@@ -37,6 +37,8 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
+	m_bSettingsWasVisible = FALSE;
+	m_bHistoryWasVisible = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 	m_bSettingsWasVisible = FALSE;
@@ -436,11 +438,6 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	m_fIsWndActive = (BOOL)wParam;
 
-	// Immediately show/hide HUD buttons when the game application
-	// gains or loses foreground.  Buttons must only be visible
-	// and clickable inside the game client (main.exe).
-	m_cHUDButtons.SetGameActive(m_fIsWndActive);
-
 	if (m_fIsWndActive)
 	{
 		RestorePopupDialogs();
@@ -734,6 +731,15 @@ LRESULT CMuWindow::OnClickerRButtonDown(UINT, WPARAM wParam, LPARAM lParam, BOOL
  */
 LRESULT CMuWindow::OnClickerRButtonUp(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
 {
+	// wParam == 1 is a special "release capture" flag from the clicker thread.
+	// ReleaseCapture/ClipCursor must be called from the UI thread.
+	if (wParam == 1)
+	{
+		ReleaseCapture();
+		ClipCursor(0);
+		return 0;
+	}
+
 	return CallWindowProc(m_pfnSuperWindowProc, m_hWnd, WM_RBUTTONUP, wParam, lParam);
 }
 
@@ -1483,8 +1489,9 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 
 /**
- * \brief Game window moved or resized - immediately reposition the HUD overlay.
- *        Keeps buttons anchored without waiting for the 200ms reposition timer.
+ * \brief Hide popup dialogs so they don't float on the desktop when the
+ *        game loses focus or is minimised.  Remembers which dialogs were
+ *        visible so they can be restored later via RestorePopupDialogs().
  */
 LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
@@ -1505,10 +1512,20 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
 
 
 /**
- * \brief HUD Settings button clicked - open the F9 settings dialog.
+ * \brief HUD Settings button clicked - stop the autoclicker (if running)
+ *        and open the unified settings dialog.  Stopping first ensures
+ *        the dialog can be opened without conflicts.
  */
 LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
 {
+	// Stop the autoclicker before opening settings so the dialog
+	// is not blocked by the running clicker check in OnShowSettingsGUI.
+	if (m_pClicker != NULL)
+	{
+		BOOL bHandled = FALSE;
+		OnStopClicker(0, 0, 0, bHandled);
+	}
+
 	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 	return 0;
 }

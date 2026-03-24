@@ -123,6 +123,9 @@ protected:
 	void HidePopupDialogs();
 	void RestorePopupDialogs();
 
+	void HidePopupDialogs();
+	void RestorePopupDialogs();
+
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
 	void LaunchMU();
@@ -148,6 +151,11 @@ protected:
 	BOOL m_fBlockInput;
 	BOOL m_fGuiActive;
 	BOOL m_fWasLastActiveInstance;
+	BOOL m_bSettingsWasVisible;
+	BOOL m_bHistoryWasVisible;
+
+	// Track dialog visibility across activation changes so they can
+	// be hidden on ALT+TAB / minimize and restored when game regains focus.
 	BOOL m_bSettingsWasVisible;
 	BOOL m_bHistoryWasVisible;
 

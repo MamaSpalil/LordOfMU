@@ -3,19 +3,25 @@
 #include "MuTheme.h"
 #include <windowsx.h>
 
+#include <windowsx.h>  // GET_X_LPARAM, GET_Y_LPARAM
+
 #pragma comment(lib, "msimg32.lib")
 
 // Color key for layered-window transparency (magenta → invisible)
 static const COLORREF HUD_TRANSPARENT_KEY = RGB(255, 0, 255);
 
+// Background color used in icon bitmap generation; must match the .bmp icon background.
+static const COLORREF HUD_ICON_BG_COLOR = RGB(25, 22, 16);
+
 
 CHUDButtons::CHUDButtons()
 {
-	m_hwndOwner = NULL;
+	m_hwndParent = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
 	m_bGameActive = FALSE;
 	m_bEnabled = FALSE;
+	m_bGameActive = FALSE;
 	m_hIcoSettings = NULL;
 	m_hIcoPlay = NULL;
 	m_hIcoStop = NULL;
@@ -23,6 +29,7 @@ CHUDButtons::CHUDButtons()
 	m_iHoverBtn = -1;
 	m_iPressedBtn = -1;
 	m_bTracking = FALSE;
+	m_bTimerActive = FALSE;
 }
 
 
@@ -32,9 +39,9 @@ CHUDButtons::~CHUDButtons()
 }
 
 
-BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
+BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 {
-	m_hwndOwner = hwndOwner;
+	m_hwndParent = hwndParent;
 	m_hInstance = hInstance;
 
 	// Load icon bitmaps
@@ -61,14 +68,8 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	int barWidth = BAR_PADDING * 2 + BTN_COUNT * BTN_SIZE + (BTN_COUNT - 1) * BTN_SPACING;
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
 
-	// Get game window position for initial placement
-	RECT rcOwner = {0};
-	::GetWindowRect(hwndOwner, &rcOwner);
-
-	RECT rcClient = {0};
-	::GetClientRect(hwndOwner, &rcClient);
-	POINT ptClient = {0, 0};
-	::ClientToScreen(hwndOwner, &ptClient);
+	// Position in client coordinates of the parent (right of FPS counter).
+	// Actual screen position is set by Reposition() after creation.
 
 	// Position to the right of the FPS counter in the game client area.
 	int x = ptClient.x + 90;
@@ -77,11 +78,11 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	// Create as owned popup window (stays on top of game), initially hidden.
 	// WS_EX_LAYERED enables color-key transparency (no black background).
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
-		hwndOwner,                              // owner window
-		CWindow::rcDefault,                     // position (set below)
+		hwndParent,                             // owner window
+		rcPos,                                  // initial size (repositioned later)
 		NULL,                                   // no title
-		WS_POPUP,                               // popup, initially hidden
-		WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST | WS_EX_LAYERED
+		WS_POPUP,                               // popup overlay, initially hidden
+		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOPMOST  // layered + no-activate + topmost
 	);
 
 	if (!hWnd)
@@ -90,9 +91,6 @@ BOOL CHUDButtons::Create(HWND hwndOwner, HINSTANCE hInstance)
 	// Magenta pixels become fully transparent (removes black background).
 	// Add slight alpha transparency so buttons blend with the game scene.
 	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 220, LWA_COLORKEY | LWA_ALPHA);
-
-	// Position and size the window (still hidden)
-	SetWindowPos(NULL, x, y, barWidth, barHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -107,7 +105,6 @@ void CHUDButtons::Destroy()
 
 	if (IsWindow())
 	{
-		KillTimer(REPOSITION_TIMER_ID);
 		DestroyWindow();
 	}
 }
@@ -120,12 +117,16 @@ void CHUDButtons::Show()
 
 	m_bEnabled = TRUE;
 
-	// Always start the reposition timer (even if game is not active,
-	// the timer will show the HUD when the game becomes active again).
-	SetTimer(REPOSITION_TIMER_ID, 200, NULL);
+	// When Show() is called (character selected), the game is necessarily
+	// the foreground window, so mark it active.
+	m_bGameActive = TRUE;
 
-	if (!m_bGameActive || IsWindowVisible())
-		return;
+	// Start periodic reposition timer to track game window movement.
+	if (!m_bTimerActive)
+	{
+		if (SetTimer(TIMER_REPOSITION, TIMER_REPOSITION_INTERVAL))
+			m_bTimerActive = TRUE;
+	}
 
 	Reposition();
 }
@@ -136,8 +137,23 @@ void CHUDButtons::Hide()
 	if (!IsWindow())
 		return;
 
+	if (m_bTimerActive)
+	{
+		KillTimer(TIMER_REPOSITION);
+		m_bTimerActive = FALSE;
+	}
+
 	if (IsWindowVisible())
 		ShowWindow(SW_HIDE);
+}
+
+
+void CHUDButtons::Reset()
+{
+	m_bEnabled = FALSE;
+	m_bClickerRunning = FALSE;
+	m_bGameActive = FALSE;
+	Hide();
 }
 
 
@@ -287,14 +303,25 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		clrHL     = RGB(135, 112, 50);
 	}
 
-	// 3 concentric ellipses simulate a radial gradient (outer → inner).
-	struct { COLORREF c; int ri; } layers[] = {
-		{ clrOuter, r - 1 },
-		{ clrMid,   r * 2 / 3 },
-		{ clrInner, r / 3 }
-	};
+	// 5 concentric ellipses simulate a smoother radial gradient (outer → inner).
+	struct { COLORREF c; int ri; } layers[5];
+	{
+		int r0 = r - 1;
+		int dr = (r0 > 4) ? r0 / 4 : 1;
+		BYTE ro = GetRValue(clrOuter), go = GetGValue(clrOuter), bo = GetBValue(clrOuter);
+		BYTE r_inner = GetRValue(clrInner), g_inner = GetGValue(clrInner), b_inner = GetBValue(clrInner);
+		for (int i = 0; i < 5; ++i)
+		{
+			int t = i * 255 / 4;
+			layers[i].c = RGB(ro + (r_inner - ro) * t / 255,
+			                  go + (g_inner - go) * t / 255,
+			                  bo + (b_inner - bo) * t / 255);
+			layers[i].ri = r0 - i * dr;
+			if (layers[i].ri < 1) layers[i].ri = 1;
+		}
+	}
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		HBRUSH hBr = CreateSolidBrush(layers[i].c);
 		HPEN   hPn = CreatePen(PS_SOLID, 1, layers[i].c);
@@ -322,7 +349,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 	// Specular highlight crescent at the top of the button
 	if (!bPressed)
 	{
-		int clipR = r - 2;
+		int clipR = r - 3;
 		if (clipR > 1)
 		{
 			HRGN hClip = CreateEllipticRgn(
@@ -333,7 +360,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 			HPEN   hPn = CreatePen(PS_SOLID, 1, clrHL);
 			HGDIOBJ hOB = SelectObject(hDC, hBr);
 			HGDIOBJ hOP = SelectObject(hDC, hPn);
-			Ellipse(hDC, cx - clipR + 1, cy - r, cx + clipR - 1, cy);
+			Ellipse(hDC, cx - clipR + 1, cy - r + 2, cx + clipR - 1, cy);
 			SelectObject(hDC, hOB);
 			SelectObject(hDC, hOP);
 			DeleteObject(hBr);
@@ -360,7 +387,7 @@ void CHUDButtons::DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL 
 		// Use TransparentBlt to skip the background color
 		TransparentBlt(hDC, ix, iy, icoSz, icoSz,
 			hMemDC, 0, 0, bm.bmWidth, bm.bmHeight,
-			RGB(25, 22, 16)); // BG_COLOR used in icon generation
+			HUD_ICON_BG_COLOR);
 
 		SelectObject(hMemDC, hOldBmp);
 		DeleteDC(hMemDC);
@@ -451,19 +478,19 @@ LRESULT CHUDButtons::OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL&)
 		int y = GET_Y_LPARAM(lParam);
 		int btn = HitTest(x, y);
 
-		if (btn == m_iPressedBtn && m_hwndOwner)
+		if (btn == m_iPressedBtn && m_hwndParent)
 		{
 			// Send appropriate message to parent
 			switch (btn)
 			{
 			case 0:
-				::PostMessage(m_hwndOwner, WM_HUD_SETTINGS, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_SETTINGS, 0, 0);
 				break;
 			case 1:
-				::PostMessage(m_hwndOwner, WM_HUD_STARTSTOP, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_STARTSTOP, 0, 0);
 				break;
 			case 2:
-				::PostMessage(m_hwndOwner, WM_HUD_HISTORY, 0, 0);
+				::PostMessage(m_hwndParent, WM_HUD_HISTORY, 0, 0);
 				break;
 			}
 		}
@@ -513,6 +540,22 @@ LRESULT CHUDButtons::OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&)
 }
 
 
+LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL&)
+{
+	// Convert screen coordinates to client coordinates.
+	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+	ScreenToClient(&pt);
+
+	// If the point lands on one of the circular buttons, return HTCLIENT
+	// so the click is processed by the HUD.  Otherwise return HTTRANSPARENT
+	// so the click passes through to the game window underneath.
+	if (HitTest(pt.x, pt.y) >= 0)
+		return HTCLIENT;
+
+	return HTTRANSPARENT;
+}
+
+
 LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 {
 	// Prevent the HUD from stealing focus when the user clicks on a button.
@@ -535,15 +578,64 @@ LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 
 LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
-	if (wParam == REPOSITION_TIMER_ID)
+	m_bGameActive = bActive;
+
+	if (!m_bEnabled || !IsWindow())
+		return;
+
+	if (bActive)
 	{
 		Reposition();
+	}
+	else
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+	}
+}
+
+
+void CHUDButtons::Reposition()
+{
+	if (!IsWindow() || !m_hwndParent || !::IsWindow(m_hwndParent))
+		return;
+
+	// Don't show if game window is minimized or not visible.
+	if (::IsIconic(m_hwndParent) || !::IsWindowVisible(m_hwndParent))
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		return;
+	}
+
+	// Only reposition/show if HUD should be visible.
+	if (!m_bEnabled || !m_bGameActive)
+		return;
+
+	// Convert client-area offset to screen coordinates.
+	POINT ptScreen = { HUD_OFFSET_X, HUD_OFFSET_Y };
+	::ClientToScreen(m_hwndParent, &ptScreen);
+
+	DWORD dwFlags = SWP_NOSIZE | SWP_NOACTIVATE;
+	if (!IsWindowVisible())
+		dwFlags |= SWP_SHOWWINDOW;
+
+	::SetWindowPos(m_hWnd, HWND_TOPMOST,
+		ptScreen.x, ptScreen.y, 0, 0, dwFlags);
+}
+
+
+LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
+{
+	if (wParam == TIMER_REPOSITION)
+	{
+		if (m_bEnabled && m_bGameActive)
+			Reposition();
 		bHandled = TRUE;
 	}
 	else
 	{
 		bHandled = FALSE;
 	}
-
 	return 0;
 }

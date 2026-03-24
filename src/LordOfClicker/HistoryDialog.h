@@ -67,7 +67,9 @@ private:
 
 	HCURSOR m_hOldCursor;
 	int m_iShowCursor;
+	BOOL m_bCursorShown;   // track whether we added cursor visibility
 	HBRUSH m_hListBrush;
+	HBRUSH m_hTitleBrush;  // cached brush for OnNCPaint title bar
 };
 
 #endif //__HistoryDialog_H
