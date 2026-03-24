@@ -1358,7 +1358,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x11: return "Absolute Scepter";
 		case 0x12: return "Striker Scepter";
 		case 0x13: return "Thunderbolt";
-		case 0x14: return "Horn of Steal";
+		case 0x14: return "Horn of Steel";
 		}
 		return "Mace";
 
@@ -1451,7 +1451,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x16: return "Book of Neil";
 		case 0x17: return "Book of Lagle";
 		case 0x1E: return "Deadly Staff";
-		case 0x1F: return "Inberial Staff";
+		case 0x1F: return "Imperial Staff";
 		case 0x20: return "Summon Spirit Stick";
 		case 0x21: return "Chrome Staff";
 		case 0x22: return "Raven Stick";
