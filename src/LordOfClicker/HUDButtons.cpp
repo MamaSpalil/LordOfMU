@@ -24,6 +24,7 @@ CHUDButtons::CHUDButtons()
 	m_iHoverBtn = -1;
 	m_iPressedBtn = -1;
 	m_bTracking = FALSE;
+	m_bTimerActive = FALSE;
 }
 
 
@@ -101,7 +102,11 @@ void CHUDButtons::Show()
 	m_bGameActive = TRUE;
 
 	// Start periodic reposition timer to track game window movement.
-	SetTimer(TIMER_REPOSITION, 200);
+	if (!m_bTimerActive)
+	{
+		if (SetTimer(TIMER_REPOSITION, 200))
+			m_bTimerActive = TRUE;
+	}
 
 	Reposition();
 }
@@ -112,7 +117,11 @@ void CHUDButtons::Hide()
 	if (!IsWindow())
 		return;
 
-	KillTimer(TIMER_REPOSITION);
+	if (m_bTimerActive)
+	{
+		KillTimer(TIMER_REPOSITION);
+		m_bTimerActive = FALSE;
+	}
 
 	if (IsWindowVisible())
 		ShowWindow(SW_HIDE);

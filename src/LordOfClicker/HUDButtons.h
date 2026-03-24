@@ -88,6 +88,7 @@ private:
 	int m_iHoverBtn;    // -1 = none
 	int m_iPressedBtn;  // -1 = none
 	BOOL m_bTracking;   // mouse tracking active
+	BOOL m_bTimerActive; // reposition timer running
 };
 
 #endif //__HUDButtons_H
