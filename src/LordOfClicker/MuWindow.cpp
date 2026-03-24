@@ -287,7 +287,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		return FALSE;
 
 	// While a dialog (Settings/History) is open, block clicker control keys
-	// and the settings key to prevent accidental toggling behind the dialog.
+	// (F5-F8) and F9 (settings key) to prevent accidental toggling behind the dialog.
 	if (m_fGuiActive)
 	{
 		if (vkCode >= VK_F5 && vkCode <= VK_F9)
@@ -492,8 +492,8 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cHistoryDlg.m_hWnd))
 		m_cHistoryDlg.DestroyWindow();
 
-	// Stop autoclicker before destroying HUD — the clicker may post messages
-	// that reference HUD state, so HUD must remain valid during shutdown.
+	// Stop autoclicker first — the clicker thread may post messages that
+	// reference HUD state, so HUD must remain valid until shutdown completes.
 	BOOL fHandled = FALSE;
 	OnStopClicker(0, 0, 0, fHandled);
 
@@ -516,6 +516,7 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 		Sleep(10);
 	}
 
+	// Clicker is now stopped — safe to destroy HUD overlay.
 	m_cHUDButtons.Destroy();
 
 	if (IsWindow())

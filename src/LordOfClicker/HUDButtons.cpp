@@ -150,7 +150,7 @@ void CHUDButtons::Reset()
 	{
 		if (m_bTimerActive)
 		{
-			KillTimer(REPOSITION_TIMER_ID);
+			KillTimer(TIMER_REPOSITION);
 			m_bTimerActive = FALSE;
 		}
 		if (IsWindowVisible())

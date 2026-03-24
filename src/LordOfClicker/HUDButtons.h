@@ -67,7 +67,6 @@ private:
 	enum { BTN_SIZE = 24 };
 	enum { BTN_SPACING = 3 };
 	enum { BAR_PADDING = 2 };
-	enum { REPOSITION_TIMER_ID = 2020 };
 	enum { TIMER_REPOSITION = 2020 };
 	enum { TIMER_REPOSITION_INTERVAL = 200 };
 	enum { HUD_OFFSET_X = 90 };
