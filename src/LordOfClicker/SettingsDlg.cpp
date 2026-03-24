@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "SettingsDlg.h"
+#include "MuTheme.h"
 #include "version.h"
 
 static const DWORD s_arrHealTimes[] = {0, 1000, 3000, 5000, 7000, 10000, 15000};
@@ -236,35 +237,37 @@ LRESULT CSettingsDlg::OnCheckStopPick(WORD, WORD, HWND, BOOL&)
  */
 LRESULT CSettingsDlg::OnNCPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&)
 {
-	//::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-	HDC hDC = GetWindowDC(); //GetDCEx((HRGN)wParam, DCX_WINDOW | DCX_INTERSECTRGN);
-    
+	HDC hDC = GetWindowDC();
+	if (!hDC) return 0;
+
 	RECT rcWnd;
+	GetWindowRect(&rcWnd);
+
+	// Compute caption height before normalizing rcWnd
 	RECT rcClient;
 	GetClientRect(&rcClient);
 	ClientToScreen(&rcClient);
+	int iCapSize = (rcClient.top - rcWnd.top);
 
-	GetWindowRect(&rcWnd);
+	OffsetRect(&rcWnd, -rcWnd.left, -rcWnd.top);
 
-	int iXOffs = rcClient.left - rcWnd.left;
-	int iCapSize = rcClient.top - rcWnd.top;
+	CMuTheme::DrawMuFrame(hDC, rcWnd);
 
-	GetClientRect(&rcClient);
-	OffsetRect(&rcClient, iXOffs, iCapSize);
-	ExcludeClipRect(hDC, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
+	// Draw title bar
+	RECT rcTitle = rcWnd;
+	rcTitle.left += 4;
+	rcTitle.top += 4;
+	rcTitle.right -= 4;
+	rcTitle.bottom = rcTitle.top + (iCapSize > 8 ? iCapSize - 8 : 20);
 
-	RECT rc = {0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom - rcWnd.top};
+	FillRect(hDC, &rcTitle, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
-	SetBkColor(hDC, RGB(10,35,150));
-	ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &rc, 0, 0, 0);
-
-	rc.bottom = iCapSize;
+	SetBkMode(hDC, TRANSPARENT);
+	SetTextColor(hDC, CMuTheme::ClrTitleText());
 
 	TCHAR szCaption[256] = {0};
 	GetWindowText(szCaption, 255);
-
-	SetTextColor(hDC, RGB(255, 255, 255));
-	DrawText(hDC, szCaption, (int)_tcslen(szCaption), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	DrawText(hDC, szCaption, (int)_tcslen(szCaption), &rcTitle, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
 	ReleaseDC(hDC);
 	return 0;

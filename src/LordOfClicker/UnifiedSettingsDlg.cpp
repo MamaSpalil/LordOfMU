@@ -11,6 +11,11 @@ static const DWORD s_arrHealTimes[] = {0, 1000, 3000, 5000, 7000, 10000, 15000};
 
 static const int CHECKBOX_BOX_SIZE = 13;  // Default checkbox box size in pixels
 
+// Forward declaration — defined at bottom of file, used in OnInitDialog
+static LRESULT CALLBACK ButtonHoverSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+
 
 /**
  * \brief Dialog proc for tab child pages. Forwards WM_COMMAND and
@@ -1143,6 +1148,14 @@ LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
 				RECT rc;
 				::GetClientRect(hWnd, &rc);
 
+				// Double-buffer the border repaint to avoid flicker
+				HDC hMemDC = CreateCompatibleDC(hDC);
+				HBITMAP hBmp = CreateCompatibleBitmap(hDC, rc.right, rc.bottom);
+				HBITMAP hOldBmp = (HBITMAP)SelectObject(hMemDC, hBmp);
+
+				// Copy current window contents into the back buffer
+				BitBlt(hMemDC, 0, 0, rc.right, rc.bottom, hDC, 0, 0, SRCCOPY);
+
 				// Paint over the default body border with dark-gold border
 				RECT rcDisplay = rc;
 				TabCtrl_AdjustRect(hWnd, FALSE, &rcDisplay);
@@ -1152,13 +1165,19 @@ LRESULT CALLBACK CUnifiedSettingsDlg::TabSubclassProc(
 				rcDisplay.bottom += 2;
 
 				HPEN hPen = CreatePen(PS_SOLID, 1, CMuTheme::ClrFrameGold());
-				HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
-				HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
-				Rectangle(hDC, rcDisplay.left, rcDisplay.top, rcDisplay.right, rcDisplay.bottom);
-				SelectObject(hDC, hOldPen);
-				SelectObject(hDC, hOldBr);
+				HPEN hOldPen = (HPEN)SelectObject(hMemDC, hPen);
+				HBRUSH hOldBr = (HBRUSH)SelectObject(hMemDC, GetStockObject(NULL_BRUSH));
+				Rectangle(hMemDC, rcDisplay.left, rcDisplay.top, rcDisplay.right, rcDisplay.bottom);
+				SelectObject(hMemDC, hOldPen);
+				SelectObject(hMemDC, hOldBr);
 				DeleteObject(hPen);
 
+				// Blit the back buffer to screen
+				BitBlt(hDC, 0, 0, rc.right, rc.bottom, hMemDC, 0, 0, SRCCOPY);
+
+				SelectObject(hMemDC, hOldBmp);
+				DeleteObject(hBmp);
+				DeleteDC(hMemDC);
 				::ReleaseDC(hWnd, hDC);
 			}
 			return lr;
