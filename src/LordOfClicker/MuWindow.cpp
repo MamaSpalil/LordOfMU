@@ -1716,7 +1716,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 
 /**
- * \brief Character selected in game- show HUD buttons.
+ * \brief Character selected in game - show HUD buttons.
  *        Posted by CharInfoFilter when it detects the CCharSelectedPacket.
  */
 LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
