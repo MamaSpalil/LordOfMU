@@ -9,7 +9,7 @@
 #include "Packet.h"
 
 
-#define WM_CLICKER_JOB_FINISHED (WM_APP + 301)
+#define WM_CLICKER_JOB_FINISHED    (WM_APP + 301)
 
 #define WM_CLICKER_JOB_MOUSEMOVE   (WM_APP + 351)
 #define WM_CLICKER_JOB_RBUTTONDOWN (WM_APP + 352)

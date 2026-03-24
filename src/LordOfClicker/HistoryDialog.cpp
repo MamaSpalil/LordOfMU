@@ -95,37 +95,22 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 		// Re-center over game window
 		CenterWindow(GetParent());
 
-		// Show cursor (guard against double-show)
-		if (!m_bCursorShown)
-		{
-			m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
-
-			// ShowCursor increments/decrements an internal counter.
-			// Loop up to 100 times as a safety limit (MU Online hides the
-			// cursor deeply; normal games need at most 2-3 increments).
-			m_iShowCursor = 0;
-			while (ShowCursor(TRUE) < 1 && m_iShowCursor < 100)
-				++m_iShowCursor;
-
-			m_bCursorShown = TRUE;
-		}
+		// Show cursor - snapshot current display count first
+		m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
+		int nBefore = ShowCursor(TRUE) - 1;  // undo the probe increment
+		ShowCursor(FALSE);
+		m_iShowCursor = nBefore;
+		while (ShowCursor(TRUE) < 1);
 
 		PopulateList();
 	}
 	else
 	{
-		// Restore cursor
-		if (m_bCursorShown)
-		{
-			if (m_hOldCursor)
-				SetCursor(m_hOldCursor);
+		// Restore cursor and display count to the snapshotted value
+		if (m_hOldCursor)
+			SetCursor(m_hOldCursor);
 
-			for (int i = m_iShowCursor; i >= 0; --i)
-				ShowCursor(FALSE);
-
-			m_iShowCursor = 0;
-			m_bCursorShown = FALSE;
-		}
+		while (ShowCursor(FALSE) > m_iShowCursor);
 	}
 
 	return 0;

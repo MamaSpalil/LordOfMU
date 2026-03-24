@@ -38,6 +38,7 @@ public:
 	void SetClickerRunning(BOOL bRunning);
 	void SetGameActive(BOOL bActive);
 	void Reposition();
+	void Reset();
 
 BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_NCHITTEST, OnNCHitTest)
@@ -48,6 +49,7 @@ BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 	MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+	MESSAGE_HANDLER(WM_NCHITTEST, OnNCHitTest)
 	MESSAGE_HANDLER(WM_TIMER, OnTimer)
 END_MSG_MAP()
 
@@ -60,6 +62,7 @@ protected:
 	LRESULT OnMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnNCHitTest(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 
 private:
@@ -67,10 +70,8 @@ private:
 	enum { BTN_SIZE = 24 };
 	enum { BTN_SPACING = 3 };
 	enum { BAR_PADDING = 2 };
-	enum { TIMER_REPOSITION = 2020 };
-	enum { TIMER_REPOSITION_INTERVAL = 100 };
-	enum { HUD_OFFSET_X = 90 };
-	enum { HUD_OFFSET_Y = 48 };
+	enum { REPOSITION_TIMER_ID = 2020 };
+
 	int HitTest(int x, int y);
 	void DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL bPressed);
 	RECT GetButtonRect(int idx);

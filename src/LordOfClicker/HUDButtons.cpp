@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "HUDButtons.h"
 #include "MuTheme.h"
+#include <windowsx.h>
 
 #include <windowsx.h>  // GET_X_LPARAM, GET_Y_LPARAM
 
@@ -18,6 +19,7 @@ CHUDButtons::CHUDButtons()
 	m_hwndParent = NULL;
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
+	m_bGameActive = FALSE;
 	m_bEnabled = FALSE;
 	m_bGameActive = FALSE;
 	m_hIcoSettings = NULL;
@@ -48,6 +50,20 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	m_hIcoStop = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(IDB_ICO_STOP), IMAGE_BITMAP, 0, 0, 0);
 	m_hIcoHistory = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(IDB_ICO_HISTORY), IMAGE_BITMAP, 0, 0, 0);
 
+	// Validate that all icon bitmaps loaded successfully
+	if (!m_hIcoSettings || !m_hIcoPlay || !m_hIcoStop || !m_hIcoHistory)
+	{
+		OutputDebugStringA("HUD: Failed to load icon bitmaps from hInstance, trying NULL\n");
+		if (!m_hIcoSettings)
+			m_hIcoSettings = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_SETTINGS), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoPlay)
+			m_hIcoPlay = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_PLAY), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoStop)
+			m_hIcoStop = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_STOP), IMAGE_BITMAP, 0, 0, 0);
+		if (!m_hIcoHistory)
+			m_hIcoHistory = (HBITMAP)LoadImage(NULL, MAKEINTRESOURCE(IDB_ICO_HISTORY), IMAGE_BITMAP, 0, 0, 0);
+	}
+
 	// Calculate bar size
 	int barWidth = BAR_PADDING * 2 + BTN_COUNT * BTN_SIZE + (BTN_COUNT - 1) * BTN_SPACING;
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
@@ -55,12 +71,12 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	// Position in client coordinates of the parent (right of FPS counter).
 	// Actual screen position is set by Reposition() after creation.
 
-	// Create as a topmost popup overlay owned by the game window.
-	// WS_POPUP renders above the DirectDraw/Direct3D surface — a WS_CHILD
-	// would be hidden behind it.  WS_EX_TOPMOST keeps the bar visible on
-	// top of the game, and WS_EX_NOACTIVATE prevents stealing focus.
-	// WS_EX_LAYERED + color-key transparency lets the game scene show through.
-	RECT rcPos = { 0, 0, barWidth, barHeight };
+	// Position to the right of the FPS counter in the game client area.
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
+
+	// Create as owned popup window (stays on top of game), initially hidden.
+	// WS_EX_LAYERED enables color-key transparency (no black background).
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
 		hwndParent,                             // owner window
 		rcPos,                                  // initial size (repositioned later)
@@ -73,7 +89,8 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 		return FALSE;
 
 	// Magenta pixels become fully transparent (removes black background).
-	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 0, LWA_COLORKEY);
+	// Add slight alpha transparency so buttons blend with the game scene.
+	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 220, LWA_COLORKEY | LWA_ALPHA);
 
 	return TRUE;
 }
@@ -147,6 +164,80 @@ void CHUDButtons::SetClickerRunning(BOOL bRunning)
 		m_bClickerRunning = bRunning;
 		if (IsWindow())
 			InvalidateRect(NULL, FALSE);
+	}
+}
+
+
+void CHUDButtons::SetGameActive(BOOL bActive)
+{
+	m_bGameActive = bActive;
+
+	if (!IsWindow())
+		return;
+
+	if (!bActive)
+	{
+		// Game lost foreground - hide HUD immediately
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+	}
+	else
+	{
+		// Game regained foreground - show HUD if character was selected
+		if (m_bEnabled && !IsWindowVisible())
+			Reposition();
+	}
+}
+
+
+void CHUDButtons::Reposition()
+{
+	if (!IsWindow() || !::IsWindow(m_hwndOwner))
+		return;
+
+	// Hide when the game window is hidden or minimized
+	if (!::IsWindowVisible(m_hwndOwner) || ::IsIconic(m_hwndOwner))
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		return;
+	}
+
+	// Hide when the game application is not the foreground app.
+	// Buttons must be visible and clickable exclusively inside the game client.
+	if (!m_bGameActive)
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		return;
+	}
+
+	RECT rcClient = {0};
+	::GetClientRect(m_hwndOwner, &rcClient);
+	POINT ptClient = {0, 0};
+	::ClientToScreen(m_hwndOwner, &ptClient);
+
+	// Position to the right of the FPS counter
+	int x = ptClient.x + 90;
+	int y = ptClient.y + 48;
+
+	// Keep TOPMOST so the HUD stays visible above the game's
+	// DirectDraw/Direct3D rendering surface.
+	SetWindowPos(HWND_TOPMOST, x, y, 0, 0,
+		SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
+
+void CHUDButtons::Reset()
+{
+	m_bEnabled = FALSE;
+	m_bClickerRunning = FALSE;
+	if (IsWindow())
+	{
+		KillTimer(REPOSITION_TIMER_ID);
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		InvalidateRect(NULL, FALSE);
 	}
 }
 
@@ -366,6 +457,14 @@ LRESULT CHUDButtons::OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL&)
 		SetCapture();
 		InvalidateRect(NULL, FALSE);
 	}
+	else
+	{
+		// Click missed all buttons - forward to game window
+		POINT pt = { x, y };
+		ClientToScreen(&pt);
+		::ScreenToClient(m_hwndOwner, &pt);
+		::PostMessage(m_hwndOwner, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(pt.x, pt.y));
+	}
 
 	return 0;
 }
@@ -465,7 +564,19 @@ LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 }
 
 
-void CHUDButtons::SetGameActive(BOOL bActive)
+LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
+{
+	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+	ScreenToClient(&pt);
+
+	if (HitTest(pt.x, pt.y) >= 0)
+		return HTCLIENT;      // Over a button - handle the click
+
+	return HTTRANSPARENT;      // Empty space - click passes through to game
+}
+
+
+LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
 	m_bGameActive = bActive;
 

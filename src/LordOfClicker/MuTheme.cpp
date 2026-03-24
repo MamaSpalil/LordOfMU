@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MuTheme.h"
 
-#pragma comment(lib, "msimg32.lib")  // for GradientFill
+#pragma comment(lib, "msimg32.lib")
 
 CMuTheme::CMuTheme()
 {
@@ -142,25 +142,25 @@ void CMuTheme::Cleanup()
 
 void CMuTheme::DrawMuGradientBg(HDC hDC, const RECT& rc)
 {
-	// Dark-gold vertical gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
-	// Uses GradientFill API for efficient hardware-accelerated rendering.
-	TRIVERTEX vtx[2];
-	vtx[0].x = rc.left;
-	vtx[0].y = rc.top;
-	vtx[0].Red   = 18 << 8;
-	vtx[0].Green  = 15 << 8;
-	vtx[0].Blue   = 10 << 8;
-	vtx[0].Alpha  = 0;
+	// Dark-gold gradient from top RGB(18,15,10) to bottom RGB(25,22,16)
+	// using hardware-accelerated GradientFill API.
+	TRIVERTEX vert[2] = {0};
+	vert[0].x = rc.left;
+	vert[0].y = rc.top;
+	vert[0].Red   = 18 << 8;
+	vert[0].Green = 15 << 8;
+	vert[0].Blue  = 10 << 8;
+	vert[0].Alpha = 0;
 
-	vtx[1].x = rc.right;
-	vtx[1].y = rc.bottom;
-	vtx[1].Red   = 25 << 8;
-	vtx[1].Green  = 22 << 8;
-	vtx[1].Blue   = 16 << 8;
-	vtx[1].Alpha  = 0;
+	vert[1].x = rc.right;
+	vert[1].y = rc.bottom;
+	vert[1].Red   = 25 << 8;
+	vert[1].Green = 22 << 8;
+	vert[1].Blue  = 16 << 8;
+	vert[1].Alpha = 0;
 
-	GRADIENT_RECT gr = { 0, 1 };
-	GradientFill(hDC, vtx, 2, &gr, 1, GRADIENT_FILL_RECT_V);
+	GRADIENT_RECT gRect = {0, 1};
+	GradientFill(hDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);
 }
 
 

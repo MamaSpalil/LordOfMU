@@ -14,20 +14,21 @@
 
 #define WM_IS_CLICKER_INSTALLED (WM_APP + 402)
 
-#define WM_MUWND_INITIALIZE		(WM_APP + 501)
-#define WM_SHOW_SETTINGS_GUI	(WM_APP + 502)
-#define WM_START_CLICKER		(WM_APP + 503)
-#define WM_STOP_CLICKER			(WM_APP + 504)
-#define WM_LAUNCH_MU			(WM_APP + 505)
-#define WM_SWITCH_INSTANCE		(WM_APP + 506)
-#define WM_SHOW_MU				(WM_APP + 507)
-#define WM_HIDE_MU				(WM_APP + 508)
-#define WM_SET_GAME_VERSION		(WM_APP + 509)
-#define WM_CHAR_SELECTED		(WM_APP + 510)
+#define WM_MUWND_INITIALIZE     (WM_APP + 501)
+#define WM_SHOW_SETTINGS_GUI    (WM_APP + 502)
+#define WM_START_CLICKER        (WM_APP + 503)
+#define WM_STOP_CLICKER         (WM_APP + 504)
+#define WM_LAUNCH_MU            (WM_APP + 505)
+#define WM_SWITCH_INSTANCE      (WM_APP + 506)
+#define WM_SHOW_MU              (WM_APP + 507)
+#define WM_HIDE_MU              (WM_APP + 508)
+#define WM_SET_GAME_VERSION     (WM_APP + 509)
+#define WM_CHAR_SELECTED        (WM_APP + 510)
+#define WM_CHAR_DESELECTED      (WM_APP + 511)
 
 
 /**
- * \brief 
+ * \brief
  */
 class CMuWindow 
 	: public CWindowImpl<CMuWindow>
@@ -77,6 +78,7 @@ protected:
 		MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
 		MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
+		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
 	END_MSG_MAP()
 
 protected:
@@ -116,6 +118,10 @@ protected:
 	LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
+
+	void HidePopupDialogs();
+	void RestorePopupDialogs();
 
 	void HidePopupDialogs();
 	void RestorePopupDialogs();
@@ -145,6 +151,8 @@ protected:
 	BOOL m_fBlockInput;
 	BOOL m_fGuiActive;
 	BOOL m_fWasLastActiveInstance;
+	BOOL m_bSettingsWasVisible;
+	BOOL m_bHistoryWasVisible;
 
 	// Track dialog visibility across activation changes so they can
 	// be hidden on ALT+TAB / minimize and restored when game regains focus.

@@ -247,6 +247,40 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 
 
+LRESULT CUnifiedSettingsDlg::OnDestroy(UINT, WPARAM, LPARAM, BOOL& bHandled)
+{
+	// Explicitly destroy tab child page dialogs and their owned class panels
+	if (m_hwndTabGeneral != NULL && ::IsWindow(m_hwndTabGeneral))
+	{
+		::DestroyWindow(m_hwndTabGeneral);
+		m_hwndTabGeneral = NULL;
+	}
+
+	if (m_hwndTabClass != NULL && ::IsWindow(m_hwndTabClass))
+	{
+		// Destroy class setting child dialogs first
+		if (m_cDarkLordSettings.IsWindow()) m_cDarkLordSettings.DestroyWindow();
+		if (m_cEElfSettings.IsWindow()) m_cEElfSettings.DestroyWindow();
+		if (m_cAElfSettings.IsWindow()) m_cAElfSettings.DestroyWindow();
+		if (m_cBKSettings.IsWindow()) m_cBKSettings.DestroyWindow();
+		if (m_cMGSettings.IsWindow()) m_cMGSettings.DestroyWindow();
+		if (m_cSMSettings.IsWindow()) m_cSMSettings.DestroyWindow();
+
+		::DestroyWindow(m_hwndTabClass);
+		m_hwndTabClass = NULL;
+	}
+
+	if (m_hwndTabPickup != NULL && ::IsWindow(m_hwndTabPickup))
+	{
+		::DestroyWindow(m_hwndTabPickup);
+		m_hwndTabPickup = NULL;
+	}
+
+	bHandled = FALSE; // Let ATL continue processing WM_DESTROY
+	return 0;
+}
+
+
 void CUnifiedSettingsDlg::ShowTab(int nTab)
 {
 	m_nCurrentTab = nTab;
@@ -303,7 +337,13 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 			hCursor = LoadCursor(0, IDC_ARROW);
 		m_hOldCursor = SetCursor(hCursor);
 
-		for (m_iShowCursor = 0; ShowCursor(TRUE) < 1 && m_iShowCursor < 100; ++m_iShowCursor);
+		// Snapshot the current cursor display count and ensure cursor is visible.
+		// ShowCursor returns the new count after the call, so decrement once to
+		// get the count before we touched it, then increment until visible.
+		int nBefore = ShowCursor(TRUE) - 1;  // undo the probe increment
+		ShowCursor(FALSE);
+		m_iShowCursor = nBefore;
+		while (ShowCursor(TRUE) < 1);
 
 		// Open to General tab by default for unified AVANTA+ELITE mode (F9)
 		HWND hwndTab = GetDlgItem(IDC_SETTINGS_TAB);
@@ -314,8 +354,9 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 	else
 	{
 		SetCursor(m_hOldCursor);
-		for (m_iShowCursor; m_iShowCursor >= 0; m_iShowCursor--)
-			ShowCursor(FALSE);
+		// Restore cursor display count to the value it had before we showed it.
+		// Keep decrementing until we reach the snapshotted m_iShowCursor count.
+		while (ShowCursor(FALSE) > m_iShowCursor);
 	}
 
 	return 0;
