@@ -73,6 +73,21 @@ public:
 					fNewConsole = true;
 					SetConsoleTitleA("LordOfMU - Debug Console");
 
+					// Disable Quick Edit mode so that clicking on console text
+					// does not enter selection mode and block all output, which
+					// would freeze the game (printf/fflush block while text is selected).
+					HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+					if (hIn != INVALID_HANDLE_VALUE)
+					{
+						DWORD dwMode = 0;
+						if (GetConsoleMode(hIn, &dwMode))
+						{
+							dwMode &= ~ENABLE_QUICK_EDIT_MODE;
+							dwMode |= ENABLE_EXTENDED_FLAGS;
+							SetConsoleMode(hIn, dwMode);
+						}
+					}
+
 					// Set console buffer and window size for better readability
 					HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 					if (hOut != INVALID_HANDLE_VALUE)

@@ -35,6 +35,7 @@ BEGIN_MSG_MAP(CHistoryDialog)
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 	MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 	MESSAGE_HANDLER(WM_NCPAINT, OnNCPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 	MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColor)
@@ -51,6 +52,12 @@ protected:
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
+	{
+		// Allow the dialog to be activated on click so that controls
+		// (buttons, listbox) receive mouse input.
+		return MA_ACTIVATE;
+	}
 	LRESULT OnNCPaint(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnEraseBkgnd(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCtlColor(UINT, WPARAM, LPARAM, BOOL&);

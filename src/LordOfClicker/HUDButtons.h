@@ -14,8 +14,8 @@
 /**
  * \brief HUD button bar shown as a topmost popup overlay on the game window.
  *        Three icon buttons: Settings (gear), Start/Stop, History.
- *        Created as WS_POPUP | WS_EX_TOPMOST so it renders above the
- *        DirectDraw/Direct3D surface of the game.  Visibility is managed
+ *        Created as WS_POPUP owned by the game window so it renders above
+ *        the DirectDraw/Direct3D surface of the game.  Visibility is managed
  *        explicitly: hidden on ALT+TAB / minimize, shown when the game
  *        regains focus.  A periodic timer keeps the overlay positioned
  *        correctly relative to the game window's client area.
