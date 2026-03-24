@@ -41,6 +41,7 @@ public:
 
 BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_NCHITTEST, OnNCHitTest)
+	MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
 	MESSAGE_HANDLER(WM_PAINT, OnPaint)
 	MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 	MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
@@ -53,6 +54,7 @@ END_MSG_MAP()
 
 protected:
 	LRESULT OnNCHitTest(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnPaint(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnEraseBkgnd(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL&);
@@ -91,6 +93,7 @@ private:
 	int m_iPressedBtn;  // -1 = none
 	BOOL m_bTracking;   // mouse tracking active
 	BOOL m_bTimerActive; // reposition timer running
+	HCURSOR m_hMuCursor; // MU-themed cursor for HUD buttons
 };
 
 #endif //__HUDButtons_H

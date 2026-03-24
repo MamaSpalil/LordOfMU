@@ -227,6 +227,14 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 	SubclassCheckboxes(m_hWnd);
 	SubclassSeparators(m_hWnd);
 
+	// Subclass owner-draw buttons for hover tracking
+	HWND hBtnOK = GetDlgItem(IDOK);
+	HWND hBtnCancel = GetDlgItem(IDCANCEL);
+	if (hBtnOK)
+		SetWindowSubclass(hBtnOK, ButtonHoverSubclassProc, 100, 0);
+	if (hBtnCancel)
+		SetWindowSubclass(hBtnCancel, ButtonHoverSubclassProc, 101, 0);
+
 	// Disable visual themes on controls so WM_CTLCOLORxxx colors take effect
 	DisableChildThemes(m_hWnd);
 
@@ -865,7 +873,12 @@ LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL
 	if (lpDIS->CtlType == ODT_BUTTON)
 	{
 		BOOL bPressed = (lpDIS->itemState & ODS_SELECTED) != 0;
-		BOOL bFocused = (lpDIS->itemState & ODS_FOCUS) != 0;
+
+		POINT pt;
+		GetCursorPos(&pt);
+		RECT rcScreen;
+		::GetWindowRect(lpDIS->hwndItem, &rcScreen);
+		BOOL bHover = PtInRect(&rcScreen, pt);
 
 		TCHAR szText[64] = {0};
 		::GetWindowText(lpDIS->hwndItem, szText, 63);
@@ -873,7 +886,7 @@ LRESULT CUnifiedSettingsDlg::OnDrawItem(UINT, WPARAM wParam, LPARAM lParam, BOOL
 		if (m_cTheme.GetBodyFont() != NULL)
 			SelectObject(lpDIS->hDC, m_cTheme.GetBodyFont());
 
-		CMuTheme::DrawMuButton(lpDIS->hDC, lpDIS->rcItem, szText, bPressed, bFocused);
+		CMuTheme::DrawMuButton(lpDIS->hDC, lpDIS->rcItem, szText, bPressed, bHover);
 
 		bHandled = TRUE;
 		return TRUE;
@@ -1303,6 +1316,37 @@ LRESULT CALLBACK CUnifiedSettingsDlg::CheckboxSubclassProc(
 
 	case WM_NCDESTROY:
 		RemoveWindowSubclass(hWnd, CheckboxSubclassProc, uIdSubclass);
+		break;
+	}
+
+	return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+
+// -----------------------------------------------------------------------
+// Button hover subclass: invalidates owner-draw buttons on mouse
+// enter/leave so the parent OnDrawItem repaints with correct hover state.
+// -----------------------------------------------------------------------
+static LRESULT CALLBACK ButtonHoverSubclassProc(
+	HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+	UINT_PTR uIdSubclass, DWORD_PTR /*dwRefData*/)
+{
+	switch (uMsg)
+	{
+	case WM_MOUSEMOVE:
+		{
+			TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, hWnd, 0 };
+			TrackMouseEvent(&tme);
+			::InvalidateRect(hWnd, NULL, FALSE);
+		}
+		break;
+
+	case WM_MOUSELEAVE:
+		::InvalidateRect(hWnd, NULL, FALSE);
+		break;
+
+	case WM_NCDESTROY:
+		RemoveWindowSubclass(hWnd, ButtonHoverSubclassProc, uIdSubclass);
 		break;
 	}
 

@@ -189,8 +189,8 @@ void CSettingsDlg::Apply()
 
 	int nIdx = (int)SendDlgItemMessage(IDC_AUTOHEALTIME, CB_GETCURSEL);
 
-	if (nIdx > sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0]))
-		nIdx = sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0]);
+	if (nIdx >= (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])))
+		nIdx = (int)(sizeof(s_arrHealTimes)/sizeof(s_arrHealTimes[0])) - 1;
 
 	if (nIdx < 0) 
 		nIdx = 0;

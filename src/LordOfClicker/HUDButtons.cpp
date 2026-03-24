@@ -27,6 +27,7 @@ CHUDButtons::CHUDButtons()
 	m_iPressedBtn = -1;
 	m_bTracking = FALSE;
 	m_bTimerActive = FALSE;
+	m_hMuCursor = NULL;
 }
 
 
@@ -66,7 +67,7 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
 
 	// Initial rect — actual screen position is set by Reposition() after creation.
-	CRect rcPos(0, 0, barWidth, barHeight);
+	RECT rcPos = { 0, 0, barWidth, barHeight };
 
 	// Create as owned popup window (stays on top of game), initially hidden.
 	// WS_EX_LAYERED enables color-key transparency (no black background).
@@ -85,6 +86,10 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	// Add slight alpha transparency so buttons blend with the game scene.
 	::SetLayeredWindowAttributes(m_hWnd, HUD_TRANSPARENT_KEY, 220, LWA_COLORKEY | LWA_ALPHA);
 
+	// Load MU-themed cursor
+	m_hMuCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_MU_CURSOR),
+		IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+
 	return TRUE;
 }
 
@@ -95,6 +100,7 @@ void CHUDButtons::Destroy()
 	if (m_hIcoPlay) { DeleteObject(m_hIcoPlay); m_hIcoPlay = NULL; }
 	if (m_hIcoStop) { DeleteObject(m_hIcoStop); m_hIcoStop = NULL; }
 	if (m_hIcoHistory) { DeleteObject(m_hIcoHistory); m_hIcoHistory = NULL; }
+	if (m_hMuCursor) { DestroyCursor(m_hMuCursor); m_hMuCursor = NULL; }
 
 	if (IsWindow())
 	{
@@ -508,6 +514,19 @@ LRESULT CHUDButtons::OnNCHitTest(UINT, WPARAM, LPARAM lParam, BOOL&)
 		return HTCLIENT;
 
 	return HTTRANSPARENT;
+}
+
+
+LRESULT CHUDButtons::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
+{
+	if (LOWORD(lParam) == HTCLIENT && m_hMuCursor != NULL)
+	{
+		SetCursor(m_hMuCursor);
+		bHandled = TRUE;
+		return TRUE;
+	}
+	bHandled = FALSE;
+	return FALSE;
 }
 
 
