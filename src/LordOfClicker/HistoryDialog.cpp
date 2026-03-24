@@ -185,6 +185,8 @@ LRESULT CHistoryDialog::OnSetCursor(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	// cursor is visible.  The game may call ShowCursor(FALSE) which
 	// decrements the global counter below zero, hiding the cursor even
 	// when a valid shape is set via SetCursor.
+	// Note: this runs on the UI thread where WM_SETCURSOR is serialised,
+	// so the probe-and-restore pair cannot be interleaved with game code.
 	int nCount = ShowCursor(TRUE);  // probe: returns count after increment
 	if (nCount > 1)
 		ShowCursor(FALSE);  // was already visible, undo the probe
