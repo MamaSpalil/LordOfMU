@@ -12,11 +12,13 @@
 #define WM_HUD_HISTORY      (WM_APP + 603)
 
 /**
- * \brief HUD button bar embedded as a child window of the game window.
+ * \brief HUD button bar shown as a topmost popup overlay on the game window.
  *        Three icon buttons: Settings (gear), Start/Stop, History.
- *        Created as a WS_CHILD so it moves, shows and hides together
- *        with the game window automatically — an integral part of the
- *        injected autoclicker overlay.
+ *        Created as WS_POPUP | WS_EX_TOPMOST so it renders above the
+ *        DirectDraw/Direct3D surface of the game.  Visibility is managed
+ *        explicitly: hidden on ALT+TAB / minimize, shown when the game
+ *        regains focus.  A periodic timer keeps the overlay positioned
+ *        correctly relative to the game window's client area.
  */
 class CHUDButtons
 	: public CWindowImpl<CHUDButtons>
@@ -34,6 +36,8 @@ public:
 	void Reset();
 
 	void SetClickerRunning(BOOL bRunning);
+	void SetGameActive(BOOL bActive);
+	void Reposition();
 
 BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_NCHITTEST, OnNCHitTest)
@@ -44,6 +48,7 @@ BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 	MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+	MESSAGE_HANDLER(WM_TIMER, OnTimer)
 END_MSG_MAP()
 
 protected:
@@ -55,12 +60,16 @@ protected:
 	LRESULT OnMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 
 private:
 	enum { BTN_COUNT = 3 };
 	enum { BTN_SIZE = 16 };
 	enum { BTN_SPACING = 2 };
 	enum { BAR_PADDING = 1 };
+	enum { TIMER_REPOSITION = 2020 };
+	enum { HUD_OFFSET_X = 70 };
+	enum { HUD_OFFSET_Y = 3 };
 	int HitTest(int x, int y);
 	void DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL bPressed);
 	RECT GetButtonRect(int idx);
@@ -69,6 +78,7 @@ private:
 	HINSTANCE m_hInstance;
 	BOOL m_bClickerRunning;
 	BOOL m_bEnabled;       // TRUE after Show() called (character selected)
+	BOOL m_bGameActive;    // TRUE when game window is foreground
 
 	HBITMAP m_hIcoSettings;
 	HBITMAP m_hIcoPlay;
@@ -78,6 +88,7 @@ private:
 	int m_iHoverBtn;    // -1 = none
 	int m_iPressedBtn;  // -1 = none
 	BOOL m_bTracking;   // mouse tracking active
+	BOOL m_bTimerActive; // reposition timer running
 };
 
 #endif //__HUDButtons_H

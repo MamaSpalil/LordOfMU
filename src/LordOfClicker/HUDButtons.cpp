@@ -16,6 +16,7 @@ CHUDButtons::CHUDButtons()
 	m_hInstance = NULL;
 	m_bClickerRunning = FALSE;
 	m_bEnabled = FALSE;
+	m_bGameActive = FALSE;
 	m_hIcoSettings = NULL;
 	m_hIcoPlay = NULL;
 	m_hIcoStop = NULL;
@@ -23,6 +24,7 @@ CHUDButtons::CHUDButtons()
 	m_iHoverBtn = -1;
 	m_iPressedBtn = -1;
 	m_bTracking = FALSE;
+	m_bTimerActive = FALSE;
 }
 
 
@@ -48,20 +50,20 @@ BOOL CHUDButtons::Create(HWND hwndParent, HINSTANCE hInstance)
 	int barHeight = BAR_PADDING * 2 + BTN_SIZE;
 
 	// Position in client coordinates of the parent (right of FPS counter).
-	int x = 70;
-	int y = 3;
+	// Actual screen position is set by Reposition() after creation.
 
-	// Create as a child window of the game window.  WS_CHILD makes the HUD
-	// an integral part of the game window: it moves, shows and hides together
-	// with the parent automatically, no separate positioning or z-order needed.
+	// Create as a topmost popup overlay owned by the game window.
+	// WS_POPUP renders above the DirectDraw/Direct3D surface — a WS_CHILD
+	// would be hidden behind it.  WS_EX_TOPMOST keeps the bar visible on
+	// top of the game, and WS_EX_NOACTIVATE prevents stealing focus.
 	// WS_EX_LAYERED + color-key transparency lets the game scene show through.
-	RECT rcPos = { x, y, x + barWidth, y + barHeight };
+	RECT rcPos = { 0, 0, barWidth, barHeight };
 	HWND hWnd = CWindowImpl<CHUDButtons>::Create(
-		hwndParent,                             // parent window
-		rcPos,                                  // position in client coords
+		hwndParent,                             // owner window
+		rcPos,                                  // initial size (repositioned later)
 		NULL,                                   // no title
-		WS_CHILD | WS_CLIPSIBLINGS,            // child, initially hidden
-		WS_EX_LAYERED                           // layered for color-key transparency
+		WS_POPUP,                               // popup overlay, initially hidden
+		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOPMOST  // layered + no-activate + topmost
 	);
 
 	if (!hWnd)
@@ -95,8 +97,18 @@ void CHUDButtons::Show()
 
 	m_bEnabled = TRUE;
 
-	if (!IsWindowVisible())
-		ShowWindow(SW_SHOWNA);
+	// When Show() is called (character selected), the game is necessarily
+	// the foreground window, so mark it active.
+	m_bGameActive = TRUE;
+
+	// Start periodic reposition timer to track game window movement.
+	if (!m_bTimerActive)
+	{
+		if (SetTimer(TIMER_REPOSITION, 200))
+			m_bTimerActive = TRUE;
+	}
+
+	Reposition();
 }
 
 
@@ -104,6 +116,12 @@ void CHUDButtons::Hide()
 {
 	if (!IsWindow())
 		return;
+
+	if (m_bTimerActive)
+	{
+		KillTimer(TIMER_REPOSITION);
+		m_bTimerActive = FALSE;
+	}
 
 	if (IsWindowVisible())
 		ShowWindow(SW_HIDE);
@@ -114,6 +132,7 @@ void CHUDButtons::Reset()
 {
 	m_bEnabled = FALSE;
 	m_bClickerRunning = FALSE;
+	m_bGameActive = FALSE;
 	Hide();
 }
 
@@ -429,4 +448,69 @@ LRESULT CHUDButtons::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)
 	// Prevent the HUD from stealing focus when the user clicks on a button.
 	// This keeps the game window as the active/foreground window.
 	return MA_NOACTIVATE;
+}
+
+
+void CHUDButtons::SetGameActive(BOOL bActive)
+{
+	m_bGameActive = bActive;
+
+	if (!m_bEnabled || !IsWindow())
+		return;
+
+	if (bActive)
+	{
+		Reposition();
+	}
+	else
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+	}
+}
+
+
+void CHUDButtons::Reposition()
+{
+	if (!IsWindow() || !m_hwndParent || !::IsWindow(m_hwndParent))
+		return;
+
+	// Don't show if game window is minimized or not visible.
+	if (::IsIconic(m_hwndParent) || !::IsWindowVisible(m_hwndParent))
+	{
+		if (IsWindowVisible())
+			ShowWindow(SW_HIDE);
+		return;
+	}
+
+	// Only reposition/show if HUD should be visible.
+	if (!m_bEnabled || !m_bGameActive)
+		return;
+
+	// Convert client-area offset to screen coordinates.
+	POINT ptScreen = { HUD_OFFSET_X, HUD_OFFSET_Y };
+	::ClientToScreen(m_hwndParent, &ptScreen);
+
+	DWORD dwFlags = SWP_NOSIZE | SWP_NOACTIVATE;
+	if (!IsWindowVisible())
+		dwFlags |= SWP_SHOWWINDOW;
+
+	::SetWindowPos(m_hWnd, HWND_TOPMOST,
+		ptScreen.x, ptScreen.y, 0, 0, dwFlags);
+}
+
+
+LRESULT CHUDButtons::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
+{
+	if (wParam == TIMER_REPOSITION)
+	{
+		if (m_bEnabled && m_bGameActive)
+			Reposition();
+		bHandled = TRUE;
+	}
+	else
+	{
+		bHandled = FALSE;
+	}
+	return 0;
 }

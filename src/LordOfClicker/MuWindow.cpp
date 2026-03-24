@@ -403,15 +403,18 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	if (m_fIsWndActive)
 	{
-		// Restore dialogs that were visible before the game was deactivated.
+		// Restore HUD overlay and popup dialogs that were visible before
+		// the game was deactivated.
+		m_cHUDButtons.SetGameActive(TRUE);
 		RestorePopupDialogs();
 
 		bHandled = FALSE;
 	}
 	else
 	{
-		// Hide popup dialogs so they don't remain visible on the desktop
-		// when the game is minimised or loses focus via ALT+TAB.
+		// Hide HUD overlay and popup dialogs so they don't remain visible
+		// on the desktop when the game is minimised or loses focus via ALT+TAB.
+		m_cHUDButtons.SetGameActive(FALSE);
 		HidePopupDialogs();
 
 		return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
@@ -1483,10 +1486,9 @@ void CMuWindow::RestorePopupDialogs()
 
 
 /**
- * \brief Game window moved or resized.  Child HUD buttons move automatically
- *        with the parent.  We also hide popup dialogs when the game is
- *        minimised and restore them on restore as a safety net (the main
- *        hide/restore logic is in OnActivateApp).
+ * \brief Game window moved or resized.  Reposition the HUD overlay to track
+ *        the game window.  Hide HUD and popup dialogs when minimised,
+ *        restore them when the game is restored.
  */
 LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
@@ -1494,12 +1496,24 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
 	{
 		if (wParam == SIZE_MINIMIZED)
 		{
+			m_cHUDButtons.SetGameActive(FALSE);
 			HidePopupDialogs();
 		}
 		else if (wParam == SIZE_RESTORED)
 		{
+			m_cHUDButtons.SetGameActive(TRUE);
 			RestorePopupDialogs();
 		}
+		else
+		{
+			// Regular resize — reposition HUD to follow client area.
+			m_cHUDButtons.Reposition();
+		}
+	}
+	else if (uMsg == WM_MOVE)
+	{
+		// Game window moved — keep HUD overlay in sync.
+		m_cHUDButtons.Reposition();
 	}
 
 	bHandled = FALSE; // Let the message pass through to the game
@@ -1652,6 +1666,9 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
 {
+	// Character selected — the game is necessarily the foreground window,
+	// so ensure the HUD overlay knows the game is active before showing.
+	m_cHUDButtons.SetGameActive(TRUE);
 	m_cHUDButtons.Show();
 	return 0;
 }
