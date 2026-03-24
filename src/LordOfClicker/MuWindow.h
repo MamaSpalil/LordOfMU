@@ -117,6 +117,9 @@ protected:
 	LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 
+	void HidePopupDialogs();
+	void RestorePopupDialogs();
+
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
 	void LaunchMU();
