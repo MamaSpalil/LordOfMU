@@ -63,9 +63,6 @@ private:
 	CFilterChain  m_cFilterChain;
 
 private:
-	static const UINT WM_SEND_COMMAND_INPUT	= WM_APP + 601;
-	static const UINT WM_SEND_PACKET		= WM_APP + 602;
-
 	static const UINT QUEUE_FLAG_DIRECT	= 1;
 
 	static const int io_buffer_size	= 65536;
