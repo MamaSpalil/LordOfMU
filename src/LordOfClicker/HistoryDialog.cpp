@@ -87,6 +87,9 @@ LRESULT CHistoryDialog::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 {
 	if ((BOOL)wParam)
 	{
+		// Re-center over game window
+		CenterWindow(GetParent());
+
 		// Show cursor
 		m_hOldCursor = SetCursor(LoadCursor(NULL, IDC_ARROW));
 		m_iShowCursor = ShowCursor(TRUE);

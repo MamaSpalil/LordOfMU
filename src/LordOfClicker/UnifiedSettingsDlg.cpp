@@ -84,22 +84,26 @@ LRESULT CUnifiedSettingsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lPara
 	// Initialize theme
 	m_cTheme.Initialize(_AtlBaseModule.GetModuleInstance());
 
-	// Center dialog within parent
+	// Center dialog over the game window
 	RECT rc = {0};
 	RECT rcParent = {0};
 
 	CWindow wndParent = GetParent();
 
 	GetWindowRect(&rc);
-	wndParent.GetClientRect(&rcParent);
+	wndParent.GetWindowRect(&rcParent);
 
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
 
-	int xPos = ((rcParent.right - rcParent.left) - width) / 2;
-	int yPos = ((rcParent.bottom - rcParent.top) - height) / 2;
+	int xPos = rcParent.left + ((rcParent.right - rcParent.left) - width) / 2;
+	int yPos = rcParent.top + ((rcParent.bottom - rcParent.top) - height) / 2;
 
-	MoveWindow(xPos, yPos, width, height, TRUE);
+	// Clamp to screen bounds
+	if (xPos < 0) xPos = 0;
+	if (yPos < 0) yPos = 0;
+
+	SetWindowPos(NULL, xPos, yPos, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
 
 	// Setup Tab Control
 	HWND hwndTab = GetDlgItem(IDC_SETTINGS_TAB);
@@ -268,7 +272,7 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 {
 	if (wParam != 0)
 	{
-		// Re-center within parent each time the dialog is shown
+		// Re-center over game window each time the dialog is shown
 		CWindow wndParent = GetParent();
 		if (wndParent.IsWindow())
 		{
@@ -276,15 +280,18 @@ LRESULT CUnifiedSettingsDlg::OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&)
 			RECT rcParent = {0};
 
 			GetWindowRect(&rc);
-			wndParent.GetClientRect(&rcParent);
+			wndParent.GetWindowRect(&rcParent);
 
 			int width = rc.right - rc.left;
 			int height = rc.bottom - rc.top;
 
-			int xPos = ((rcParent.right - rcParent.left) - width) / 2;
-			int yPos = ((rcParent.bottom - rcParent.top) - height) / 2;
+			int xPos = rcParent.left + ((rcParent.right - rcParent.left) - width) / 2;
+			int yPos = rcParent.top + ((rcParent.bottom - rcParent.top) - height) / 2;
 
-			MoveWindow(xPos, yPos, width, height, TRUE);
+			if (xPos < 0) xPos = 0;
+			if (yPos < 0) yPos = 0;
+
+			SetWindowPos(NULL, xPos, yPos, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
 		}
 
 		InitGeneralValues();
