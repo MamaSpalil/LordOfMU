@@ -65,7 +65,7 @@ CProxy* CProxyBuilder::CreateGameProxy(SOCKET s)
 	pProxy->AddFilter(new CPacketDecryptFilter(pProxy));
 	pProxy->AddFilter(new CPacketLogger(pProxy));
 
-#if defined(__CLICKER_STUFF__) || defined(__HACK_STUFF__)
+#if defined(__CLICKER_STUFF__) || defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__)
 	pProxy->AddFilter(new CCharInfoFilter(pProxy));
 	pProxy->AddFilter(new CGameCommands(pProxy));
 	pProxy->AddFilter(new CAutoPickupFilter(pProxy));
@@ -73,7 +73,7 @@ CProxy* CProxyBuilder::CreateGameProxy(SOCKET s)
 	pProxy->AddFilter(new CScriptProcessorFilter(pProxy));
 #endif
 
-#if defined(__HACK_STUFF__) || defined(DEBUG)
+#if defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__) || defined(DEBUG)
 	pProxy->AddFilter(new CAutoKillFilter(pProxy));
 	pProxy->AddFilter(new CMultihitPacketFilter(pProxy));
 	pProxy->AddFilter(new CFastMoveFilter(pProxy));
