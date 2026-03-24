@@ -579,6 +579,54 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	::SetForegroundWindow(dlg.m_hWnd);
 
+	// Enter a local message loop that pumps both game-window and dialog
+	// messages.  The MU game's own message loop may filter by HWND and
+	// never dispatch messages for popup dialog windows, making controls
+	// unresponsive.  This loop (modelled on OnLaunchMu) ensures that
+	// all messages — including WM_LBUTTONDOWN for buttons/checkboxes —
+	// are dispatched while the Settings dialog is visible.
+	{
+		BOOL fOldBlockInput = m_fBlockInput;
+		m_fBlockInput = FALSE;
+
+		MSG msg = {0};
+		// Loop while the dialog is either visible OR temporarily hidden
+		// by ALT+TAB (m_bSettingsWasVisible is TRUE while hidden).
+		// The loop exits only when the user explicitly closes the dialog
+		// (Apply, Cancel, ESC) which hides it WITHOUT setting the flag.
+		while (m_cUnifiedSettingsDlg.IsWindow()
+			&& (m_cUnifiedSettingsDlg.IsWindowVisible() || m_bSettingsWasVisible))
+		{
+			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+				{
+					PostQuitMessage((int)msg.wParam);
+					break;
+				}
+				if (!m_cUnifiedSettingsDlg.IsDialogMessage(&msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+			else
+			{
+				// No pending messages — yield so the game can render.
+				// MsgWaitForMultipleObjects sleeps until a new message
+				// arrives or 16 ms elapse (~60 fps cadence).
+				MsgWaitForMultipleObjects(0, NULL, FALSE, 16, QS_ALLINPUT);
+			}
+		}
+
+		m_fBlockInput = fOldBlockInput;
+
+		// Clean up GUI-active state after the dialog has been dismissed.
+		m_bSettingsWasVisible = FALSE;
+		if (!m_cHistoryDlg.IsWindow() || !m_cHistoryDlg.IsWindowVisible())
+			m_fGuiActive = FALSE;
+	}
+
 	return 0;
 }
 
@@ -1715,6 +1763,47 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 	::SetForegroundWindow(m_cHistoryDlg.m_hWnd);
+
+	// Enter a local message loop that pumps both game-window and dialog
+	// messages.  The MU game's own message loop may filter by HWND and
+	// never dispatch messages for popup dialog windows, making controls
+	// unresponsive.  This loop ensures that all messages — including
+	// WM_LBUTTONDOWN for the Close button — are dispatched while the
+	// History dialog is visible.
+	{
+		BOOL fOldBlockInput = m_fBlockInput;
+		m_fBlockInput = FALSE;
+
+		MSG msg = {0};
+		while (m_cHistoryDlg.IsWindow()
+			&& (m_cHistoryDlg.IsWindowVisible() || m_bHistoryWasVisible))
+		{
+			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+				{
+					PostQuitMessage((int)msg.wParam);
+					break;
+				}
+				if (!m_cHistoryDlg.IsDialogMessage(&msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+			else
+			{
+				MsgWaitForMultipleObjects(0, NULL, FALSE, 16, QS_ALLINPUT);
+			}
+		}
+
+		m_fBlockInput = fOldBlockInput;
+
+		// Clean up GUI-active state
+		m_bHistoryWasVisible = FALSE;
+		if (!m_cUnifiedSettingsDlg.IsWindow() || !m_cUnifiedSettingsDlg.IsWindowVisible())
+			m_fGuiActive = FALSE;
+	}
 
 	return 0;
 }
