@@ -7,14 +7,16 @@
 #include <atlwin.h>
 
 // Messages sent from HUD buttons to the parent (CMuWindow)
-#define WM_HUD_SETTINGS     WM_APP + 601
-#define WM_HUD_STARTSTOP    WM_APP + 602
-#define WM_HUD_HISTORY      WM_APP + 603
+#define WM_HUD_SETTINGS     (WM_APP + 601)
+#define WM_HUD_STARTSTOP    (WM_APP + 602)
+#define WM_HUD_HISTORY      (WM_APP + 603)
 
 /**
- * \brief Floating HUD button bar overlaid on the game window.
+ * \brief HUD button bar embedded as a child window of the game window.
  *        Three icon buttons: Settings (gear), Start/Stop, History.
- *        Created as an owned popup window so it stays on top of the game.
+ *        Created as a WS_CHILD so it moves, shows and hides together
+ *        with the game window automatically — an integral part of the
+ *        injected autoclicker overlay.
  */
 class CHUDButtons
 	: public CWindowImpl<CHUDButtons>
@@ -25,14 +27,13 @@ public:
 	CHUDButtons();
 	~CHUDButtons();
 
-	BOOL Create(HWND hwndOwner, HINSTANCE hInstance);
+	BOOL Create(HWND hwndParent, HINSTANCE hInstance);
 	void Destroy();
 	void Show();
 	void Hide();
+	void Reset();
 
 	void SetClickerRunning(BOOL bRunning);
-	void SetGameActive(BOOL bActive);
-	void Reposition();
 
 BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -42,7 +43,6 @@ BEGIN_MSG_MAP(CHUDButtons)
 	MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 	MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 	MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
-	MESSAGE_HANDLER(WM_TIMER, OnTimer)
 END_MSG_MAP()
 
 protected:
@@ -53,23 +53,19 @@ protected:
 	LRESULT OnMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseLeave(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 
 private:
 	enum { BTN_COUNT = 3 };
 	enum { BTN_SIZE = 16 };
 	enum { BTN_SPACING = 2 };
 	enum { BAR_PADDING = 1 };
-	enum { REPOSITION_TIMER_ID = 2020 };
-
 	int HitTest(int x, int y);
 	void DrawButton(HDC hDC, int idx, HBITMAP hIcon, BOOL bHover, BOOL bPressed);
 	RECT GetButtonRect(int idx);
 
-	HWND m_hwndOwner;
+	HWND m_hwndParent;
 	HINSTANCE m_hInstance;
 	BOOL m_bClickerRunning;
-	BOOL m_bGameActive;   // TRUE when game application is the foreground app
 	BOOL m_bEnabled;       // TRUE after Show() called (character selected)
 
 	HBITMAP m_hIcoSettings;

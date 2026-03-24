@@ -4,7 +4,7 @@
 #include "MuWindowUtil.h"
 #include "version.h"
 
-#define WM_CHAR_SELECTED	WM_APP + 510
+#define WM_CHAR_SELECTED	(WM_APP + 510)
 
 
 /**

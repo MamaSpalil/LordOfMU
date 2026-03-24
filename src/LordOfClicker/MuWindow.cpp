@@ -399,11 +399,6 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	m_fIsWndActive = (BOOL)wParam;
 
-	// Immediately show/hide HUD buttons when the game application
-	// gains or loses foreground.  Buttons must only be visible
-	// and clickable inside the game client (main.exe).
-	m_cHUDButtons.SetGameActive(m_fIsWndActive);
-
 	if (m_fIsWndActive)
 	{
 		bHandled = FALSE;
@@ -1425,22 +1420,31 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 
 /**
- * \brief Game window moved or resized - immediately reposition the HUD overlay.
- *        Keeps buttons anchored without waiting for the 200ms reposition timer.
+ * \brief Game window moved or resized - child HUD buttons move automatically
+ *        with the parent, no manual repositioning needed.
  */
 LRESULT CMuWindow::OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL& bHandled)
 {
-	m_cHUDButtons.Reposition();
 	bHandled = FALSE; // Let the message pass through to the game
 	return 0;
 }
 
 
 /**
- * \brief HUD Settings button clicked - open the F9 settings dialog.
+ * \brief HUD Settings button clicked - stop the autoclicker (if running)
+ *        and open the unified settings dialog.  Stopping first ensures
+ *        the dialog can be opened without conflicts.
  */
 LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
 {
+	// Stop the autoclicker before opening settings so the dialog
+	// is not blocked by the running clicker check in OnShowSettingsGUI.
+	if (m_pClicker != NULL)
+	{
+		BOOL bHandled = FALSE;
+		OnStopClicker(0, 0, 0, bHandled);
+	}
+
 	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 	return 0;
 }

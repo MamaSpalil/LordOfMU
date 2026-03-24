@@ -7,7 +7,7 @@
 #include "MuWindowUtil.h"
 
 
-#define WM_SET_GAME_VERSION	WM_APP + 509
+#define WM_SET_GAME_VERSION	(WM_APP + 509)
 
 /**
  * \brief 
