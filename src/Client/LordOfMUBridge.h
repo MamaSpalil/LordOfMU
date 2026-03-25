@@ -1,14 +1,22 @@
 #pragma once
 /**
  * \file  LordOfMUBridge.h
- * \brief Cross-DLL communication bridge between the game Client DLL and
- *        the LordOfMU AutoClicker DLL (LordOfClicker).
+ * \brief Cross-DLL communication bridge between the game Client DLL (main.dll)
+ *        and the LordOfMU AutoClicker DLL (LordOfClicker).
  *
  * The LordOfMU autoclicker runs as a separate DLL injected into the same
  * process.  It subclasses the game's main HWND and listens for custom
  * window messages (WM_APP + xxx) to start/stop the clicker, open settings,
- * and show pickup history.  Keyboard shortcuts (F5, F9, Shift+F9) are
- * handled by LordOfMU's own WH_KEYBOARD_LL hook and timer-based polling.
+ * and show pickup history.
+ *
+ * The Client DLL (main.dll) is the PRIMARY handler for keyboard shortcuts:
+ *   - F9           -> Open/toggle Settings overlay  (via this bridge)
+ *   - Shift+F9     -> Open/toggle History overlay   (via this bridge)
+ *   - F5           -> Toggle autoclicker start/stop (via simulated keypress)
+ *
+ * F9/Shift+F9 detection lives in Controller::Keyboard (WH_KEYBOARD hook,
+ * per-thread).  The LordOfMU LL hook retains a background-only fallback
+ * for when the game window is NOT foreground (per-thread hooks cannot fire).
  *
  * This bridge provides helper functions so that the Client DLL can:
  *   - Check whether the LordOfMU autoclicker is loaded
@@ -86,7 +94,8 @@ inline void LordOfMU_ToggleClicker(HWND hGameWnd)
 }
 
 /**
- * \brief Open the LordOfMU autoclicker settings overlay (F9).
+ * \brief Open/toggle the LordOfMU autoclicker settings overlay (F9).
+ *        Called by Controller::Keyboard when the Client detects F9 KEYUP.
  */
 inline void LordOfMU_OpenSettings(HWND hGameWnd)
 {
@@ -95,7 +104,8 @@ inline void LordOfMU_OpenSettings(HWND hGameWnd)
 }
 
 /**
- * \brief Open the LordOfMU pickup history overlay (Shift+F9).
+ * \brief Open/toggle the LordOfMU pickup history overlay (Shift+F9).
+ *        Called by Controller::Keyboard when the Client detects Shift+F9 KEYUP.
  */
 inline void LordOfMU_ShowHistory(HWND hGameWnd)
 {
