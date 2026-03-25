@@ -347,7 +347,14 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
-		PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+		if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+		{
+			PostMessage(WM_SHOW_HISTORY, 0, 0);
+		}
+		else
+		{
+			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+		}
 		return TRUE;
 	}
 
@@ -400,6 +407,14 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandl
 	// away from the dialog and effectively "block" left-clicks on its controls.
 	if (m_fGuiActive)
 	{
+		// If the game has captured the mouse (e.g. from a timer or paint
+		// handler calling SetCapture), release it immediately.  Without
+		// this, ALL mouse messages — including those intended for the
+		// dialog — are redirected to the game window and blocked here,
+		// making dialog controls completely unclickable.
+		if (::GetCapture() == m_hWnd)
+			::ReleaseCapture();
+
 		bHandled = TRUE;
 		return 0;
 	}
@@ -460,6 +475,14 @@ LRESULT CMuWindow::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 {
 	if (LOWORD(wParam) != WA_INACTIVE)
 	{
+		// When a popup dialog is open, prevent the game's original WndProc
+		// from processing WM_ACTIVATE(WA_ACTIVE / WA_CLICKACTIVE).  The
+		// game may call SetCapture() or change internal focus state in its
+		// activation handler, redirecting all mouse input to the game
+		// window and making dialog controls unclickable.
+		if (m_fGuiActive)
+			return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+
 		bHandled = FALSE;
 	}
 	else
@@ -612,6 +635,14 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);
 				}
+
+				// After dispatching a message, the game's WndProc may have
+				// called SetCapture() (e.g. from a timer or paint handler).
+				// If the game holds capture, ALL mouse messages — even those
+				// intended for the dialog — are redirected to the game window
+				// where OnMouseMessage blocks them.  Release immediately.
+				if (::GetCapture() == m_hWnd)
+					::ReleaseCapture();
 			}
 			else
 			{
@@ -1213,7 +1244,18 @@ LRESULT CMuWindow::OnNCActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	m_fIsWndActive = (BOOL)wParam;
 
 	if ((BOOL)wParam)
+	{
+		// When a dialog is open, don't let the game's WndProc process
+		// WM_NCACTIVATE(TRUE).  Let DefWindowProc update the visual
+		// state (title bar) but skip the game's custom handling which
+		// could interfere with dialog mouse input.
+		if (m_fGuiActive)
+		{
+			::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+			return TRUE;
+		}
 		bHandled = FALSE;
+	}
 	else
 		::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 
@@ -1664,9 +1706,9 @@ LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
 /**
  * \brief HUD History button clicked - open the pickup history dialog.
  *        Queries the LordOfMU DLL for pickup history data and displays it.
+ *        Can also be triggered by Shift+F9 keyboard shortcut.
  */
-/*
-LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
+LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
 	// If Settings dialog is currently open, close it first so History can open
 	if (m_fGuiActive)
@@ -1730,7 +1772,7 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 	if (s_pfnGetHistory)
 	{
 		char szBuffer[32768] = {0};
-		int nCount = s_pfnGetHistory(szBuffer, sizeof(szBuffer));
+		s_pfnGetHistory(szBuffer, sizeof(szBuffer));
 
 		// Parse "HH:MM:SS|ItemName\n" entries
 		char* pLine = szBuffer;
@@ -1766,6 +1808,9 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	m_fGuiActive = TRUE;
 
+	// Release any mouse capture the game may hold.
+	::ReleaseCapture();
+
 	// Show the dialog and activate it so mouse clicks work immediately.
 	m_cHistoryDlg.ShowWindow(SW_SHOW);
 
@@ -1800,6 +1845,10 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);
 				}
+
+				// Release game capture if re-acquired during dispatch
+				if (::GetCapture() == m_hWnd)
+					::ReleaseCapture();
 			}
 			else
 			{
@@ -1817,7 +1866,6 @@ LRESULT CMuWindow::OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 	return 0;
 }
-*/
 
 
 /**
@@ -1856,16 +1904,24 @@ LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
 
 
 /**
- * \brief WM_MOUSEACTIVATE handler — ensures that clicks on owned popup
- *        dialogs (Settings, History) are not eaten by the game's WndProc.
- *        The game may return MA_NOACTIVATEANDEAT which silently discards
- *        the mouse event that triggered the activation.  When a dialog is
- *        open we return MA_ACTIVATE so the dialog receives the click.
+ * \brief WM_MOUSEACTIVATE handler — controls what happens when the user
+ *        clicks on the game window.
+ *
+ *        When a popup dialog (Settings, History) is open, we must NOT let
+ *        the game window become activated.  If the game activates, its
+ *        WndProc processes WM_ACTIVATE and may call SetCapture(), stealing
+ *        all subsequent mouse input from the dialog.  Returning
+ *        MA_NOACTIVATEANDEAT prevents activation and discards the click
+ *        (which OnMouseMessage would block anyway).
+ *
+ *        When no dialog is open, we pass through so the game's WndProc
+ *        can return its own value (the game may return
+ *        MA_NOACTIVATEANDEAT in certain UI states).
  */
 LRESULT CMuWindow::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL& bHandled)
 {
 	if (m_fGuiActive)
-		return MA_ACTIVATE;
+		return MA_NOACTIVATEANDEAT;
 
 	bHandled = FALSE;
 	return 0;
