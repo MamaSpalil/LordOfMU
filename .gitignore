@@ -38,3 +38,8 @@ Release [Antihack]/
 *.tmp
 *.log
 ~$*
+
+# Allow binary dependencies required by src/Client
+!src/Client/*.LIB
+!src/Client/*.lib
+!src/Client/*.DLL
