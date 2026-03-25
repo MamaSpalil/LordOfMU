@@ -43,4 +43,3 @@ Release [Antihack]/
 !src/Client/*.LIB
 !src/Client/*.lib
 !src/Client/*.DLL
-!src/Client/GLUT32.DLL
