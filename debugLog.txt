@@ -1,414 +1,242 @@
-[2026-03-25 20:37:20] [CLICKER] EnsureLordOfMUDllLoaded: Loading MUEliteClicker.dll from 'D:\1WOM\MUEliteClicker.dll'
-[2026-03-25 20:37:20] [CLICKER] EnsureLordOfMUDllLoaded: Loaded at 0x79570000 - initializing proxy hooks
-[2026-03-25 20:37:20] [DEBUG] LordOfMU DLL initializing (InternalInit)
-[2026-03-25 20:37:20] [DEBUG] Debug mode handler installed
-[2026-03-25 20:37:20] [HOOK] Crash handler installed for main.exe process
-[2026-03-25 20:37:20] [HOOK] DLL hook presence check passed - no duplicate DLL detected
-[2026-03-25 20:37:20] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x8B at 0x75AB5710)
-[2026-03-25 20:37:20] [HOOK] Applying DLL hooks for the first time (InterlockedCompareExchange 0->1)
-[2026-03-25 20:37:20] [HOOK] Proxifier initialization started
-[2026-03-25 20:37:20] [HOOK] All Winsock API hooks installed successfully
-[2026-03-25 20:37:20] [HOOK] Proxifier initialization completed successfully
-[2026-03-25 20:37:20] [HOOK] DLL hooks applied successfully - proxy system active
-[2026-03-25 20:37:20] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x90 at 0x75AB5710)
-[2026-03-25 20:37:20] [DEBUG] LordOfMU DLL initialization complete
-[2026-03-25 20:37:20] [CLICKER] EnsureLordOfMUDllLoaded: DllGetClassObject called, root='D:\1WOM\'
-[2026-03-25 20:37:20] [CLICKER] EnsureLordOfMUDllLoaded: env var __LordOfMU_HMODULE__ set to '0x79570000'
-[2026-03-25 20:37:23] [CLICKER] D3D9 EndScene hook installed, ImGui overlay ready
-[2026-03-25 20:37:23] [CLICKER] DLL successfully hooked into main.exe, clicker initialized
-[2026-03-25 20:37:23] [SOCKET] IP override from Connect.ini: 192.168.0.105
-[2026-03-25 20:37:23] [SOCKET] connect() socket=2800 IP=192.168.0.105 port=44405
-[2026-03-25 20:37:25] [SOCKET] IP override from Connect.ini: 192.168.0.105
-[2026-03-25 20:37:25] [SOCKET] connect() socket=2800 IP=192.168.0.105 port=55901
-[2026-03-25 20:37:25] [PACKET] Packet logger filter initialized - AVANTA+ELITE relevant packets only
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Server message | Len=56 | C1 38 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 57 65 6C 6C 63 6F 6D 65 20 74 6F 20 50 68 6F 65 6E 69 78 20 56 69 70 20 41 44 4D 49 4E 00 00 00 00 
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 50 6C 61 79 65 72 73 20 4F 6E 6C 69 6E 65 3A 20 33 39 2F 33 30 30 00 20 41 44 
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 5B 50 68 6F 5B 50 68 6F 65 6E 69 78 5D 20 48 6F 6D 65 20 50 61 67 65 3A 20 50 68 6F 65 6E 69 78 2E 63 6F 6D 00 49 4E 00 
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Character stats | Len=81 | C3 51 00 F3 03 DA D7 02 00 F0 59 D1 E3 90 05 FF E7 BE 02 FF 7F FF 7F FF 7F FF 7F 59 02 D8 16 55 07 EF 20 2C 8C 2C 8C 99 39 32 73 19 00 57 F8 56 1D 03 20 69 F7 59 00 00 00 00 00 59 00 05 00 00 00 0A 04 00 00 00 00 00 00 00 00 00 00 04 0E F9 1C 
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Zen/money update | Len=5 | C1 05 B8 01 00 
-[2026-03-25 20:37:31] [PICKUP] RECV CZenUpdatePacket: zen=0 (prev=0, tracked=0)
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Server message | Len=69 | C1 45 0D 01 00 00 00 00 00 00 00 00 00 5B 4C 75 63 6B 79 20 57 68 65 65 6C 5D 3A 20 44 6F 6E 27 74 20 66 6F 72 67 65 74 20 79 6F 75 20 6E 65 65 64 20 73 70 61 63 65 20 66 6F 72 20 69 74 65 6D 73 00 00 00 00 
-[2026-03-25 20:37:31] [PACKET] SERVER -> CLIENT | Character setup | Len=19 | C1 13 F3 30 00 38 00 00 00 00 00 00 00 00 09 00 04 08 04 
-[2026-03-25 20:37:34] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:37:34] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:34] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:34] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=NO | ClickerRunning=NO
-[2026-03-25 20:37:34] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
-[2026-03-25 20:37:34] [KEYDBG] >>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=NO
-[2026-03-25 20:37:35] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:37:35] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:35] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:35] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=YES | ClickerRunning=NO
-[2026-03-25 20:37:35] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
-[2026-03-25 20:37:35] [KEYDBG] >>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=NO
-[2026-03-25 20:37:35] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:37:35] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:35] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:37:35] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:37:35] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:35] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=NO | ClickerRunning=NO
-[2026-03-25 20:37:35] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
-[2026-03-25 20:37:35] [KEYDBG] >>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=NO
-[2026-03-25 20:37:37] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:37] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:37] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:38] [KEYDBG] Timer: Shift+F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:39] [KEYDBG] Timer: Shift+F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:39] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:39] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:39] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:39] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:40] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:40] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:40] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:40] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:40] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:40] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:42] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:42] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:42] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:42] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:42] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:42] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:45] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D DA D7 71 70 
-[2026-03-25 20:37:46] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:47] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:47] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:47] [KEYDBG] Timer: Shift+F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:48] [KEYDBG] Timer: Shift+F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:37:48] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:37:56] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D D9 D7 21 20 
-[2026-03-25 20:37:57] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D DA D6 52 65 
-[2026-03-25 20:37:58] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D D9 D8 31 30 
-[2026-03-25 20:38:00] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:00] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:00] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:00] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:01] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:01] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:01] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:01] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:01] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:01] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:02] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:02] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:02] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:03] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:03] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:03] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:04] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:04] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:04] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:04] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:04] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:04] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:05] [KEYDBG] [ESC] KEYUP -> OK: Close ImGui overlay | SettingsVisible=N/A HistoryVisible=YES
-[2026-03-25 20:38:08] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [KEYDBG] [F5] KEYUP -> OK: Toggle AutoClicker Start/Stop | Clicker is STOPPED -> Sending WM_START_CLICKER
-[2026-03-25 20:38:08] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [CLICKER] Clicker started
-[2026-03-25 20:38:08] [CLICKER] === Auto-clicker starting ===
-[2026-03-25 20:38:08] [KEYDBG] LL-Hook: F7 KEYDOWN | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:08] [KEYDBG] LL-Hook: F6 KEYUP | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:08] [KEYDBG] [F6] KEYUP -> OK: Force Start AutoClicker | Sending WM_START_CLICKER
-[2026-03-25 20:38:08] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00A90CA8, game=0x01CD0592)
-[2026-03-25 20:38:08] [KEYDBG] Timer: F7 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
-[2026-03-25 20:38:08] [CLICKER] Clicker Debug Mode auto-enabled on autoclicker start
-[2026-03-25 20:38:08] [CLICKER] Debug mode active - propagating to DLL
-[2026-03-25 20:38:08] [CLICKER] SayToServer: DLL found at 0x79570000 via env var (after 1 attempts)
-[2026-03-25 20:38:08] [CLICKER] Settings: fAutoPick=0 fAutoRepair=1 fAutoLife=1 fAutoReOff=0
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 64 65 62 75 67 6D 6F 64 65 20 6F 6E 00 
-[2026-03-25 20:38:08] [CLICKER] Settings: dwPickTime=1000 dwRepairTime=300000 dwHealTime=10000 dwClass=5
-[2026-03-25 20:38:08] [CLICKER] Settings: fAdvAutoPick=1 fExitAtLvl400=0 fAntiAFKProtect=0 fPickRunMode=1
-[2026-03-25 20:38:08] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
-[2026-03-25 20:38:08] [CLICKER] Settings: fAdvPickBless=1 fAdvPickSoul=1 fAdvPickChaos=1 fAdvPickLife=1
-[2026-03-25 20:38:08] [DEBUG] Debug mode ENABLED in DLL context via //debugmode command
-[2026-03-25 20:38:08] [CLICKER] Settings: fAdvPickCreation=1 fAdvPickGuardian=1 fAdvPickExl=1 fAdvPickZen=1
-[2026-03-25 20:38:08] [PACKET] DIRECT>CLIENT | Server message | Len=39 | C1 27 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 44 65 62 75 67 20 6D 6F 64 65 20 6F 6E 20 5B 4F...
-[2026-03-25 20:38:08] [CLICKER] Settings: fAdvPickCustom=1 fAdvPickCustomMove=1 wPickCustomCode=0x0E33
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [CLICKER] Advanced auto-pickup enabled - setting options
-[2026-03-25 20:38:08] [CLICKER] SetAdvancedAutopickOptions: sending all pickup options to DLL
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt bless on on
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 73 61 79 20 6F 66 66 20 5B 4F 4B 5D...
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt soul on on
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt chaos on on
-[2026-03-25 20:38:08] [PICKUP] SetParam: susp_zen_pick=0
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [DEBUG] Command //set_stealth_opt: opt=susp_zen_pick value=off
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt jol on on
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt joc on on
-[2026-03-25 20:38:08] [KEYDBG] LL-Hook: F8 KEYDOWN | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:08] [PICKUP] SetParam: susp_move_pick=0
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [KEYDBG] LL-Hook: F7 KEYUP | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:08] [DEBUG] Command //set_stealth_opt: opt=susp_move_pick value=off
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt jog on on
-[2026-03-25 20:38:08] [KEYDBG] [F7] KEYUP -> OK: Start AutoClicker (no mouse move) | Sending WM_START_CLICKER (no mouse move)
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [KEYDBG] Timer: F7 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt exl on on
-[2026-03-25 20:38:08] [KEYDBG] [F7] KEYUP -> BLOCKED: Start AutoClicker (no mouse move) | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00A90CA8, game=0x01CD0592)
-[2026-03-25 20:38:08] [PICKUP] SetParam: susp_pick=0
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [KEYDBG] Timer: F8 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:08] [DEBUG] Command //set_stealth_opt: opt=susp_pick value=off
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt zen on on
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [CLICKER] Sending to DLL: //set_pick_opt custom on on
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [CLICKER] Sending //pick clear to DLL
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:08] [CLICKER] Sending custom pick command: //pick 14 51
-[2026-03-25 20:38:08] [PICKUP] SetParam: bless flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PICKUP] Command //set_pick_opt: item=bless pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:08] [CLICKER] SetAdvancedAutopickOptions: all pickup options sent
-[2026-03-25 20:38:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:08] [CLICKER] Sending //autopick on to DLL
-[2026-03-25 20:38:08] [PACKET] CLIENT -> SERVER | Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:08] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:08] [PICKUP] SetParam: soul flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER] Sending //pickclass 5 to DLL
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=soul pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER] Auto run mode enabled (boots level detection)
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [PICKUP] SetParam: chaos flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER] Sending //pdist 3 to DLL
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=chaos pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [KEYDBG] LL-Hook: F9 KEYDOWN | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:09] [CLICKER] Pick-up run mode enabled
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [PICKUP] SetParam: jol flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER] Pick-up debug logging enabled
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=jol pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER] === AVANTA+ELITE mode active features ===
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER]   AVANTA: AutoPick(SPACE)=off AutoHeal=ON AutoRepair=ON AutoReqOff=off
-[2026-03-25 20:38:09] [KEYDBG] LL-Hook: F8 KEYUP | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:09] [PICKUP] SetParam: joc flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER]   ELITE:  AdvPick(DLL)=ON Exit400=off AntiAFK=0x0 PickRun=ON Class=5
-[2026-03-25 20:38:09] [KEYDBG] [F8] KEYUP -> OK: Force Stop AutoClicker | Sending WM_STOP_CLICKER
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=joc pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [CLICKER] === Auto-clicker initialization complete ===
-[2026-03-25 20:38:09] [CLICKER] Clicker stop requested
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER] === Auto-clicker stopping ===
-[2026-03-25 20:38:09] [KEYDBG] Timer: F8 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER] Advanced auto-pickup disabled
-[2026-03-25 20:38:09] [KEYDBG] [F8] KEYUP -> BLOCKED: Force Stop AutoClicker | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00A90CA8, game=0x01CD0592)
-[2026-03-25 20:38:09] [PICKUP] SetParam: jog flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER] Sending //pickdebug off and //autopick off to DLL
-[2026-03-25 20:38:09] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=jog pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [CLICKER] Debug mode remains active in DLL after clicker stop
-[2026-03-25 20:38:09] [PICKUP] SetParam: exl flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=exl pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: zen flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=zen pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: custom flags 0x00 -> 0x03 (pick=1, moveTo=1)
-[2026-03-25 20:38:09] [CLICKER] === Auto-clicker stopped ===
-[2026-03-25 20:38:09] [PICKUP] Command //set_pick_opt: item=custom pick=on moveTo=on (flags=0x03)
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
-[2026-03-25 20:38:09] [CLICKER] Clicker stopped
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: pick list cleared (was 0 items)
-[2026-03-25 20:38:09] [PICKUP] Command //pick clear: pick list cleared
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=36 | C1 24 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 63 6C 65 61 72 20 5B 4F 4B 5D 2E...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 31 34 20 35 31 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 31 34 20 35 31 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: pick item code=0x0E33 mask=0xFFFF (total pick items=1)
-[2026-03-25 20:38:09] [PICKUP] Command //pick: code=0x0E33 mask=0xFFFF (args: 14 51 )
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=36 | C1 24 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 31 34 20 35 31 20 5B 4F 4B 5D 2E...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: autopick ENABLED (m_fEnabled=1)
-[2026-03-25 20:38:09] [PICKUP] Command //autopick: on (fCmd=1)
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 6E 20 5B 4F 4B 5D...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: charclass=5
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=53 | C1 35 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 63 68 61 72 20 63 6C 61...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
-[2026-03-25 20:38:09] [KEYDBG] LL-Hook: F9 KEYUP | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
-[2026-03-25 20:38:09] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=NO | ClickerRunning=NO
-[2026-03-25 20:38:09] [PICKUP] SetParam: autorunmode=1
-[2026-03-25 20:38:09] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=50 | C1 32 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 61 75 74 6F 20 72 75 6E...
-[2026-03-25 20:38:09] [KEYDBG] >>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=NO
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 33 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 33 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: pdist=3
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=51 | C1 33 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 69 73 74 61 6E 63 65...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: pickrunmode=1
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=45 | C1 2D 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 72 75 6E 20 6D 6F 64 65...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: pickdebug=1
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=47 | C1 2F 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
-[2026-03-25 20:38:09] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
-[2026-03-25 20:38:09] [KEYDBG] [F9] KEYUP -> BLOCKED: Show Settings GUI (F9) | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00A90CA8, game=0x01CD0592)
-[2026-03-25 20:38:09] [PICKUP] SetParam: pickdebug=0
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=48 | C1 30 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:09] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
-[2026-03-25 20:38:09] [PICKUP] SetParam: autopick DISABLED (m_fEnabled=0)
-[2026-03-25 20:38:09] [PICKUP] Command //autopick: off (fCmd=0)
-[2026-03-25 20:38:09] [PACKET] DIRECT>CLIENT | Server message | Len=38 | C1 26 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 66 66 20 5B 4F 4B...
-[2026-03-25 20:38:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 4A 00 00 00 0C 0D 1E 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 BE 
-[2026-03-25 20:38:09] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 4A 00 00 00 0C 0D 1E 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 BE 
-[2026-03-25 20:38:14] [GAMEDBG] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 50 
-[2026-03-25 20:38:14] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 50 
-[2026-03-25 20:38:14] [GAMEDBG] [PACKET] CLIENT -> SERVER | Massive skill | Len=17 | C3 11 05 1E 38 DA D8 73 88 F3 FF FF 00 F5 65 39 5D 
-[2026-03-25 20:38:14] [PACKET] CLIENT -> SERVER | Massive skill | Len=17 | C3 11 05 1E 38 DA D8 73 88 F3 FF FF 00 F5 65 39 5D 
-[2026-03-25 20:38:14] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 0D 05 00 38 39 7A 
-[2026-03-25 20:38:14] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 0D 05 00 38 39 7A 
-[2026-03-25 20:38:14] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 D4 BF 5D 38 03 44 6C 00 79 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 01 00 00 
-[2026-03-25 20:38:14] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 D4 BF 5D 38 03 44 6C 00 79 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 01 00 00 
-[2026-03-25 20:38:15] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
-[2026-03-25 20:38:15] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
-[2026-03-25 20:38:15] [GAMEDBG] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 30  (throttled: 5 similar packets skipped)
-[2026-03-25 20:38:15] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 30  (throttled: 5 similar packets skipped)
-[2026-03-25 20:38:15] [GAMEDBG] [PACKET] CLIENT -> SERVER | Massive skill | Len=17 | C3 11 0B 1E 38 DA D8 4B A8 CA FF FF 00 4F FE 39 5D  (throttled: 5 similar packets skipped)
-[2026-03-25 20:38:15] [PACKET] CLIENT -> SERVER | Massive skill | Len=17 | C3 11 0B 1E 38 DA D8 4B A8 CA FF FF 00 4F FE 39 5D  (throttled: 5 similar packets skipped)
-[2026-03-25 20:38:15] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 36 E0 DC 0F 00 3C 00 C9 E0 00 
-[2026-03-25 20:38:15] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 36 E0 DC 0F 00 3C 00 C9 E0 00 
-[2026-03-25 20:38:15] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
-[2026-03-25 20:38:15] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) but autopick DISABLED - items ignored
-[2026-03-25 20:38:16] [GAMEDBG] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D DA D8 71 70 
-[2026-03-25 20:38:16] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D DA D8 71 70 
-[2026-03-25 20:38:16] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 36 
-[2026-03-25 20:38:16] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 36 
-[2026-03-25 20:38:16] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 36 
-[2026-03-25 20:38:16] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 36 
-[2026-03-25 20:38:18] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:19] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:19] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:19] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:19] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:19] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:20] [KEYDBG] Timer: F7 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:20] [KEYDBG] Timer: F7 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:20] [KEYDBG] [F7] KEYUP -> BLOCKED: Start AutoClicker (no mouse move) | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:20] [KEYDBG] Timer: F8 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:20] [KEYDBG] Timer: F8 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:20] [KEYDBG] [F8] KEYUP -> BLOCKED: Force Stop AutoClicker | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop
-[2026-03-25 20:38:21] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
-[2026-03-25 20:38:21] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:21] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:21] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=YES | ClickerRunning=NO
-[2026-03-25 20:38:21] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
-[2026-03-25 20:38:21] [KEYDBG] >>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=NO
-[2026-03-25 20:38:21] [KEYDBG] Timer: F10 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:21] [KEYDBG] Timer: F10 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:21] [KEYDBG] [F10] KEYUP -> OK: Launch another MU instance | Sending WM_LAUNCH_MU
-[2026-03-25 20:38:22] [KEYDBG] Timer: F10 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:23] [KEYDBG] Timer: F10 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:23] [KEYDBG] [F10] KEYUP -> OK: Launch another MU instance | Sending WM_LAUNCH_MU
-[2026-03-25 20:38:25] [KEYDBG] Timer: F11 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:25] [KEYDBG] Timer: F11 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:25] [KEYDBG] [F11] KEYUP -> OK: Switch between MU windows | Sending WM_SWITCH_INSTANCE
-[2026-03-25 20:38:27] [KEYDBG] Timer: F12 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:27] [KEYDBG] [F12] KEYDOWN -> BLOCKED: Hide/Show all MU windows | Reason: Game is NOT foreground AND this is NOT the last active instance
-[2026-03-25 20:38:27] [KEYDBG] Timer: F12 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:27] [KEYDBG] [F12] KEYUP -> BLOCKED: Hide/Show all MU windows | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:29] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:29] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:29] [KEYDBG] [F5] KEYUP -> BLOCKED: Toggle AutoClicker Start/Stop | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:32] [KEYDBG] Timer: F6 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:32] [KEYDBG] Timer: F6 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:32] [KEYDBG] [F6] KEYUP -> BLOCKED: Force Start AutoClicker | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:32] [KEYDBG] Timer: F7 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:33] [KEYDBG] Timer: F7 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:33] [KEYDBG] [F7] KEYUP -> BLOCKED: Start AutoClicker (no mouse move) | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:33] [KEYDBG] Timer: F8 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:33] [KEYDBG] Timer: F8 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:33] [KEYDBG] [F8] KEYUP -> BLOCKED: Force Stop AutoClicker | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:34] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:34] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:34] [KEYDBG] [F9] KEYUP -> BLOCKED: Show Settings GUI (F9) | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:34] [KEYDBG] Timer: F10 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:35] [KEYDBG] Timer: F10 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
-[2026-03-25 20:38:35] [KEYDBG] [F10] KEYUP -> BLOCKED: Launch another MU instance | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x00850D98, game=0x01CD0592)
-[2026-03-25 20:38:36] [GAMEDBG] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D D9 D8 31 30 
-[2026-03-25 20:38:36] [PACKET] CLIENT -> SERVER | Char Move CTS | Len=7 | C1 07 1D D9 D8 31 30 
-[2026-03-25 20:38:36] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 00 36 E0 DC 0F 00 3C 00 C9 E0 00 
-[2026-03-25 20:38:36] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 00 36 E0 DC 0F 00 3C 00 C9 E0 00 
-[2026-03-25 20:38:36] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
-[2026-03-25 20:38:36] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) but autopick DISABLED - items ignored
-[2026-03-25 20:38:37] [GAMEDBG] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 70  (throttled: 2 similar packets skipped)
-[2026-03-25 20:38:37] [PACKET] CLIENT -> SERVER | Update position CTS | Len=6 | C1 06 1D DA D8 70  (throttled: 2 similar packets skipped)
-[2026-03-25 20:38:37] [GAMEDBG] [PACKET] CLIENT -> SERVER | Normal attack | Len=7 | C1 07 DC 0D 05 78 07 
-[2026-03-25 20:38:37] [PACKET] CLIENT -> SERVER | Normal attack | Len=7 | C1 07 DC 0D 05 78 07 
-[2026-03-25 20:38:37] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 0D 05 00 00 39 7A 
-[2026-03-25 20:38:37] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 0D 05 00 00 39 7A 
-[2026-03-25 20:38:37] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 48 93 EE 03 54 BF 5D 38 D3 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 38 69 BE 
-[2026-03-25 20:38:37] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 48 93 EE 03 54 BF 5D 38 D3 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 38 69 BE 
-[2026-03-25 20:38:38] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
-[2026-03-25 20:38:38] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
-[2026-03-25 20:38:38] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 37 D8 D8 03 30 24 00 00 10 00 
-[2026-03-25 20:38:38] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 37 D8 D8 03 30 24 00 00 10 00 
-[2026-03-25 20:38:38] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
-[2026-03-25 20:38:38] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) but autopick DISABLED - items ignored
-[2026-03-25 20:38:42] [GAMEDBG] Disconnected from server.
-[2026-03-25 20:38:42] [GAMEDBG] [DLL] DLL_PROCESS_DETACH - game process unloading DLL.
-[2026-03-25 20:38:42] [HOOK] DLL_PROCESS_DETACH - main.exe unloading LordOfMU DLL, removing hooks
-[2026-03-25 20:38:42] [GAMEDBG] === LordOfMU DLL shutting down (OnExit) ===
-[2026-03-25 20:38:42] [DEBUG] LordOfMU DLL shutting down (OnExit)
-[2026-03-25 20:38:42] [HOOK] DLL shutdown initiated - starting hook removal from main.exe
-[2026-03-25 20:38:42] [DEBUG] Debug mode handler uninstalled
-[2026-03-25 20:38:42] [HOOK] Crash handler uninstalled
-[2026-03-25 20:38:42] [GAMEDBG] [HOOK_CLEANUP] Cleaning up DLL hooks from main.exe process...
-[2026-03-25 20:38:42] [HOOK] Starting DLL hook cleanup from main.exe process
-[2026-03-25 20:38:42] [HOOK] Proxifier cleanup started - removing hooks
-[2026-03-25 20:38:42] [HOOK] Proxifier cleanup complete - all hooks removed
-[2026-03-25 20:38:42] [GAMEDBG] [HOOK_CLEANUP] DLL hook cleanup complete. All hooks removed.
-[2026-03-25 20:38:42] [HOOK] DLL hook cleanup complete - all hooks removed, g_lHookApplied reset to 0
-[2026-03-25 20:38:42] [GAMEDBG] === LordOfMU DLL cleanup complete ===
-[2026-03-25 20:38:42] [DEBUG] LordOfMU DLL cleanup complete - all resources released
+[2026-03-25 22:05:50] [CLICKER] EnsureLordOfMUDllLoaded: Loading MUEliteClicker.dll from 'D:\1WOM\MUEliteClicker.dll'
+[2026-03-25 22:05:50] [CLICKER] EnsureLordOfMUDllLoaded: Loaded at 0x78790000 - initializing proxy hooks
+[2026-03-25 22:05:50] [DEBUG] LordOfMU DLL initializing (InternalInit)
+[2026-03-25 22:05:50] [DEBUG] Debug mode handler installed
+[2026-03-25 22:05:50] [HOOK] Crash handler installed for main.exe process
+[2026-03-25 22:05:50] [HOOK] DLL hook presence check passed - no duplicate DLL detected
+[2026-03-25 22:05:50] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x8B at 0x75AB5710)
+[2026-03-25 22:05:50] [HOOK] Applying DLL hooks for the first time (InterlockedCompareExchange 0->1)
+[2026-03-25 22:05:50] [HOOK] Proxifier initialization started
+[2026-03-25 22:05:50] [HOOK] All Winsock API hooks installed successfully
+[2026-03-25 22:05:50] [HOOK] Proxifier initialization completed successfully
+[2026-03-25 22:05:50] [HOOK] DLL hooks applied successfully - proxy system active
+[2026-03-25 22:05:50] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x90 at 0x75AB5710)
+[2026-03-25 22:05:50] [DEBUG] LordOfMU DLL initialization complete
+[2026-03-25 22:05:50] [CLICKER] EnsureLordOfMUDllLoaded: DllGetClassObject called, root='D:\1WOM\'
+[2026-03-25 22:05:50] [CLICKER] EnsureLordOfMUDllLoaded: env var __LordOfMU_HMODULE__ set to '0x78790000'
+[2026-03-25 22:05:51] [CLICKER] D3D9 EndScene hook installed, ImGui overlay ready
+[2026-03-25 22:05:51] [CLICKER] DLL successfully hooked into main.exe, clicker initialized
+[2026-03-25 22:06:06] [SOCKET] IP override from Connect.ini: 192.168.0.105
+[2026-03-25 22:06:06] [SOCKET] connect() socket=2744 IP=192.168.0.105 port=44405
+[2026-03-25 22:06:07] [SOCKET] IP override from Connect.ini: 192.168.0.105
+[2026-03-25 22:06:07] [SOCKET] connect() socket=2744 IP=192.168.0.105 port=55901
+[2026-03-25 22:06:07] [PACKET] Packet logger filter initialized - AVANTA+ELITE relevant packets only
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Server message | Len=56 | C1 38 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 57 65 6C 6C 63 6F 6D 65 20 74 6F 20 50 68 6F 65 6E 69 78 20 56 69 70 20 41 44 4D 49 4E 00 00 00 00 
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 50 6C 61 79 65 72 73 20 4F 6E 6C 69 6E 65 3A 20 33 39 2F 33 30 30 00 20 41 44 
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 5B 50 68 6F 5B 50 68 6F 65 6E 69 78 5D 20 48 6F 6D 65 20 50 61 67 65 3A 20 50 68 6F 65 6E 69 78 2E 63 6F 6D 00 49 4E 00 
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Character stats | Len=81 | C3 51 00 F3 03 D8 D7 02 00 F0 59 D1 E3 90 05 FF E7 BE 02 FF 7F FF 7F FF 7F FF 7F A0 06 D8 16 5E 07 EF 20 2C 8C 2C 8C 99 39 32 73 00 00 69 AD 57 1D 03 20 69 F7 59 00 00 00 00 00 59 00 05 00 00 00 6C F5 19 00 00 00 00 00 00 00 00 00 59 4C 61 00 
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Zen/money update | Len=5 | C1 05 B8 01 00 
+[2026-03-25 22:06:17] [PICKUP] RECV CZenUpdatePacket: zen=0 (prev=0, tracked=0)
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Server message | Len=69 | C1 45 0D 01 00 00 00 00 00 00 00 00 00 5B 4C 75 63 6B 79 20 57 68 65 65 6C 5D 3A 20 44 6F 6E 27 74 20 66 6F 72 67 65 74 20 79 6F 75 20 6E 65 65 64 20 73 70 61 63 65 20 66 6F 72 20 69 74 65 6D 73 00 00 00 00 
+[2026-03-25 22:06:17] [PACKET] SERVER -> CLIENT | Character setup | Len=19 | C1 13 F3 30 00 38 00 00 00 00 00 00 00 00 09 00 04 08 04 
+[2026-03-25 22:06:21] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:21] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:21] [KEYDBG] [F5] KEYUP -> OK: Toggle AutoClicker Start/Stop | Clicker is STOPPED -> Sending WM_START_CLICKER
+[2026-03-25 22:06:21] [CLICKER] Clicker started
+[2026-03-25 22:06:21] [CLICKER] === Auto-clicker starting ===
+[2026-03-25 22:06:21] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
+[2026-03-25 22:06:21] [CLICKER] Clicker Debug Mode auto-enabled on autoclicker start
+[2026-03-25 22:06:21] [CLICKER] Debug mode active - propagating to DLL
+[2026-03-25 22:06:21] [CLICKER] SayToServer: DLL found at 0x78790000 via env var (after 1 attempts)
+[2026-03-25 22:06:21] [CLICKER] Settings: fAutoPick=0 fAutoRepair=1 fAutoLife=1 fAutoReOff=0
+[2026-03-25 22:06:21] [CLICKER] Settings: dwPickTime=1000 dwRepairTime=300000 dwHealTime=10000 dwClass=5
+[2026-03-25 22:06:21] [CLICKER] Settings: fAdvAutoPick=1 fExitAtLvl400=0 fAntiAFKProtect=0 fPickRunMode=1
+[2026-03-25 22:06:21] [CLICKER] Settings: fAdvPickBless=1 fAdvPickSoul=1 fAdvPickChaos=1 fAdvPickLife=1
+[2026-03-25 22:06:21] [CLICKER] Settings: fAdvPickCreation=1 fAdvPickGuardian=1 fAdvPickExl=1 fAdvPickZen=1
+[2026-03-25 22:06:21] [CLICKER] Settings: fAdvPickCustom=1 fAdvPickCustomMove=1 wPickCustomCode=0x0E33
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 64 65 62 75 67 6D 6F 64 65 20 6F 6E 00 
+[2026-03-25 22:06:21] [CLICKER] Advanced auto-pickup enabled - setting options
+[2026-03-25 22:06:21] [CLICKER] SetAdvancedAutopickOptions: sending all pickup options to DLL
+[2026-03-25 22:06:21] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt bless on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [DEBUG] Debug mode ENABLED in DLL context via //debugmode command
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt soul on on
+[2026-03-25 22:06:21] [PACKET] DIRECT>CLIENT | Server message | Len=39 | C1 27 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 44 65 62 75 67 20 6D 6F 64 65 20 6F 6E 20 5B 4F...
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt chaos on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt jol on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt joc on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt jog on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt exl on on
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt zen on on
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
+[2026-03-25 22:06:21] [CLICKER] Sending to DLL: //set_pick_opt custom on on
+[2026-03-25 22:06:21] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 73 61 79 20 6F 66 66 20 5B 4F 4B 5D...
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [CLICKER] Sending //pick clear to DLL
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PICKUP] SetParam: susp_zen_pick=0
+[2026-03-25 22:06:21] [CLICKER] Sending custom pick command: //pick 14 51
+[2026-03-25 22:06:21] [DEBUG] Command //set_stealth_opt: opt=susp_zen_pick value=off
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [CLICKER] SetAdvancedAutopickOptions: all pickup options sent
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [CLICKER] Sending //autopick on to DLL
+[2026-03-25 22:06:21] [PICKUP] SetParam: susp_move_pick=0
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [DEBUG] Command //set_stealth_opt: opt=susp_move_pick value=off
+[2026-03-25 22:06:21] [CLICKER] Sending //pickclass 5 to DLL
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:21] [CLICKER] Auto run mode enabled (boots level detection)
+[2026-03-25 22:06:21] [PICKUP] SetParam: susp_pick=0
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [DEBUG] Command //set_stealth_opt: opt=susp_pick value=off
+[2026-03-25 22:06:21] [CLICKER] Sending //pdist 3 to DLL
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [CLICKER] Pick-up run mode enabled
+[2026-03-25 22:06:21] [PICKUP] SetParam: bless flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=bless pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [CLICKER] Pick-up debug logging enabled
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [CLICKER] === AVANTA+ELITE mode active features ===
+[2026-03-25 22:06:21] [PICKUP] SetParam: soul flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [CLICKER]   AVANTA: AutoPick(SPACE)=off AutoHeal=ON AutoRepair=ON AutoReqOff=off
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=soul pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [CLICKER]   ELITE:  AdvPick(DLL)=ON Exit400=off AntiAFK=0x0 PickRun=ON Class=5
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [CLICKER] === Auto-clicker initialization complete ===
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [CLICKER] Attack: right-click at (400,256)
+[2026-03-25 22:06:21] [PICKUP] SetParam: chaos flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=chaos pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PICKUP] SetParam: jol flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=jol pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PICKUP] SetParam: joc flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=joc pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PICKUP] SetParam: jog flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=jog pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:21] [PICKUP] SetParam: exl flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:21] [PICKUP] Command //set_pick_opt: item=exl pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: zen flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:22] [PICKUP] Command //set_pick_opt: item=zen pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: custom flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-25 22:06:22] [PICKUP] Command //set_pick_opt: item=custom pick=on moveTo=on (flags=0x03)
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: pick list cleared (was 0 items)
+[2026-03-25 22:06:22] [PICKUP] Command //pick clear: pick list cleared
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=36 | C1 24 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 63 6C 65 61 72 20 5B 4F 4B 5D 2E...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 31 34 20 35 31 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 31 34 20 35 31 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: pick item code=0x0E33 mask=0xFFFF (total pick items=1)
+[2026-03-25 22:06:22] [PICKUP] Command //pick: code=0x0E33 mask=0xFFFF (args: 14 51 )
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=36 | C1 24 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 31 34 20 35 31 20 5B 4F 4B 5D 2E...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: autopick ENABLED (m_fEnabled=1)
+[2026-03-25 22:06:22] [PICKUP] Command //autopick: on (fCmd=1)
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 6E 20 5B 4F 4B 5D...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: charclass=5
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=53 | C1 35 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 63 68 61 72 20 63 6C 61...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: autorunmode=1
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=50 | C1 32 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 61 75 74 6F 20 72 75 6E...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 33 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 33 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: pdist=3
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=51 | C1 33 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 69 73 74 61 6E 63 65...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: pickrunmode=1
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=45 | C1 2D 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 72 75 6E 20 6D 6F 64 65...
+[2026-03-25 22:06:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
+[2026-03-25 22:06:22] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
+[2026-03-25 22:06:22] [PICKUP] SetParam: pickdebug=1
+[2026-03-25 22:06:22] [PACKET] DIRECT>CLIENT | Server message | Len=47 | C1 2F 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
+[2026-03-25 22:06:22] [CLICKER] Attack: right-click at (400,256)
+[2026-03-25 22:06:23] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:23] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:23] [KEYDBG] [F5] KEYUP -> OK: Toggle AutoClicker Start/Stop | Clicker is RUNNING -> Sending WM_STOP_CLICKER
+[2026-03-25 22:06:23] [CLICKER] Clicker stop requested
+[2026-03-25 22:06:23] [CLICKER] === Auto-clicker stopping ===
+[2026-03-25 22:06:23] [CLICKER] Advanced auto-pickup disabled
+[2026-03-25 22:06:23] [CLICKER] Sending //pickdebug off and //autopick off to DLL
+[2026-03-25 22:06:23] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:23] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-25 22:06:23] [CLICKER] Debug mode remains active in DLL after clicker stop
+[2026-03-25 22:06:23] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
+[2026-03-25 22:06:23] [PACKET] CLIENT -> SERVER | Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
+[2026-03-25 22:06:23] [PICKUP] SetParam: pickdebug=0
+[2026-03-25 22:06:23] [PACKET] DIRECT>CLIENT | Server message | Len=48 | C1 30 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
+[2026-03-25 22:06:23] [CLICKER] === Auto-clicker stopped ===
+[2026-03-25 22:06:23] [GAMEDBG] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:23] [PACKET] CLIENT -> SERVER | Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-25 22:06:23] [PICKUP] SetParam: autopick DISABLED (m_fEnabled=0)
+[2026-03-25 22:06:23] [PICKUP] Command //autopick: off (fCmd=0)
+[2026-03-25 22:06:23] [PACKET] DIRECT>CLIENT | Server message | Len=38 | C1 26 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 66 66 20 5B 4F 4B...
+[2026-03-25 22:06:23] [CLICKER] Clicker stopped
+[2026-03-25 22:06:25] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
+[2026-03-25 22:06:25] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:25] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:25] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=NO | ClickerRunning=NO
+[2026-03-25 22:06:25] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
+[2026-03-25 22:06:25] [KEYDBG] >>> OnShowSettingsGUI: DEFERRED - overlay not initialized yet (will open after first EndScene)
+[2026-03-25 22:06:46] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 4A 00 00 00 0C 0D 1E 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 BE 
+[2026-03-25 22:06:46] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 4A 00 00 00 0C 0D 1E 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 BE 
+[2026-03-25 22:06:58] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
+[2026-03-25 22:06:58] [KEYDBG] Timer: Shift+F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:58] [KEYDBG] Timer: Shift+F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:06:58] [KEYDBG] [Shift+F9] KEYUP -> OK: Show History / Pickup Log (Shift+F9) | Sending WM_SHOW_HISTORY | OverlayActive=NO
+[2026-03-25 22:06:58] [KEYDBG] >>> OnShowHistory: Received WM_SHOW_HISTORY (Shift+F9) | OverlayInitialized=NO | HistoryVisible=NO
+[2026-03-25 22:06:58] [KEYDBG] >>> OnShowHistory: DEFERRED - overlay not initialized yet (will open after first EndScene)
+[2026-03-25 22:07:03] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
+[2026-03-25 22:07:03] [KEYDBG] Timer: Shift+F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:07:03] [KEYDBG] Timer: Shift+F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:07:04] [KEYDBG] [Shift+F9] KEYUP -> OK: Show History / Pickup Log (Shift+F9) | Sending WM_SHOW_HISTORY | OverlayActive=NO
+[2026-03-25 22:07:04] [KEYDBG] >>> OnShowHistory: Received WM_SHOW_HISTORY (Shift+F9) | OverlayInitialized=NO | HistoryVisible=NO
+[2026-03-25 22:07:04] [KEYDBG] >>> OnShowHistory: DEFERRED - overlay not initialized yet (will open after first EndScene)
+[2026-03-25 22:07:04] [KEYDBG] WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)
+[2026-03-25 22:07:04] [KEYDBG] Timer: F9 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:07:04] [KEYDBG] Timer: F9 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-25 22:07:04] [KEYDBG] [F9] KEYUP -> OK: Show Settings GUI (F9) | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=NO | ClickerRunning=NO
+[2026-03-25 22:07:04] [KEYDBG] >>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=NO | OverlayInitialized=NO | SettingsVisible=NO
+[2026-03-25 22:07:04] [KEYDBG] >>> OnShowSettingsGUI: DEFERRED - overlay not initialized yet (will open after first EndScene)
+[2026-03-25 22:07:07] [GAMEDBG] Disconnected from server.
+[2026-03-25 22:07:07] [GAMEDBG] [DLL] DLL_PROCESS_DETACH - game process unloading DLL.
+[2026-03-25 22:07:07] [HOOK] DLL_PROCESS_DETACH - main.exe unloading LordOfMU DLL, removing hooks
+[2026-03-25 22:07:07] [GAMEDBG] === LordOfMU DLL shutting down (OnExit) ===
+[2026-03-25 22:07:07] [DEBUG] LordOfMU DLL shutting down (OnExit)
+[2026-03-25 22:07:07] [HOOK] DLL shutdown initiated - starting hook removal from main.exe
+[2026-03-25 22:07:07] [DEBUG] Debug mode handler uninstalled
+[2026-03-25 22:07:07] [HOOK] Crash handler uninstalled
+[2026-03-25 22:07:07] [GAMEDBG] [HOOK_CLEANUP] Cleaning up DLL hooks from main.exe process...
+[2026-03-25 22:07:07] [HOOK] Starting DLL hook cleanup from main.exe process
+[2026-03-25 22:07:07] [HOOK] Proxifier cleanup started - removing hooks
+[2026-03-25 22:07:07] [HOOK] Proxifier cleanup complete - all hooks removed
+[2026-03-25 22:07:07] [GAMEDBG] [HOOK_CLEANUP] DLL hook cleanup complete. All hooks removed.
+[2026-03-25 22:07:07] [HOOK] DLL hook cleanup complete - all hooks removed, g_lHookApplied reset to 0
+[2026-03-25 22:07:07] [GAMEDBG] === LordOfMU DLL cleanup complete ===
+[2026-03-25 22:07:07] [DEBUG] LordOfMU DLL cleanup complete - all resources released
