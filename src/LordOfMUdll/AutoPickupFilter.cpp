@@ -23,6 +23,22 @@ static int g_nHistoryHead = 0; // circular buffer write position
 static CRITICAL_SECTION g_csHistory;
 static BOOL g_bHistoryInit = FALSE;
 
+// ---- Session Statistics (global, thread-safe via g_csHistory) ----
+
+// Key names used in GetSessionStats text format (must match consumer in MuWindow.cpp)
+static const char* STAT_KEY_KILLS   = "kills";
+static const char* STAT_KEY_ITEMS   = "items";
+static const char* STAT_KEY_ZEN     = "zen";
+static const char* STAT_KEY_EXP     = "exp";
+static const char* STAT_KEY_RUNTIME = "runtime";
+
+static int g_nSessionKillCount = 0;
+static int g_nSessionItemCount = 0;
+static unsigned __int64 g_ullSessionZenTotal = 0;
+static unsigned __int64 g_ullSessionExpGained = 0;
+static DWORD g_dwSessionStartTick = 0;
+static BOOL g_bSessionActive = FALSE;
+
 static void InitHistoryCS()
 {
 	if (!g_bHistoryInit)
@@ -98,6 +114,74 @@ extern "C" __declspec(dllexport) int GetPickupHistory(char* pszBuffer, int nBufS
 	LeaveCriticalSection(&g_csHistory);
 	return nWritten;
 }
+
+
+/**
+ * \brief Exported function: returns session statistics as a text buffer.
+ *        Format: "kills=NNN\nitems=NNN\nzen=NNN\nexp=NNN\nruntime=NNN\n"
+ *        runtime is in seconds since session start.
+ */
+extern "C" __declspec(dllexport) int GetSessionStats(char* pszBuffer, int nBufSize)
+{
+	if (!pszBuffer || nBufSize <= 0)
+		return 0;
+
+	InitHistoryCS();
+	EnterCriticalSection(&g_csHistory);
+
+	DWORD dwRuntime = 0;
+	if (g_bSessionActive && g_dwSessionStartTick != 0)
+		dwRuntime = (GetTickCount() - g_dwSessionStartTick) / 1000;
+
+	_snprintf(pszBuffer, nBufSize - 1,
+		"%s=%d\n%s=%d\n%s=%I64u\n%s=%I64u\n%s=%lu\n",
+		STAT_KEY_KILLS, g_nSessionKillCount,
+		STAT_KEY_ITEMS, g_nSessionItemCount,
+		STAT_KEY_ZEN, g_ullSessionZenTotal,
+		STAT_KEY_EXP, g_ullSessionExpGained,
+		STAT_KEY_RUNTIME, (unsigned long)dwRuntime);
+	pszBuffer[nBufSize - 1] = '\0';
+
+	LeaveCriticalSection(&g_csHistory);
+	return 1;
+}
+
+
+/**
+ * \brief Exported function: resets session statistics and pickup history.
+ *        Called when the autoclicker starts a new session.
+ */
+extern "C" __declspec(dllexport) void ResetSessionStats()
+{
+	InitHistoryCS();
+	EnterCriticalSection(&g_csHistory);
+
+	g_nSessionKillCount = 0;
+	g_nSessionItemCount = 0;
+	g_ullSessionZenTotal = 0;
+	g_ullSessionExpGained = 0;
+	g_dwSessionStartTick = GetTickCount();
+	g_bSessionActive = TRUE;
+
+	// Also clear pickup history for the new session
+	g_nHistoryCount = 0;
+	g_nHistoryHead = 0;
+
+	LeaveCriticalSection(&g_csHistory);
+}
+
+
+/**
+ * \brief Exported function: marks the session as stopped (runtime freezes).
+ */
+extern "C" __declspec(dllexport) void StopSession()
+{
+	InitHistoryCS();
+	EnterCriticalSection(&g_csHistory);
+	g_bSessionActive = FALSE;
+	LeaveCriticalSection(&g_csHistory);
+}
+
 
 /**
  * \brief 
@@ -422,6 +506,12 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 				// Record to pickup history for the History dialog
 				AddPickupHistoryEntry(pszName);
+
+				// Increment session item count (only non-Zen items)
+				InitHistoryCS();
+				EnterCriticalSection(&g_csHistory);
+				g_nSessionItemCount++;
+				LeaveCriticalSection(&g_csHistory);
 			}
 
 			std::map<WORD, WORD>::iterator it = m_vDropList.find(wType);
@@ -460,10 +550,29 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			char szHistory[64];
 			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory);
+
+			// Accumulate session zen total
+			InitHistoryCS();
+			EnterCriticalSection(&g_csHistory);
+			g_ullSessionZenTotal += (unsigned __int64)dwDelta;
+			LeaveCriticalSection(&g_csHistory);
 		}
 
 		m_dwLastZen = dwNewZen;
 		m_fZenTracked = true;
+	}
+	else if (pkt == CKillExpPacket::Type())
+	{
+		// Track kills and experience gained for session statistics.
+		// CKillExpPacket (C1:16) is sent when the player kills a monster.
+		CKillExpPacket& pktKill = (CKillExpPacket&)pkt;
+		DWORD dwExp = pktKill.GetExperience();
+
+		InitHistoryCS();
+		EnterCriticalSection(&g_csHistory);
+		g_nSessionKillCount++;
+		g_ullSessionExpGained += (unsigned __int64)dwExp;
+		LeaveCriticalSection(&g_csHistory);
 	}
 	else if (m_fDisplayCode && pkt == CMoveToInventoryPacket::Type())
 	{

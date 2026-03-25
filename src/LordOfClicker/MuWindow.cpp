@@ -664,6 +664,10 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 		{
 			m_fBlockInput = (fNoMouseMove == 0);
 			m_cOverlay.SetClickerRunning(true);
+
+			// Reset session statistics for this new clicker run
+			ResetSessionStatsCall();
+
 			WriteClickerLog("Clicker started");
 		}
 		else
@@ -710,6 +714,10 @@ LRESULT CMuWindow::OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&)
 
 	// m_cHUDButtons.SetClickerRunning(FALSE);
 	m_cOverlay.SetClickerRunning(false);
+
+	// Mark session as stopped (runtime freezes)
+	StopSessionCall();
+
 	WriteClickerLog("Clicker stopped");
 
 	m_fBlockInput = FALSE;
@@ -1534,8 +1542,9 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
  */
 LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// Query and set history data
+	// Query and set history data + session stats
 	QueryPickupHistory();
+	QuerySessionStats();
 
 	// Toggle history overlay in ImGui
 	m_cOverlay.ToggleHistory();
@@ -1728,4 +1737,185 @@ void CMuWindow::QueryPickupHistory()
 	}
 
 	m_cOverlay.SetHistory(vHistory);
+}
+
+
+// ============================================================================
+// Session statistics helpers
+// ============================================================================
+
+/**
+ * \brief Queries session statistics from LordOfMU.dll and passes them
+ *        to the ImGui overlay for the Kill Count tab.
+ */
+void CMuWindow::QuerySessionStats()
+{
+	typedef int (*GetSessionStatsPtr)(char*, int);
+	static GetSessionStatsPtr s_pfnGetStats = NULL;
+	static bool s_bLookupDone = false;
+
+	if (!s_bLookupDone)
+	{
+		HMODULE hMod = NULL;
+
+		char szEnvBuf[32] = {0};
+		if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+		{
+			hMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+			if (hMod && !GetProcAddress(hMod, "GetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (!hMod && m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			if (hMod && !GetProcAddress(hMod, "GetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (!hMod)
+		{
+			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+			if (hMod && !GetProcAddress(hMod, "GetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (hMod)
+			s_pfnGetStats = (GetSessionStatsPtr)GetProcAddress(hMod, "GetSessionStats");
+
+		s_bLookupDone = true;
+	}
+
+	CImGuiOverlay::SessionStats stats;
+	memset(&stats, 0, sizeof(stats));
+
+	if (s_pfnGetStats)
+	{
+		char szBuffer[512] = {0};
+		s_pfnGetStats(szBuffer, sizeof(szBuffer));
+
+		// Parse "key=value\n" lines
+		char* pLine = szBuffer;
+		while (pLine && *pLine)
+		{
+			char* pEnd = strchr(pLine, '\n');
+			if (pEnd) *pEnd = '\0';
+
+			char* pEq = strchr(pLine, '=');
+			if (pEq)
+			{
+				*pEq = '\0';
+				const char* pKey = pLine;
+				const char* pVal = pEq + 1;
+
+				if (_stricmp(pKey, "kills") == 0)
+					stats.nKillCount = atoi(pVal);
+				else if (_stricmp(pKey, "items") == 0)
+					stats.nItemCount = atoi(pVal);
+				else if (_stricmp(pKey, "zen") == 0)
+					stats.ullZenTotal = _strtoui64(pVal, NULL, 10);
+				else if (_stricmp(pKey, "exp") == 0)
+					stats.ullExpGained = _strtoui64(pVal, NULL, 10);
+				else if (_stricmp(pKey, "runtime") == 0)
+					stats.ulRuntimeSeconds = strtoul(pVal, NULL, 10);
+			}
+
+			if (!pEnd) break;
+			pLine = pEnd + 1;
+		}
+	}
+
+	m_cOverlay.SetSessionStats(stats);
+}
+
+
+/**
+ * \brief Calls ResetSessionStats in LordOfMU.dll to start a new session.
+ */
+void CMuWindow::ResetSessionStatsCall()
+{
+	typedef void (*ResetSessionStatsPtr)();
+	static ResetSessionStatsPtr s_pfn = NULL;
+	static bool s_bDone = false;
+
+	if (!s_bDone)
+	{
+		HMODULE hMod = NULL;
+
+		char szEnvBuf[32] = {0};
+		if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+		{
+			hMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+			if (hMod && !GetProcAddress(hMod, "ResetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (!hMod && m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			if (hMod && !GetProcAddress(hMod, "ResetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (!hMod)
+		{
+			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+			if (hMod && !GetProcAddress(hMod, "ResetSessionStats"))
+				hMod = NULL;
+		}
+
+		if (hMod)
+			s_pfn = (ResetSessionStatsPtr)GetProcAddress(hMod, "ResetSessionStats");
+
+		s_bDone = true;
+	}
+
+	if (s_pfn)
+		s_pfn();
+}
+
+
+/**
+ * \brief Calls StopSession in LordOfMU.dll to freeze runtime counter.
+ */
+void CMuWindow::StopSessionCall()
+{
+	typedef void (*StopSessionPtr)();
+	static StopSessionPtr s_pfn = NULL;
+	static bool s_bDone = false;
+
+	if (!s_bDone)
+	{
+		HMODULE hMod = NULL;
+
+		char szEnvBuf[32] = {0};
+		if (GetEnvironmentVariableA("__LordOfMU_HMODULE__", szEnvBuf, sizeof(szEnvBuf)) > 0)
+		{
+			hMod = (HMODULE)(ULONG_PTR)_strtoui64(szEnvBuf, NULL, 16);
+			if (hMod && !GetProcAddress(hMod, "StopSession"))
+				hMod = NULL;
+		}
+
+		if (!hMod && m_hWnd)
+		{
+			hMod = (HMODULE)GetProp(m_hWnd, _T("__LordOfMU_Module__"));
+			if (hMod && !GetProcAddress(hMod, "StopSession"))
+				hMod = NULL;
+		}
+
+		if (!hMod)
+		{
+			hMod = GetModuleHandle(_T("LordOfMU.dll"));
+			if (hMod && !GetProcAddress(hMod, "StopSession"))
+				hMod = NULL;
+		}
+
+		if (hMod)
+			s_pfn = (StopSessionPtr)GetProcAddress(hMod, "StopSession");
+
+		s_bDone = true;
+	}
+
+	if (s_pfn)
+		s_pfn();
 }
