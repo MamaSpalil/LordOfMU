@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ImGuiOverlay.h"
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx9.h"
+#include "imgui/imgui_impl_opengl2.h"
 #include "imgui/imgui_impl_win32.h"
 #include "version.h"
 #include <cstdio>
@@ -62,7 +62,7 @@ CImGuiOverlay::~CImGuiOverlay()
 // Lifecycle
 // ============================================================================
 
-bool CImGuiOverlay::Initialize(HWND hwndGame, IDirect3DDevice9* pDevice)
+bool CImGuiOverlay::Initialize(HWND hwndGame)
 {
 	if (m_bInitialized)
 		return true;
@@ -83,7 +83,7 @@ bool CImGuiOverlay::Initialize(HWND hwndGame, IDirect3DDevice9* pDevice)
 
 	// Initialize platform + renderer backends.
 	ImGui_ImplWin32_Init(hwndGame);
-	ImGui_ImplDX9_Init(pDevice);
+	ImGui_ImplOpenGL2_Init();
 
 	m_bInitialized = true;
 	return true;
@@ -94,36 +94,20 @@ void CImGuiOverlay::Shutdown()
 	if (!m_bInitialized)
 		return;
 
-	ImGui_ImplDX9_Shutdown();
+	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
 	m_bInitialized = false;
 }
 
-void CImGuiOverlay::OnPreReset()
-{
-	if (m_bInitialized)
-		ImGui_ImplDX9_InvalidateDeviceObjects();
-}
-
-void CImGuiOverlay::OnPostReset(HRESULT hr)
-{
-	if (m_bInitialized && SUCCEEDED(hr))
-		ImGui_ImplDX9_CreateDeviceObjects();
-}
-
-// ============================================================================
-// Render  (called from EndScene hook)
-// ============================================================================
-
-void CImGuiOverlay::Render(IDirect3DDevice9* pDevice)
+void CImGuiOverlay::Render()
 {
 	if (!m_bInitialized)
 		return;
 
 	// Start the ImGui frame.
-	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplOpenGL2_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
@@ -141,7 +125,7 @@ void CImGuiOverlay::Render(IDirect3DDevice9* pDevice)
 	// Finalize and submit draw data.
 	ImGui::EndFrame();
 	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 }
 
 // ============================================================================

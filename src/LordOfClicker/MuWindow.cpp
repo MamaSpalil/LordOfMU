@@ -128,10 +128,11 @@ void CMuWindow::Term()
 	GetForegroundWindowTr.UnPatch();
 	GetActiveWindowTr.UnPatch();
 
-	// Shut down ImGui overlay and D3D9 hook
+	// Shut down ImGui overlay and rendering hooks
 	if (s_pInstance != NULL)
 	{
 		s_pInstance->m_cOverlay.Shutdown();
+		OpenGLHook::Uninstall();
 		D3D9Hook::Uninstall();
 
 		delete s_pInstance;
@@ -216,19 +217,18 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	}
 
 	// -----------------------------------------------------------------------
-	// D3D9 EndScene hook + ImGui overlay.
-	// All UI (HUD buttons, settings dialog, history dialog) is now rendered
-	// directly inside the game's Direct3D 9 EndScene call via Dear ImGui.
+	// OpenGL SwapBuffers hook + ImGui overlay.
+	// The game (MU Online) uses OpenGL for rendering, so we hook the GDI32
+	// SwapBuffers function to intercept the frame boundary and render our
+	// ImGui overlay inside the game's OpenGL context.
 	// No popup windows, no focus/activation/capture conflicts.
-	// Works in both windowed and fullscreen (exclusive) display modes.
+	// Works in both windowed and fullscreen display modes.
 	// -----------------------------------------------------------------------
 	const char* szDisplayMode = m_fWindow ? "Windowed" : "Fullscreen";
 
-	if (D3D9Hook::Install(m_hWnd))
+	if (OpenGLHook::Install())
 	{
-		D3D9Hook::SetOnEndScene(OnEndSceneCallback);
-		D3D9Hook::SetOnPreReset(OnPreResetCallback);
-		D3D9Hook::SetOnPostReset(OnPostResetCallback);
+		OpenGLHook::SetOnSwapBuffers(OnSwapBuffersCallback);
 
 		// Configure overlay callbacks so HUD button presses route to CMuWindow.
 		m_cOverlay.SetSettings(&m_cSettingsDlg.GetSettingsObj());
@@ -237,12 +237,12 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 		m_cOverlay.SetOnHistoryClicked(OnOverlayHistoryClicked, this);
 		m_cOverlay.SetOnSettingsApply(OnOverlayApplyClicked, this);
 
-		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook installed, ImGui overlay ready (DisplayMode=%s, hWnd=0x%p)",
+		WriteClickerLogFmt("GLHOOK", "OpenGL SwapBuffers hook installed, ImGui overlay ready (DisplayMode=%s, hWnd=0x%p)",
 			szDisplayMode, m_hWnd);
 	}
 	else
 	{
-		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook FAILED - overlay disabled (DisplayMode=%s, hWnd=0x%p)",
+		WriteClickerLogFmt("GLHOOK", "OpenGL SwapBuffers hook FAILED - overlay disabled (DisplayMode=%s, hWnd=0x%p)",
 			szDisplayMode, m_hWnd);
 	}
 
@@ -703,8 +703,9 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cLaunchMuDlg.m_hWnd))
 		m_cLaunchMuDlg.DestroyWindow();
 
-	// Shut down ImGui overlay and D3D9 hook
+	// Shut down ImGui overlay and rendering hooks
 	m_cOverlay.Shutdown();
+	OpenGLHook::Uninstall();
 	D3D9Hook::Uninstall();
 
 	// Stop autoclicker first
@@ -773,20 +774,15 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		MessageBeep(MB_ICONINFORMATION);
 	}
 
-	// Safety net: if the overlay has not been lazily initialized yet but the
-	// D3D9 hook has already captured the game device, force-initialize now so
-	// the window becomes visible immediately instead of waiting for the next
-	// EndScene callback (which may never arrive if the vtable hook missed the
-	// game's actual device).
+	// Safety net: if the overlay has not been lazily initialized yet,
+	// force-initialize now.  The OpenGL overlay does not require a device
+	// pointer (it uses the current GL context), so we can always initialize
+	// using just the HWND.
 	if (!m_cOverlay.IsInitialized())
 	{
-		IDirect3DDevice9* pDev = D3D9Hook::GetDevice();
-		if (pDev)
-		{
-			WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Overlay not initialized but device available (0x%p) -> force-initializing",
-				pDev);
-			m_cOverlay.Initialize(m_hWnd, pDev);
-		}
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Overlay not initialized -> force-initializing with HWND 0x%p",
+			m_hWnd);
+		m_cOverlay.Initialize(m_hWnd);
 	}
 
 	// Toggle settings overlay in ImGui.
@@ -1805,17 +1801,14 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	QueryPickupHistory();
 	QuerySessionStats();
 
-	// Safety net: if the overlay has not been lazily initialized yet but the
-	// D3D9 hook has already captured the game device, force-initialize now.
+	// Safety net: if the overlay has not been lazily initialized yet,
+	// force-initialize now.  The OpenGL overlay does not require a device
+	// pointer, so we can always initialize using just the HWND.
 	if (!m_cOverlay.IsInitialized())
 	{
-		IDirect3DDevice9* pDev = D3D9Hook::GetDevice();
-		if (pDev)
-		{
-			WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Overlay not initialized but device available (0x%p) -> force-initializing",
-				pDev);
-			m_cOverlay.Initialize(m_hWnd, pDev);
-		}
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Overlay not initialized -> force-initializing with HWND 0x%p",
+			m_hWnd);
+		m_cOverlay.Initialize(m_hWnd);
 	}
 
 	// Toggle history overlay in ImGui.
@@ -1861,16 +1854,20 @@ LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
 // D3D9 EndScene/Reset callbacks  (static, called from D3D9Hook)
 // ============================================================================
 
-void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
+// ============================================================================
+// OpenGL SwapBuffers callback  (static, called from OpenGLHook)
+// ============================================================================
+
+void CMuWindow::OnSwapBuffersCallback(HDC hdc)
 {
 	CMuWindow* pThis = s_pInstance;
 	if (!pThis)
 		return;
 
-	// Lazy-initialize ImGui on the first EndScene call (the device is now valid).
+	// Lazy-initialize ImGui on the first SwapBuffers call.
 	if (!pThis->m_cOverlay.IsInitialized())
 	{
-		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd, pDevice))
+		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd))
 			return;
 
 		// Sync m_fGuiActive with overlay state.  The user may have pressed
@@ -1880,27 +1877,36 @@ void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
 		pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
 		if (pThis->m_fGuiActive)
 		{
-			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Overlay initialized with show flags already set (Settings=%s, History=%s) - rendering begins now",
+			WriteClickerLogFmt("KEYDBG", ">>> OnSwapBuffersCallback: Overlay initialized with show flags already set (Settings=%s, History=%s) - rendering begins now",
 				pThis->m_cOverlay.IsSettingsVisible() ? "YES" : "NO",
 				pThis->m_cOverlay.IsHistoryVisible() ? "YES" : "NO");
 		}
 	}
 
-	pThis->m_cOverlay.Render(pDevice);
+	pThis->m_cOverlay.Render();
+}
+
+
+// ============================================================================
+// Legacy D3D9 EndScene/Reset callbacks  (kept for potential fallback)
+// ============================================================================
+
+void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
+{
+	// Legacy D3D9 path — no longer used as primary renderer.
+	// The game uses OpenGL; rendering is done via OnSwapBuffersCallback.
+	(void)pDevice;
 }
 
 void CMuWindow::OnPreResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS*)
 {
-	CMuWindow* pThis = s_pInstance;
-	if (pThis)
-		pThis->m_cOverlay.OnPreReset();
+	(void)pDevice;
 }
 
 void CMuWindow::OnPostResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS*, HRESULT hr)
 {
-	CMuWindow* pThis = s_pInstance;
-	if (pThis)
-		pThis->m_cOverlay.OnPostReset(hr);
+	(void)pDevice;
+	(void)hr;
 }
 
 

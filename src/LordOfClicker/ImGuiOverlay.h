@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Settings.h"
-#include <d3d9.h>
+#include <windows.h>
 #include <vector>
 #include <string>
 
@@ -27,13 +27,12 @@ public:
 	~CImGuiOverlay();
 
 	// ----- Lifecycle -----
-	bool Initialize(HWND hwndGame, IDirect3DDevice9* pDevice);
+	bool Initialize(HWND hwndGame);
 	void Shutdown();
-	void OnPreReset();
-	void OnPostReset(HRESULT hr);
 
-	/// Call once per frame from the EndScene hook to render the overlay.
-	void Render(IDirect3DDevice9* pDevice);
+	/// Call once per frame from the SwapBuffers hook to render the overlay.
+	/// The OpenGL context must be current when calling this.
+	void Render();
 
 	/// Forward WndProc messages so ImGui can handle mouse/keyboard.
 	/// Returns TRUE if ImGui consumed the message (game should ignore it).
