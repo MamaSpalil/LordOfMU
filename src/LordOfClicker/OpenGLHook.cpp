@@ -24,8 +24,8 @@ namespace
 	BYTE*         g_pTrampoline      = NULL;
 
 	// Saved original bytes (for Uninstall).
-	BYTE          g_SavedBytes[HOOK_SIZE] = {};
 	static const int HOOK_SIZE       = 5;  // 5-byte JMP rel32
+	BYTE          g_SavedBytes[HOOK_SIZE] = {};
 
 	// User callback.
 	FnOnSwapBuffers g_pfnOnSwapBuffers = NULL;
