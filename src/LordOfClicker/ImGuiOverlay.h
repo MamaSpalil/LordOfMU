@@ -67,6 +67,17 @@ public:
 	};
 	void SetHistory(const std::vector<HistoryEntry>& vHistory);
 
+	// Session statistics
+	struct SessionStats
+	{
+		int nKillCount;
+		int nItemCount;
+		unsigned __int64 ullZenTotal;
+		unsigned __int64 ullExpGained;
+		unsigned long ulRuntimeSeconds;
+	};
+	void SetSessionStats(const SessionStats& stats);
+
 	// ----- Callbacks -----
 	/// These function pointers are called when HUD buttons are clicked.
 	typedef void (*FnCallback)(void* pUserData);
@@ -117,6 +128,13 @@ private:
 
 	// History data
 	std::vector<HistoryEntry> m_vHistory;
+
+	// Session statistics
+	SessionStats m_sessionStats;
+
+	// History dialog state
+	int m_nHistoryTab;     // 0 = Items, 1 = Kill Count
+	int m_nHistoryPage;    // current page (0-based) for Items tab
 
 	// Callbacks
 	FnCallback m_pfnOnSettings;   void* m_pSettingsData;

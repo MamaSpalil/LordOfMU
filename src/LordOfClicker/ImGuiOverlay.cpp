@@ -41,7 +41,10 @@ CImGuiOverlay::CImGuiOverlay()
 	, m_pfnOnHistory(NULL), m_pHistoryData(NULL)
 	, m_pfnOnApply(NULL), m_pApplyData(NULL)
 	, m_nSettingsTab(0)
+	, m_nHistoryTab(0)
+	, m_nHistoryPage(0)
 {
+	memset(&m_sessionStats, 0, sizeof(m_sessionStats));
 }
 
 CImGuiOverlay::~CImGuiOverlay()
@@ -198,6 +201,11 @@ void CImGuiOverlay::HideHistory()   { m_bShowHistory  = false; }
 void CImGuiOverlay::SetHistory(const std::vector<HistoryEntry>& vHistory)
 {
 	m_vHistory = vHistory;
+}
+
+void CImGuiOverlay::SetSessionStats(const SessionStats& stats)
+{
+	m_sessionStats = stats;
 }
 
 // ============================================================================
@@ -876,44 +884,211 @@ void CImGuiOverlay::RenderClassMagicGladiator()
 
 void CImGuiOverlay::RenderHistoryWindow()
 {
-	ImGui::SetNextWindowSize(ImVec2(380, 350), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(480, 420), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(120, 70), ImGuiCond_FirstUseEver);
 
 	bool bOpen = m_bShowHistory;
-	if (ImGui::Begin("Pickup History###History", &bOpen, ImGuiWindowFlags_NoSavedSettings))
+	if (ImGui::Begin("History Action###History", &bOpen, ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (m_vHistory.empty())
+		// Tab bar: Items | Kill Count
+		if (ImGui::BeginTabBar("##HistoryTabs"))
 		{
-			ImGui::TextDisabled("No items picked up yet.");
-		}
-		else
-		{
-			// Table header
-			if (ImGui::BeginTable("##HistoryTable", 2,
-				ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersInnerH |
-				ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit,
-				ImVec2(0, ImGui::GetContentRegionAvail().y - 30)))
+			if (ImGui::BeginTabItem("Items"))
 			{
-				ImGui::TableSetupColumn("Time",  ImGuiTableColumnFlags_WidthFixed, 70);
-				ImGui::TableSetupColumn("Item",  ImGuiTableColumnFlags_WidthStretch);
-				ImGui::TableSetupScrollFreeze(0, 1);
-				ImGui::TableHeadersRow();
+				m_nHistoryTab = 0;
 
-				// Render rows from newest to oldest.
-				for (int i = (int)m_vHistory.size() - 1; i >= 0; --i)
+				// ---- Zen summary at the top ----
 				{
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					ImGui::TextUnformatted(m_vHistory[i].sTime.c_str());
-					ImGui::TableNextColumn();
-					ImGui::TextUnformatted(m_vHistory[i].sItem.c_str());
+					// Format zen total with suffix (k, m, b)
+					char szZen[64];
+					if (m_sessionStats.ullZenTotal >= 1000000000ULL)
+						_snprintf(szZen, sizeof(szZen), "%.1fb", (double)m_sessionStats.ullZenTotal / 1000000000.0);
+					else if (m_sessionStats.ullZenTotal >= 1000000ULL)
+						_snprintf(szZen, sizeof(szZen), "%.1fm", (double)m_sessionStats.ullZenTotal / 1000000.0);
+					else if (m_sessionStats.ullZenTotal >= 1000ULL)
+						_snprintf(szZen, sizeof(szZen), "%.1fk", (double)m_sessionStats.ullZenTotal / 1000.0);
+					else
+						_snprintf(szZen, sizeof(szZen), "%I64u", m_sessionStats.ullZenTotal);
+					szZen[sizeof(szZen) - 1] = '\0';
+
+					// Right-align zen display
+					char szLabel[80];
+					_snprintf(szLabel, sizeof(szLabel), "Zen: %s", szZen);
+					szLabel[sizeof(szLabel) - 1] = '\0';
+					float textWidth = ImGui::CalcTextSize(szLabel).x;
+					ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textWidth - ImGui::GetStyle().WindowPadding.x);
+					ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", szLabel);
 				}
 
-				ImGui::EndTable();
+				ImGui::Separator();
+
+				// ---- Build filtered item list (exclude Zen entries) ----
+				// Items are displayed newest first
+				std::vector<int> vItemIndices;
+				for (int i = (int)m_vHistory.size() - 1; i >= 0; --i)
+				{
+					// Zen entries start with "Zen '"
+					if (m_vHistory[i].sItem.compare(0, 5, "Zen '") != 0)
+						vItemIndices.push_back(i);
+				}
+
+				int nTotalItems = (int)vItemIndices.size();
+				int nItemsPerPage = 10;
+				int nTotalPages = (nTotalItems + nItemsPerPage - 1) / nItemsPerPage;
+				if (nTotalPages < 1) nTotalPages = 1;
+				if (m_nHistoryPage >= nTotalPages) m_nHistoryPage = nTotalPages - 1;
+				if (m_nHistoryPage < 0) m_nHistoryPage = 0;
+
+				if (nTotalItems == 0)
+				{
+					ImGui::TextDisabled("No items picked up yet.");
+				}
+				else
+				{
+					// ---- Item table ----
+					if (ImGui::BeginTable("##ItemsTable", 1,
+						ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg,
+						ImVec2(0, ImGui::GetContentRegionAvail().y - 60)))
+					{
+						ImGui::TableSetupColumn("Items Obtained", ImGuiTableColumnFlags_WidthStretch);
+						ImGui::TableHeadersRow();
+
+						int nStart = m_nHistoryPage * nItemsPerPage;
+						int nEnd = nStart + nItemsPerPage;
+						if (nEnd > nTotalItems) nEnd = nTotalItems;
+
+						for (int i = nStart; i < nEnd; ++i)
+						{
+							int idx = vItemIndices[i];
+							ImGui::TableNextRow();
+							ImGui::TableNextColumn();
+							ImGui::TextUnformatted(m_vHistory[idx].sItem.c_str());
+
+							// Hover tooltip: show item name (image placeholder)
+							if (ImGui::IsItemHovered())
+							{
+								ImGui::BeginTooltip();
+								ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", m_vHistory[idx].sItem.c_str());
+								ImGui::TextDisabled("Time: %s", m_vHistory[idx].sTime.c_str());
+								ImGui::EndTooltip();
+							}
+						}
+
+						ImGui::EndTable();
+					}
+				}
+
+				// ---- Pagination ----
+				ImGui::Spacing();
+				{
+					float btnSize = 24.0f;
+					float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+					// Page number buttons
+					for (int p = 0; p < nTotalPages && p < 10; ++p)
+					{
+						if (p > 0) ImGui::SameLine(0, 2.0f);
+
+						char szPage[8];
+						_snprintf(szPage, sizeof(szPage), "%d", p + 1);
+						szPage[sizeof(szPage) - 1] = '\0';
+
+						bool bSelected = (p == m_nHistoryPage);
+						if (bSelected)
+							ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+
+						if (ImGui::Button(szPage, ImVec2(btnSize, 0)))
+							m_nHistoryPage = p;
+
+						if (bSelected)
+							ImGui::PopStyleColor();
+					}
+
+					// Prev / Next / Last buttons
+					ImGui::SameLine(0, spacing);
+					if (ImGui::Button("Prev"))
+					{
+						if (m_nHistoryPage > 0) m_nHistoryPage--;
+					}
+					ImGui::SameLine(0, 2.0f);
+					if (ImGui::Button("Next"))
+					{
+						if (m_nHistoryPage < nTotalPages - 1) m_nHistoryPage++;
+					}
+					ImGui::SameLine(0, 2.0f);
+					if (ImGui::Button("Last"))
+					{
+						m_nHistoryPage = nTotalPages - 1;
+					}
+				}
+
+				ImGui::EndTabItem();
 			}
+
+			if (ImGui::BeginTabItem("Kill Count"))
+			{
+				m_nHistoryTab = 1;
+				ImGui::Spacing();
+
+				// ---- Clicker Run Time ----
+				{
+					unsigned long sec = m_sessionStats.ulRuntimeSeconds;
+					unsigned long hrs = sec / 3600;
+					unsigned long mins = (sec % 3600) / 60;
+					unsigned long secs = sec % 60;
+
+					char szTime[64];
+					if (hrs > 0)
+						_snprintf(szTime, sizeof(szTime), "%luh %lum %lus", hrs, mins, secs);
+					else
+						_snprintf(szTime, sizeof(szTime), "%lum %lus", mins, secs);
+					szTime[sizeof(szTime) - 1] = '\0';
+
+					ImGui::Text("Clicker Run Time:");
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "%s", szTime);
+				}
+
+				ImGui::Spacing();
+				ImGui::Separator();
+				ImGui::Spacing();
+
+				// ---- Monster Killer ----
+				ImGui::Text("Monster Killer:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%d", m_sessionStats.nKillCount);
+
+				ImGui::Spacing();
+
+				// ---- Item Obtained ----
+				ImGui::Text("Item Obtained:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "%d", m_sessionStats.nItemCount);
+
+				ImGui::Spacing();
+
+				// ---- Exp Gained ----
+				ImGui::Text("Exp Gained:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%I64u", m_sessionStats.ullExpGained);
+
+				ImGui::Spacing();
+				ImGui::Separator();
+				ImGui::Spacing();
+
+				// ---- Zen Total ----
+				ImGui::Text("Zen Gained:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%I64u", m_sessionStats.ullZenTotal);
+
+				ImGui::EndTabItem();
+			}
+
+			ImGui::EndTabBar();
 		}
 
-		// Close button
+		// Close button at bottom
+		ImGui::Spacing();
 		float btnWidth = 80.0f;
 		ImGui::SetCursorPosX((ImGui::GetWindowWidth() - btnWidth) * 0.5f);
 		if (ImGui::Button("Close", ImVec2(btnWidth, 0)))

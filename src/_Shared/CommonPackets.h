@@ -1543,4 +1543,52 @@ public:
 };
 
 
+/**
+ * \brief Kill experience packet - sent when the player kills a monster.
+ *
+ * C1 [len] 16 [idH] [idL] [exp-4B] [dmg-4B]
+ *
+ * Contains the experience gained and the ID of the killed object.
+ * Matches PMSG_KILLPLAYER in the Client protocol.
+ */
+class CKillExpPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CKillExpPacket)
+		PACKET_PATT3(0xC1, 0x00, 0x16)
+		PACKET_MASK3(0xFF, 0x00, 0xFF)
+		PACKET_DESCR("Kill experience")
+	END_COMMON_PACKET_DECL()
+
+	WORD GetObjectId()
+	{
+		BYTE* p = AnyBuffer();
+		return p ? (((WORD)p[3] << 8) | (WORD)p[4]) : 0;
+	}
+
+	DWORD GetExperience()
+	{
+		BYTE* p = AnyBuffer();
+		if (!p) return 0;
+		int len = (int)p[1];
+		int bufLen = IsDecrypted() ? GetDecryptedLen() : GetPktLen();
+		if (len < 9 || bufLen < 9) return 0;
+		// Experience is stored as little-endian DWORD at offset 5
+		// (matches PMSG_KILLPLAYER struct layout in Client)
+		return (DWORD)p[5] | ((DWORD)p[6] << 8) | ((DWORD)p[7] << 16) | ((DWORD)p[8] << 24);
+	}
+
+	DWORD GetDamage()
+	{
+		BYTE* p = AnyBuffer();
+		if (!p) return 0;
+		int len = (int)p[1];
+		int bufLen = IsDecrypted() ? GetDecryptedLen() : GetPktLen();
+		if (len < 13 || bufLen < 13) return 0;
+		return (DWORD)p[9] | ((DWORD)p[10] << 8) | ((DWORD)p[11] << 16) | ((DWORD)p[12] << 24);
+	}
+};
+
+
 #endif //__CommonPackets_H

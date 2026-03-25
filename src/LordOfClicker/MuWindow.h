@@ -123,6 +123,11 @@ protected:
 	// History data query helper
 	void QueryPickupHistory();
 
+	// Session statistics helpers
+	void QuerySessionStats();
+	void ResetSessionStatsCall();
+	void StopSessionCall();
+
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
 	void LaunchMU();
