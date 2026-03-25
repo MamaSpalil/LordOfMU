@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Settings.h"
+#include "resource.h"
 #include <windows.h>
 #include <vector>
 #include <string>
@@ -27,7 +28,7 @@ public:
 	~CImGuiOverlay();
 
 	// ----- Lifecycle -----
-	bool Initialize(HWND hwndGame);
+	bool Initialize(HWND hwndGame, HINSTANCE hInstance = NULL);
 	void Shutdown();
 
 	/// Call once per frame from the SwapBuffers hook to render the overlay.
@@ -109,9 +110,20 @@ private:
 	// Style setup
 	void SetupMuThemeStyle();
 
+	// Cursor helpers — map ImGui cursor type to MU Online game cursor
+	void ApplyGameCursor();
+
 	// ----- State -----
 	bool m_bInitialized;
 	HWND m_hwndGame;
+	HINSTANCE m_hInstance;
+
+	// Custom MU Online game cursors
+	HCURSOR m_hNormalCursor;   // Arrow / default
+	HCURSOR m_hTextCursor;     // Text input (I-beam)
+	HCURSOR m_hLinkCursor;     // Hand / clickable (link select)
+	HCURSOR m_hBusyCursor;     // Busy / hourglass
+	HCURSOR m_hWibCursor;      // Resize / misc
 
 	// Visibility
 	bool m_bShowSettings;

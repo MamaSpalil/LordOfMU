@@ -36,6 +36,12 @@ static const int g_nClassCount = sizeof(g_szClassNames) / sizeof(g_szClassNames[
 CImGuiOverlay::CImGuiOverlay()
 	: m_bInitialized(false)
 	, m_hwndGame(NULL)
+	, m_hInstance(NULL)
+	, m_hNormalCursor(NULL)
+	, m_hTextCursor(NULL)
+	, m_hLinkCursor(NULL)
+	, m_hBusyCursor(NULL)
+	, m_hWibCursor(NULL)
 	, m_bShowSettings(false)
 	, m_bShowHistory(false)
 	, m_bClickerRunning(false)
@@ -62,12 +68,13 @@ CImGuiOverlay::~CImGuiOverlay()
 // Lifecycle
 // ============================================================================
 
-bool CImGuiOverlay::Initialize(HWND hwndGame)
+bool CImGuiOverlay::Initialize(HWND hwndGame, HINSTANCE hInstance)
 {
 	if (m_bInitialized)
 		return true;
 
 	m_hwndGame = hwndGame;
+	m_hInstance = hInstance;
 
 	// Create ImGui context.
 	IMGUI_CHECKVERSION();
@@ -77,6 +84,8 @@ bool CImGuiOverlay::Initialize(HWND hwndGame)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	// Disable automatic .ini saving — we don't need persistent layout.
 	io.IniFilename = NULL;
+	// Tell ImGui NOT to change the OS cursor itself — we handle it.
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 	// Apply dark-gold MU Online theme.
 	SetupMuThemeStyle();
@@ -84,6 +93,21 @@ bool CImGuiOverlay::Initialize(HWND hwndGame)
 	// Initialize platform + renderer backends.
 	ImGui_ImplWin32_Init(hwndGame);
 	ImGui_ImplOpenGL2_Init();
+
+	// Load MU Online game cursors from embedded resources.
+	if (hInstance != NULL)
+	{
+		m_hNormalCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_NORMAL_CURSOR),
+			IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+		m_hTextCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_TEXT_CURSOR),
+			IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+		m_hLinkCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_LINK_CURSOR),
+			IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+		m_hBusyCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_BUSY_CURSOR),
+			IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+		m_hWibCursor = (HCURSOR)LoadImage(hInstance, MAKEINTRESOURCE(IDC_WIB_CURSOR),
+			IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+	}
 
 	m_bInitialized = true;
 	return true;
@@ -97,6 +121,13 @@ void CImGuiOverlay::Shutdown()
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+
+	// Destroy loaded game cursors.
+	if (m_hNormalCursor) { DestroyCursor(m_hNormalCursor); m_hNormalCursor = NULL; }
+	if (m_hTextCursor)   { DestroyCursor(m_hTextCursor);   m_hTextCursor   = NULL; }
+	if (m_hLinkCursor)   { DestroyCursor(m_hLinkCursor);   m_hLinkCursor   = NULL; }
+	if (m_hBusyCursor)   { DestroyCursor(m_hBusyCursor);   m_hBusyCursor   = NULL; }
+	if (m_hWibCursor)    { DestroyCursor(m_hWibCursor);    m_hWibCursor    = NULL; }
 
 	m_bInitialized = false;
 }
@@ -140,6 +171,18 @@ BOOL CImGuiOverlay::WndProcHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 	// Let ImGui process the message.
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
 		return TRUE;
+
+	// Override OS cursor with MU Online game cursor when the overlay is
+	// capturing the mouse (HUD buttons or Settings/History windows open).
+	if (uMsg == WM_SETCURSOR && LOWORD(lParam) == HTCLIENT)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse)
+		{
+			ApplyGameCursor();
+			return TRUE;
+		}
+	}
 
 	// If ImGui wants mouse/keyboard, tell the caller to NOT pass the
 	// message to the game's WndProc.
@@ -196,6 +239,49 @@ void CImGuiOverlay::SetHistory(const std::vector<HistoryEntry>& vHistory)
 void CImGuiOverlay::SetSessionStats(const SessionStats& stats)
 {
 	m_sessionStats = stats;
+}
+
+// ============================================================================
+// Game Cursor Mapping
+// ============================================================================
+
+void CImGuiOverlay::ApplyGameCursor()
+{
+	// Map the current ImGui logical cursor to the matching MU Online game cursor.
+	// Falls back to Windows system cursors if the .cur resource was not loaded.
+	ImGuiMouseCursor imCur = ImGui::GetMouseCursor();
+
+	HCURSOR hCur = NULL;
+	switch (imCur)
+	{
+	case ImGuiMouseCursor_Arrow:
+		hCur = m_hNormalCursor;
+		break;
+	case ImGuiMouseCursor_TextInput:
+		hCur = m_hTextCursor;
+		break;
+	case ImGuiMouseCursor_Hand:
+		hCur = m_hLinkCursor;
+		break;
+	case ImGuiMouseCursor_ResizeAll:
+	case ImGuiMouseCursor_ResizeEW:
+	case ImGuiMouseCursor_ResizeNS:
+	case ImGuiMouseCursor_ResizeNESW:
+	case ImGuiMouseCursor_ResizeNWSE:
+		hCur = m_hWibCursor;
+		break;
+	case ImGuiMouseCursor_NotAllowed:
+		hCur = m_hBusyCursor;
+		break;
+	default:
+		hCur = m_hNormalCursor;
+		break;
+	}
+
+	if (hCur != NULL)
+		::SetCursor(hCur);
+	else
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 }
 
 // ============================================================================
@@ -296,19 +382,52 @@ void CImGuiOverlay::RenderHUD()
 		ImGuiWindowFlags_AlwaysAutoResize |
 		ImGuiWindowFlags_NoFocusOnAppearing;
 
-	// Semi-transparent background so game scene is visible behind.
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 4));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3, 0));
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.05f, 0.04f, 0.03f, 0.75f));
-	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.47f, 0.37f, 0.16f, 0.80f));
+	// Semi-transparent background matching MuHelper bar panel.
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(3, 3));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.06f, 0.05f, 0.03f, 0.80f));
+	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.47f, 0.39f, 0.16f, 0.85f));
 
 	if (ImGui::Begin("##HUD", NULL, flags))
 	{
-		ImVec2 btnSize(22, 22);
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		ImVec2 btnSize(24, 24);
 
-		// Settings button (gear icon: "S")
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.82f, 0.71f, 0.27f, 1.0f));
-		if (ImGui::Button("S##Settings", btnSize))
+		// === MuHelper-style button colors ===
+		// Dark metallic base with gold accents, matching MU Online S3E1.
+		ImVec4 clrBtnBg       = ImVec4(0.086f, 0.071f, 0.031f, 1.0f); // RGB(22,18,8)
+		ImVec4 clrBtnHover    = ImVec4(0.150f, 0.125f, 0.058f, 1.0f); // RGB(38,32,15)
+		ImVec4 clrBtnActive   = ImVec4(0.059f, 0.047f, 0.020f, 1.0f); // RGB(15,12,5)
+		ImVec4 clrBorder      = ImVec4(0.471f, 0.392f, 0.165f, 1.0f); // RGB(120,100,42) gold
+		ImVec4 clrBorderHover = ImVec4(0.863f, 0.745f, 0.314f, 1.0f); // RGB(220,190,80) bright gold
+
+		// ---- Settings Button (gear) ----
+		ImGui::PushStyleColor(ImGuiCol_Button, clrBtnBg);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, clrBtnHover);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, clrBtnActive);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.82f, 0.71f, 0.27f, 1.0f)); // gold text
+
+		ImVec2 posBeforeBtn = ImGui::GetCursorScreenPos();
+		bool bSettingsClicked = ImGui::Button("S##Settings", btnSize);
+
+		// Draw gold border around button (MuHelper style outer glow)
+		{
+			ImVec2 pMin = posBeforeBtn;
+			ImVec2 pMax = ImVec2(pMin.x + btnSize.x, pMin.y + btnSize.y);
+			bool bHov = ImGui::IsItemHovered();
+			ImU32 borderCol = bHov
+				? IM_COL32(220, 190, 80, 255)
+				: IM_COL32(120, 100, 42, 200);
+			dl->AddRect(pMin, pMax, borderCol, 3.0f, 0, 1.0f);
+			// Inner highlight on hover (specular top edge)
+			if (bHov)
+				dl->AddLine(ImVec2(pMin.x + 2, pMin.y + 1),
+				            ImVec2(pMax.x - 2, pMin.y + 1),
+				            IM_COL32(180, 155, 65, 160));
+		}
+
+		if (bSettingsClicked)
 		{
 			if (m_pfnOnSettings)
 				m_pfnOnSettings(m_pSettingsData);
@@ -316,40 +435,100 @@ void CImGuiOverlay::RenderHUD()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Settings (F9)");
 
+		ImGui::PopStyleColor(4);
 		ImGui::SameLine();
 
-		// Start / Stop button
+		// ---- Start / Stop Button ----
 		if (m_bClickerRunning)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.50f, 0.15f, 0.10f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.65f, 0.20f, 0.12f, 1.0f));
-			if (ImGui::Button("X##Stop", btnSize))
+			// Stop state — red-tinted metallic
+			ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.35f, 0.10f, 0.06f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered,  ImVec4(0.50f, 0.15f, 0.08f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive,   ImVec4(0.25f, 0.07f, 0.04f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text,           ImVec4(1.0f, 0.45f, 0.35f, 1.0f));
+
+			posBeforeBtn = ImGui::GetCursorScreenPos();
+			bool bStopClicked = ImGui::Button("X##Stop", btnSize);
+			{
+				ImVec2 pMin = posBeforeBtn;
+				ImVec2 pMax = ImVec2(pMin.x + btnSize.x, pMin.y + btnSize.y);
+				bool bHov = ImGui::IsItemHovered();
+				dl->AddRect(pMin, pMax,
+					bHov ? IM_COL32(220, 80, 60, 255) : IM_COL32(140, 50, 35, 200),
+					3.0f, 0, 1.0f);
+				if (bHov)
+					dl->AddLine(ImVec2(pMin.x + 2, pMin.y + 1),
+					            ImVec2(pMax.x - 2, pMin.y + 1),
+					            IM_COL32(200, 100, 80, 140));
+			}
+			if (bStopClicked)
 			{
 				if (m_pfnOnStartStop)
 					m_pfnOnStartStop(m_pStartStopData);
 			}
-			ImGui::PopStyleColor(2);
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("Stop Clicker (F5)");
+
+			ImGui::PopStyleColor(4);
 		}
 		else
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.10f, 0.35f, 0.10f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.15f, 0.50f, 0.15f, 1.0f));
-			if (ImGui::Button(">##Start", btnSize))
+			// Start state — green-tinted metallic
+			ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.06f, 0.22f, 0.06f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered,  ImVec4(0.10f, 0.35f, 0.10f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive,   ImVec4(0.04f, 0.15f, 0.04f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text,           ImVec4(0.45f, 0.90f, 0.35f, 1.0f));
+
+			posBeforeBtn = ImGui::GetCursorScreenPos();
+			bool bStartClicked = ImGui::Button(">##Start", btnSize);
+			{
+				ImVec2 pMin = posBeforeBtn;
+				ImVec2 pMax = ImVec2(pMin.x + btnSize.x, pMin.y + btnSize.y);
+				bool bHov = ImGui::IsItemHovered();
+				dl->AddRect(pMin, pMax,
+					bHov ? IM_COL32(80, 200, 60, 255) : IM_COL32(40, 120, 35, 200),
+					3.0f, 0, 1.0f);
+				if (bHov)
+					dl->AddLine(ImVec2(pMin.x + 2, pMin.y + 1),
+					            ImVec2(pMax.x - 2, pMin.y + 1),
+					            IM_COL32(100, 180, 80, 140));
+			}
+			if (bStartClicked)
 			{
 				if (m_pfnOnStartStop)
 					m_pfnOnStartStop(m_pStartStopData);
 			}
-			ImGui::PopStyleColor(2);
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("Start Clicker (F5)");
+
+			ImGui::PopStyleColor(4);
 		}
 
 		ImGui::SameLine();
 
-		// History button
-		if (ImGui::Button("H##History", btnSize))
+		// ---- History Button ----
+		ImGui::PushStyleColor(ImGuiCol_Button, clrBtnBg);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, clrBtnHover);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, clrBtnActive);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.82f, 0.71f, 0.27f, 1.0f));
+
+		posBeforeBtn = ImGui::GetCursorScreenPos();
+		bool bHistoryClicked = ImGui::Button("H##History", btnSize);
+		{
+			ImVec2 pMin = posBeforeBtn;
+			ImVec2 pMax = ImVec2(pMin.x + btnSize.x, pMin.y + btnSize.y);
+			bool bHov = ImGui::IsItemHovered();
+			ImU32 borderCol = bHov
+				? IM_COL32(220, 190, 80, 255)
+				: IM_COL32(120, 100, 42, 200);
+			dl->AddRect(pMin, pMax, borderCol, 3.0f, 0, 1.0f);
+			if (bHov)
+				dl->AddLine(ImVec2(pMin.x + 2, pMin.y + 1),
+				            ImVec2(pMax.x - 2, pMin.y + 1),
+				            IM_COL32(180, 155, 65, 160));
+		}
+
+		if (bHistoryClicked)
 		{
 			if (m_pfnOnHistory)
 				m_pfnOnHistory(m_pHistoryData);
@@ -357,12 +536,12 @@ void CImGuiOverlay::RenderHUD()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Pickup History (Shift+F9)");
 
-		ImGui::PopStyleColor(); // text color
+		ImGui::PopStyleColor(4);
 	}
 	ImGui::End();
 
 	ImGui::PopStyleColor(2); // WindowBg, Border
-	ImGui::PopStyleVar(2);   // Padding, Spacing
+	ImGui::PopStyleVar(3);   // Padding, Spacing, FrameRounding
 }
 
 // ============================================================================
