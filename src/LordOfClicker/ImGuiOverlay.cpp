@@ -499,7 +499,7 @@ void CImGuiOverlay::RenderTabGeneral()
 		static const char* s_szHealLabels[] = { "0 sec.", "1 sec.", "3 sec.", "5 sec.", "7 sec.", "10 sec.", "15 sec." };
 		static const int s_nHealPresetCount = sizeof(s_nHealPresets) / sizeof(s_nHealPresets[0]);
 
-		int iSelected = 5; // default: 10 sec.
+		int iSelected = -1;
 		for (int i = 0; i < s_nHealPresetCount; ++i)
 		{
 			if ((int)s->all.dwHealTime == s_nHealPresets[i])
@@ -507,6 +507,19 @@ void CImGuiOverlay::RenderTabGeneral()
 				iSelected = i;
 				break;
 			}
+		}
+
+		// If current value doesn't match any preset, snap to nearest one
+		if (iSelected < 0)
+		{
+			iSelected = 0;
+			int nBestDiff = abs((int)s->all.dwHealTime - s_nHealPresets[0]);
+			for (int i = 1; i < s_nHealPresetCount; ++i)
+			{
+				int d = abs((int)s->all.dwHealTime - s_nHealPresets[i]);
+				if (d < nBestDiff) { nBestDiff = d; iSelected = i; }
+			}
+			s->all.dwHealTime = (DWORD)s_nHealPresets[iSelected];
 		}
 
 		ImGui::SetNextItemWidth(100);
@@ -543,25 +556,30 @@ void CImGuiOverlay::RenderTabGeneral()
 	bool bStopMove  = (afk & 4) != 0;
 	bool bStopAll   = (afk & 8) != 0;
 
-	// When "Stop all pick-up" is ON, the sub-options are disabled (greyed out)
-	// — matching old dialog behavior at UnifiedSettingsDlg.cpp:713-715.
+	// When "Stop all pick-up" is ON, the sub-options Stop-zen and Stop-move
+	// are disabled (greyed out) — matching old dialog behavior at
+	// UnifiedSettingsDlg.cpp:713-715.
 	if (ImGui::Checkbox("Auto-speak", &bAutoSpeak))
 	{
 		afk = (afk & ~1) | (bAutoSpeak ? 1 : 0);
 		s->all.fAntiAFKProtect = afk;
 	}
 	ImGui::SameLine(260);
+	ImGui::BeginDisabled(bStopAll);
 	if (ImGui::Checkbox("Stop zen pick-up", &bStopZen))
 	{
 		afk = (afk & ~2) | (bStopZen ? 2 : 0);
 		s->all.fAntiAFKProtect = afk;
 	}
+	ImGui::EndDisabled();
 
+	ImGui::BeginDisabled(bStopAll);
 	if (ImGui::Checkbox("Stop move-to-pick", &bStopMove))
 	{
 		afk = (afk & ~4) | (bStopMove ? 4 : 0);
 		s->all.fAntiAFKProtect = afk;
 	}
+	ImGui::EndDisabled();
 	ImGui::SameLine(260);
 	if (ImGui::Checkbox("Stop all pick-up", &bStopAll))
 	{
