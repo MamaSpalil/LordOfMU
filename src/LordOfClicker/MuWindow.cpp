@@ -392,6 +392,18 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
  */
 LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandled)
 {
+	// While a popup dialog (Settings, History) is open, block ALL mouse messages
+	// to the game window.  Without this, clicks on the game area behind the
+	// dialog are dispatched to the game's original WndProc via the local message
+	// pump.  The game may then call SetCapture(), move the character, or change
+	// internal focus state — any of which can redirect subsequent mouse input
+	// away from the dialog and effectively "block" left-clicks on its controls.
+	if (m_fGuiActive)
+	{
+		bHandled = TRUE;
+		return 0;
+	}
+
 	// When the autoclicker is running and input is blocked, left-click messages
 	// are only allowed through if they land on HUD buttons.  This prevents
 	// user clicks from conflicting with the autoclicker's synthetic clicks.
@@ -399,21 +411,6 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandl
 	{
 		if (m_fBlockInput && m_pClicker != NULL)
 		{
-			// Check if click lands on HUD - allow through only for HUD interaction
-			// if (m_cHUDButtons.IsWindow() && m_cHUDButtons.IsWindowVisible())
-			// {
-			// 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-			// 	ClientToScreen(&pt);
-			// 	RECT rcHUD = {0};
-			// 	::GetWindowRect(m_cHUDButtons.m_hWnd, &rcHUD);
-			// 
-			// 	if (PtInRect(&rcHUD, pt))
-			// 	{
-			// 		bHandled = FALSE;
-			// 		return 0;
-			// 	}
-			// }
-
 			// Block user clicks while autoclicker is running
 			bHandled = TRUE;
 		}
@@ -568,6 +565,12 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	}
 
 	m_fGuiActive = TRUE;
+
+	// Release any mouse capture the game may hold.  If the game called
+	// SetCapture() (e.g. during drag or click-hold), all subsequent mouse
+	// messages would go to the game window instead of the dialog, making
+	// dialog controls unclickable.
+	::ReleaseCapture();
 
 	// Show the dialog and activate it so mouse clicks work immediately.
 	// Previous approach used SW_SHOWNOACTIVATE + SWP_NOACTIVATE which required
@@ -844,6 +847,8 @@ LRESULT CMuWindow::OnLaunchMu(UINT, WPARAM, LPARAM, BOOL&)
 		return 0;
 
 	m_fGuiActive = TRUE;
+
+	::ReleaseCapture();
 
 	m_cLaunchMuDlg.ShowWindow(SW_SHOWNORMAL);
 
