@@ -8,6 +8,7 @@
 #include "LaunchMuDialog.h"
 #include "AdvSettingsDialog.h"
 #include "D3D9Hook.h"
+#include "OpenGLHook.h"
 #include "ImGuiOverlay.h"
 #include "ApiHooker.h"
 
@@ -111,7 +112,10 @@ protected:
 	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowHistory(UINT, WPARAM, LPARAM, BOOL&);
 
-	// ImGui overlay static callbacks (D3D9Hook -> CMuWindow)
+	// ImGui overlay static callbacks (OpenGLHook -> CMuWindow)
+	static void OnSwapBuffersCallback(HDC hdc);
+
+	// Legacy D3D9 callbacks (kept for potential fallback)
 	static void OnEndSceneCallback(IDirect3DDevice9* pDevice);
 	static void OnPreResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPP);
 	static void OnPostResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPP, HRESULT hr);
