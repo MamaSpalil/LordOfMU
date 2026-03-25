@@ -82,6 +82,22 @@ protected:
 		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
 		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 		MESSAGE_HANDLER(WM_SHOW_HISTORY, OnShowHistory)
+		// Catch-all guard: when a dialog is open, route ALL unhandled messages
+		// to the system DefWindowProc instead of the game's original WndProc.
+		// Without this, sent messages (WM_PAINT, WM_NCHITTEST, etc.) that
+		// aren't in our message map fall through ATL's CWindowImpl to
+		// CallWindowProc(m_pfnSuperWindowProc) — the game's WndProc.
+		// The game's WndProc internally calls PeekMessage to drain mouse
+		// input, which steals WM_LBUTTONDOWN from the queue before dialog
+		// controls can receive it, making clicks non-functional.
+		// It also leaves the game in a click-hold state (WM_LBUTTONDOWN
+		// consumed, matching WM_LBUTTONUP never arrives), causing the
+		// game window to freeze.
+		if (m_fGuiActive)
+		{
+			lResult = ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+			return TRUE;
+		}
 	END_MSG_MAP()
 
 protected:

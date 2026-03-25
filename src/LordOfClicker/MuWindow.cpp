@@ -483,7 +483,15 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	if (m_fIsWndActive)
 	{
 		RestorePopupDialogs();
-		bHandled = FALSE;
+
+		// When a dialog is open, don't let the message fall through to
+		// the game's WndProc.  The game's WM_ACTIVATEAPP handler may
+		// change internal state (SetCapture, focus) that interferes
+		// with dialog mouse input.  The game will naturally detect its
+		// active state after the dialog closes via per-frame checks
+		// (GetForegroundWindow, GetActiveWindow).
+		if (!m_fGuiActive)
+			bHandled = FALSE;
 	}
 	else
 	{
@@ -1338,7 +1346,14 @@ HWND WINAPI CMuWindow::MyGetActiveWindow(VOID)
  */
 LRESULT CMuWindow::OnNCActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	m_fIsWndActive = (BOOL)wParam;
+	// When a dialog is open, don't update m_fIsWndActive based on
+	// WM_NCACTIVATE.  The game window naturally loses NC-activation
+	// when the dialog gets focus, but the game/application is still
+	// "active" from the user's perspective.  Without this guard,
+	// m_fIsWndActive ping-pongs between TRUE and FALSE every timer
+	// tick as timer 1011 corrects the wrong value.
+	if (!m_fGuiActive)
+		m_fIsWndActive = (BOOL)wParam;
 
 	if ((BOOL)wParam)
 	{
