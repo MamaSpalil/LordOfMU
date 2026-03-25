@@ -132,9 +132,14 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	IDirect3DDevice9* pDummy = NULL;
+
+	// Use D3DDEVTYPE_HAL (same device type as the game) so that the dummy
+	// device shares the same vtable as the game's real device.  NULLREF
+	// devices have a separate vtable on modern Windows 10/11, so patching
+	// the NULLREF vtable does not intercept calls on a HAL device.
 	HRESULT hr = pD3D->CreateDevice(
 		D3DADAPTER_DEFAULT,
-		D3DDEVTYPE_NULLREF,     // null-ref device — lightweight, no GPU
+		D3DDEVTYPE_HAL,
 		hwndGame,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
 		&pp,
@@ -161,8 +166,8 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	g_ppVtReset    = &ppVtable[16];
 
 	// Release the dummy — we only needed the vtable pointer.
-	// All IDirect3DDevice9 objects in the same process share the same vtable
-	// (same d3d9.dll code), so patching the dummy's vtable patches them all.
+	// HAL devices in the same process share the same vtable (same d3d9.dll
+	// code), so patching the dummy HAL vtable patches the game's HAL device.
 	pDummy->Release();
 	pD3D->Release();
 
