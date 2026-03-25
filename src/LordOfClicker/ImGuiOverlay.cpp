@@ -187,6 +187,8 @@ BOOL CImGuiOverlay::WndProcHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 void CImGuiOverlay::ToggleSettings()
 {
+	if (!m_bInitialized)
+		return;   // Overlay not ready yet — ignore toggle to avoid ghost state.
 	m_bShowSettings = !m_bShowSettings;
 	if (m_bShowSettings)
 		m_bShowHistory = false;   // Only one panel at a time.
@@ -194,6 +196,8 @@ void CImGuiOverlay::ToggleSettings()
 
 void CImGuiOverlay::ToggleHistory()
 {
+	if (!m_bInitialized)
+		return;   // Overlay not ready yet — ignore toggle to avoid ghost state.
 	m_bShowHistory = !m_bShowHistory;
 	if (m_bShowHistory)
 		m_bShowSettings = false;

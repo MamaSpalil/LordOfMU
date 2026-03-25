@@ -747,6 +747,15 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		m_cOverlay.IsInitialized() ? "YES" : "NO",
 		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
 
+	// Guard: if the overlay hasn't been lazily initialized yet (first EndScene
+	// hasn't fired), toggling would set m_bShowSettings without any visible UI,
+	// causing m_fGuiActive to get stuck TRUE and block F5-F8 indefinitely.
+	if (!m_cOverlay.IsInitialized())
+	{
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: SKIPPED - overlay not initialized yet (waiting for first EndScene)");
+		return 0;
+	}
+
 	// BUG-K fix: If the autoclicker is running, stop it AND open the settings
 	// overlay in one action.  Previously this would only stop the clicker and
 	// require a second F9 press.  The clicker stop is async (OnClickerJobFinished
@@ -1668,9 +1677,13 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 	{
 		bHandled = TRUE;
 
-		// Sync m_fGuiActive with ImGui overlay state
+		// Sync m_fGuiActive with ImGui overlay state.
+		// When overlay is not yet initialized, force m_fGuiActive to FALSE
+		// so it cannot get stuck TRUE from a premature ToggleSettings call.
 		if (m_cOverlay.IsInitialized())
 			m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
+		else
+			m_fGuiActive = FALSE;
 
 		// Robust foreground-window tracking
 		HWND hwndFg = GetForegroundWindowTr();
@@ -1689,26 +1702,34 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 			m_cOverlay.SetGameActive(false);
 		}
 
-		for (int i=0; m_vFnKeys[i].vk != 0; ++i)
+		// Timer polling is the primary F-key detection path when the game
+		// window IS in focus.  When the game is NOT foreground, the LL hook
+		// already dispatches to OnKeyboardEvent with fCheckFgWnd=FALSE, so
+		// we skip Timer dispatch here to avoid duplicate (and always-blocked)
+		// processing through the fCheckFgWnd=TRUE default path.
+		if (bGameFg)
 		{
-			bool fOldState = m_vFnKeys[i].fPressed;
-			bool fNewState = (CMuWindow::GetAsyncKeyState(m_vFnKeys[i].vk) & 0x8000) != 0;
-
-			if (fOldState != fNewState)
+			for (int i=0; m_vFnKeys[i].vk != 0; ++i)
 			{
-				// Debug: log Timer-detected F-key state changes (the primary
-				// keyboard detection path when the game is in focus)
-				if (m_vFnKeys[i].vk >= VK_F1 && m_vFnKeys[i].vk <= VK_F12)
-				{
-					BOOL fShift = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
-					WriteClickerLogFmt("KEYDBG", "Timer: %s%s %s detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent",
-						fShift ? "Shift+" : "",
-						GetFKeyName(m_vFnKeys[i].vk),
-						fNewState ? "PRESSED" : "RELEASED");
-				}
+				bool fOldState = m_vFnKeys[i].fPressed;
+				bool fNewState = (CMuWindow::GetAsyncKeyState(m_vFnKeys[i].vk) & 0x8000) != 0;
 
-				OnKeyboardEvent(m_vFnKeys[i].vk, fNewState ? WM_KEYDOWN : WM_KEYUP);
-				m_vFnKeys[i].fPressed = fNewState;
+				if (fOldState != fNewState)
+				{
+					// Debug: log Timer-detected F-key state changes (the primary
+					// keyboard detection path when the game is in focus)
+					if (m_vFnKeys[i].vk >= VK_F1 && m_vFnKeys[i].vk <= VK_F12)
+					{
+						BOOL fShift = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+						WriteClickerLogFmt("KEYDBG", "Timer: %s%s %s detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent",
+							fShift ? "Shift+" : "",
+							GetFKeyName(m_vFnKeys[i].vk),
+							fNewState ? "PRESSED" : "RELEASED");
+					}
+
+					OnKeyboardEvent(m_vFnKeys[i].vk, fNewState ? WM_KEYDOWN : WM_KEYUP);
+					m_vFnKeys[i].fPressed = fNewState;
+				}
 			}
 		}
 	}
@@ -1748,6 +1769,15 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Received WM_SHOW_HISTORY (Shift+F9) | OverlayInitialized=%s | HistoryVisible=%s",
 		m_cOverlay.IsInitialized() ? "YES" : "NO",
 		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
+
+	// Guard: if the overlay hasn't been lazily initialized yet, toggling would
+	// set m_bShowHistory without any visible UI, causing m_fGuiActive to get
+	// stuck TRUE and block F5-F8 indefinitely.
+	if (!m_cOverlay.IsInitialized())
+	{
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: SKIPPED - overlay not initialized yet (waiting for first EndScene)");
+		return 0;
+	}
 
 	// Query and set history data + session stats
 	QueryPickupHistory();
