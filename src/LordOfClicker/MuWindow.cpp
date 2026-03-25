@@ -40,7 +40,7 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
-	m_bShiftWasDown = false;
+	m_fShiftWasDown = false;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -378,13 +378,13 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	// so by the time KEYUP arrives, the user may have already released Shift.
 	if (vkCode == VK_F9 && uMsg == WM_KEYDOWN)
 	{
-		m_bShiftWasDown = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+		m_fShiftWasDown = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
 		return TRUE;
 	}
 
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
-		if (m_bShiftWasDown)
+		if (m_fShiftWasDown)
 		{
 			PostMessage(WM_SHOW_HISTORY, 0, 0);
 		}
@@ -392,7 +392,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		{
 			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		}
-		m_bShiftWasDown = false;
+		m_fShiftWasDown = false;
 		return TRUE;
 	}
 
