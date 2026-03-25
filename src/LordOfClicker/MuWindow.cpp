@@ -28,7 +28,7 @@ CGetActiveWindowTramp CMuWindow::GetActiveWindowTr;
  * \brief 
  */
 CMuWindow::CMuWindow()
-	: m_cUnifiedSettingsDlg(m_cSettingsDlg.GetSettingsObj())
+	: m_cSettingsDlg()
 {
 	m_hEvent = CreateEvent(0, 0, 0, _T("__LordOfMU_Event01__"));
 	SetEvent(m_hEvent);
@@ -40,8 +40,6 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
-	m_bSettingsWasVisible = FALSE;
-	m_bHistoryWasVisible = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -128,10 +126,14 @@ void CMuWindow::Term()
 	GetAsyncKeyState.UnPatch();
 	ChangeDisplaySettingsA.UnPatch();
 	GetForegroundWindowTr.UnPatch();
-	GetActiveWindowTr.UnPatch();	
+	GetActiveWindowTr.UnPatch();
 
+	// Shut down ImGui overlay and D3D9 hook
 	if (s_pInstance != NULL)
 	{
+		s_pInstance->m_cOverlay.Shutdown();
+		D3D9Hook::Uninstall();
+
 		delete s_pInstance;
 		s_pInstance = NULL;
 	}
@@ -181,13 +183,32 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	// Skip creating its window to avoid wasting HWND and GDI resources.
 	// m_cSettingsDlg.Create(m_hWnd);
 	m_cLaunchMuDlg.Create(m_hWnd);
-	// REDESIGN: Create unified dialog instead of separate advanced dialog
-	// m_cAdvSettingsDlg.Create(m_hWnd);
-	m_cUnifiedSettingsDlg.Create(m_hWnd);
-	m_cHistoryDlg.Create(m_hWnd);
 
-	// Create HUD overlay buttons (Settings, Start/Stop, History)
-	// m_cHUDButtons.Create(m_hWnd, _AtlBaseModule.GetModuleInstance());
+	// -----------------------------------------------------------------------
+	// D3D9 EndScene hook + ImGui overlay.
+	// All UI (HUD buttons, settings dialog, history dialog) is now rendered
+	// directly inside the game's Direct3D 9 EndScene call via Dear ImGui.
+	// No popup windows, no focus/activation/capture conflicts.
+	// -----------------------------------------------------------------------
+	if (D3D9Hook::Install(m_hWnd))
+	{
+		D3D9Hook::SetOnEndScene(OnEndSceneCallback);
+		D3D9Hook::SetOnPreReset(OnPreResetCallback);
+		D3D9Hook::SetOnPostReset(OnPostResetCallback);
+
+		// Configure overlay callbacks so HUD button presses route to CMuWindow.
+		m_cOverlay.SetSettings(&m_cSettingsDlg.GetSettingsObj());
+		m_cOverlay.SetOnSettingsClicked(OnOverlaySettingsClicked, this);
+		m_cOverlay.SetOnStartStopClicked(OnOverlayStartStopClicked, this);
+		m_cOverlay.SetOnHistoryClicked(OnOverlayHistoryClicked, this);
+		m_cOverlay.SetOnSettingsApply(OnOverlayApplyClicked, this);
+
+		WriteClickerLog("D3D9 EndScene hook installed, ImGui overlay ready");
+	}
+	else
+	{
+		WriteClickerLog("D3D9 EndScene hook FAILED - overlay disabled");
+	}
 
 	CRegKey cRegKey;
 	DWORD dwWndMode = 0;
@@ -382,10 +403,9 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_ESCAPE && uMsg == WM_KEYUP && m_fGuiActive)
 	{
-		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
-		m_cHistoryDlg.ShowWindow(SW_HIDE);
-		m_bSettingsWasVisible = FALSE;
-		m_bHistoryWasVisible = FALSE;
+		// Close ImGui overlay windows
+		m_cOverlay.HideSettings();
+		m_cOverlay.HideHistory();
 		m_fGuiActive = FALSE;
 		return TRUE;
 	}
@@ -397,53 +417,17 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 /**
  * \brief 
  */
-LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandled)
+LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	// While a popup dialog (Settings, History) is open, block ALL mouse messages
-	// to the game window.  Without this, clicks on the game area behind the
-	// dialog are dispatched to the game's original WndProc via the local message
-	// pump.  The game may then call SetCapture(), move the character, or change
-	// internal focus state — any of which can redirect subsequent mouse input
-	// away from the dialog and effectively "block" left-clicks on its controls.
-	if (m_fGuiActive)
+	// Forward mouse messages to ImGui overlay.  If ImGui wants the mouse
+	// (hovering over an overlay window), block the game from processing it.
+	if (m_cOverlay.IsInitialized())
 	{
-		// Log mouse click attempts on the game window while dialog is open
-		if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP || uMsg == WM_LBUTTONDBLCLK
-			|| uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP)
+		if (m_cOverlay.WndProcHandler(m_hWnd, uMsg, wParam, lParam))
 		{
-			int xPos = GET_X_LPARAM(lParam);
-			int yPos = GET_Y_LPARAM(lParam);
-
-			const char* szMsgName =
-				(uMsg == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
-				(uMsg == WM_LBUTTONUP) ? "WM_LBUTTONUP" :
-				(uMsg == WM_LBUTTONDBLCLK) ? "WM_LBUTTONDBLCLK" :
-				(uMsg == WM_RBUTTONDOWN) ? "WM_RBUTTONDOWN" : "WM_RBUTTONUP";
-
-			const char* szDialog =
-				(m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
-					? "SETTINGS_CLICK" : "HISTORY_CLICK";
-
-			BOOL bGameHadCapture = (::GetCapture() == m_hWnd);
-
-			WriteDialogClickLogFmt(szDialog,
-				"Click attempt BLOCKED on game window: msg=%s pos=(%d,%d) result=false "
-				"reason=\"dialog is active (m_fGuiActive=TRUE), click on game area behind dialog\" "
-				"gameHadCapture=%s",
-				szMsgName, xPos, yPos,
-				bGameHadCapture ? "yes" : "no");
+			bHandled = TRUE;
+			return 0;
 		}
-
-		// If the game has captured the mouse (e.g. from a timer or paint
-		// handler calling SetCapture), release it immediately.  Without
-		// this, ALL mouse messages — including those intended for the
-		// dialog — are redirected to the game window and blocked here,
-		// making dialog controls completely unclickable.
-		if (::GetCapture() == m_hWnd)
-			::ReleaseCapture();
-
-		bHandled = TRUE;
-		return 0;
 	}
 
 	// When the autoclicker is running and input is blocked, left-click messages
@@ -477,25 +461,15 @@ LRESULT CMuWindow::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	m_fIsWndActive = (BOOL)wParam;
 
-	// Update HUD visibility to match game foreground state
-	// m_cHUDButtons.SetGameActive(m_fIsWndActive);
+	// Update ImGui overlay game-active state
+	m_cOverlay.SetGameActive(m_fIsWndActive != FALSE);
 
 	if (m_fIsWndActive)
 	{
-		RestorePopupDialogs();
-
-		// When a dialog is open, don't let the message fall through to
-		// the game's WndProc.  The game's WM_ACTIVATEAPP handler may
-		// change internal state (SetCapture, focus) that interferes
-		// with dialog mouse input.  The game will naturally detect its
-		// active state after the dialog closes via per-frame checks
-		// (GetForegroundWindow, GetActiveWindow).
-		if (!m_fGuiActive)
-			bHandled = FALSE;
+		bHandled = FALSE;
 	}
 	else
 	{
-		HidePopupDialogs();
 		return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 	}
 
@@ -510,14 +484,6 @@ LRESULT CMuWindow::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 {
 	if (LOWORD(wParam) != WA_INACTIVE)
 	{
-		// When a popup dialog is open, prevent the game's original WndProc
-		// from processing WM_ACTIVATE(WA_ACTIVE / WA_CLICKACTIVE).  The
-		// game may call SetCapture() or change internal focus state in its
-		// activation handler, redirecting all mouse input to the game
-		// window and making dialog controls unclickable.
-		if (m_fGuiActive)
-			return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-
 		bHandled = FALSE;
 	}
 	else
@@ -543,14 +509,11 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 	if (::IsWindow(m_cLaunchMuDlg.m_hWnd))
 		m_cLaunchMuDlg.DestroyWindow();
 
-	if (::IsWindow(m_cUnifiedSettingsDlg.m_hWnd))
-		m_cUnifiedSettingsDlg.DestroyWindow();
+	// Shut down ImGui overlay and D3D9 hook
+	m_cOverlay.Shutdown();
+	D3D9Hook::Uninstall();
 
-	if (::IsWindow(m_cHistoryDlg.m_hWnd))
-		m_cHistoryDlg.DestroyWindow();
-
-	// Stop autoclicker first — the clicker thread may post messages that
-	// reference HUD state, so HUD must remain valid until shutdown completes.
+	// Stop autoclicker first
 	BOOL fHandled = FALSE;
 	OnStopClicker(0, 0, 0, fHandled);
 
@@ -573,8 +536,7 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 		Sleep(10);
 	}
 
-	// Clicker is now stopped — safe to destroy HUD overlay.
-	// m_cHUDButtons.Destroy();
+	// Clicker is now stopped.
 
 	if (IsWindow())
 	{
@@ -590,7 +552,10 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 
 
 /**
- * \brief 
+ * \brief Shows the settings overlay via ImGui (F9 hotkey).
+ *        Since the overlay renders directly in EndScene, there is no need
+ *        for a separate window, local message pump, or capture/activation
+ *        workarounds.
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
@@ -603,225 +568,9 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		return 0;
 	}
 
-	// REDESIGN: F9 and SHIFT+F9 merged into unified dialog
-	CWindow dlg = m_cUnifiedSettingsDlg;
-
-	if (!dlg.IsWindow())
-		return 0;
-
-	// If History dialog is currently open, close it first so Settings can open
-	if (m_fGuiActive)
-	{
-		if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
-		{
-			m_cHistoryDlg.ShowWindow(SW_HIDE);
-			m_bHistoryWasVisible = FALSE;
-		}
-		// If Settings is already visible, don't reopen
-		if (dlg.IsWindowVisible())
-			return 0;
-	}
-
-	m_fGuiActive = TRUE;
-
-	// Release any mouse capture the game may hold.  If the game called
-	// SetCapture() (e.g. during drag or click-hold), all subsequent mouse
-	// messages would go to the game window instead of the dialog, making
-	// dialog controls unclickable.
-	::ReleaseCapture();
-
-	// Show the dialog and activate it so mouse clicks work immediately.
-	// Previous approach used SW_SHOWNOACTIVATE + SWP_NOACTIVATE which required
-	// a separate activation click before controls would respond.
-	dlg.ShowWindow(SW_SHOW);
-
-	// Ensure the dialog is on top of the game window and receives input
-	::SetWindowPos(dlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-	::SetForegroundWindow(dlg.m_hWnd);
-
-	// Enter a local message loop that pumps both game-window and dialog
-	// messages.  The MU game's own message loop may filter by HWND and
-	// never dispatch messages for popup dialog windows, making controls
-	// unresponsive.  This loop (modelled on OnLaunchMu) ensures that
-	// all messages — including WM_LBUTTONDOWN for buttons/checkboxes —
-	// are dispatched while the Settings dialog is visible.
-	{
-		BOOL fOldBlockInput = m_fBlockInput;
-		m_fBlockInput = FALSE;
-
-		// Track whether the dialog has received WM_LBUTTONDOWN for the
-		// current mouse press.  The game's original WndProc internally
-		// calls PeekMessage to drain mouse input (e.g. from timer
-		// callbacks invoked by PeekMessage itself during sent-message
-		// dispatch).  This steals WM_LBUTTONDOWN from the queue before
-		// our loop can retrieve it, while WM_LBUTTONUP survives because
-		// it's posted later when the user releases the button.  Without
-		// the matching WM_LBUTTONDOWN, dialog controls never enter the
-		// "pressed" state and ignore WM_LBUTTONUP — making clicks
-		// non-functional.  When we detect WM_LBUTTONUP without a
-		// preceding WM_LBUTTONDOWN, we synthesize the missing down
-		// event so the control receives a complete down+up pair.
-		BOOL bDialogGotLButtonDown = FALSE;
-
-		MSG msg = {0};
-		// Loop while the dialog is either visible OR temporarily hidden
-		// by ALT+TAB (m_bSettingsWasVisible is TRUE while hidden).
-		// The loop exits only when the user explicitly closes the dialog
-		// (Apply, Cancel, ESC) which hides it WITHOUT setting the flag.
-		while (m_cUnifiedSettingsDlg.IsWindow()
-			&& (m_cUnifiedSettingsDlg.IsWindowVisible() || m_bSettingsWasVisible))
-		{
-			// Proactive capture release: the game may re-acquire capture
-			// between loop iterations through timer callbacks or sent
-			// messages dispatched internally by PeekMessage.  If the
-			// game holds capture when the user presses the mouse button,
-			// WM_LBUTTONDOWN is redirected to the game window instead
-			// of the dialog and blocked by OnMouseMessage.
-			if (::GetCapture() == m_hWnd)
-				::ReleaseCapture();
-
-			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-			{
-				if (msg.message == WM_QUIT)
-				{
-					PostQuitMessage((int)msg.wParam);
-					break;
-				}
-
-				// Log mouse click messages pumped through the Settings dialog loop
-				if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONUP
-					|| msg.message == WM_LBUTTONDBLCLK)
-				{
-					int xPos = GET_X_LPARAM(msg.lParam);
-					int yPos = GET_Y_LPARAM(msg.lParam);
-					BOOL bIsDialogWnd = (msg.hwnd == m_cUnifiedSettingsDlg.m_hWnd
-						|| ::IsChild(m_cUnifiedSettingsDlg.m_hWnd, msg.hwnd));
-					BOOL bIsGameWnd = (msg.hwnd == m_hWnd);
-					BOOL bGameHasCapture = (::GetCapture() == m_hWnd);
-
-					const char* szMsgName =
-						(msg.message == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
-						(msg.message == WM_LBUTTONUP) ? "WM_LBUTTONUP" : "WM_LBUTTONDBLCLK";
-
-					if (bIsDialogWnd)
-					{
-						WriteDialogClickLogFmt("SETTINGS_CLICK",
-							"Click attempt on Settings dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
-							"result=true",
-							szMsgName, xPos, yPos, (void*)msg.hwnd);
-
-						// Track WM_LBUTTONDOWN for click-pair synthesis
-						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
-							bDialogGotLButtonDown = TRUE;
-
-						// Synthesize missing WM_LBUTTONDOWN when only
-						// WM_LBUTTONUP arrives.  The game's WndProc may
-						// have drained WM_LBUTTONDOWN from the queue via
-						// internal PeekMessage calls (timer callbacks).
-						// Without the down event, controls ignore the up
-						// event because they were never put into "pressed"
-						// state.  Sending a synchronous WM_LBUTTONDOWN
-						// immediately before dispatch creates a complete
-						// down+up pair that triggers the control's click.
-						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
-						{
-							WriteDialogClickLogFmt("SETTINGS_CLICK",
-								"Synthesizing WM_LBUTTONDOWN for dialog control "
-								"targetHWND=0x%p pos=(%d,%d) "
-								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
-								(void*)msg.hwnd, xPos, yPos);
-							::SendMessage(msg.hwnd, WM_LBUTTONDOWN, msg.wParam, msg.lParam);
-						}
-
-						if (msg.message == WM_LBUTTONUP)
-							bDialogGotLButtonDown = FALSE;
-					}
-					else if (bIsGameWnd)
-					{
-						WriteDialogClickLogFmt("SETTINGS_CLICK",
-							"Click attempt on game window (Settings open): msg=%s pos=(%d,%d) "
-							"result=false reason=\"click targets game window, not dialog\" "
-							"gameHasCapture=%s",
-							szMsgName, xPos, yPos,
-							bGameHasCapture ? "yes" : "no");
-					}
-					else
-					{
-						WriteDialogClickLogFmt("SETTINGS_CLICK",
-							"Click attempt on unknown window (Settings open): msg=%s pos=(%d,%d) "
-							"targetHWND=0x%p result=false "
-							"reason=\"click targets unrelated window\"",
-							szMsgName, xPos, yPos, (void*)msg.hwnd);
-					}
-				}
-
-				if (!m_cUnifiedSettingsDlg.IsDialogMessage(&msg))
-				{
-					TranslateMessage(&msg);
-
-					// For game-window messages, route through our handlers
-					// but skip the game's original WndProc.  The game's
-					// WndProc (for WM_TIMER, WM_PAINT, etc.) may internally
-					// call PeekMessage to drain mouse input, stealing
-					// WM_LBUTTONDOWN from the queue before this loop can
-					// dispatch it to dialog controls.  By using DefWindowProc
-					// for unhandled messages instead of the game's WndProc,
-					// mouse messages stay in the queue for the dialog.
-					if (msg.hwnd == m_hWnd)
-					{
-						LRESULT lResult = 0;
-						if (!ProcessWindowMessage(msg.hwnd, msg.message,
-								msg.wParam, msg.lParam, lResult))
-						{
-							::DefWindowProc(msg.hwnd, msg.message,
-								msg.wParam, msg.lParam);
-						}
-					}
-					else
-					{
-						DispatchMessage(&msg);
-					}
-				}
-
-				// After dispatching a message, the game's WndProc may have
-				// called SetCapture() (e.g. from a timer or paint handler).
-				// If the game holds capture, ALL mouse messages — even those
-				// intended for the dialog — are redirected to the game window
-				// where OnMouseMessage blocks them.  Release immediately.
-				if (::GetCapture() == m_hWnd)
-				{
-					WriteDialogClickLogFmt("SETTINGS_CLICK",
-						"Game re-acquired mouse capture after dispatch, releasing. "
-						"Future clicks would have result=false "
-						"reason=\"game SetCapture redirects mouse input\"");
-					::ReleaseCapture();
-				}
-			}
-			else
-			{
-				// No pending messages — yield so the game can render.
-				// MsgWaitForMultipleObjects sleeps until a new message
-				// arrives or 16 ms elapse (~60 fps cadence).
-				MsgWaitForMultipleObjects(0, NULL, FALSE, 16, QS_ALLINPUT);
-			}
-		}
-
-		m_fBlockInput = fOldBlockInput;
-
-		// Reset the game's internal mouse state.  If the game's WndProc
-		// consumed a WM_LBUTTONDOWN (via internal PeekMessage) but the
-		// matching WM_LBUTTONUP went to the dialog, the game is stuck
-		// in a "mouse button held" state.  Sending a synthetic
-		// WM_LBUTTONUP resets this state so the game doesn't freeze
-		// (continuous click-hold processing) after the dialog closes.
-		::PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELPARAM(-1, -1));
-
-		// Clean up GUI-active state after the dialog has been dismissed.
-		m_bSettingsWasVisible = FALSE;
-		if (!m_cHistoryDlg.IsWindow() || !m_cHistoryDlg.IsWindowVisible())
-			m_fGuiActive = FALSE;
-	}
+	// Toggle settings overlay in ImGui
+	m_cOverlay.ToggleSettings();
+	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
 	return 0;
 }
@@ -832,16 +581,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
  */
 LRESULT CMuWindow::OnErasebkgnd(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
-	if (m_fGuiActive)
-	{
-		// Do not fill the background -- keep it transparent so the
-		// game scene remains visible behind the settings dialog.
-	}
-	else
-	{
-		bHandled = FALSE;
-	}
-
+	bHandled = FALSE;
 	return 1;
 }
 
@@ -921,7 +661,7 @@ LRESULT CMuWindow::OnStartClicker(UINT, WPARAM, LPARAM fNoMouseMove, BOOL&)
 		if (m_pClicker->Start())
 		{
 			m_fBlockInput = (fNoMouseMove == 0);
-			// m_cHUDButtons.SetClickerRunning(TRUE);
+			m_cOverlay.SetClickerRunning(true);
 			WriteClickerLog("Clicker started");
 		}
 		else
@@ -967,6 +707,7 @@ LRESULT CMuWindow::OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&)
 	}
 
 	// m_cHUDButtons.SetClickerRunning(FALSE);
+	m_cOverlay.SetClickerRunning(false);
 	WriteClickerLog("Clicker stopped");
 
 	m_fBlockInput = FALSE;
@@ -1036,7 +777,7 @@ LRESULT CMuWindow::OnLaunchMu(UINT, WPARAM, LPARAM, BOOL&)
 	if (m_pClicker != NULL)
 		return 0;
 
-	if (m_fGuiActive || !m_cUnifiedSettingsDlg.IsWindow())
+	if (m_fGuiActive)
 		return 0;
 
 	m_fGuiActive = TRUE;
@@ -1403,26 +1144,10 @@ HWND WINAPI CMuWindow::MyGetActiveWindow(VOID)
  */
 LRESULT CMuWindow::OnNCActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	// When a dialog is open, don't update m_fIsWndActive based on
-	// WM_NCACTIVATE.  The game window naturally loses NC-activation
-	// when the dialog gets focus, but the game/application is still
-	// "active" from the user's perspective.  Without this guard,
-	// m_fIsWndActive ping-pongs between TRUE and FALSE every timer
-	// tick as timer 1011 corrects the wrong value.
-	if (!m_fGuiActive)
-		m_fIsWndActive = (BOOL)wParam;
+	m_fIsWndActive = (BOOL)wParam;
 
 	if ((BOOL)wParam)
 	{
-		// When a dialog is open, don't let the game's WndProc process
-		// WM_NCACTIVATE(TRUE).  Let DefWindowProc update the visual
-		// state (title bar) but skip the game's custom handling which
-		// could interfere with dialog mouse input.
-		if (m_fGuiActive)
-		{
-			::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-			return TRUE;
-		}
 		bHandled = FALSE;
 	}
 	else
@@ -1735,60 +1460,31 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
 	if (wParam != 1011)
 	{
-		// When a popup dialog is open, don't pass game timers to the
-		// original WndProc.  The game's timer handlers may internally
-		// call PeekMessage to drain mouse input, which steals
-		// WM_LBUTTONDOWN from the queue before the dialog's local
-		// message loop can dispatch it to dialog controls.
-		if (m_fGuiActive)
-			bHandled = TRUE;
-		else
-			bHandled = FALSE;
+		bHandled = FALSE;
 	}
 	else
 	{
 		bHandled = TRUE;
 
-		// Monitor dialog visibility - reset m_fGuiActive when dialogs are closed.
-		// Skip reset when dialogs are temporarily hidden during ALT+TAB
-		// (m_bSettingsWasVisible / m_bHistoryWasVisible) so they can be restored.
-		if (m_fGuiActive)
-		{
-			BOOL bSettingsVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
-			BOOL bHistoryVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
+		// Sync m_fGuiActive with ImGui overlay state
+		if (m_cOverlay.IsInitialized())
+			m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
-			if (!bSettingsVisible && !bHistoryVisible
-				&& !m_bSettingsWasVisible && !m_bHistoryWasVisible)
-			{
-				m_fGuiActive = FALSE;
-				InvalidateRect(NULL, TRUE);
-			}
-		}
-
-		// Robust foreground-window tracking: detect when the game (or its
-		// overlay dialogs) loses/gains the foreground even if WM_ACTIVATEAPP
-		// is not delivered (e.g. exclusive fullscreen, Alt+Tab edge cases).
-		// Uses the real (unhooked) GetForegroundWindow via the trampoline.
+		// Robust foreground-window tracking
 		HWND hwndFg = GetForegroundWindowTr();
 		BOOL bGameFg = (hwndFg == m_hWnd);
-		if (!bGameFg && m_cUnifiedSettingsDlg.IsWindow() && hwndFg == m_cUnifiedSettingsDlg.m_hWnd)
-			bGameFg = TRUE;
-		if (!bGameFg && m_cHistoryDlg.IsWindow() && hwndFg == m_cHistoryDlg.m_hWnd)
-			bGameFg = TRUE;
 		if (!bGameFg && m_cLaunchMuDlg.IsWindow() && hwndFg == m_cLaunchMuDlg.m_hWnd)
 			bGameFg = TRUE;
 
 		if (bGameFg && !m_fIsWndActive)
 		{
 			m_fIsWndActive = TRUE;
-			// m_cHUDButtons.SetGameActive(TRUE);
-			RestorePopupDialogs();
+			m_cOverlay.SetGameActive(true);
 		}
 		else if (!bGameFg && m_fIsWndActive)
 		{
 			m_fIsWndActive = FALSE;
-			// m_cHUDButtons.SetGameActive(FALSE);
-			HidePopupDialogs();
+			m_cOverlay.SetGameActive(false);
 		}
 
 		for (int i=0; m_vFnKeys[i].vk != 0; ++i)
@@ -1815,21 +1511,13 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
  */
 LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
-	// m_cHUDButtons.Reposition();
-
-	// On minimize, hide popup dialogs and HUD. On restore, bring them back.
+	// On minimize/restore, update overlay visibility
 	if (uMsg == WM_SIZE)
 	{
 		if (wParam == SIZE_MINIMIZED)
-		{
-			// m_cHUDButtons.SetGameActive(FALSE);
-			HidePopupDialogs();
-		}
+			m_cOverlay.SetGameActive(false);
 		else if (wParam == SIZE_RESTORED)
-		{
-			// m_cHUDButtons.SetGameActive(TRUE);
-			RestorePopupDialogs();
-		}
+			m_cOverlay.SetGameActive(true);
 	}
 
 	bHandled = FALSE; // Let the message pass through to the game
@@ -1838,78 +1526,139 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
 
 
 /**
- * \brief HUD Settings button clicked - stop the autoclicker (if running)
- *        and open the unified settings dialog.  Stopping first ensures
- *        the dialog can be opened without conflicts.
- */
-/*
-LRESULT CMuWindow::OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&)
-{
-	// Stop the autoclicker before opening settings.  Use PostMessage for
-	// consistent async flow — OnShowSettingsGUI already handles the case
-	// where the clicker is still running by re-posting itself.
-	if (m_pClicker != NULL)
-		PostMessage(WM_STOP_CLICKER, 0, 0);
-
-	PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
-	return 0;
-}
-*/
-
-
-/**
- * \brief HUD Start/Stop button clicked - toggle autoclicker.
- */
-/*
-LRESULT CMuWindow::OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&)
-{
-	WriteClickerLogFmt("HUD", "StartStop clicked: %s autoclicker, m_pClicker=%p",
-		m_pClicker != NULL ? "stopping" : "starting", m_pClicker);
-
-	if (m_pClicker != NULL)
-	{
-		PostMessage(WM_STOP_CLICKER, 0, 0);
-	}
-	else
-	{
-		PostMessage(WM_START_CLICKER, 0, 0);
-	}
-
-	return 0;
-}
-*/
-
-
-/**
- * \brief HUD History button clicked - open the pickup history dialog.
- *        Queries the LordOfMU DLL for pickup history data and displays it.
- *        Can also be triggered by Shift+F9 keyboard shortcut.
+ * \brief Shows the pickup history overlay via ImGui (Shift+F9 hotkey).
+ *        Queries the LordOfMU DLL for pickup history data and toggles
+ *        the history panel in the ImGui overlay.
  */
 LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// If Settings dialog is currently open, close it first so History can open
-	if (m_fGuiActive)
+	// Query and set history data
+	QueryPickupHistory();
+
+	// Toggle history overlay in ImGui
+	m_cOverlay.ToggleHistory();
+	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
+
+	return 0;
+}
+
+
+/**
+ * \brief Character selected in game - show HUD buttons in overlay.
+ */
+LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
+{
+	WriteClickerLog("OnCharSelected: Enabling HUD overlay");
+	m_cOverlay.SetCharSelected(true);
+	return 0;
+}
+
+
+/**
+ * \brief Character deselected (logout/disconnect) - hide HUD and dialogs.
+ */
+LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
+{
+	WriteClickerLog("OnCharDeselected: Disabling HUD overlay and hiding dialogs");
+
+	m_cOverlay.SetCharSelected(false);
+	m_cOverlay.HideSettings();
+	m_cOverlay.HideHistory();
+	m_fGuiActive = FALSE;
+
+	return 0;
+}
+
+
+// ============================================================================
+// D3D9 EndScene/Reset callbacks  (static, called from D3D9Hook)
+// ============================================================================
+
+void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
+{
+	CMuWindow* pThis = s_pInstance;
+	if (!pThis)
+		return;
+
+	// Lazy-initialize ImGui on the first EndScene call (the device is now valid).
+	if (!pThis->m_cOverlay.IsInitialized())
 	{
-		if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
-		{
-			m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
-			m_bSettingsWasVisible = FALSE;
-		}
-		// If History is already visible, don't reopen
-		if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
-			return 0;
+		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd, pDevice))
+			return;
 	}
 
-	// Query pickup history from LordOfMU DLL
-	std::vector<CHistoryDialog::HistoryEntry> vHistory;
+	pThis->m_cOverlay.Render(pDevice);
+}
 
+void CMuWindow::OnPreResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS*)
+{
+	CMuWindow* pThis = s_pInstance;
+	if (pThis)
+		pThis->m_cOverlay.OnPreReset();
+}
+
+void CMuWindow::OnPostResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS*, HRESULT hr)
+{
+	CMuWindow* pThis = s_pInstance;
+	if (pThis)
+		pThis->m_cOverlay.OnPostReset(hr);
+}
+
+
+// ============================================================================
+// ImGui overlay button callbacks  (static, called from CImGuiOverlay)
+// ============================================================================
+
+void CMuWindow::OnOverlaySettingsClicked(void* pData)
+{
+	CMuWindow* pThis = (CMuWindow*)pData;
+	if (pThis)
+		pThis->PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+}
+
+void CMuWindow::OnOverlayStartStopClicked(void* pData)
+{
+	CMuWindow* pThis = (CMuWindow*)pData;
+	if (!pThis)
+		return;
+
+	if (pThis->m_pClicker != NULL)
+		pThis->PostMessage(WM_STOP_CLICKER, 0, 0);
+	else
+		pThis->PostMessage(WM_START_CLICKER, 0, 0);
+}
+
+void CMuWindow::OnOverlayHistoryClicked(void* pData)
+{
+	CMuWindow* pThis = (CMuWindow*)pData;
+	if (pThis)
+		pThis->PostMessage(WM_SHOW_HISTORY, 0, 0);
+}
+
+void CMuWindow::OnOverlayApplyClicked(void* pData)
+{
+	CMuWindow* pThis = (CMuWindow*)pData;
+	if (!pThis)
+		return;
+
+	// Save settings to disk
+	pThis->m_cSettingsDlg.GetSettingsObj().Save();
+	WriteClickerLog("Settings applied and saved via ImGui overlay");
+}
+
+
+// ============================================================================
+// History data query helper
+// ============================================================================
+
+void CMuWindow::QueryPickupHistory()
+{
 	typedef int (*GetPickupHistoryPtr)(char*, int);
 	static GetPickupHistoryPtr s_pfnGetHistory = NULL;
 	static bool s_bLookupDone = false;
 
 	if (!s_bLookupDone)
 	{
-		// Find the DLL module using the same approach as SayToServer
 		HMODULE hMod = NULL;
 
 		// Try environment variable first
@@ -1946,6 +1695,8 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 		s_bLookupDone = true;
 	}
 
+	std::vector<CImGuiOverlay::HistoryEntry> vHistory;
+
 	if (s_pfnGetHistory)
 	{
 		char szBuffer[32768] = {0};
@@ -1963,7 +1714,7 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 			if (pSep)
 			{
 				*pSep = '\0';
-				CHistoryDialog::HistoryEntry entry;
+				CImGuiOverlay::HistoryEntry entry;
 				entry.sTime = pLine;
 				entry.sItem = pSep + 1;
 				vHistory.push_back(entry);
@@ -1974,271 +1725,5 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 		}
 	}
 
-	m_cHistoryDlg.SetHistory(vHistory);
-
-	// Show history dialog as non-blocking popup overlay
-	if (!m_cHistoryDlg.IsWindow())
-	{
-		m_fGuiActive = FALSE;
-		return 0;
-	}
-
-	m_fGuiActive = TRUE;
-
-	// Release any mouse capture the game may hold.
-	::ReleaseCapture();
-
-	// Show the dialog and activate it so mouse clicks work immediately.
-	m_cHistoryDlg.ShowWindow(SW_SHOW);
-
-	// Ensure the dialog is on top of the game window and receives input
-	::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-	::SetForegroundWindow(m_cHistoryDlg.m_hWnd);
-
-	// Enter a local message loop that pumps both game-window and dialog
-	// messages.  The MU game's own message loop may filter by HWND and
-	// never dispatch messages for popup dialog windows, making controls
-	// unresponsive.  This loop ensures that all messages — including
-	// WM_LBUTTONDOWN for the Close button — are dispatched while the
-	// History dialog is visible.
-	{
-		BOOL fOldBlockInput = m_fBlockInput;
-		m_fBlockInput = FALSE;
-
-		// Track WM_LBUTTONDOWN for click-pair synthesis (same rationale
-		// as the Settings dialog loop — see detailed comment there).
-		BOOL bDialogGotLButtonDown = FALSE;
-
-		MSG msg = {0};
-		while (m_cHistoryDlg.IsWindow()
-			&& (m_cHistoryDlg.IsWindowVisible() || m_bHistoryWasVisible))
-		{
-			// Proactive capture release (same rationale as Settings loop).
-			if (::GetCapture() == m_hWnd)
-				::ReleaseCapture();
-
-			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-			{
-				if (msg.message == WM_QUIT)
-				{
-					PostQuitMessage((int)msg.wParam);
-					break;
-				}
-
-				// Log mouse click messages pumped through the History dialog loop
-				if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONUP
-					|| msg.message == WM_LBUTTONDBLCLK)
-				{
-					int xPos = GET_X_LPARAM(msg.lParam);
-					int yPos = GET_Y_LPARAM(msg.lParam);
-					BOOL bIsDialogWnd = (msg.hwnd == m_cHistoryDlg.m_hWnd
-						|| ::IsChild(m_cHistoryDlg.m_hWnd, msg.hwnd));
-					BOOL bIsGameWnd = (msg.hwnd == m_hWnd);
-					BOOL bGameHasCapture = (::GetCapture() == m_hWnd);
-
-					const char* szMsgName =
-						(msg.message == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
-						(msg.message == WM_LBUTTONUP) ? "WM_LBUTTONUP" : "WM_LBUTTONDBLCLK";
-
-					if (bIsDialogWnd)
-					{
-						WriteDialogClickLogFmt("HISTORY_CLICK",
-							"Click attempt on History dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
-							"result=true",
-							szMsgName, xPos, yPos, (void*)msg.hwnd);
-
-						// Track WM_LBUTTONDOWN for click-pair synthesis
-						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
-							bDialogGotLButtonDown = TRUE;
-
-						// Synthesize missing WM_LBUTTONDOWN (same as Settings loop).
-						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
-						{
-							WriteDialogClickLogFmt("HISTORY_CLICK",
-								"Synthesizing WM_LBUTTONDOWN for dialog control "
-								"targetHWND=0x%p pos=(%d,%d) "
-								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
-								(void*)msg.hwnd, xPos, yPos);
-							::SendMessage(msg.hwnd, WM_LBUTTONDOWN, msg.wParam, msg.lParam);
-						}
-
-						if (msg.message == WM_LBUTTONUP)
-							bDialogGotLButtonDown = FALSE;
-					}
-					else if (bIsGameWnd)
-					{
-						WriteDialogClickLogFmt("HISTORY_CLICK",
-							"Click attempt on game window (History open): msg=%s pos=(%d,%d) "
-							"result=false reason=\"click targets game window, not dialog\" "
-							"gameHasCapture=%s",
-							szMsgName, xPos, yPos,
-							bGameHasCapture ? "yes" : "no");
-					}
-					else
-					{
-						WriteDialogClickLogFmt("HISTORY_CLICK",
-							"Click attempt on unknown window (History open): msg=%s pos=(%d,%d) "
-							"targetHWND=0x%p result=false "
-							"reason=\"click targets unrelated window\"",
-							szMsgName, xPos, yPos, (void*)msg.hwnd);
-					}
-				}
-
-				if (!m_cHistoryDlg.IsDialogMessage(&msg))
-				{
-					TranslateMessage(&msg);
-
-					// For game-window messages, route through our handlers
-					// but skip the game's original WndProc (same rationale
-					// as the Settings dialog loop above).
-					if (msg.hwnd == m_hWnd)
-					{
-						LRESULT lResult = 0;
-						if (!ProcessWindowMessage(msg.hwnd, msg.message,
-								msg.wParam, msg.lParam, lResult))
-						{
-							::DefWindowProc(msg.hwnd, msg.message,
-								msg.wParam, msg.lParam);
-						}
-					}
-					else
-					{
-						DispatchMessage(&msg);
-					}
-				}
-
-				// Release game capture if re-acquired during dispatch
-				if (::GetCapture() == m_hWnd)
-				{
-					WriteDialogClickLogFmt("HISTORY_CLICK",
-						"Game re-acquired mouse capture after dispatch, releasing. "
-						"Future clicks would have result=false "
-						"reason=\"game SetCapture redirects mouse input\"");
-					::ReleaseCapture();
-				}
-			}
-			else
-			{
-				MsgWaitForMultipleObjects(0, NULL, FALSE, 16, QS_ALLINPUT);
-			}
-		}
-
-		m_fBlockInput = fOldBlockInput;
-
-		// Reset the game's internal mouse state (same as Settings loop).
-		::PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELPARAM(-1, -1));
-
-		// Clean up GUI-active state
-		m_bHistoryWasVisible = FALSE;
-		if (!m_cUnifiedSettingsDlg.IsWindow() || !m_cUnifiedSettingsDlg.IsWindowVisible())
-			m_fGuiActive = FALSE;
-	}
-
-	return 0;
-}
-
-
-/**
- * \brief Character selected in game - show HUD buttons.
- *        Posted by CharInfoFilter when it detects the CCharSelectedPacket.
- */
-LRESULT CMuWindow::OnCharSelected(UINT, WPARAM, LPARAM, BOOL&)
-{
-	WriteClickerLog("OnCharSelected: Showing HUD buttons");
-	// m_cHUDButtons.Show();
-	return 0;
-}
-
-
-/**
- * \brief Character deselected (logout/disconnect) - hide HUD and dialogs.
- *        Posted by CharInfoFilter when it detects a logout or disconnect.
- */
-LRESULT CMuWindow::OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&)
-{
-	WriteClickerLog("OnCharDeselected: Resetting HUD and hiding dialogs");
-
-	// m_cHUDButtons.Reset();
-
-	if (m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
-		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
-	if (m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible())
-		m_cHistoryDlg.ShowWindow(SW_HIDE);
-
-	m_bSettingsWasVisible = FALSE;
-	m_bHistoryWasVisible = FALSE;
-	m_fGuiActive = FALSE;
-
-	return 0;
-}
-
-
-/**
- * \brief WM_MOUSEACTIVATE handler — controls what happens when the user
- *        clicks on the game window.
- *
- *        When a popup dialog (Settings, History) is open, we must NOT let
- *        the game window become activated.  If the game activates, its
- *        WndProc processes WM_ACTIVATE and may call SetCapture(), stealing
- *        all subsequent mouse input from the dialog.  Returning
- *        MA_NOACTIVATEANDEAT prevents activation and discards the click
- *        (which OnMouseMessage would block anyway).
- *
- *        When no dialog is open, we pass through so the game's WndProc
- *        can return its own value (the game may return
- *        MA_NOACTIVATEANDEAT in certain UI states).
- */
-LRESULT CMuWindow::OnMouseActivate(UINT, WPARAM, LPARAM, BOOL& bHandled)
-{
-	if (m_fGuiActive)
-		return MA_NOACTIVATEANDEAT;
-
-	bHandled = FALSE;
-	return 0;
-}
-
-
-/**
- * \brief Hide popup dialogs when the game loses foreground (ALT+TAB, minimize).
- *        Saves visibility state so dialogs can be restored when focus returns.
- */
-void CMuWindow::HidePopupDialogs()
-{
-	m_bSettingsWasVisible = m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible();
-	m_bHistoryWasVisible = m_cHistoryDlg.IsWindow() && m_cHistoryDlg.IsWindowVisible();
-
-	if (m_bSettingsWasVisible)
-		m_cUnifiedSettingsDlg.ShowWindow(SW_HIDE);
-	if (m_bHistoryWasVisible)
-		m_cHistoryDlg.ShowWindow(SW_HIDE);
-}
-
-
-/**
- * \brief Restore popup dialogs that were visible before ALT+TAB / minimize.
- */
-void CMuWindow::RestorePopupDialogs()
-{
-	BOOL bRestoreSettings = m_bSettingsWasVisible;
-	BOOL bRestoreHistory = m_bHistoryWasVisible;
-
-	// Reset flags BEFORE showing windows to guard against re-entrant calls
-	m_bSettingsWasVisible = FALSE;
-	m_bHistoryWasVisible = FALSE;
-
-	if (bRestoreSettings && m_cUnifiedSettingsDlg.IsWindow())
-	{
-		m_cUnifiedSettingsDlg.ShowWindow(SW_SHOW);
-		::SetWindowPos(m_cUnifiedSettingsDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-		::SetForegroundWindow(m_cUnifiedSettingsDlg.m_hWnd);
-	}
-	if (bRestoreHistory && m_cHistoryDlg.IsWindow())
-	{
-		m_cHistoryDlg.ShowWindow(SW_SHOW);
-		::SetWindowPos(m_cHistoryDlg.m_hWnd, HWND_TOP, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-		::SetForegroundWindow(m_cHistoryDlg.m_hWnd);
-	}
+	m_cOverlay.SetHistory(vHistory);
 }
