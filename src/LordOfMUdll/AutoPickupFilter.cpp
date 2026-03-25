@@ -25,6 +25,13 @@ static BOOL g_bHistoryInit = FALSE;
 
 // ---- Session Statistics (global, thread-safe via g_csHistory) ----
 
+// Key names used in GetSessionStats text format (must match consumer in MuWindow.cpp)
+static const char* STAT_KEY_KILLS   = "kills";
+static const char* STAT_KEY_ITEMS   = "items";
+static const char* STAT_KEY_ZEN     = "zen";
+static const char* STAT_KEY_EXP     = "exp";
+static const char* STAT_KEY_RUNTIME = "runtime";
+
 static int g_nSessionKillCount = 0;
 static int g_nSessionItemCount = 0;
 static unsigned __int64 g_ullSessionZenTotal = 0;
@@ -58,9 +65,6 @@ static void AddPickupHistoryEntry(const char* pszItemName)
 	g_nHistoryHead = (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
 	if (g_nHistoryCount < MAX_HISTORY_ENTRIES)
 		g_nHistoryCount++;
-
-	// Increment session item count (non-Zen items counted separately in CPutInventoryPacket handler)
-	g_nSessionItemCount++;
 
 	LeaveCriticalSection(&g_csHistory);
 }
@@ -130,10 +134,12 @@ extern "C" __declspec(dllexport) int GetSessionStats(char* pszBuffer, int nBufSi
 		dwRuntime = (GetTickCount() - g_dwSessionStartTick) / 1000;
 
 	_snprintf(pszBuffer, nBufSize - 1,
-		"kills=%d\nitems=%d\nzen=%I64u\nexp=%I64u\nruntime=%lu\n",
-		g_nSessionKillCount, g_nSessionItemCount,
-		g_ullSessionZenTotal, g_ullSessionExpGained,
-		(unsigned long)dwRuntime);
+		"%s=%d\n%s=%d\n%s=%I64u\n%s=%I64u\n%s=%lu\n",
+		STAT_KEY_KILLS, g_nSessionKillCount,
+		STAT_KEY_ITEMS, g_nSessionItemCount,
+		STAT_KEY_ZEN, g_ullSessionZenTotal,
+		STAT_KEY_EXP, g_ullSessionExpGained,
+		STAT_KEY_RUNTIME, (unsigned long)dwRuntime);
 	pszBuffer[nBufSize - 1] = '\0';
 
 	LeaveCriticalSection(&g_csHistory);
@@ -500,6 +506,12 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 				// Record to pickup history for the History dialog
 				AddPickupHistoryEntry(pszName);
+
+				// Increment session item count (only non-Zen items)
+				InitHistoryCS();
+				EnterCriticalSection(&g_csHistory);
+				g_nSessionItemCount++;
+				LeaveCriticalSection(&g_csHistory);
 			}
 
 			std::map<WORD, WORD>::iterator it = m_vDropList.find(wType);

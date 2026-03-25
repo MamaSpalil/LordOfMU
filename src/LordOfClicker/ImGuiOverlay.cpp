@@ -9,6 +9,12 @@
 // Forward-declare the ImGui Win32 WndProc handler (defined in imgui_impl_win32.cpp).
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+// History dialog constants
+static const char* ZEN_ENTRY_PREFIX = "Zen '";
+static const size_t ZEN_ENTRY_PREFIX_LEN = 5;
+static const int ITEMS_PER_PAGE = 10;
+static const int MAX_PAGE_BUTTONS = 10;
+
 // ============================================================================
 // Character class names (must match CHAR_CLASS_* defines in Settings.h)
 // ============================================================================
@@ -928,13 +934,12 @@ void CImGuiOverlay::RenderHistoryWindow()
 				for (int i = (int)m_vHistory.size() - 1; i >= 0; --i)
 				{
 					// Zen entries start with "Zen '"
-					if (m_vHistory[i].sItem.compare(0, 5, "Zen '") != 0)
+					if (m_vHistory[i].sItem.compare(0, ZEN_ENTRY_PREFIX_LEN, ZEN_ENTRY_PREFIX) != 0)
 						vItemIndices.push_back(i);
 				}
 
 				int nTotalItems = (int)vItemIndices.size();
-				int nItemsPerPage = 10;
-				int nTotalPages = (nTotalItems + nItemsPerPage - 1) / nItemsPerPage;
+				int nTotalPages = (nTotalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
 				if (nTotalPages < 1) nTotalPages = 1;
 				if (m_nHistoryPage >= nTotalPages) m_nHistoryPage = nTotalPages - 1;
 				if (m_nHistoryPage < 0) m_nHistoryPage = 0;
@@ -953,8 +958,8 @@ void CImGuiOverlay::RenderHistoryWindow()
 						ImGui::TableSetupColumn("Items Obtained", ImGuiTableColumnFlags_WidthStretch);
 						ImGui::TableHeadersRow();
 
-						int nStart = m_nHistoryPage * nItemsPerPage;
-						int nEnd = nStart + nItemsPerPage;
+						int nStart = m_nHistoryPage * ITEMS_PER_PAGE;
+						int nEnd = nStart + ITEMS_PER_PAGE;
 						if (nEnd > nTotalItems) nEnd = nTotalItems;
 
 						for (int i = nStart; i < nEnd; ++i)
@@ -985,7 +990,7 @@ void CImGuiOverlay::RenderHistoryWindow()
 					float spacing = ImGui::GetStyle().ItemSpacing.x;
 
 					// Page number buttons
-					for (int p = 0; p < nTotalPages && p < 10; ++p)
+					for (int p = 0; p < nTotalPages && p < MAX_PAGE_BUTTONS; ++p)
 					{
 						if (p > 0) ImGui::SameLine(0, 2.0f);
 
