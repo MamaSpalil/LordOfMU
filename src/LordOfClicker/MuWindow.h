@@ -48,6 +48,7 @@ public:
 protected:
 	BEGIN_MSG_MAP(CMuWindow)
 		MESSAGE_RANGE_HANDLER(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseMessage)
+		MESSAGE_RANGE_HANDLER(WM_KEYFIRST, WM_KEYLAST, OnKeyboardMessage)
 		MESSAGE_HANDLER(WM_ACTIVATEAPP, OnActivateApp)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
 		MESSAGE_HANDLER(WM_NCACTIVATE, OnNCActivate)
@@ -82,6 +83,7 @@ protected:
 	LRESULT OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnIsClickerInstalled(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseMessage(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnKeyboardMessage(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnActivateApp(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnActivate(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
@@ -152,6 +154,7 @@ protected:
 	BOOL m_fIsWndActive;
 	BOOL m_fBlockInput;
 	BOOL m_fGuiActive;     // TRUE when ImGui overlay is showing a dialog
+	bool m_bShiftWasDown;  // BUG-4 fix: Shift state captured on F9 KEYDOWN
 	BOOL m_fWasLastActiveInstance;
 
 	int m_iInstanceNumber;

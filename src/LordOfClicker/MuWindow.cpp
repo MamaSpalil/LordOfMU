@@ -40,6 +40,7 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
+	m_bShiftWasDown = false;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -272,7 +273,11 @@ LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lPara
 
 	if (CMuWindow::GetForegroundWindowTr() != pThis->m_hWnd)
 	{
-		if (pThis->OnKeyboardEvent(kbd->vkCode, (UINT)wParam))
+		// BUG-1 fix: Pass fCheckFgWnd=FALSE because the LL hook already
+		// verified the game is NOT foreground.  OnKeyboardEvent's own
+		// foreground check (fCheckFgWnd=TRUE) would reject the call,
+		// making F9/Shift+F9 unreachable via the LL hook.
+		if (pThis->OnKeyboardEvent(kbd->vkCode, (UINT)wParam, FALSE))
 			return 0;
 	}
 
@@ -368,9 +373,18 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		return TRUE;
 	}
 
+	// BUG-4 fix: Record Shift state when F9 is pressed (KEYDOWN), not
+	// when it is released (KEYUP).  Timer-based polling runs every 100ms,
+	// so by the time KEYUP arrives, the user may have already released Shift.
+	if (vkCode == VK_F9 && uMsg == WM_KEYDOWN)
+	{
+		m_bShiftWasDown = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+		return TRUE;
+	}
+
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
-		if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+		if (m_bShiftWasDown)
 		{
 			PostMessage(WM_SHOW_HISTORY, 0, 0);
 		}
@@ -378,6 +392,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		{
 			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		}
+		m_bShiftWasDown = false;
 		return TRUE;
 	}
 
@@ -452,6 +467,35 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 		bHandled = m_fBlockInput;
 	}
 
+	return 0;
+}
+
+
+/**
+ * \brief  BUG-3 fix: Forward keyboard messages (WM_KEYDOWN, WM_KEYUP, WM_CHAR,
+ *         WM_SYSKEYDOWN, WM_SYSKEYUP) to the ImGui overlay so that keyboard
+ *         navigation and text input work inside overlay windows.
+ *
+ *         Previously only mouse messages were forwarded via OnMouseMessage.
+ *         The keyboard WM_KEY* path in CImGuiOverlay::WndProcHandler was
+ *         dead code because no handler routed these messages to it.
+ */
+LRESULT CMuWindow::OnKeyboardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	// Forward keyboard messages to ImGui overlay.  If ImGui wants the
+	// keyboard (an overlay text field is focused), block the game from
+	// processing the keystroke.
+	if (m_cOverlay.IsInitialized())
+	{
+		if (m_cOverlay.WndProcHandler(m_hWnd, uMsg, wParam, lParam))
+		{
+			bHandled = TRUE;
+			return 0;
+		}
+	}
+
+	// Let the game process the key normally.
+	bHandled = FALSE;
 	return 0;
 }
 
@@ -561,11 +605,14 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// If autoclicker is running, stop it first then re-post to open the dialog
+	// BUG-2 fix: If the autoclicker is running, stop it and beep but do NOT
+	// re-post WM_SHOW_SETTINGS_GUI.  The old code would re-post itself in a
+	// loop while m_pClicker was still non-NULL (async stop), causing an
+	// avalanche of toggle calls that flip-flopped the dialog open/closed.
+	// The user can press F9 again once the clicker has stopped.
 	if (m_pClicker != NULL)
 	{
 		PostMessage(WM_STOP_CLICKER, 0, 0);
-		PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		MessageBeep(MB_ICONINFORMATION);
 		return 0;
 	}
