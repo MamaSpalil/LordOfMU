@@ -184,32 +184,9 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	// m_cSettingsDlg.Create(m_hWnd);
 	m_cLaunchMuDlg.Create(m_hWnd);
 
-	// -----------------------------------------------------------------------
-	// D3D9 EndScene hook + ImGui overlay.
-	// All UI (HUD buttons, settings dialog, history dialog) is now rendered
-	// directly inside the game's Direct3D 9 EndScene call via Dear ImGui.
-	// No popup windows, no focus/activation/capture conflicts.
-	// -----------------------------------------------------------------------
-	if (D3D9Hook::Install(m_hWnd))
-	{
-		D3D9Hook::SetOnEndScene(OnEndSceneCallback);
-		D3D9Hook::SetOnPreReset(OnPreResetCallback);
-		D3D9Hook::SetOnPostReset(OnPostResetCallback);
-
-		// Configure overlay callbacks so HUD button presses route to CMuWindow.
-		m_cOverlay.SetSettings(&m_cSettingsDlg.GetSettingsObj());
-		m_cOverlay.SetOnSettingsClicked(OnOverlaySettingsClicked, this);
-		m_cOverlay.SetOnStartStopClicked(OnOverlayStartStopClicked, this);
-		m_cOverlay.SetOnHistoryClicked(OnOverlayHistoryClicked, this);
-		m_cOverlay.SetOnSettingsApply(OnOverlayApplyClicked, this);
-
-		WriteClickerLog("D3D9 EndScene hook installed, ImGui overlay ready");
-	}
-	else
-	{
-		WriteClickerLog("D3D9 EndScene hook FAILED - overlay disabled");
-	}
-
+	// Detect windowed vs fullscreen display mode from registry BEFORE
+	// installing the D3D9 hook, so we can log the mode correctly and
+	// ensure the hook uses the appropriate strategy.
 	CRegKey cRegKey;
 	DWORD dwWndMode = 0;
 
@@ -236,6 +213,35 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 			MoveWindow((cx - rc.right + rc.left)/2,
 							-offs, rc.right - rc.left, rc.bottom - rc.top);
 		}
+	}
+
+	// -----------------------------------------------------------------------
+	// D3D9 EndScene hook + ImGui overlay.
+	// All UI (HUD buttons, settings dialog, history dialog) is now rendered
+	// directly inside the game's Direct3D 9 EndScene call via Dear ImGui.
+	// No popup windows, no focus/activation/capture conflicts.
+	// Works in both windowed and fullscreen (exclusive) display modes.
+	// -----------------------------------------------------------------------
+	if (D3D9Hook::Install(m_hWnd))
+	{
+		D3D9Hook::SetOnEndScene(OnEndSceneCallback);
+		D3D9Hook::SetOnPreReset(OnPreResetCallback);
+		D3D9Hook::SetOnPostReset(OnPostResetCallback);
+
+		// Configure overlay callbacks so HUD button presses route to CMuWindow.
+		m_cOverlay.SetSettings(&m_cSettingsDlg.GetSettingsObj());
+		m_cOverlay.SetOnSettingsClicked(OnOverlaySettingsClicked, this);
+		m_cOverlay.SetOnStartStopClicked(OnOverlayStartStopClicked, this);
+		m_cOverlay.SetOnHistoryClicked(OnOverlayHistoryClicked, this);
+		m_cOverlay.SetOnSettingsApply(OnOverlayApplyClicked, this);
+
+		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook installed, ImGui overlay ready (DisplayMode=%s, hWnd=0x%p)",
+			m_fWindow ? "Windowed" : "Fullscreen", m_hWnd);
+	}
+	else
+	{
+		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook FAILED - overlay disabled (DisplayMode=%s, hWnd=0x%p)",
+			m_fWindow ? "Windowed" : "Fullscreen", m_hWnd);
 	}
 
 	SetTimer(1011, 100, 0);

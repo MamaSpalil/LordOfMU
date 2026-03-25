@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "D3D9Hook.h"
+#include "ClickerLogger.h"
 #include <d3d9.h>
 
 #pragma comment(lib, "d3d9.lib")
@@ -139,6 +140,36 @@ static HRESULT WINAPI HookedResetEx(IDirect3DDevice9* pDevice, D3DPRESENT_PARAME
 }
 
 // ---------------------------------------------------------------------------
+// Helper: create (and later destroy) a temporary hidden window for the
+// D3D9 dummy device.  Using a dedicated hidden window avoids conflicts
+// with the game's own HWND — in exclusive fullscreen mode the game window
+// may reject additional D3D device creation attempts.
+// ---------------------------------------------------------------------------
+static const char* s_szDummyWndClass = "D3D9Hook_DummyWnd";
+
+static HWND CreateDummyWindow()
+{
+	WNDCLASSEXA wc;
+	ZeroMemory(&wc, sizeof(wc));
+	wc.cbSize        = sizeof(wc);
+	wc.style         = CS_CLASSDC;
+	wc.lpfnWndProc   = DefWindowProcA;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.lpszClassName = s_szDummyWndClass;
+	RegisterClassExA(&wc);
+
+	return CreateWindowExA(0, s_szDummyWndClass, NULL, WS_OVERLAPPEDWINDOW,
+		0, 0, 100, 100, NULL, NULL, wc.hInstance, NULL);
+}
+
+static void DestroyDummyWindow(HWND hWnd)
+{
+	if (hWnd)
+		DestroyWindow(hWnd);
+	UnregisterClassA(s_szDummyWndClass, GetModuleHandle(NULL));
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 BOOL D3D9Hook::Install(HWND hwndGame)
@@ -147,30 +178,56 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 		return TRUE;
 
 	// -----------------------------------------------------------------------
+	// Step 0: Create a temporary hidden window for the dummy D3D devices.
+	// In exclusive fullscreen the game's HWND may be incompatible with
+	// additional windowed device creation.  A separate hidden window avoids
+	// this problem — the vtable is the same regardless of the HWND used.
+	// -----------------------------------------------------------------------
+	HWND hDummyWnd = CreateDummyWindow();
+	if (!hDummyWnd)
+	{
+		// Fall back to the game window if the helper window can't be created.
+		hDummyWnd = hwndGame;
+		WriteClickerLogFmt("D3D9HOOK", "CreateDummyWindow failed, falling back to game HWND 0x%p", hwndGame);
+	}
+
+	// -----------------------------------------------------------------------
 	// Step 1: Load d3d9.dll and create a temporary device to get vtable.
 	// -----------------------------------------------------------------------
 	HMODULE hD3D9 = GetModuleHandleA("d3d9.dll");
 	if (!hD3D9)
 		hD3D9 = LoadLibraryA("d3d9.dll");
 	if (!hD3D9)
+	{
+		WriteClickerLogFmt("D3D9HOOK", "d3d9.dll not found (GetModuleHandle + LoadLibrary failed)");
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
+	}
 
 	typedef IDirect3D9* (WINAPI* FnDirect3DCreate9)(UINT);
 	FnDirect3DCreate9 pfnCreate9 =
 		(FnDirect3DCreate9)GetProcAddress(hD3D9, "Direct3DCreate9");
 	if (!pfnCreate9)
+	{
+		WriteClickerLogFmt("D3D9HOOK", "Direct3DCreate9 not found in d3d9.dll");
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
+	}
 
 	IDirect3D9* pD3D = pfnCreate9(D3D_SDK_VERSION);
 	if (!pD3D)
+	{
+		WriteClickerLogFmt("D3D9HOOK", "Direct3DCreate9 returned NULL");
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
+	}
 
 	// Use a minimal present-parameters set for the dummy device.
 	D3DPRESENT_PARAMETERS pp;
 	ZeroMemory(&pp, sizeof(pp));
 	pp.Windowed            = TRUE;
 	pp.SwapEffect          = D3DSWAPEFFECT_DISCARD;
-	pp.hDeviceWindow       = hwndGame;
+	pp.hDeviceWindow       = hDummyWnd;
 	pp.BackBufferFormat    = D3DFMT_UNKNOWN;
 	pp.BackBufferCount     = 1;
 	pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -184,14 +241,16 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	HRESULT hr = pD3D->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
-		hwndGame,
+		hDummyWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
 		&pp,
 		&pDummy);
 
 	if (FAILED(hr) || !pDummy)
 	{
+		WriteClickerLogFmt("D3D9HOOK", "CreateDevice(HAL) failed: hr=0x%08X, hWnd=0x%p", hr, hDummyWnd);
 		pD3D->Release();
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
 	}
 
@@ -219,17 +278,26 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	// Step 3: Patch EndScene and Reset.
 	// -----------------------------------------------------------------------
 	if (!PatchVtableEntry(g_ppVtEndScene, (void*)HookedEndScene, (void**)&g_pOrigEndScene))
+	{
+		WriteClickerLogFmt("D3D9HOOK", "PatchVtableEntry(EndScene) failed");
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
+	}
 
 	if (!PatchVtableEntry(g_ppVtReset, (void*)HookedReset, (void**)&g_pOrigReset))
 	{
+		WriteClickerLogFmt("D3D9HOOK", "PatchVtableEntry(Reset) failed, rolling back EndScene");
 		// Rollback EndScene if Reset patch fails.
 		PatchVtableEntry(g_ppVtEndScene, (void*)g_pOrigEndScene, NULL);
 		g_pOrigEndScene = NULL;
+		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 		return FALSE;
 	}
 
 	g_bInstalled = true;
+
+	WriteClickerLogFmt("D3D9HOOK", "Step 3 OK: Regular D3D9 vtable patched (EndScene=0x%p, Reset=0x%p)",
+		ppVtable[42], ppVtable[16]);
 
 	// -----------------------------------------------------------------------
 	// Step 4: Also patch the D3D9Ex vtable (if available).
@@ -262,7 +330,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 				ZeroMemory(&ppEx, sizeof(ppEx));
 				ppEx.Windowed             = TRUE;
 				ppEx.SwapEffect           = D3DSWAPEFFECT_DISCARD;
-				ppEx.hDeviceWindow        = hwndGame;
+				ppEx.hDeviceWindow        = hDummyWnd;
 				ppEx.BackBufferFormat     = D3DFMT_UNKNOWN;
 				ppEx.BackBufferCount      = 1;
 				ppEx.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -271,7 +339,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 				HRESULT hrEx = pD3DEx->CreateDeviceEx(
 					D3DADAPTER_DEFAULT,
 					D3DDEVTYPE_HAL,
-					hwndGame,
+					hDummyWnd,
 					D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
 					&ppEx,
 					NULL,       // pFullscreenDisplayMode — NULL for windowed
@@ -292,16 +360,39 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 
 						PatchVtableEntry(g_ppVtResetEx, (void*)HookedResetEx,
 							(void**)&g_pOrigResetEx);
+
+						WriteClickerLogFmt("D3D9HOOK", "Step 4 OK: D3D9Ex vtable patched (EndSceneEx=0x%p, ppVtableEx=0x%p)",
+							ppVtableEx[42], ppVtableEx);
+					}
+					else
+					{
+						WriteClickerLogFmt("D3D9HOOK", "Step 4: D3D9Ex vtable == regular vtable (0x%p), Ex patch skipped",
+							ppVtable);
 					}
 
 					pDummyEx->Release();
 				}
+				else
+				{
+					WriteClickerLogFmt("D3D9HOOK", "Step 4: CreateDeviceEx failed: hr=0x%08X (D3D9Ex patch skipped)", hrEx);
+				}
 
 				pD3DEx->Release();
 			}
+			else
+			{
+				WriteClickerLogFmt("D3D9HOOK", "Step 4: Direct3DCreate9Ex failed (D3D9Ex patch skipped)");
+			}
+		}
+		else
+		{
+			WriteClickerLogFmt("D3D9HOOK", "Step 4: Direct3DCreate9Ex not found in d3d9.dll (D3D9Ex not available)");
 		}
 	}
 #endif // !D3D_DISABLE_9EX
+
+	// Clean up the temporary helper window.
+	DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
 
 	return TRUE;
 }
