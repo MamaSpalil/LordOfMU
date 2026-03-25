@@ -7,9 +7,8 @@
 #include "ClickerJob.h"
 #include "LaunchMuDialog.h"
 #include "AdvSettingsDialog.h"
-#include "UnifiedSettingsDlg.h"
-// #include "HUDButtons.h"
-#include "HistoryDialog.h"
+#include "D3D9Hook.h"
+#include "ImGuiOverlay.h"
 #include "ApiHooker.h"
 
 #define WM_IS_CLICKER_INSTALLED (WM_APP + 402)
@@ -55,7 +54,6 @@ protected:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_MUWND_INITIALIZE, OnInitMuWindow)
 		MESSAGE_HANDLER(WM_IS_CLICKER_INSTALLED, OnIsClickerInstalled)
-		MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnErasebkgnd)
 		MESSAGE_HANDLER(WM_SHOW_SETTINGS_GUI, OnShowSettingsGUI)
 		MESSAGE_HANDLER(WM_START_CLICKER, OnStartClicker)
@@ -75,29 +73,9 @@ protected:
 		MESSAGE_HANDLER(WM_MOVE, OnGameWindowChanged)
 		MESSAGE_HANDLER(WM_SIZE, OnGameWindowChanged)
 		MESSAGE_HANDLER(WM_TIMER, OnTimer)
-		// MESSAGE_HANDLER(WM_HUD_SETTINGS, OnHUDSettings)
-		// MESSAGE_HANDLER(WM_HUD_STARTSTOP, OnHUDStartStop)
-		// MESSAGE_HANDLER(WM_HUD_HISTORY, OnHUDHistory)
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
 		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
-		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 		MESSAGE_HANDLER(WM_SHOW_HISTORY, OnShowHistory)
-		// Catch-all guard: when a dialog is open, route ALL unhandled messages
-		// to the system DefWindowProc instead of the game's original WndProc.
-		// Without this, sent messages (WM_PAINT, WM_NCHITTEST, etc.) that
-		// aren't in our message map fall through ATL's CWindowImpl to
-		// CallWindowProc(m_pfnSuperWindowProc) — the game's WndProc.
-		// The game's WndProc internally calls PeekMessage to drain mouse
-		// input, which steals WM_LBUTTONDOWN from the queue before dialog
-		// controls can receive it, making clicks non-functional.
-		// It also leaves the game in a click-hold state (WM_LBUTTONDOWN
-		// consumed, matching WM_LBUTTONUP never arrives), causing the
-		// game window to freeze.
-		if (m_fGuiActive)
-		{
-			lResult = ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-			return TRUE;
-		}
 	END_MSG_MAP()
 
 protected:
@@ -112,29 +90,6 @@ protected:
 	LRESULT OnStartClicker(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnStopClicker(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnClickerJobFinished(UINT, WPARAM, LPARAM, BOOL&);
-	
-	LRESULT OnSetCursor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		// When a popup dialog (Settings, History) is open, prevent the game's
-		// original WndProc from interfering with cursor management.  The
-		// dialog's DefWindowProc may forward WM_SETCURSOR to us (the owner
-		// window) for non-client hit tests.  If we pass this through to the
-		// game's WndProc, it can call SetCursor(NULL) and hide the cursor
-		// over the dialog.  Block the forwarding so the dialog keeps its
-		// own cursor.
-		if (m_fGuiActive && (HWND)wParam != m_hWnd)
-		{
-			bHandled = TRUE;
-			return TRUE;
-		}
-
-		// Normal operation: pass WM_SETCURSOR through to the game's original
-		// WndProc.  The game relies on processing WM_SETCURSOR to maintain
-		// its internal mouse/click state.  Blocking it prevents LMB clicks
-		// from registering on the server selection screen and other UI.
-		bHandled = FALSE;
-		return 0;
-	}
 
 	LRESULT OnClickerMouseMove(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnClickerRButtonDown(UINT, WPARAM, LPARAM, BOOL&);
@@ -150,16 +105,23 @@ protected:
 	LRESULT OnSetVersion(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnGameWindowChanged(UINT, WPARAM, LPARAM, BOOL&);
-	// LRESULT OnHUDSettings(UINT, WPARAM, LPARAM, BOOL&);
-	// LRESULT OnHUDStartStop(UINT, WPARAM, LPARAM, BOOL&);
-	// LRESULT OnHUDHistory(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowHistory(UINT, WPARAM, LPARAM, BOOL&);
 
-	void HidePopupDialogs();
-	void RestorePopupDialogs();
+	// ImGui overlay static callbacks (D3D9Hook -> CMuWindow)
+	static void OnEndSceneCallback(IDirect3DDevice9* pDevice);
+	static void OnPreResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPP);
+	static void OnPostResetCallback(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPP, HRESULT hr);
+
+	// ImGui overlay UI callbacks (button clicks)
+	static void OnOverlaySettingsClicked(void* pData);
+	static void OnOverlayStartStopClicked(void* pData);
+	static void OnOverlayHistoryClicked(void* pData);
+	static void OnOverlayApplyClicked(void* pData);
+
+	// History data query helper
+	void QueryPickupHistory();
 
 protected:
 	BOOL OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd = TRUE);
@@ -184,20 +146,17 @@ public:
 protected:	
 	BOOL m_fIsWndActive;
 	BOOL m_fBlockInput;
-	BOOL m_fGuiActive;
+	BOOL m_fGuiActive;     // TRUE when ImGui overlay is showing a dialog
 	BOOL m_fWasLastActiveInstance;
-	BOOL m_bSettingsWasVisible;
-	BOOL m_bHistoryWasVisible;
 
 	int m_iInstanceNumber;
 
 	CSettingsDlg m_cSettingsDlg;
 	CLaunchMuDialog m_cLaunchMuDlg;
-	// REDESIGN: CAdvSettingsDialog replaced by CUnifiedSettingsDlg
-	// CAdvSettingsDialog m_cAdvSettingsDlg;
-	CUnifiedSettingsDlg m_cUnifiedSettingsDlg;
-	CHistoryDialog m_cHistoryDlg;
-	// CHUDButtons m_cHUDButtons;
+
+	// ImGui-based overlay that renders directly into the D3D EndScene.
+	// Replaces CUnifiedSettingsDlg, CHistoryDialog, and CHUDButtons.
+	CImGuiOverlay m_cOverlay;
 
 private:
 	HHOOK m_hKbdHook;
