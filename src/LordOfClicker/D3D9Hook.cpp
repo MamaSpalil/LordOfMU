@@ -32,7 +32,9 @@ namespace
 	IDirect3DDevice9* g_pGameDevice = NULL;
 
 	// Guard against re-entrant EndScene calls.
-	bool g_bInEndScene = false;
+	// NOTE: EndScene is only called from the D3D rendering thread, so
+	// a simple boolean guard suffices (no atomic/interlock needed).
+	volatile bool g_bInEndScene = false;
 
 	// Installed flag.
 	bool g_bInstalled = false;
@@ -52,7 +54,8 @@ static BOOL PatchVtableEntry(void** ppEntry, void* pNewFunc, void** ppOldFunc)
 
 	*ppEntry = pNewFunc;
 
-	VirtualProtect(ppEntry, sizeof(void*), dwOldProtect, &dwOldProtect);
+	DWORD dwDummy = 0;
+	VirtualProtect(ppEntry, sizeof(void*), dwOldProtect, &dwDummy);
 	return TRUE;
 }
 
