@@ -481,7 +481,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	// Timer polls GetAsyncKeyState every 100ms; when the key is released
 	// the Timer fires OnKeyboardEvent(VK_F9, WM_KEYUP).  Shift state is
 	// checked at this moment — the user is expected to still hold Shift
-	// when releasing F9 (same assumption F10+Shift uses at line 419).
+	// when releasing F9 (same assumption F10+Shift uses below).
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
 		if (fShiftDown)
@@ -763,9 +763,8 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	m_cOverlay.ToggleSettings();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
-	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Settings overlay toggled | NowVisible=%s | m_fGuiActive=%s",
-		m_fGuiActive ? "YES" : "NO",
-		m_fGuiActive ? "TRUE" : "FALSE");
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=%s",
+		m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
 
 	return 0;
 }
@@ -1758,9 +1757,8 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	m_cOverlay.ToggleHistory();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
-	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: History overlay toggled | NowVisible=%s | m_fGuiActive=%s",
-		m_fGuiActive ? "YES" : "NO",
-		m_fGuiActive ? "TRUE" : "FALSE");
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: History overlay toggled | HistoryVisible=%s",
+		m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
 
 	return 0;
 }
