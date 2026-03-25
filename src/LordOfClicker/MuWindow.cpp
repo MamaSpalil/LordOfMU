@@ -702,7 +702,29 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 				if (!m_cUnifiedSettingsDlg.IsDialogMessage(&msg))
 				{
 					TranslateMessage(&msg);
-					DispatchMessage(&msg);
+
+					// For game-window messages, route through our handlers
+					// but skip the game's original WndProc.  The game's
+					// WndProc (for WM_TIMER, WM_PAINT, etc.) may internally
+					// call PeekMessage to drain mouse input, stealing
+					// WM_LBUTTONDOWN from the queue before this loop can
+					// dispatch it to dialog controls.  By using DefWindowProc
+					// for unhandled messages instead of the game's WndProc,
+					// mouse messages stay in the queue for the dialog.
+					if (msg.hwnd == m_hWnd)
+					{
+						LRESULT lResult = 0;
+						if (!ProcessWindowMessage(msg.hwnd, msg.message,
+								msg.wParam, msg.lParam, lResult))
+						{
+							::DefWindowProc(msg.hwnd, msg.message,
+								msg.wParam, msg.lParam);
+						}
+					}
+					else
+					{
+						DispatchMessage(&msg);
+					}
 				}
 
 				// After dispatching a message, the game's WndProc may have
@@ -1641,7 +1663,15 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 {
 	if (wParam != 1011)
 	{
-		bHandled = FALSE;
+		// When a popup dialog is open, don't pass game timers to the
+		// original WndProc.  The game's timer handlers may internally
+		// call PeekMessage to drain mouse input, which steals
+		// WM_LBUTTONDOWN from the queue before the dialog's local
+		// message loop can dispatch it to dialog controls.
+		if (m_fGuiActive)
+			bHandled = TRUE;
+		else
+			bHandled = FALSE;
 	}
 	else
 	{
@@ -1960,7 +1990,24 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 				if (!m_cHistoryDlg.IsDialogMessage(&msg))
 				{
 					TranslateMessage(&msg);
-					DispatchMessage(&msg);
+
+					// For game-window messages, route through our handlers
+					// but skip the game's original WndProc (same rationale
+					// as the Settings dialog loop above).
+					if (msg.hwnd == m_hWnd)
+					{
+						LRESULT lResult = 0;
+						if (!ProcessWindowMessage(msg.hwnd, msg.message,
+								msg.wParam, msg.lParam, lResult))
+						{
+							::DefWindowProc(msg.hwnd, msg.message,
+								msg.wParam, msg.lParam);
+						}
+					}
+					else
+					{
+						DispatchMessage(&msg);
+					}
 				}
 
 				// Release game capture if re-acquired during dispatch
