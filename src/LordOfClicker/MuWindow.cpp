@@ -1709,6 +1709,8 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 					// For F9: only dispatch on key release (KEYUP).  F9 handlers
 					// only act on WM_KEYUP, so the WM_KEYDOWN dispatch is redundant
 					// and causes a confusing "double call" in the logs.
+					// This applies to both F9 and Shift+F9 (same VK_F9 key code,
+					// Shift modifier is checked at KEYUP time in OnKeyboardEvent).
 					if (m_vFnKeys[i].vk == VK_F9 && fNewState)
 					{
 						// Key pressed — just update state, skip dispatch.
@@ -1838,7 +1840,7 @@ void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
 		pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
 		if (pThis->m_fGuiActive)
 		{
-			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Overlay initialized with GUI already active (Settings=%s, History=%s)",
+			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Overlay initialized with show flags already set (Settings=%s, History=%s) - rendering begins now",
 				pThis->m_cOverlay.IsSettingsVisible() ? "YES" : "NO",
 				pThis->m_cOverlay.IsHistoryVisible() ? "YES" : "NO");
 		}
