@@ -765,9 +765,23 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		MessageBeep(MB_ICONINFORMATION);
 	}
 
-	// Toggle settings overlay in ImGui.  If the overlay hasn't been lazily
-	// initialized yet (first EndScene hasn't fired), the show flag is still
-	// set — the window will appear as soon as the overlay initializes.
+	// Safety net: if the overlay has not been lazily initialized yet but the
+	// D3D9 hook has already captured the game device, force-initialize now so
+	// the window becomes visible immediately instead of waiting for the next
+	// EndScene callback (which may never arrive if the vtable hook missed the
+	// game's actual device).
+	if (!m_cOverlay.IsInitialized())
+	{
+		IDirect3DDevice9* pDev = D3D9Hook::GetDevice();
+		if (pDev)
+		{
+			WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Overlay not initialized but device available (0x%p) -> force-initializing",
+				pDev);
+			m_cOverlay.Initialize(m_hWnd, pDev);
+		}
+	}
+
+	// Toggle settings overlay in ImGui.
 	m_cOverlay.ToggleSettings();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
@@ -1783,9 +1797,20 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	QueryPickupHistory();
 	QuerySessionStats();
 
-	// Toggle history overlay in ImGui.  If the overlay hasn't been lazily
-	// initialized yet, the show flag is still set — the window will appear
-	// as soon as the overlay initializes.
+	// Safety net: if the overlay has not been lazily initialized yet but the
+	// D3D9 hook has already captured the game device, force-initialize now.
+	if (!m_cOverlay.IsInitialized())
+	{
+		IDirect3DDevice9* pDev = D3D9Hook::GetDevice();
+		if (pDev)
+		{
+			WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Overlay not initialized but device available (0x%p) -> force-initializing",
+				pDev);
+			m_cOverlay.Initialize(m_hWnd, pDev);
+		}
+	}
+
+	// Toggle history overlay in ImGui.
 	m_cOverlay.ToggleHistory();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 

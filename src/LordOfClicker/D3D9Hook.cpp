@@ -234,9 +234,18 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	// -----------------------------------------------------------------------
 	// Step 4: Also patch the D3D9Ex vtable (if available).
 	// Games or the Windows runtime may create the D3D device via
-	// Direct3DCreate9Ex, which produces a device with a DIFFERENT vtable
-	// from regular Direct3DCreate9 HAL devices.  Without this extra patch
-	// the EndScene hook never fires on D3D9Ex games.
+	// Direct3DCreate9Ex + CreateDeviceEx, which produces an
+	// IDirect3DDevice9Ex with a DIFFERENT vtable from regular
+	// IDirect3DDevice9 HAL devices.  Without this extra patch the
+	// EndScene hook never fires on D3D9Ex games (including most games
+	// running on Windows 10/11 where the runtime internally promotes
+	// devices to D3D9Ex).
+	//
+	// IMPORTANT: We must use CreateDeviceEx() (not CreateDevice()) on the
+	// IDirect3D9Ex interface to obtain the true D3D9Ex device vtable.
+	// IDirect3D9Ex::CreateDevice() still creates a base IDirect3DDevice9
+	// whose vtable matches the regular D3D9 one — patching it has no
+	// additional effect.
 	// -----------------------------------------------------------------------
 #if !defined(D3D_DISABLE_9EX)
 	{
@@ -258,13 +267,14 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 				ppEx.BackBufferCount      = 1;
 				ppEx.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-				IDirect3DDevice9* pDummyEx = NULL;
-				HRESULT hrEx = pD3DEx->CreateDevice(
+				IDirect3DDevice9Ex* pDummyEx = NULL;
+				HRESULT hrEx = pD3DEx->CreateDeviceEx(
 					D3DADAPTER_DEFAULT,
 					D3DDEVTYPE_HAL,
 					hwndGame,
 					D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
 					&ppEx,
+					NULL,       // pFullscreenDisplayMode — NULL for windowed
 					&pDummyEx);
 
 				if (SUCCEEDED(hrEx) && pDummyEx)
