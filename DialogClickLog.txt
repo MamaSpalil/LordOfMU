@@ -1,77 +1,68 @@
-[2026-03-25 04:17:41] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,17) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:41] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(82,12) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:41] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(82,11) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:42] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(90,4) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:42] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(120,2) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:42] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(135,3) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:42] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(140,9) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:42] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(143,13) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:43] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(344,165) targetHWND=0x001611E0 result=true
-[2026-03-25 04:17:43] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(344,165) result=true (click released on dialog controls)
-[2026-03-25 04:17:44] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(139,12) targetHWND=0x00590868 result=true
-[2026-03-25 04:17:44] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(141,9) targetHWND=0x00590868 result=true
-[2026-03-25 04:17:44] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(142,4) targetHWND=0x00590868 result=true
-[2026-03-25 04:17:45] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(372,228) targetHWND=0x001611E0 result=true
-[2026-03-25 04:17:45] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(372,228) result=true (click released on dialog controls)
-[2026-03-25 04:17:45] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(25,16) targetHWND=0x00191314 result=true
-[2026-03-25 04:17:46] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(52,16) targetHWND=0x007F0932 result=true
-[2026-03-25 04:17:46] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(50,16) targetHWND=0x007F0932 result=true
-[2026-03-25 04:17:46] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(49,16) targetHWND=0x007F0932 result=true
-[2026-03-25 04:17:47] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(49,14) targetHWND=0x001C0FEA result=true
-[2026-03-25 04:17:48] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(53,6) targetHWND=0x001C0FEA result=true
-[2026-03-25 04:17:48] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(338,5) targetHWND=0x00250FDA result=true
-[2026-03-25 04:17:48] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(334,9) targetHWND=0x0015126E result=true
-[2026-03-25 04:17:49] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(336,5) targetHWND=0x002211D8 result=true
-[2026-03-25 04:17:49] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(130,12) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:50] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(125,6) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:50] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(128,6) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:50] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(134,8) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:17:51] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(92,8) targetHWND=0x002E0FAC result=true
-[2026-03-25 04:21:13] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(83,30) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:13] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(67,9) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:14] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(96,6) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:14] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(187,126) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:15] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(32,14) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:15] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(32,16) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:15] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(53,12) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:16] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(55,12) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:16] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(55,12) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:16] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(38,11) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDOWN pos=(131,379) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(131,379) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(131,379) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(131,379) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDBLCLK pos=(132,378) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDBLCLK pos=(132,378) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(135,378) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:18] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(135,378) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:19] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(337,334) targetHWND=0x00390FDE result=true
-[2026-03-25 04:21:19] [HISTORY_CLICK] LButtonUp received by History dialog: pos=(337,334) result=true (click released on dialog controls)
-[2026-03-25 04:21:23] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDOWN pos=(186,306) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:23] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(186,306) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:23] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(187,306) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:23] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(187,306) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:23] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(240,209) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:24] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(283,259) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:24] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(376,344) targetHWND=0x00390FDE result=true
-[2026-03-25 04:21:24] [HISTORY_CLICK] LButtonUp received by History dialog: pos=(376,344) result=true (click released on dialog controls)
-[2026-03-25 04:21:24] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDOWN pos=(640,464) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:24] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(640,464) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(640,464) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(640,464) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDOWN pos=(711,410) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(711,410) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(712,410) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:25] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(712,410) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:26] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(265,125) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:26] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(14,148) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:27] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONDOWN pos=(438,578) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:27] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(438,578) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:27] [HISTORY_CLICK] Click attempt on game window (History open): msg=WM_LBUTTONUP pos=(427,577) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:21:27] [HISTORY_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(427,577) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:21:28] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(52,144) targetHWND=0x00730EBE result=true
-[2026-03-25 04:21:29] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(29,0) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:29] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(56,20) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:30] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(52,13) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:30] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(51,7) targetHWND=0x0019111A result=true
-[2026-03-25 04:21:30] [HISTORY_CLICK] Click attempt on History dialog: msg=WM_LBUTTONUP pos=(52,9) targetHWND=0x0019111A result=true
+[2026-03-25 04:49:58] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(92,6) targetHWND=0x00150286 result=true
+[2026-03-25 04:49:58] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(87,13) targetHWND=0x00150286 result=true
+[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(137,28) targetHWND=0x00530E68 result=true
+[2026-03-25 04:49:59] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(137,28) result=true (click released on dialog controls)
+[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(175,8) targetHWND=0x001D10D2 result=true
+[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(231,66) targetHWND=0x00530E68 result=true
+[2026-03-25 04:49:59] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(231,66) result=true (click released on dialog controls)
+[2026-03-25 04:50:00] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(315,0) targetHWND=0x005C0D4C result=true
+[2026-03-25 04:50:00] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(380,58) targetHWND=0x00530E68 result=true
+[2026-03-25 04:50:00] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(380,58) result=true (click released on dialog controls)
+[2026-03-25 04:50:01] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(341,4) targetHWND=0x005C0868 result=true
+[2026-03-25 04:50:01] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(339,9) targetHWND=0x001D10D2 result=true
+[2026-03-25 04:50:02] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(327,271) targetHWND=0x00530E68 result=true
+[2026-03-25 04:50:02] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(327,271) result=true (click released on dialog controls)
+[2026-03-25 04:50:02] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(61,2) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(59,5) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(49,14) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(32,16) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(11,15) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(43,18) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(61,8) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(74,0) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:05] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(74,1) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(58,11) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(58,13) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,20) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,23) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,14) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,2) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(300,381) targetHWND=0x003B050C result=true
+[2026-03-25 04:50:07] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(300,381) result=true (click released on dialog controls)
+[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(302,374) targetHWND=0x003B050C result=true
+[2026-03-25 04:50:08] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(302,374) result=true (click released on dialog controls)
+[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(319,381) targetHWND=0x003B050C result=true
+[2026-03-25 04:50:08] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(319,381) result=true (click released on dialog controls)
+[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(77,2) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(77,10) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(76,19) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(26,24) targetHWND=0x00151302 result=true
+[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,15) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(55,13) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(52,22) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(48,25) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(40,15) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(83,2) targetHWND=0x00361164 result=true
+[2026-03-25 04:50:11] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(184,379) targetHWND=0x003B050C result=true
+[2026-03-25 04:50:11] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(184,379) result=true (click released on dialog controls)
+[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt on game window (Settings open): msg=WM_LBUTTONDOWN pos=(132,474) result=false reason="click targets game window, not dialog" gameHasCapture=no
+[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(132,474) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
+[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt on game window (Settings open): msg=WM_LBUTTONUP pos=(132,474) result=false reason="click targets game window, not dialog" gameHasCapture=no
+[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(132,474) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
+[2026-03-25 04:50:14] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(142,14) targetHWND=0x001E1252 result=true
+[2026-03-25 04:50:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(176,180) targetHWND=0x00530E68 result=true
+[2026-03-25 04:50:15] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(176,180) result=true (click released on dialog controls)
+[2026-03-25 04:50:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(79,15) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,9) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(82,9) targetHWND=0x00150286 result=true
+[2026-03-25 04:50:18] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(13,4) targetHWND=0x00600D98 result=true
+[2026-03-25 04:50:18] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,8) targetHWND=0x00281018 result=true
+[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,7) targetHWND=0x00281018 result=true
+[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,6) targetHWND=0x00281018 result=true
+[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(143,6) targetHWND=0x00281018 result=true
+[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(147,6) targetHWND=0x001E1252 result=true
+[2026-03-25 04:50:21] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(147,13) targetHWND=0x00150286 result=true
