@@ -23,6 +23,15 @@ namespace
 	void**      g_ppVtEndScene   = NULL;
 	void**      g_ppVtReset      = NULL;
 
+	// D3D9Ex devices (created via Direct3DCreate9Ex) use a separate vtable
+	// from regular D3D9 HAL devices.  Many modern MU Online clients and
+	// Windows 10/11 runtimes use D3D9Ex internally, so we must also patch
+	// the Ex vtable to ensure the EndScene hook fires.
+	FnEndScene  g_pOrigEndSceneEx  = NULL;
+	FnReset     g_pOrigResetEx     = NULL;
+	void**      g_ppVtEndSceneEx   = NULL;
+	void**      g_ppVtResetEx      = NULL;
+
 	// User callbacks.
 	FnOnEndScene  g_pfnOnEndScene  = NULL;
 	FnOnPreReset  g_pfnOnPreReset  = NULL;
@@ -87,6 +96,41 @@ static HRESULT WINAPI HookedReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETE
 		g_pfnOnPreReset(pDevice, pPP);
 
 	HRESULT hr = g_pOrigReset(pDevice, pPP);
+
+	if (g_pfnOnPostReset)
+		g_pfnOnPostReset(pDevice, pPP, hr);
+
+	return hr;
+}
+
+// ---------------------------------------------------------------------------
+// Hooked EndScene for D3D9Ex devices (separate vtable from regular D3D9).
+// ---------------------------------------------------------------------------
+static HRESULT WINAPI HookedEndSceneEx(IDirect3DDevice9* pDevice)
+{
+	if (!g_bInEndScene)
+	{
+		g_bInEndScene = true;
+		g_pGameDevice = pDevice;
+
+		if (g_pfnOnEndScene)
+			g_pfnOnEndScene(pDevice);
+
+		g_bInEndScene = false;
+	}
+
+	return g_pOrigEndSceneEx(pDevice);
+}
+
+// ---------------------------------------------------------------------------
+// Hooked Reset for D3D9Ex devices.
+// ---------------------------------------------------------------------------
+static HRESULT WINAPI HookedResetEx(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPP)
+{
+	if (g_pfnOnPreReset)
+		g_pfnOnPreReset(pDevice, pPP);
+
+	HRESULT hr = g_pOrigResetEx(pDevice, pPP);
 
 	if (g_pfnOnPostReset)
 		g_pfnOnPostReset(pDevice, pPP, hr);
@@ -186,6 +230,69 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	}
 
 	g_bInstalled = true;
+
+	// -----------------------------------------------------------------------
+	// Step 4: Also patch the D3D9Ex vtable (if available).
+	// Games or the Windows runtime may create the D3D device via
+	// Direct3DCreate9Ex, which produces a device with a DIFFERENT vtable
+	// from regular Direct3DCreate9 HAL devices.  Without this extra patch
+	// the EndScene hook never fires on D3D9Ex games.
+	// -----------------------------------------------------------------------
+#if !defined(D3D_DISABLE_9EX)
+	{
+		typedef HRESULT(WINAPI* FnDirect3DCreate9Ex)(UINT, IDirect3D9Ex**);
+		FnDirect3DCreate9Ex pfnCreate9Ex =
+			(FnDirect3DCreate9Ex)GetProcAddress(hD3D9, "Direct3DCreate9Ex");
+
+		if (pfnCreate9Ex)
+		{
+			IDirect3D9Ex* pD3DEx = NULL;
+			if (SUCCEEDED(pfnCreate9Ex(D3D_SDK_VERSION, &pD3DEx)))
+			{
+				D3DPRESENT_PARAMETERS ppEx;
+				ZeroMemory(&ppEx, sizeof(ppEx));
+				ppEx.Windowed             = TRUE;
+				ppEx.SwapEffect           = D3DSWAPEFFECT_DISCARD;
+				ppEx.hDeviceWindow        = hwndGame;
+				ppEx.BackBufferFormat     = D3DFMT_UNKNOWN;
+				ppEx.BackBufferCount      = 1;
+				ppEx.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+				IDirect3DDevice9* pDummyEx = NULL;
+				HRESULT hrEx = pD3DEx->CreateDevice(
+					D3DADAPTER_DEFAULT,
+					D3DDEVTYPE_HAL,
+					hwndGame,
+					D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
+					&ppEx,
+					&pDummyEx);
+
+				if (SUCCEEDED(hrEx) && pDummyEx)
+				{
+					void** ppVtableEx = *(void***)pDummyEx;
+
+					// Only patch if the Ex vtable differs from the regular one.
+					if (ppVtableEx != ppVtable)
+					{
+						g_ppVtEndSceneEx = &ppVtableEx[42];
+						g_ppVtResetEx    = &ppVtableEx[16];
+
+						PatchVtableEntry(g_ppVtEndSceneEx, (void*)HookedEndSceneEx,
+							(void**)&g_pOrigEndSceneEx);
+
+						PatchVtableEntry(g_ppVtResetEx, (void*)HookedResetEx,
+							(void**)&g_pOrigResetEx);
+					}
+
+					pDummyEx->Release();
+				}
+
+				pD3DEx->Release();
+			}
+		}
+	}
+#endif // !D3D_DISABLE_9EX
+
 	return TRUE;
 }
 
@@ -194,21 +301,33 @@ void D3D9Hook::Uninstall()
 	if (!g_bInstalled)
 		return;
 
+	// Restore regular D3D9 vtable.
 	if (g_ppVtEndScene && g_pOrigEndScene)
 		PatchVtableEntry(g_ppVtEndScene, (void*)g_pOrigEndScene, NULL);
 
 	if (g_ppVtReset && g_pOrigReset)
 		PatchVtableEntry(g_ppVtReset, (void*)g_pOrigReset, NULL);
 
-	g_pOrigEndScene  = NULL;
-	g_pOrigReset     = NULL;
-	g_ppVtEndScene   = NULL;
-	g_ppVtReset      = NULL;
-	g_pGameDevice    = NULL;
-	g_pfnOnEndScene  = NULL;
-	g_pfnOnPreReset  = NULL;
-	g_pfnOnPostReset = NULL;
-	g_bInstalled     = false;
+	// Restore D3D9Ex vtable (if it was patched).
+	if (g_ppVtEndSceneEx && g_pOrigEndSceneEx)
+		PatchVtableEntry(g_ppVtEndSceneEx, (void*)g_pOrigEndSceneEx, NULL);
+
+	if (g_ppVtResetEx && g_pOrigResetEx)
+		PatchVtableEntry(g_ppVtResetEx, (void*)g_pOrigResetEx, NULL);
+
+	g_pOrigEndScene    = NULL;
+	g_pOrigReset       = NULL;
+	g_ppVtEndScene     = NULL;
+	g_ppVtReset        = NULL;
+	g_pOrigEndSceneEx  = NULL;
+	g_pOrigResetEx     = NULL;
+	g_ppVtEndSceneEx   = NULL;
+	g_ppVtResetEx      = NULL;
+	g_pGameDevice      = NULL;
+	g_pfnOnEndScene    = NULL;
+	g_pfnOnPreReset    = NULL;
+	g_pfnOnPostReset   = NULL;
+	g_bInstalled       = false;
 }
 
 void D3D9Hook::SetOnEndScene(FnOnEndScene pfn)   { g_pfnOnEndScene  = pfn; }
