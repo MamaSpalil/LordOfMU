@@ -1844,15 +1844,29 @@ void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
 			return;
 
 		// Process any F9/Shift+F9 requests that arrived before initialization.
+		// Show the window directly (not via PostMessage) so it appears on
+		// this very first rendered frame instead of waiting for the next
+		// message-pump iteration.
 		if (pThis->m_bPendingShowSettings)
 		{
 			pThis->m_bPendingShowSettings = FALSE;
-			pThis->PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Applying deferred ShowSettings (F9)");
+			if (pThis->m_pClicker != NULL)
+			{
+				pThis->PostMessage(WM_STOP_CLICKER, 0, 0);
+				MessageBeep(MB_ICONINFORMATION);
+			}
+			pThis->m_cOverlay.ShowSettings();
+			pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
 		}
 		else if (pThis->m_bPendingShowHistory)
 		{
 			pThis->m_bPendingShowHistory = FALSE;
-			pThis->PostMessage(WM_SHOW_HISTORY, 0, 0);
+			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Applying deferred ShowHistory (Shift+F9)");
+			pThis->QueryPickupHistory();
+			pThis->QuerySessionStats();
+			pThis->m_cOverlay.ShowHistory();
+			pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
 		}
 	}
 
