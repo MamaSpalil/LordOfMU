@@ -40,4 +40,7 @@
 #include <atlwin.h>
 #include <atlstr.h>
 
+// Direct3D 9 header for EndScene/Reset hook overlay
+#include <d3d9.h>
+
 using namespace ATL;
