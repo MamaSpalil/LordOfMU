@@ -306,8 +306,8 @@ extern "C" __declspec(dllexport)void Init()
 	gItemSmoker.Init();
 	gGlow.Load();
 	gCamera->Init();
-	gAttackHelper->Init();
-	gAutoClickerUI.Init();
+	gAttackHelper->Init();  // Stub — bot logic disabled, state kept for compatibility
+	gAutoClickerUI.Init();  // Stub — UI drawing disabled, LordOfMU ImGui overlay replaces it
 	gController.Load();
 	KeyboardSetHook(true);
 	gObjUser.Load();

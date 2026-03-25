@@ -257,7 +257,9 @@ switch (SubCode)
 							#endif
 							//Visual.Respawn();
 							gConnectEx.RestoreGame();
-							gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
+							gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);  // Stub call — no-op
+							// LordOfMU AutoClicker detects character death via packet filters
+							// and stops the clicker automatically.
 							Protocol.Agility();
 						}
 						break;

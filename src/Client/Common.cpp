@@ -551,7 +551,7 @@ extern "C" __declspec(dllexport)void Init()
 	gItemSmoker.Init();
 	gGlow.Load();
 	gCamera->Init();
-	gAttackHelper->Init();
+	gAttackHelper->Init();  // Stub — bot logic disabled
 
 	InitFont();
 

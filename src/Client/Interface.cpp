@@ -22,6 +22,7 @@
 #include "SelectChar.h"
 #include "LuckyWheel.h"
 #include "AutoClickerUI.h"
+#include "LordOfMUBridge.h"
 
 CInterface * gInterfaces = new CInterface();
 
@@ -99,7 +100,8 @@ void CInterface::MainProc()
 	}
 
 UPDATE_FPS();
-	gAutoClickerUI.Draw();
+	// gAutoClickerUI.Draw() removed — LordOfMU's ImGui overlay provides the
+	// HUD buttons (Settings/Start-Stop/History) via D3D9 EndScene hook.
 	SetWindowText((*(HWND*)(MAIN_WINDOW)), "A2K - MuOnline Season III Ultimate");
 #if(_JEWELS_BANK_)
 	
@@ -110,7 +112,8 @@ UPDATE_FPS();
 
 	gConnectEx.Run();
 
-	gAttackHelper->DrawSelectMode();
+	// gAttackHelper->DrawSelectMode() removed — LordOfMU's ImGui overlay
+	// provides the attack mode selection UI.
 	gRanking.Draw();
 //
 	g_ResetSystem.DrawReset();
@@ -123,7 +126,8 @@ UPDATE_FPS();
 #endif
 	gExInterface->DrawTimer();
 	gCamera->MainProc();
-	gAttackHelper->MainProc();
+	// gAttackHelper->MainProc() removed — LordOfMU AutoClicker (CClickerJob)
+	// handles the attack loop.
 	gExInterface->DrawNavBar();
 	gMenuSystem.rDrawInterface();//ne pawet
 #if(DEV_DAMAGE_TABLE)
@@ -470,43 +474,38 @@ void CInterface::MouseClickProc()
 		//		pDrawToolTipEx(test,30, (char*)"   [ - PRESS F8 TO DISABLE BOT HELPER - ]   ");
 		//}
 	//}
-	if (gAttackHelper->State == ATTACKHELPER_STATE_SelectMode)
+	// AttackHelper mode selection removed — LordOfMU's ImGui overlay provides
+	// the attack mode selection UI via CImGuiOverlay::RenderSettingsWindow().
+	// The old AttackHelper SelectMode click handling is no longer needed.
+	if (false /* was: gAttackHelper->State == ATTACKHELPER_STATE_SelectMode */)
 	{
 		float StartX = (float)(MAIN_WIDTH / 2) - 60.0f;
 		float StartY = 50.0f;
 
 		if (CheckZone(StartX, StartY, 120.0, 22.0))
 		{
-			gAttackHelper->AttackType = 1;
-			gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
-			pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Start", Blue);
+			// Was: gAttackHelper->AttackType = 1; gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
 		}
 
 		StartY += 30.0f;
 
 		if (CheckZone(StartX, StartY, 120.0, 22.0))
 		{
-			gAttackHelper->AttackType = 2;
-			gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
-			pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Start", Blue);
+			// Was: gAttackHelper->AttackType = 2; gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
 		}
 
 		StartY += 30.0f;
 
 		if (CheckZone(StartX, StartY, 120.0, 22.0))
 		{
-			gAttackHelper->AttackType = 3;
-			gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
-			pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Start", Blue);
+			// Was: gAttackHelper->AttackType = 3; gAttackHelper->SetState(ATTACKHELPER_STATE_Running);
 		}
 
 		StartY += 30.0f;
 
 		if (CheckZone(StartX, StartY, 120.0, 22.0))
 		{
-			gAttackHelper->AttackType = 1;
-			gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
-			pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Cancel", Blue);
+			// Was: gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
 		}
 
 		return;
@@ -704,16 +703,9 @@ void CInterface::MouseClickProc()
 		}
 		if (CheckZone(StartX+80, StartY+96+50, 120.0, 22.0))
 		{
-			if (gAttackHelper->State == ATTACKHELPER_STATE_Stop)
-			{
-				pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Select Mode", Blue);
-				gAttackHelper->SetState(ATTACKHELPER_STATE_SelectMode);
-			}
-			else
-			{
-				pSendChatTextEx((const char *)"", (const char *)"Attack Helper Off", Red);
-				gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
-			}
+			// REPLACED: Menu button now toggles LordOfMU AutoClicker instead
+			// of the old AttackHelper. Send F5 to toggle via LordOfMU.
+			LordOfMU_ToggleClicker(*(HWND*)(MAIN_WINDOW));
 			gMenuSystem.Active=false;
 		}
 

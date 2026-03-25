@@ -116,12 +116,14 @@ LRESULT Controller::Keyboard(int Code, WPARAM wParam, LPARAM lParam)
 		{
 			case VK_F5:
 			{
-				gAutoClickerUI.ToggleStartStop();
+				// REPLACED: Was controlling client's AttackHelper.
+				// Now handled by LordOfMU AutoClicker's WH_KEYBOARD_LL hook.
+				// No action needed — LordOfMU intercepts F5 directly.
 			}
 			break;
 			/*case VK_F9:
 			{
-				// F9 is now handled by LordOfMU.dll (AVANTA+ELITE autoclicker menu)
+				// F9 is handled by LordOfMU.dll (AutoClicker ImGui overlay)
 			}
 			break;*/
 			/*case VK_F6:
@@ -148,21 +150,10 @@ LRESULT Controller::Keyboard(int Code, WPARAM wParam, LPARAM lParam)
 			break;*/
 			case VK_F8:
 			{
-					/*if(gAttackHelper->State == ATTACKHELPER_STATE_Running)
-					{
-						gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
-					}*/
-					if (gAttackHelper->State == ATTACKHELPER_STATE_Stop)
-			{
-				pSendChatTextEx((const char *)"", (const char *)"Attack Helper - Select Mode", Blue);
-				gAttackHelper->SetState(ATTACKHELPER_STATE_SelectMode);
+				// REPLACED: Was controlling client's AttackHelper.
+				// Now handled by LordOfMU AutoClicker's WH_KEYBOARD_LL hook.
+				// F8 = Stop Clicker in LordOfMU (WM_STOP_CLICKER).
 			}
-			else
-			{
-				pSendChatTextEx((const char *)"", (const char *)"Attack Helper Off", Red);
-				gAttackHelper->SetState(ATTACKHELPER_STATE_Stop);
-			}
-		}
 		break;
 		/*case VK_F9:
 			{
@@ -275,7 +266,8 @@ LRESULT Controller::Keyboard(int Code, WPARAM wParam, LPARAM lParam)
 			gMenuSystem.Active=false;
 			g_DungeonSiege.Active=false;
 			gInterfaces->StateWare = 0;
-			gAutoClickerUI.CloseHistory();
+			// gAutoClickerUI.CloseHistory() removed — LordOfMU's ImGui overlay
+			// handles ESC to close its own settings/history windows.
 			//gInterfaces->Data[eLuckyWheelMain].OnShow = false;
 #ifdef MULTI_WAREHOUSE
 			gInterfaces->Close_DrawBankCountWindow();

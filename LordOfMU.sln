@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoClicker", "src\LordOfCl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bootstrapper", "src\Bootstrapper\Bootstrapper.vcxproj", "{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "src\Client\Client.vcxproj", "{021D8917-685F-4CE1-8AE4-6D42D79E43A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +62,14 @@ Global
 		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Clicker]|Win32.Build.0 = Release [Clicker]|Win32
 		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Hacker]|Win32.ActiveCfg = Release [Hacker]|Win32
 		{7A41F351-F99C-4C75-9BF3-3CC3E786BF2C}.Release [Hacker]|Win32.Build.0 = Release [Hacker]|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Debug|Win32.Build.0 = Debug|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Antihack]|Win32.ActiveCfg = Release|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Antihack]|Win32.Build.0 = Release|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Clicker]|Win32.ActiveCfg = Release|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Clicker]|Win32.Build.0 = Release|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Hacker]|Win32.ActiveCfg = Release|Win32
+		{021D8917-685F-4CE1-8AE4-6D42D79E43A6}.Release [Hacker]|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -130,7 +130,8 @@ void LoadImages(int a1, int a2, int a3, HDC a4)//(HDC ItemID)
 
 	LoadImagesTGA("Customs\\Interface\\fps_bg.tga", 334, 9729, 10496, 0, 1);
 
-	gAutoClickerUI.LoadImages();
+	// gAutoClickerUI.LoadImages() — disabled, LordOfMU's ImGui overlay
+	// renders its own HUD buttons without TGA image assets.
 
 	LoadImagesJPG( "Customs\\Interface\\left.jpg", 2000, 9728, 10496, 0, 1);
 	LoadImagesJPG( "Customs\\Interface\\right.jpg", 1999, 9728, 10496, 0, 1);

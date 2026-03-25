@@ -44,7 +44,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			return true;
 		}
-		if (gAttackHelper->State == ATTACKHELPER_STATE_SelectMode)
+		// gAttackHelper->State check removed — LordOfMU AutoClicker manages
+		// its own click blocking state via CMuWindow::OnMouseMessage.
+		if (false /* was: gAttackHelper->State == ATTACKHELPER_STATE_SelectMode */)
 		{
 			return true;
 		}
@@ -113,7 +115,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_LBUTTONUP:
 		MouseLeftButtonDown = false;
-		gAutoClickerUI.MouseClickProc();
+		// gAutoClickerUI.MouseClickProc() removed — LordOfMU's ImGui overlay
+		// handles its own button clicks via CImGuiOverlay::WndProcHandler.
 		gInterfaces->MouseClickProc();
 		gExInterface->MouseClickProc();
 		MouseClickTP();
@@ -128,7 +131,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		MouseRightButtonDown = false;
 		break;
 	case WM_MOUSEMOVE:
-		gAttackHelper->MouseMove();
+		// gAttackHelper->MouseMove() removed — LordOfMU AutoClicker handles
+		// mouse movement during clicking via CClickerJob.
 		break;
 	case WM_MOUSEWHEEL:
 		
