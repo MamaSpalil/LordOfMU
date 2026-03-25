@@ -222,6 +222,8 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 	// No popup windows, no focus/activation/capture conflicts.
 	// Works in both windowed and fullscreen (exclusive) display modes.
 	// -----------------------------------------------------------------------
+	const char* szDisplayMode = m_fWindow ? "Windowed" : "Fullscreen";
+
 	if (D3D9Hook::Install(m_hWnd))
 	{
 		D3D9Hook::SetOnEndScene(OnEndSceneCallback);
@@ -236,12 +238,12 @@ LRESULT CMuWindow::OnInitMuWindow(UINT, WPARAM, LPARAM, BOOL&)
 		m_cOverlay.SetOnSettingsApply(OnOverlayApplyClicked, this);
 
 		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook installed, ImGui overlay ready (DisplayMode=%s, hWnd=0x%p)",
-			m_fWindow ? "Windowed" : "Fullscreen", m_hWnd);
+			szDisplayMode, m_hWnd);
 	}
 	else
 	{
 		WriteClickerLogFmt("D3D9HOOK", "D3D9 EndScene hook FAILED - overlay disabled (DisplayMode=%s, hWnd=0x%p)",
-			m_fWindow ? "Windowed" : "Fullscreen", m_hWnd);
+			szDisplayMode, m_hWnd);
 	}
 
 	SetTimer(1011, 100, 0);

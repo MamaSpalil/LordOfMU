@@ -149,8 +149,7 @@ static const char* s_szDummyWndClass = "D3D9Hook_DummyWnd";
 
 static HWND CreateDummyWindow()
 {
-	WNDCLASSEXA wc;
-	ZeroMemory(&wc, sizeof(wc));
+	WNDCLASSEXA wc = {};
 	wc.cbSize        = sizeof(wc);
 	wc.style         = CS_CLASSDC;
 	wc.lpfnWndProc   = DefWindowProcA;
@@ -191,6 +190,9 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 		WriteClickerLogFmt("D3D9HOOK", "CreateDummyWindow failed, falling back to game HWND 0x%p", hwndGame);
 	}
 
+	// Track whether we own the dummy window (for cleanup).
+	HWND hWndToDestroy = (hDummyWnd != hwndGame) ? hDummyWnd : NULL;
+
 	// -----------------------------------------------------------------------
 	// Step 1: Load d3d9.dll and create a temporary device to get vtable.
 	// -----------------------------------------------------------------------
@@ -200,7 +202,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	if (!hD3D9)
 	{
 		WriteClickerLogFmt("D3D9HOOK", "d3d9.dll not found (GetModuleHandle + LoadLibrary failed)");
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -210,7 +212,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	if (!pfnCreate9)
 	{
 		WriteClickerLogFmt("D3D9HOOK", "Direct3DCreate9 not found in d3d9.dll");
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -218,7 +220,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	if (!pD3D)
 	{
 		WriteClickerLogFmt("D3D9HOOK", "Direct3DCreate9 returned NULL");
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -250,7 +252,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	{
 		WriteClickerLogFmt("D3D9HOOK", "CreateDevice(HAL) failed: hr=0x%08X, hWnd=0x%p", hr, hDummyWnd);
 		pD3D->Release();
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -280,7 +282,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 	if (!PatchVtableEntry(g_ppVtEndScene, (void*)HookedEndScene, (void**)&g_pOrigEndScene))
 	{
 		WriteClickerLogFmt("D3D9HOOK", "PatchVtableEntry(EndScene) failed");
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -290,7 +292,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 		// Rollback EndScene if Reset patch fails.
 		PatchVtableEntry(g_ppVtEndScene, (void*)g_pOrigEndScene, NULL);
 		g_pOrigEndScene = NULL;
-		DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+		DestroyDummyWindow(hWndToDestroy);
 		return FALSE;
 	}
 
@@ -392,7 +394,7 @@ BOOL D3D9Hook::Install(HWND hwndGame)
 #endif // !D3D_DISABLE_9EX
 
 	// Clean up the temporary helper window.
-	DestroyDummyWindow(hDummyWnd == hwndGame ? NULL : hDummyWnd);
+	DestroyDummyWindow(hWndToDestroy);
 
 	return TRUE;
 }
