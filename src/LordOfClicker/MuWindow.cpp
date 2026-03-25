@@ -660,7 +660,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		// the matching WM_LBUTTONDOWN, dialog controls never enter the
 		// "pressed" state and ignore WM_LBUTTONUP — making clicks
 		// non-functional.  When we detect WM_LBUTTONUP without a
-		// preceding WM_LBUTTONDOWN, we synthesise the missing down
+		// preceding WM_LBUTTONDOWN, we synthesize the missing down
 		// event so the control receives a complete down+up pair.
 		BOOL bDialogGotLButtonDown = FALSE;
 
@@ -715,7 +715,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
 							bDialogGotLButtonDown = TRUE;
 
-						// Synthesise missing WM_LBUTTONDOWN when only
+						// Synthesize missing WM_LBUTTONDOWN when only
 						// WM_LBUTTONUP arrives.  The game's WndProc may
 						// have drained WM_LBUTTONDOWN from the queue via
 						// internal PeekMessage calls (timer callbacks).
@@ -727,7 +727,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
 						{
 							WriteDialogClickLogFmt("SETTINGS_CLICK",
-								"Synthesising WM_LBUTTONDOWN for dialog control "
+								"Synthesizing WM_LBUTTONDOWN for dialog control "
 								"targetHWND=0x%p pos=(%d,%d) "
 								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
 								(void*)msg.hwnd, xPos, yPos);
@@ -2052,11 +2052,11 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
 							bDialogGotLButtonDown = TRUE;
 
-						// Synthesise missing WM_LBUTTONDOWN (same as Settings loop).
+						// Synthesize missing WM_LBUTTONDOWN (same as Settings loop).
 						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
 						{
 							WriteDialogClickLogFmt("HISTORY_CLICK",
-								"Synthesising WM_LBUTTONDOWN for dialog control "
+								"Synthesizing WM_LBUTTONDOWN for dialog control "
 								"targetHWND=0x%p pos=(%d,%d) "
 								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
 								(void*)msg.hwnd, xPos, yPos);
