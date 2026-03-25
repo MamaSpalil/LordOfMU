@@ -19,6 +19,7 @@
 #include "DungeonSiege.h"
 #include "console.h"
 #include "AutoClickerUI.h"
+#include "LordOfMUBridge.h"
 
 // ----------------------------------------------------------------------------------------------
 //WPARAM mParam;
@@ -102,11 +103,30 @@ LRESULT Controller::Keyboard(int Code, WPARAM wParam, LPARAM lParam)
 	
 	if(Code == HC_ACTION)
 	{
-		// F5-F12 keys are managed by LordOfMU AutoClicker's WH_KEYBOARD_LL hook.
-		// Pass them through immediately to avoid interference with F9 (Settings),
-		// Shift+F9 (History), F5 (Start/Stop), F8 (Stop), etc.
-		if (wParam >= VK_F5 && wParam <= VK_F12)
+		// F5-F8, F10-F12 keys are managed by LordOfMU AutoClicker's WH_KEYBOARD_LL
+		// hook.  Pass them through immediately.  F9 is handled below by the Client.
+		if (wParam >= VK_F5 && wParam <= VK_F12 && wParam != VK_F9)
 			return CallNextHookEx(gController.KeyboardHook, Code, wParam, lParam);
+
+		// -------------------------------------------------------------------
+		// F9 / Shift+F9: The Client (main.dll) is the primary handler.
+		// On KEYUP we detect Shift state and forward the command to the
+		// LordOfMU AutoClicker's ImGui overlay via LordOfMUBridge.
+		// Both KEYDOWN and KEYUP are suppressed (return 1) so the game
+		// never sees the F9 key.
+		// -------------------------------------------------------------------
+		if (wParam == VK_F9)
+		{
+			BOOL isKeyUp = ((DWORD)lParam & (1 << 30)) != 0 && ((DWORD)lParam & (1 << 31)) != 0;
+			if (isKeyUp && GetForegroundWindow() == *(HWND*)(MAIN_WINDOW))
+			{
+				if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+					LordOfMU_ShowHistory(MuWindow);
+				else
+					LordOfMU_OpenSettings(MuWindow);
+			}
+			return 1; // Suppress F9 from reaching the game
+		}
 
 		if(((DWORD)lParam & (1 << 30)) != 0 && ((DWORD)lParam & (1 << 31)) != 0 && GetForegroundWindow() == *(HWND*)(MAIN_WINDOW))
 		{

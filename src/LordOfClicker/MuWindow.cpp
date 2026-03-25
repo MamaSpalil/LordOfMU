@@ -335,16 +335,36 @@ LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lPara
 
 	if (CMuWindow::GetForegroundWindowTr() != pThis->m_hWnd)
 	{
-		// When game is NOT foreground, dispatch all F-keys through the LL
-		// hook with fCheckFgWnd=FALSE so OnKeyboardEvent's own foreground
+		// F9 / Shift+F9 background fallback: when the game is NOT foreground
+		// the Client's per-thread WH_KEYBOARD hook cannot fire, so handle F9
+		// directly here in the LL hook.  When the game IS foreground, F9 is
+		// handled by the Client's Controller::Keyboard via LordOfMUBridge.
+		if (kbd->vkCode == VK_F9 && (wParam == WM_KEYUP || wParam == WM_SYSKEYUP))
+		{
+			BOOL fShift = (::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+			if (fShift)
+			{
+				WriteClickerLogFmt("KEYDBG", "LL-Hook: [Shift+F9] KEYUP (background fallback) -> Sending WM_SHOW_HISTORY");
+				pThis->PostMessage(WM_SHOW_HISTORY, 0, 0);
+			}
+			else
+			{
+				WriteClickerLogFmt("KEYDBG", "LL-Hook: [F9] KEYUP (background fallback) -> Sending WM_SHOW_SETTINGS_GUI");
+				pThis->PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+			}
+			return 0;
+		}
+
+		// When game is NOT foreground, dispatch all other F-keys through the
+		// LL hook with fCheckFgWnd=FALSE so OnKeyboardEvent's own foreground
 		// check does not reject the call.
 		if (pThis->OnKeyboardEvent(kbd->vkCode, (UINT)wParam, FALSE))
 			return 0;
 	}
-	// When game IS foreground, do NOT consume F9 here.  Let it pass
-	// through to the system like F5 does.  The 100ms Timer polling
-	// (GetAsyncKeyState) in OnTimer is the primary handler for all
-	// F-keys when the game is in focus — same reliable path that F5 uses.
+	// When game IS foreground, F9 is handled by the Client's
+	// Controller::Keyboard (WH_KEYBOARD hook) via LordOfMUBridge.
+	// Other F-keys use the 100ms Timer polling (GetAsyncKeyState)
+	// in OnTimer as their primary handler.
 
 	return CallNextHookEx(pThis->m_hKbdHook, code, wParam, lParam);
 }
@@ -477,31 +497,12 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		return TRUE;
 	}
 
-	// F9 / Shift+F9: Same pattern as F5 — act on KEYUP only.
-	// Timer polls GetAsyncKeyState every 100ms; when the key is released
-	// the Timer fires OnKeyboardEvent(VK_F9, WM_KEYUP).  Shift state is
-	// checked at this moment — the user is expected to still hold Shift
-	// when releasing F9 (same assumption F10+Shift uses below).
-	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
-	{
-		if (fShiftDown)
-		{
-			WriteClickerLogFmt("KEYDBG", "[Shift+F9] %s -> OK: %s | Sending WM_SHOW_HISTORY | OverlayActive=%s",
-				szKeyEvent, GetFKeyDescription(VK_F9, TRUE),
-				m_fGuiActive ? "YES" : "NO");
-			PostMessage(WM_SHOW_HISTORY, 0, 0);
-		}
-		else
-		{
-			WriteClickerLogFmt("KEYDBG", "[F9] %s -> OK: %s | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=%s | ClickerRunning=%s",
-				szKeyEvent, GetFKeyDescription(VK_F9, FALSE),
-				m_fGuiActive ? "YES" : "NO",
-				m_pClicker ? "YES" : "NO");
-			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
-		}
-
-		return TRUE;
-	}
+	// F9 / Shift+F9: Detection has been moved to the Client's WH_KEYBOARD
+	// hook (Controller::Keyboard) which posts WM_SHOW_SETTINGS_GUI /
+	// WM_SHOW_HISTORY via LordOfMUBridge.  OnShowSettingsGUI and
+	// OnShowHistory message handlers still live here in LordOfClicker.
+	// The LL hook (KeyboardProcLL) retains a background-only fallback
+	// for when the game window is NOT foreground.
 
 	if (vkCode == VK_F10 && uMsg == WM_KEYUP)
 	{
@@ -607,13 +608,15 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 LRESULT CMuWindow::OnKeyboardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	// Block F9 from reaching the game's own WndProc (the game might have
-	// its own F9 handler).  The actual F9 action is handled by the 100ms
-	// Timer polling in OnTimer — same path F5 uses.
+	// its own F9 handler).  F9 detection is now handled by the Client's
+	// Controller::Keyboard hook (primary, when foreground) and the LL hook
+	// background fallback.  This block is a safety net in case a stray F9
+	// WM_KEY message somehow reaches the window's message queue.
 	if (wParam == VK_F9 && (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP))
 	{
 		if (uMsg == WM_KEYDOWN)
 		{
-			WriteClickerLogFmt("KEYDBG", "WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)");
+			WriteClickerLogFmt("KEYDBG", "WndProc: F9 KEYDOWN blocked from game WndProc (handled by Client Controller::Keyboard)");
 		}
 		bHandled = TRUE;
 		return 0;
@@ -736,6 +739,10 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 
 /**
  * \brief Shows the settings overlay via ImGui (F9 hotkey).
+ *        Triggered by WM_SHOW_SETTINGS_GUI, which is now posted by:
+ *          - Client's Controller::Keyboard (primary, when game is foreground)
+ *          - LL hook background fallback (when game is NOT foreground)
+ *          - AutoClickerUI::OpenSettings() / HUD button click
  *        Since the overlay renders directly in EndScene, there is no need
  *        for a separate window, local message pump, or capture/activation
  *        workarounds.
@@ -1697,27 +1704,23 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 		// already dispatches to OnKeyboardEvent with fCheckFgWnd=FALSE, so
 		// we skip Timer dispatch here to avoid duplicate (and always-blocked)
 		// processing through the fCheckFgWnd=TRUE default path.
+		//
+		// NOTE: F9 detection has been moved to the Client's WH_KEYBOARD hook
+		// (Controller::Keyboard).  Skip VK_F9 in this polling loop.
 		if (bGameFg)
 		{
 			for (int i=0; m_vFnKeys[i].vk != 0; ++i)
 			{
+				// F9 is handled by Client's Controller::Keyboard via
+				// LordOfMUBridge — skip it in timer polling.
+				if (m_vFnKeys[i].vk == VK_F9)
+					continue;
+
 				bool fOldState = m_vFnKeys[i].fPressed;
 				bool fNewState = (CMuWindow::GetAsyncKeyState(m_vFnKeys[i].vk) & 0x8000) != 0;
 
 				if (fOldState != fNewState)
 				{
-					// For F9: only dispatch on key release (KEYUP).  F9 handlers
-					// only act on WM_KEYUP, so the WM_KEYDOWN dispatch is redundant
-					// and causes a confusing "double call" in the logs.
-					// This applies to both F9 and Shift+F9 (same VK_F9 key code,
-					// Shift modifier is checked at KEYUP time in OnKeyboardEvent).
-					if (m_vFnKeys[i].vk == VK_F9 && fNewState)
-					{
-						// Key pressed — just update state, skip dispatch.
-						m_vFnKeys[i].fPressed = fNewState;
-						continue;
-					}
-
 					// Debug: log Timer-detected F-key state changes (the primary
 					// keyboard detection path when the game is in focus)
 					if (m_vFnKeys[i].vk >= VK_F1 && m_vFnKeys[i].vk <= VK_F12)
@@ -1763,6 +1766,10 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
 
 /**
  * \brief Shows the pickup history overlay via ImGui (Shift+F9 hotkey).
+ *        Triggered by WM_SHOW_HISTORY, which is now posted by:
+ *          - Client's Controller::Keyboard (primary, when game is foreground)
+ *          - LL hook background fallback (when game is NOT foreground)
+ *          - AutoClickerUI::ToggleHistory() / HUD button click
  *        Queries the LordOfMU DLL for pickup history data and toggles
  *        the history panel in the ImGui overlay.
  */
