@@ -40,6 +40,8 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
+	m_bPendingShowSettings = FALSE;
+	m_bPendingShowHistory = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -748,11 +750,13 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
 
 	// Guard: if the overlay hasn't been lazily initialized yet (first EndScene
-	// hasn't fired), toggling would set m_bShowSettings without any visible UI,
-	// causing m_fGuiActive to get stuck TRUE and block F5-F8 indefinitely.
+	// hasn't fired), defer the request — it will be applied once the overlay
+	// initializes in OnEndSceneCallback.
 	if (!m_cOverlay.IsInitialized())
 	{
-		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: SKIPPED - overlay not initialized yet (waiting for first EndScene)");
+		m_bPendingShowSettings = TRUE;
+		m_bPendingShowHistory = FALSE;  // Only one panel at a time.
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: DEFERRED - overlay not initialized yet (will open after first EndScene)");
 		return 0;
 	}
 
@@ -1770,12 +1774,14 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 		m_cOverlay.IsInitialized() ? "YES" : "NO",
 		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
 
-	// Guard: if the overlay hasn't been lazily initialized yet, toggling would
-	// set m_bShowHistory without any visible UI, causing m_fGuiActive to get
-	// stuck TRUE and block F5-F8 indefinitely.
+	// Guard: if the overlay hasn't been lazily initialized yet, defer the
+	// request — it will be applied once the overlay initializes in
+	// OnEndSceneCallback.
 	if (!m_cOverlay.IsInitialized())
 	{
-		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: SKIPPED - overlay not initialized yet (waiting for first EndScene)");
+		m_bPendingShowHistory = TRUE;
+		m_bPendingShowSettings = FALSE;  // Only one panel at a time.
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: DEFERRED - overlay not initialized yet (will open after first EndScene)");
 		return 0;
 	}
 
@@ -1836,6 +1842,18 @@ void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
 	{
 		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd, pDevice))
 			return;
+
+		// Process any F9/Shift+F9 requests that arrived before initialization.
+		if (pThis->m_bPendingShowSettings)
+		{
+			pThis->m_bPendingShowSettings = FALSE;
+			pThis->PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
+		}
+		else if (pThis->m_bPendingShowHistory)
+		{
+			pThis->m_bPendingShowHistory = FALSE;
+			pThis->PostMessage(WM_SHOW_HISTORY, 0, 0);
+		}
 	}
 
 	pThis->m_cOverlay.Render(pDevice);
