@@ -1772,8 +1772,7 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	if (s_pfnGetHistory)
 	{
 		char szBuffer[32768] = {0};
-		int nCount = s_pfnGetHistory(szBuffer, sizeof(szBuffer));
-		(void)nCount;  // nCount not currently used, buffer is parsed by delimiter
+		s_pfnGetHistory(szBuffer, sizeof(szBuffer));
 
 		// Parse "HH:MM:SS|ItemName\n" entries
 		char* pLine = szBuffer;
