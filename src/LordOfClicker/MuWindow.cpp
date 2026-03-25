@@ -310,12 +310,14 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	if (fCheckFgWnd && CMuWindow::GetForegroundWindowTr() != m_hWnd)
 		return FALSE;
 
-	// While a dialog (Settings/History) is open, block clicker control keys
-	// (F5-F8) and F9 (settings key) to prevent accidental toggling behind the dialog.
+	// While the ImGui overlay (Settings/History) is open, block clicker
+	// control keys (F5-F8) to prevent accidental start/stop behind the
+	// overlay.  F9 is intentionally allowed through so that the user can
+	// toggle (close) the overlay or switch between Settings and History.
 	if (m_fGuiActive)
 	{
-		if (vkCode >= VK_F5 && vkCode <= VK_F9)
-			return TRUE;  // Swallow the keypress
+		if (vkCode >= VK_F5 && vkCode <= VK_F8)
+			return TRUE;  // Swallow clicker control keys
 	}
 
 #if defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__)
