@@ -24,7 +24,7 @@ namespace
 	BYTE*         g_pTrampoline      = NULL;
 
 	// Saved original bytes (for Uninstall).
-	BYTE          g_SavedBytes[8]    = {};
+	BYTE          g_SavedBytes[HOOK_SIZE] = {};
 	static const int HOOK_SIZE       = 5;  // 5-byte JMP rel32
 
 	// User callback.
@@ -106,7 +106,7 @@ BOOL OpenGLHook::Install()
 	// Append JMP back to (original + HOOK_SIZE).
 	g_pTrampoline[HOOK_SIZE] = 0xE9;  // JMP rel32
 	DWORD dwJmpBack = (DWORD)(g_pSwapBuffersAddr + HOOK_SIZE)
-		- (DWORD)(g_pTrampoline + HOOK_SIZE + 5);
+		- (DWORD)(g_pTrampoline + HOOK_SIZE + HOOK_SIZE);
 	memcpy(g_pTrampoline + HOOK_SIZE + 1, &dwJmpBack, sizeof(DWORD));
 
 	// The trampoline IS the "original" SwapBuffers callable.
@@ -128,7 +128,7 @@ BOOL OpenGLHook::Install()
 
 	g_pSwapBuffersAddr[0] = 0xE9;  // JMP rel32
 	DWORD dwJmpHook = (DWORD)HookedSwapBuffers
-		- (DWORD)(g_pSwapBuffersAddr + 5);
+		- (DWORD)(g_pSwapBuffersAddr + HOOK_SIZE);
 	memcpy(g_pSwapBuffersAddr + 1, &dwJmpHook, sizeof(DWORD));
 
 	DWORD dwDummy = 0;

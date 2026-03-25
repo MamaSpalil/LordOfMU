@@ -86,7 +86,6 @@ struct GLStateBackup
     GLint   LastScissorBox[4];
     GLint   LastBlendSrc;
     GLint   LastBlendDst;
-    GLenum  LastActiveTexture;
     GLboolean LastEnableBlend;
     GLboolean LastEnableCullFace;
     GLboolean LastEnableDepthTest;

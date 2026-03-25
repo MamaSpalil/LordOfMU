@@ -165,7 +165,7 @@ protected:
 	CSettingsDlg m_cSettingsDlg;
 	CLaunchMuDialog m_cLaunchMuDlg;
 
-	// ImGui-based overlay that renders directly into the D3D EndScene.
+	// ImGui-based overlay that renders directly into the OpenGL SwapBuffers.
 	// Replaces CUnifiedSettingsDlg, CHistoryDialog, and CHUDButtons.
 	CImGuiOverlay m_cOverlay;
 
