@@ -156,12 +156,6 @@ protected:
 	BOOL m_fGuiActive;     // TRUE when ImGui overlay is showing a dialog
 	BOOL m_fWasLastActiveInstance;
 
-	// Deferred F9/Shift+F9 requests received before overlay initialization.
-	// Set when user presses the key before the first EndScene; applied once
-	// the overlay lazily initializes in OnEndSceneCallback.
-	BOOL m_bPendingShowSettings;
-	BOOL m_bPendingShowHistory;
-
 	int m_iInstanceNumber;
 
 	CSettingsDlg m_cSettingsDlg;

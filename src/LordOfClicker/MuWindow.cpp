@@ -40,8 +40,6 @@ CMuWindow::CMuWindow()
 	m_fBlockInput = FALSE;
 
 	m_fGuiActive = FALSE;
-	m_bPendingShowSettings = FALSE;
-	m_bPendingShowHistory = FALSE;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -747,23 +745,11 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=%s | OverlayInitialized=%s | SettingsVisible=%s",
 		m_pClicker ? "YES" : "NO",
 		m_cOverlay.IsInitialized() ? "YES" : "NO",
-		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
+		m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
 
-	// Guard: if the overlay hasn't been lazily initialized yet (first EndScene
-	// hasn't fired), defer the request — it will be applied once the overlay
-	// initializes in OnEndSceneCallback.
-	if (!m_cOverlay.IsInitialized())
-	{
-		m_bPendingShowSettings = TRUE;
-		m_bPendingShowHistory = FALSE;  // Only one panel at a time.
-		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: DEFERRED - overlay not initialized yet (will open after first EndScene)");
-		return 0;
-	}
-
-	// BUG-K fix: If the autoclicker is running, stop it AND open the settings
-	// overlay in one action.  Previously this would only stop the clicker and
-	// require a second F9 press.  The clicker stop is async (OnClickerJobFinished
-	// clears m_pClicker), but this does not affect the ImGui overlay — it simply
+	// If the autoclicker is running, stop it AND open the settings overlay in
+	// one action.  The clicker stop is async (OnClickerJobFinished clears
+	// m_pClicker), but this does not affect the ImGui overlay — it simply
 	// shows the settings window while the clicker winds down.
 	if (m_pClicker != NULL)
 	{
@@ -772,12 +758,15 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		MessageBeep(MB_ICONINFORMATION);
 	}
 
-	// Toggle settings overlay in ImGui
+	// Toggle settings overlay in ImGui.  If the overlay hasn't been lazily
+	// initialized yet (first EndScene hasn't fired), the show flag is still
+	// set — the window will appear as soon as the overlay initializes.
 	m_cOverlay.ToggleSettings();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
-	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=%s",
-		m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Settings overlay toggled | SettingsVisible=%s | OverlayInitialized=%s",
+		m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO",
+		m_cOverlay.IsInitialized() ? "YES" : "NO");
 
 	return 0;
 }
@@ -1682,12 +1671,9 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 		bHandled = TRUE;
 
 		// Sync m_fGuiActive with ImGui overlay state.
-		// When overlay is not yet initialized, force m_fGuiActive to FALSE
-		// so it cannot get stuck TRUE from a premature ToggleSettings call.
-		if (m_cOverlay.IsInitialized())
-			m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
-		else
-			m_fGuiActive = FALSE;
+		// The show flags may be set before overlay initialization (user
+		// pressed F9 early), so always sync from the overlay's state.
+		m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
 		// Robust foreground-window tracking
 		HWND hwndFg = GetForegroundWindowTr();
@@ -1720,6 +1706,18 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 				if (fOldState != fNewState)
 				{
+					// For F9: only dispatch on key release (KEYUP).  F9 handlers
+					// only act on WM_KEYUP, so the WM_KEYDOWN dispatch is redundant
+					// and causes a confusing "double call" in the logs.
+					// This applies to both F9 and Shift+F9 (same VK_F9 key code,
+					// Shift modifier is checked at KEYUP time in OnKeyboardEvent).
+					if (m_vFnKeys[i].vk == VK_F9 && fNewState)
+					{
+						// Key pressed — just update state, skip dispatch.
+						m_vFnKeys[i].fPressed = fNewState;
+						continue;
+					}
+
 					// Debug: log Timer-detected F-key state changes (the primary
 					// keyboard detection path when the game is in focus)
 					if (m_vFnKeys[i].vk >= VK_F1 && m_vFnKeys[i].vk <= VK_F12)
@@ -1772,29 +1770,21 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
 	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Received WM_SHOW_HISTORY (Shift+F9) | OverlayInitialized=%s | HistoryVisible=%s",
 		m_cOverlay.IsInitialized() ? "YES" : "NO",
-		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
-
-	// Guard: if the overlay hasn't been lazily initialized yet, defer the
-	// request — it will be applied once the overlay initializes in
-	// OnEndSceneCallback.
-	if (!m_cOverlay.IsInitialized())
-	{
-		m_bPendingShowHistory = TRUE;
-		m_bPendingShowSettings = FALSE;  // Only one panel at a time.
-		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: DEFERRED - overlay not initialized yet (will open after first EndScene)");
-		return 0;
-	}
+		m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
 
 	// Query and set history data + session stats
 	QueryPickupHistory();
 	QuerySessionStats();
 
-	// Toggle history overlay in ImGui
+	// Toggle history overlay in ImGui.  If the overlay hasn't been lazily
+	// initialized yet, the show flag is still set — the window will appear
+	// as soon as the overlay initializes.
 	m_cOverlay.ToggleHistory();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
 
-	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: History overlay toggled | HistoryVisible=%s",
-		m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO");
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: History overlay toggled | HistoryVisible=%s | OverlayInitialized=%s",
+		m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO",
+		m_cOverlay.IsInitialized() ? "YES" : "NO");
 
 	return 0;
 }
@@ -1843,30 +1833,16 @@ void CMuWindow::OnEndSceneCallback(IDirect3DDevice9* pDevice)
 		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd, pDevice))
 			return;
 
-		// Process any F9/Shift+F9 requests that arrived before initialization.
-		// Show the window directly (not via PostMessage) so it appears on
-		// this very first rendered frame instead of waiting for the next
-		// message-pump iteration.
-		if (pThis->m_bPendingShowSettings)
+		// Sync m_fGuiActive with overlay state.  The user may have pressed
+		// F9 or Shift+F9 before the overlay initialized — ToggleSettings /
+		// ToggleHistory already set the show flags directly, so we just need
+		// to update m_fGuiActive to match.
+		pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
+		if (pThis->m_fGuiActive)
 		{
-			pThis->m_bPendingShowSettings = FALSE;
-			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Applying deferred ShowSettings (F9)");
-			if (pThis->m_pClicker != NULL)
-			{
-				pThis->PostMessage(WM_STOP_CLICKER, 0, 0);
-				MessageBeep(MB_ICONINFORMATION);
-			}
-			pThis->m_cOverlay.ShowSettings();
-			pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
-		}
-		else if (pThis->m_bPendingShowHistory)
-		{
-			pThis->m_bPendingShowHistory = FALSE;
-			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Applying deferred ShowHistory (Shift+F9)");
-			pThis->QueryPickupHistory();
-			pThis->QuerySessionStats();
-			pThis->m_cOverlay.ShowHistory();
-			pThis->m_fGuiActive = pThis->m_cOverlay.IsAnyWindowVisible();
+			WriteClickerLogFmt("KEYDBG", ">>> OnEndSceneCallback: Overlay initialized with show flags already set (Settings=%s, History=%s) - rendering begins now",
+				pThis->m_cOverlay.IsSettingsVisible() ? "YES" : "NO",
+				pThis->m_cOverlay.IsHistoryVisible() ? "YES" : "NO");
 		}
 	}
 
