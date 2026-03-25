@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{021D8917-685F-4CE1-8AE4-6D42D79E43A6}</ProjectGuid>
+    <RootNamespace>Client</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>Main</TargetName>
+    <OutDir>..\..</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>Main</TargetName>
+    <OutDir>..\..</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AdvancedStats.h" />
+    <ClInclude Include="alpha.h" />
+    <ClInclude Include="AntiCheat.h" />
+    <ClInclude Include="AntiCheatPlus.h" />
+    <ClInclude Include="AttackHelper.h" />
+    <ClInclude Include="AutoClickerUI.h" />
+    <ClInclude Include="base64.h" />
+    <ClInclude Include="BMDLoad.h" />
+    <ClInclude Include="ButtonChar.h" />
+    <ClInclude Include="CameraEx.h" />
+    <ClInclude Include="CCRC32.H" />
+    <ClInclude Include="console.h" />
+    <ClInclude Include="Controller.h" />
+    <ClInclude Include="Crc321.h" />
+    <ClInclude Include="Crc32Load.h" />
+    <ClInclude Include="CustomFenrir.h" />
+    <ClInclude Include="CustomMenu.h" />
+    <ClInclude Include="CustomNPC.h" />
+    <ClInclude Include="DailyReward.h" />
+    <ClInclude Include="Define.h" />
+    <ClInclude Include="detours.h" />
+    <ClInclude Include="DungeonSiege.h" />
+    <ClInclude Include="ExTeleport.h" />
+    <ClInclude Include="Fog.h" />
+    <ClInclude Include="ft2build.h" />
+    <ClInclude Include="glaux.h" />
+    <ClInclude Include="Glow.h" />
+    <ClInclude Include="GLUT.H" />
+    <ClInclude Include="GrandReset.h" />
+    <ClInclude Include="HPBar.h" />
+    <ClInclude Include="Interface.h" />
+    <ClInclude Include="InterfaceBase.h" />
+    <ClInclude Include="InterfaceEx.h" />
+    <ClInclude Include="ItemRank.h" />
+    <ClInclude Include="Items.h" />
+    <ClInclude Include="ItemStack.h" />
+    <ClInclude Include="ItemValue.h" />
+    <ClInclude Include="JewelsBank.h" />
+    <ClInclude Include="Jewels_Wings.h" />
+    <ClInclude Include="LuckyWheel.h" />
+    <ClInclude Include="MakePreviewCharSet.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="MiniMap.h" />
+    <ClInclude Include="m_Disable.h" />
+    <ClInclude Include="m_WindowsOption.h" />
+    <ClInclude Include="News.h" />
+    <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="Other.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="Packets.h" />
+    <ClInclude Include="Propensity.h" />
+    <ClInclude Include="Protect.h" />
+    <ClInclude Include="Protocol.h" />
+    <ClInclude Include="QuickAccess.h" />
+    <ClInclude Include="RageSystem.h" />
+    <ClInclude Include="Ranking.h" />
+    <ClInclude Include="ReadScript.h" />
+    <ClInclude Include="Reconnect.h" />
+    <ClInclude Include="ResetSystem.h" />
+    <ClInclude Include="Resolution.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SelectChar.h" />
+    <ClInclude Include="Shop.h" />
+    <ClInclude Include="Smoke.h" />
+    <ClInclude Include="Splash.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Structure.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="TDebugLog.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TMemory.h" />
+    <ClInclude Include="Tray.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="Visual.h" />
+    <ClInclude Include="VMProtectSDK.h" />
+    <ClInclude Include="WeaponFloat.h" />
+    <ClInclude Include="WndProc.h" />
+    <ClInclude Include="zzzMathLib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AdvancedStats.cpp" />
+    <ClCompile Include="AntiCheat.cpp" />
+    <ClCompile Include="AntiCheatPlus.cpp" />
+    <ClCompile Include="AttackHelper.cpp" />
+    <ClCompile Include="AutoClickerUI.cpp" />
+    <ClCompile Include="base64.cpp" />
+    <ClCompile Include="BMDLoad.cpp" />
+    <ClCompile Include="ButtonChar.cpp" />
+    <ClCompile Include="CameraEx.cpp" />
+    <ClCompile Include="CCRC32.Cpp" />
+    <ClCompile Include="CloseClassName.cpp" />
+    <ClCompile Include="CloseWindowsName.cpp" />
+    <ClCompile Include="Common.cpp" />
+    <ClCompile Include="console.cpp" />
+    <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="Crc321.cpp" />
+    <ClCompile Include="Crc32Load.cpp" />
+    <ClCompile Include="CustomFenrir.cpp" />
+    <ClCompile Include="CustomMenu.cpp" />
+    <ClCompile Include="CustomNPC.cpp" />
+    <ClCompile Include="DailyReward.cpp" />
+    <ClCompile Include="DumpDB.cpp" />
+    <ClCompile Include="DungeonSiege.cpp" />
+    <ClCompile Include="ExTeleport.cpp" />
+    <ClCompile Include="Fog.cpp" />
+    <ClCompile Include="Glow.cpp" />
+    <ClCompile Include="GrandReset.cpp" />
+    <ClCompile Include="Heurictic_Detect.cpp" />
+    <ClCompile Include="HPBar.cpp" />
+    <ClCompile Include="Interface.cpp" />
+    <ClCompile Include="InterfaceBase.cpp" />
+    <ClCompile Include="InterfaceEx.cpp" />
+    <ClCompile Include="ItemRank.cpp" />
+    <ClCompile Include="Items.cpp" />
+    <ClCompile Include="ItemStack.cpp" />
+    <ClCompile Include="ItemValue.cpp" />
+    <ClCompile Include="JewelsBank.cpp" />
+    <ClCompile Include="Jewels_Wings.cpp" />
+    <ClCompile Include="LuckyWheel.cpp" />
+    <ClCompile Include="MakePreviewCharSet.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MiniMap.cpp" />
+    <ClCompile Include="m_Disable.cpp" />
+    <ClCompile Include="m_WindowsOption.cpp" />
+    <ClCompile Include="News.cpp" />
+    <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="Other.cpp" />
+    <ClCompile Include="Packet.cpp" />
+    <ClCompile Include="Packets.cpp" />
+    <ClCompile Include="Propensity.cpp" />
+    <ClCompile Include="Protect.cpp" />
+    <ClCompile Include="Protocol.cpp" />
+    <ClCompile Include="QuickAccess.cpp" />
+    <ClCompile Include="RageSystem.cpp" />
+    <ClCompile Include="Ranking.cpp" />
+    <ClCompile Include="Reconnect.cpp" />
+    <ClCompile Include="ResetSystem.cpp" />
+    <ClCompile Include="Resolution.cpp" />
+    <ClCompile Include="SelectChar.cpp" />
+    <ClCompile Include="Shop.cpp" />
+    <ClCompile Include="Smoke.cpp" />
+    <ClCompile Include="Splash.cpp" />
+    <ClCompile Include="TDebugLog.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TMemory.cpp" />
+    <ClCompile Include="Tray.cpp" />
+    <ClCompile Include="User.cpp" />
+    <ClCompile Include="Visual.cpp" />
+    <ClCompile Include="WeaponFloat.cpp" />
+    <ClCompile Include="WndProc.cpp" />
+    <ClCompile Include="zzzMathLib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource.aps" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
