@@ -1,68 +1,35 @@
-[2026-03-25 04:49:58] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(92,6) targetHWND=0x00150286 result=true
-[2026-03-25 04:49:58] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(87,13) targetHWND=0x00150286 result=true
-[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(137,28) targetHWND=0x00530E68 result=true
-[2026-03-25 04:49:59] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(137,28) result=true (click released on dialog controls)
-[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(175,8) targetHWND=0x001D10D2 result=true
-[2026-03-25 04:49:59] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(231,66) targetHWND=0x00530E68 result=true
-[2026-03-25 04:49:59] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(231,66) result=true (click released on dialog controls)
-[2026-03-25 04:50:00] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(315,0) targetHWND=0x005C0D4C result=true
-[2026-03-25 04:50:00] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(380,58) targetHWND=0x00530E68 result=true
-[2026-03-25 04:50:00] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(380,58) result=true (click released on dialog controls)
-[2026-03-25 04:50:01] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(341,4) targetHWND=0x005C0868 result=true
-[2026-03-25 04:50:01] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(339,9) targetHWND=0x001D10D2 result=true
-[2026-03-25 04:50:02] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(327,271) targetHWND=0x00530E68 result=true
-[2026-03-25 04:50:02] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(327,271) result=true (click released on dialog controls)
-[2026-03-25 04:50:02] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(61,2) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(59,5) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(49,14) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:03] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(32,16) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(11,15) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(43,18) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(61,8) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:04] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(74,0) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:05] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(74,1) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(58,11) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(58,13) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,20) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:06] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,23) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,14) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(56,2) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:07] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(300,381) targetHWND=0x003B050C result=true
-[2026-03-25 04:50:07] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(300,381) result=true (click released on dialog controls)
-[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(302,374) targetHWND=0x003B050C result=true
-[2026-03-25 04:50:08] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(302,374) result=true (click released on dialog controls)
-[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(319,381) targetHWND=0x003B050C result=true
-[2026-03-25 04:50:08] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(319,381) result=true (click released on dialog controls)
-[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(77,2) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(77,10) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(76,19) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(26,24) targetHWND=0x00151302 result=true
-[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,15) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(55,13) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(52,22) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(48,25) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(40,15) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(83,2) targetHWND=0x00361164 result=true
-[2026-03-25 04:50:11] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(184,379) targetHWND=0x003B050C result=true
-[2026-03-25 04:50:11] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(184,379) result=true (click released on dialog controls)
-[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt on game window (Settings open): msg=WM_LBUTTONDOWN pos=(132,474) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONDOWN pos=(132,474) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt on game window (Settings open): msg=WM_LBUTTONUP pos=(132,474) result=false reason="click targets game window, not dialog" gameHasCapture=no
-[2026-03-25 04:50:13] [SETTINGS_CLICK] Click attempt BLOCKED on game window: msg=WM_LBUTTONUP pos=(132,474) result=false reason="dialog is active (m_fGuiActive=TRUE), click on game area behind dialog" gameHadCapture=no
-[2026-03-25 04:50:14] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(142,14) targetHWND=0x001E1252 result=true
-[2026-03-25 04:50:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(176,180) targetHWND=0x00530E68 result=true
-[2026-03-25 04:50:15] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(176,180) result=true (click released on dialog controls)
-[2026-03-25 04:50:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(79,15) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,9) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(81,10) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:16] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(82,9) targetHWND=0x00150286 result=true
-[2026-03-25 04:50:18] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(13,4) targetHWND=0x00600D98 result=true
-[2026-03-25 04:50:18] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,8) targetHWND=0x00281018 result=true
-[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,7) targetHWND=0x00281018 result=true
-[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(144,6) targetHWND=0x00281018 result=true
-[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(143,6) targetHWND=0x00281018 result=true
-[2026-03-25 04:50:19] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(147,6) targetHWND=0x001E1252 result=true
-[2026-03-25 04:50:21] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(147,13) targetHWND=0x00150286 result=true
+[2026-03-25 14:01:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(136,5) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:08] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(133,8) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(132,8) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(127,8) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(130,5) targetHWND=0x00960E98 result=true
+[2026-03-25 14:01:09] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(130,5) result=true (click released on dialog controls)
+[2026-03-25 14:01:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(129,9) targetHWND=0x00960E98 result=true
+[2026-03-25 14:01:09] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(129,9) result=true (click released on dialog controls)
+[2026-03-25 14:01:09] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(116,8) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(118,9) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,13) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,12) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:10] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,12) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:11] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(84,10) targetHWND=0x00DB02D4 result=true
+[2026-03-25 14:01:11] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(26,2) targetHWND=0x00550E68 result=true
+[2026-03-25 14:01:11] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(26,9) targetHWND=0x00550E68 result=true
+[2026-03-25 14:01:12] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(42,9) targetHWND=0x00550E68 result=true
+[2026-03-25 14:01:12] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(50,7) targetHWND=0x00550E68 result=true
+[2026-03-25 14:01:12] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(58,13) targetHWND=0x00550E68 result=true
+[2026-03-25 14:01:12] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(383,117) targetHWND=0x00620B66 result=true
+[2026-03-25 14:01:12] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(383,117) result=true (click released on dialog controls)
+[2026-03-25 14:01:13] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(379,123) targetHWND=0x00620B66 result=true
+[2026-03-25 14:01:13] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(379,123) result=true (click released on dialog controls)
+[2026-03-25 14:01:13] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(339,12) targetHWND=0x002B0D30 result=true
+[2026-03-25 14:01:13] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(339,11) targetHWND=0x002B0D30 result=true
+[2026-03-25 14:01:13] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(340,5) targetHWND=0x002B0D30 result=true
+[2026-03-25 14:01:13] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(340,5) targetHWND=0x002B0D30 result=true
+[2026-03-25 14:01:14] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(340,5) targetHWND=0x002B0D30 result=true
+[2026-03-25 14:01:14] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(148,169) targetHWND=0x00620B66 result=true
+[2026-03-25 14:01:14] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(148,169) result=true (click released on dialog controls)
+[2026-03-25 14:01:14] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(154,170) targetHWND=0x00620B66 result=true
+[2026-03-25 14:01:14] [SETTINGS_CLICK] LButtonUp received by Settings dialog: pos=(154,170) result=true (click released on dialog controls)
+[2026-03-25 14:01:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(135,9) targetHWND=0x00860DB8 result=true
+[2026-03-25 14:01:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(140,10) targetHWND=0x00860DB8 result=true
+[2026-03-25 14:01:15] [SETTINGS_CLICK] Click attempt on Settings dialog: msg=WM_LBUTTONUP pos=(146,9) targetHWND=0x00860DB8 result=true
