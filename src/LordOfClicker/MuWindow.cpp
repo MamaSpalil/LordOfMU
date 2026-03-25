@@ -256,6 +256,57 @@ LRESULT CMuWindow::OnIsClickerInstalled(UINT, WPARAM, LPARAM, BOOL&)
 
 
 /**
+ * \brief Returns a human-readable name for a virtual key code (F1-F12, Escape).
+ */
+static const char* GetFKeyName(UINT vk)
+{
+	switch (vk)
+	{
+	case VK_F1:     return "F1";
+	case VK_F2:     return "F2";
+	case VK_F3:     return "F3";
+	case VK_F4:     return "F4";
+	case VK_F5:     return "F5";
+	case VK_F6:     return "F6";
+	case VK_F7:     return "F7";
+	case VK_F8:     return "F8";
+	case VK_F9:     return "F9";
+	case VK_F10:    return "F10";
+	case VK_F11:    return "F11";
+	case VK_F12:    return "F12";
+	case VK_ESCAPE: return "ESC";
+	default:        return "?";
+	}
+}
+
+
+/**
+ * \brief Returns a description of what the F-key does in the AVANTA+ELITE build.
+ */
+static const char* GetFKeyDescription(UINT vk, BOOL fShift)
+{
+	switch (vk)
+	{
+	case VK_F1:     return "Game Help (not handled by AutoClicker)";
+	case VK_F2:     return "Game Chat Toggle (not handled by AutoClicker)";
+	case VK_F3:     return "Game Whisper (not handled by AutoClicker)";
+	case VK_F4:     return "Game Command (not handled by AutoClicker)";
+	case VK_F5:     return "Toggle AutoClicker Start/Stop";
+	case VK_F6:     return "Force Start AutoClicker";
+	case VK_F7:     return "Start AutoClicker (no mouse move)";
+	case VK_F8:     return "Force Stop AutoClicker";
+	case VK_F9:     return fShift ? "Show History / Pickup Log (Shift+F9)"
+	                              : "Show Settings GUI (F9)";
+	case VK_F10:    return fShift ? "Move Item command (Shift+F10)"
+	                              : "Launch another MU instance";
+	case VK_F11:    return "Switch between MU windows";
+	case VK_F12:    return "Hide/Show all MU windows";
+	default:        return "Unknown key";
+	}
+}
+
+
+/**
  * \brief 
  */
 LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lParam)
@@ -269,6 +320,18 @@ LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lPara
 		return CallNextHookEx(pThis->m_hKbdHook, code, wParam, lParam);
 
 	KBDLLHOOKSTRUCT* kbd = (KBDLLHOOKSTRUCT*)lParam;
+
+	// Debug: log F1-F12 key events arriving at the LL hook
+	if (kbd->vkCode >= VK_F1 && kbd->vkCode <= VK_F12)
+	{
+		BOOL bGameFg = (CMuWindow::GetForegroundWindowTr() == pThis->m_hWnd);
+		WriteClickerLogFmt("KEYDBG", "LL-Hook: %s %s | GameForeground=%s | Action=%s",
+			GetFKeyName(kbd->vkCode),
+			(wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) ? "KEYDOWN" : "KEYUP",
+			bGameFg ? "YES" : "NO",
+			bGameFg ? "PassToTimer (game foreground, Timer handles it)"
+			        : "DispatchToOnKeyboardEvent (game background)");
+	}
 
 	if (CMuWindow::GetForegroundWindowTr() != pThis->m_hWnd)
 	{
@@ -292,6 +355,10 @@ LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lPara
  */
 BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 {
+	const BOOL fIsF1F12 = (vkCode >= VK_F1 && vkCode <= VK_F12);
+	const BOOL fShiftDown = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+	const char* szKeyEvent = (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN) ? "KEYDOWN" : "KEYUP";
+
 	if (vkCode == VK_F12 && uMsg == WM_KEYDOWN)
 	{
 		// Show/Hide all MU Windows
@@ -299,15 +366,21 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 		{
 			m_fWasLastActiveInstance = TRUE;
 			PostMessage(WM_HIDE_MU, 0, 0);
+			WriteClickerLogFmt("KEYDBG", "[F12] %s -> OK: %s | Game is foreground -> Hiding all MU windows",
+				szKeyEvent, GetFKeyDescription(VK_F12, FALSE));
 		}
 		else if (m_fWasLastActiveInstance)
 		{
 			m_fWasLastActiveInstance = FALSE;
 			PostMessage(WM_SHOW_MU, 0, 0);
+			WriteClickerLogFmt("KEYDBG", "[F12] %s -> OK: %s | Was last active instance -> Showing all MU windows",
+				szKeyEvent, GetFKeyDescription(VK_F12, FALSE));
 		}
 		else
 		{
 			m_fWasLastActiveInstance = FALSE;
+			WriteClickerLogFmt("KEYDBG", "[F12] %s -> BLOCKED: %s | Reason: Game is NOT foreground AND this is NOT the last active instance",
+				szKeyEvent, GetFKeyDescription(VK_F12, FALSE));
 			return FALSE;
 		}
 
@@ -315,7 +388,15 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	}
 
 	if (fCheckFgWnd && CMuWindow::GetForegroundWindowTr() != m_hWnd)
+	{
+		if (fIsF1F12 && uMsg == WM_KEYUP)
+		{
+			WriteClickerLogFmt("KEYDBG", "[%s] %s -> BLOCKED: %s | Reason: Game window is NOT foreground (fCheckFgWnd=TRUE, foreground=0x%p, game=0x%p)",
+				GetFKeyName(vkCode), szKeyEvent, GetFKeyDescription(vkCode, fShiftDown),
+				CMuWindow::GetForegroundWindowTr(), m_hWnd);
+		}
 		return FALSE;
+	}
 
 	// While the ImGui overlay (Settings/History) is open, block clicker
 	// control keys (F5-F8) to prevent accidental start/stop behind the
@@ -324,18 +405,29 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	if (m_fGuiActive)
 	{
 		if (vkCode >= VK_F5 && vkCode <= VK_F8)
+		{
+			if (uMsg == WM_KEYUP)
+			{
+				WriteClickerLogFmt("KEYDBG", "[%s] %s -> BLOCKED: %s | Reason: ImGui overlay is open (m_fGuiActive=TRUE), F5-F8 clicker control keys are blocked to prevent accidental start/stop",
+					GetFKeyName(vkCode), szKeyEvent, GetFKeyDescription(vkCode, fShiftDown));
+			}
 			return TRUE;  // Swallow clicker control keys
+		}
 	}
 
 #if defined(__HACK_STUFF__) || defined(__INCLUDE_ALL_STUFF__)
 	if (vkCode == VK_F5 && uMsg == WM_KEYUP)
 	{
-		if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+		if (fShiftDown)
 		{
+			WriteClickerLogFmt("KEYDBG", "[Shift+F5] %s -> OK: Sending '//script toggle' to server",
+				szKeyEvent);
 			SayToServer("//script toggle");
 		}
 		else
 		{
+			WriteClickerLogFmt("KEYDBG", "[F5] %s -> OK: Sending '//autokill toggle' to server",
+				szKeyEvent);
 			SayToServer("//autokill toggle");
 		}
 
@@ -346,10 +438,14 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	{
 		if (m_pClicker != NULL)
 		{
+			WriteClickerLogFmt("KEYDBG", "[F5] %s -> OK: %s | Clicker is RUNNING -> Sending WM_STOP_CLICKER",
+				szKeyEvent, GetFKeyDescription(VK_F5, FALSE));
 			PostMessage(WM_STOP_CLICKER, 0, 0);
 		}
 		else
 		{
+			WriteClickerLogFmt("KEYDBG", "[F5] %s -> OK: %s | Clicker is STOPPED -> Sending WM_START_CLICKER",
+				szKeyEvent, GetFKeyDescription(VK_F5, FALSE));
 			PostMessage(WM_START_CLICKER, 0, 0);
 		}
 
@@ -359,18 +455,24 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_F6 && uMsg == WM_KEYUP)
 	{
+		WriteClickerLogFmt("KEYDBG", "[F6] %s -> OK: %s | Sending WM_START_CLICKER",
+			szKeyEvent, GetFKeyDescription(VK_F6, FALSE));
 		PostMessage(WM_START_CLICKER, 0, 0);
 		return TRUE;
 	}
 
 	if (vkCode == VK_F7 && uMsg == WM_KEYUP)
 	{
+		WriteClickerLogFmt("KEYDBG", "[F7] %s -> OK: %s | Sending WM_START_CLICKER (no mouse move)",
+			szKeyEvent, GetFKeyDescription(VK_F7, FALSE));
 		PostMessage(WM_START_CLICKER, 0, TRUE);
 		return TRUE;
 	}
 
 	if (vkCode == VK_F8 && uMsg == WM_KEYUP)
 	{
+		WriteClickerLogFmt("KEYDBG", "[F8] %s -> OK: %s | Sending WM_STOP_CLICKER",
+			szKeyEvent, GetFKeyDescription(VK_F8, FALSE));
 		PostMessage(WM_STOP_CLICKER, 0, 0);
 		return TRUE;
 	}
@@ -382,12 +484,19 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	// when releasing F9 (same assumption F10+Shift uses at line 419).
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
-		if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+		if (fShiftDown)
 		{
+			WriteClickerLogFmt("KEYDBG", "[Shift+F9] %s -> OK: %s | Sending WM_SHOW_HISTORY | OverlayActive=%s",
+				szKeyEvent, GetFKeyDescription(VK_F9, TRUE),
+				m_fGuiActive ? "YES" : "NO");
 			PostMessage(WM_SHOW_HISTORY, 0, 0);
 		}
 		else
 		{
+			WriteClickerLogFmt("KEYDBG", "[F9] %s -> OK: %s | Sending WM_SHOW_SETTINGS_GUI | OverlayActive=%s | ClickerRunning=%s",
+				szKeyEvent, GetFKeyDescription(VK_F9, FALSE),
+				m_fGuiActive ? "YES" : "NO",
+				m_pClicker ? "YES" : "NO");
 			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		}
 
@@ -396,12 +505,16 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_F10 && uMsg == WM_KEYUP)
 	{
-		if ((CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+		if (fShiftDown)
 		{
+			WriteClickerLogFmt("KEYDBG", "[Shift+F10] %s -> OK: %s | Sending '//moveitem 12 76' to server",
+				szKeyEvent, GetFKeyDescription(VK_F10, TRUE));
 			SayToServer("//moveitem 12 76");
 		}
 		else
 		{
+			WriteClickerLogFmt("KEYDBG", "[F10] %s -> OK: %s | Sending WM_LAUNCH_MU",
+				szKeyEvent, GetFKeyDescription(VK_F10, FALSE));
 			// Launch another MU instance
 			PostMessage(WM_LAUNCH_MU, 0, 0);
 		}
@@ -411,6 +524,8 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_F11 && uMsg == WM_KEYUP)
 	{
+		WriteClickerLogFmt("KEYDBG", "[F11] %s -> OK: %s | Sending WM_SWITCH_INSTANCE",
+			szKeyEvent, GetFKeyDescription(VK_F11, FALSE));
 		// Switch between MU windows
 		PostMessage(WM_SWITCH_INSTANCE, 0, 0);
 		return TRUE;
@@ -418,11 +533,22 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 
 	if (vkCode == VK_ESCAPE && uMsg == WM_KEYUP && m_fGuiActive)
 	{
+		WriteClickerLogFmt("KEYDBG", "[ESC] %s -> OK: Close ImGui overlay | SettingsVisible=%s HistoryVisible=%s",
+			szKeyEvent,
+			m_cOverlay.IsInitialized() ? (m_cOverlay.IsAnyWindowVisible() ? "YES" : "NO") : "N/A",
+			m_fGuiActive ? "YES" : "NO");
 		// Close ImGui overlay windows
 		m_cOverlay.HideSettings();
 		m_cOverlay.HideHistory();
 		m_fGuiActive = FALSE;
 		return TRUE;
+	}
+
+	// Key was not handled by any branch
+	if (fIsF1F12 && uMsg == WM_KEYUP)
+	{
+		WriteClickerLogFmt("KEYDBG", "[%s] %s -> NOT HANDLED: %s | Reason: No handler registered for this key in AutoClicker (key passed to game)",
+			GetFKeyName(vkCode), szKeyEvent, GetFKeyDescription(vkCode, fShiftDown));
 	}
 
 	return FALSE;
@@ -485,6 +611,10 @@ LRESULT CMuWindow::OnKeyboardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	// Timer polling in OnTimer — same path F5 uses.
 	if (wParam == VK_F9 && (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP))
 	{
+		if (uMsg == WM_KEYDOWN)
+		{
+			WriteClickerLogFmt("KEYDBG", "WndProc: F9 KEYDOWN blocked from game WndProc (handled by Timer polling)");
+		}
 		bHandled = TRUE;
 		return 0;
 	}
@@ -612,6 +742,11 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Received WM_SHOW_SETTINGS_GUI | ClickerRunning=%s | OverlayInitialized=%s | SettingsVisible=%s",
+		m_pClicker ? "YES" : "NO",
+		m_cOverlay.IsInitialized() ? "YES" : "NO",
+		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
+
 	// BUG-K fix: If the autoclicker is running, stop it AND open the settings
 	// overlay in one action.  Previously this would only stop the clicker and
 	// require a second F9 press.  The clicker stop is async (OnClickerJobFinished
@@ -619,6 +754,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	// shows the settings window while the clicker winds down.
 	if (m_pClicker != NULL)
 	{
+		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Clicker was running -> stopping clicker first (async)");
 		PostMessage(WM_STOP_CLICKER, 0, 0);
 		MessageBeep(MB_ICONINFORMATION);
 	}
@@ -626,6 +762,10 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	// Toggle settings overlay in ImGui
 	m_cOverlay.ToggleSettings();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
+
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Settings overlay toggled | NowVisible=%s | m_fGuiActive=%s",
+		m_fGuiActive ? "YES" : "NO",
+		m_fGuiActive ? "TRUE" : "FALSE");
 
 	return 0;
 }
@@ -1557,6 +1697,17 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 
 			if (fOldState != fNewState)
 			{
+				// Debug: log Timer-detected F-key state changes (the primary
+				// keyboard detection path when the game is in focus)
+				if (m_vFnKeys[i].vk >= VK_F1 && m_vFnKeys[i].vk <= VK_F12)
+				{
+					BOOL fShift = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+					WriteClickerLogFmt("KEYDBG", "Timer: %s%s %s detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent",
+						fShift ? "Shift+" : "",
+						GetFKeyName(m_vFnKeys[i].vk),
+						fNewState ? "PRESSED" : "RELEASED");
+				}
+
 				OnKeyboardEvent(m_vFnKeys[i].vk, fNewState ? WM_KEYDOWN : WM_KEYUP);
 				m_vFnKeys[i].fPressed = fNewState;
 			}
@@ -1595,6 +1746,10 @@ LRESULT CMuWindow::OnGameWindowChanged(UINT uMsg, WPARAM wParam, LPARAM, BOOL& b
  */
 LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 {
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Received WM_SHOW_HISTORY (Shift+F9) | OverlayInitialized=%s | HistoryVisible=%s",
+		m_cOverlay.IsInitialized() ? "YES" : "NO",
+		(m_cOverlay.IsInitialized() && m_cOverlay.IsAnyWindowVisible()) ? "YES" : "NO");
+
 	// Query and set history data + session stats
 	QueryPickupHistory();
 	QuerySessionStats();
@@ -1602,6 +1757,10 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	// Toggle history overlay in ImGui
 	m_cOverlay.ToggleHistory();
 	m_fGuiActive = m_cOverlay.IsAnyWindowVisible();
+
+	WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: History overlay toggled | NowVisible=%s | m_fGuiActive=%s",
+		m_fGuiActive ? "YES" : "NO",
+		m_fGuiActive ? "TRUE" : "FALSE");
 
 	return 0;
 }
