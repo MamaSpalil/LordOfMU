@@ -5,7 +5,9 @@
 
 #include "resource.h"
 #include <atlhost.h>
+#include <windowsx.h>
 #include "MuTheme.h"
+#include "ClickerLogger.h"
 #include <vector>
 #include <string>
 
@@ -54,18 +56,34 @@ protected:
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM, LPARAM, BOOL&);
-	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bLButtonDown = TRUE;
 		UpdateCursorForLMBState();
 		bHandled = FALSE;
+
+		int xPos = GET_X_LPARAM(lParam);
+		int yPos = GET_Y_LPARAM(lParam);
+		WriteDialogClickLogFmt("HISTORY_CLICK",
+			"LButtonDown received by History dialog: pos=(%d,%d) result=true "
+			"(click delivered to dialog controls)",
+			xPos, yPos);
+
 		return 0;
 	}
-	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bLButtonDown = FALSE;
 		UpdateCursorForLMBState();
 		bHandled = FALSE;
+
+		int xPos = GET_X_LPARAM(lParam);
+		int yPos = GET_Y_LPARAM(lParam);
+		WriteDialogClickLogFmt("HISTORY_CLICK",
+			"LButtonUp received by History dialog: pos=(%d,%d) result=true "
+			"(click released on dialog controls)",
+			xPos, yPos);
+
 		return 0;
 	}
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)

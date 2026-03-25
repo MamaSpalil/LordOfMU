@@ -407,6 +407,33 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM, LPARAM lParam, BOOL& bHandl
 	// away from the dialog and effectively "block" left-clicks on its controls.
 	if (m_fGuiActive)
 	{
+		// Log mouse click attempts on the game window while dialog is open
+		if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP || uMsg == WM_LBUTTONDBLCLK
+			|| uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP)
+		{
+			int xPos = GET_X_LPARAM(lParam);
+			int yPos = GET_Y_LPARAM(lParam);
+
+			const char* szMsgName =
+				(uMsg == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
+				(uMsg == WM_LBUTTONUP) ? "WM_LBUTTONUP" :
+				(uMsg == WM_LBUTTONDBLCLK) ? "WM_LBUTTONDBLCLK" :
+				(uMsg == WM_RBUTTONDOWN) ? "WM_RBUTTONDOWN" : "WM_RBUTTONUP";
+
+			const char* szDialog =
+				(m_cUnifiedSettingsDlg.IsWindow() && m_cUnifiedSettingsDlg.IsWindowVisible())
+					? "SETTINGS_CLICK" : "HISTORY_CLICK";
+
+			BOOL bGameHadCapture = (::GetCapture() == m_hWnd);
+
+			WriteDialogClickLogFmt(szDialog,
+				"Click attempt BLOCKED on game window: msg=%s pos=(%d,%d) result=false "
+				"reason=\"dialog is active (m_fGuiActive=TRUE), click on game area behind dialog\" "
+				"gameHadCapture=%s",
+				szMsgName, xPos, yPos,
+				bGameHadCapture ? "yes" : "no");
+		}
+
 		// If the game has captured the mouse (e.g. from a timer or paint
 		// handler calling SetCapture), release it immediately.  Without
 		// this, ALL mouse messages — including those intended for the
@@ -630,6 +657,48 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 					PostQuitMessage((int)msg.wParam);
 					break;
 				}
+
+				// Log mouse click messages pumped through the Settings dialog loop
+				if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONUP
+					|| msg.message == WM_LBUTTONDBLCLK)
+				{
+					int xPos = GET_X_LPARAM(msg.lParam);
+					int yPos = GET_Y_LPARAM(msg.lParam);
+					BOOL bIsDialogWnd = (msg.hwnd == m_cUnifiedSettingsDlg.m_hWnd
+						|| ::IsChild(m_cUnifiedSettingsDlg.m_hWnd, msg.hwnd));
+					BOOL bIsGameWnd = (msg.hwnd == m_hWnd);
+					BOOL bGameHasCapture = (::GetCapture() == m_hWnd);
+
+					const char* szMsgName =
+						(msg.message == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
+						(msg.message == WM_LBUTTONUP) ? "WM_LBUTTONUP" : "WM_LBUTTONDBLCLK";
+
+					if (bIsDialogWnd)
+					{
+						WriteDialogClickLogFmt("SETTINGS_CLICK",
+							"Click attempt on Settings dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
+							"result=true",
+							szMsgName, xPos, yPos, (void*)msg.hwnd);
+					}
+					else if (bIsGameWnd)
+					{
+						WriteDialogClickLogFmt("SETTINGS_CLICK",
+							"Click attempt on game window (Settings open): msg=%s pos=(%d,%d) "
+							"result=false reason=\"click targets game window, not dialog\" "
+							"gameHasCapture=%s",
+							szMsgName, xPos, yPos,
+							bGameHasCapture ? "yes" : "no");
+					}
+					else
+					{
+						WriteDialogClickLogFmt("SETTINGS_CLICK",
+							"Click attempt on unknown window (Settings open): msg=%s pos=(%d,%d) "
+							"targetHWND=0x%p result=false "
+							"reason=\"click targets unrelated window\"",
+							szMsgName, xPos, yPos, (void*)msg.hwnd);
+					}
+				}
+
 				if (!m_cUnifiedSettingsDlg.IsDialogMessage(&msg))
 				{
 					TranslateMessage(&msg);
@@ -642,7 +711,13 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 				// intended for the dialog — are redirected to the game window
 				// where OnMouseMessage blocks them.  Release immediately.
 				if (::GetCapture() == m_hWnd)
+				{
+					WriteDialogClickLogFmt("SETTINGS_CLICK",
+						"Game re-acquired mouse capture after dispatch, releasing. "
+						"Future clicks would have result=false "
+						"reason=\"game SetCapture redirects mouse input\"");
 					::ReleaseCapture();
+				}
 			}
 			else
 			{
@@ -1840,6 +1915,48 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 					PostQuitMessage((int)msg.wParam);
 					break;
 				}
+
+				// Log mouse click messages pumped through the History dialog loop
+				if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONUP
+					|| msg.message == WM_LBUTTONDBLCLK)
+				{
+					int xPos = GET_X_LPARAM(msg.lParam);
+					int yPos = GET_Y_LPARAM(msg.lParam);
+					BOOL bIsDialogWnd = (msg.hwnd == m_cHistoryDlg.m_hWnd
+						|| ::IsChild(m_cHistoryDlg.m_hWnd, msg.hwnd));
+					BOOL bIsGameWnd = (msg.hwnd == m_hWnd);
+					BOOL bGameHasCapture = (::GetCapture() == m_hWnd);
+
+					const char* szMsgName =
+						(msg.message == WM_LBUTTONDOWN) ? "WM_LBUTTONDOWN" :
+						(msg.message == WM_LBUTTONUP) ? "WM_LBUTTONUP" : "WM_LBUTTONDBLCLK";
+
+					if (bIsDialogWnd)
+					{
+						WriteDialogClickLogFmt("HISTORY_CLICK",
+							"Click attempt on History dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
+							"result=true",
+							szMsgName, xPos, yPos, (void*)msg.hwnd);
+					}
+					else if (bIsGameWnd)
+					{
+						WriteDialogClickLogFmt("HISTORY_CLICK",
+							"Click attempt on game window (History open): msg=%s pos=(%d,%d) "
+							"result=false reason=\"click targets game window, not dialog\" "
+							"gameHasCapture=%s",
+							szMsgName, xPos, yPos,
+							bGameHasCapture ? "yes" : "no");
+					}
+					else
+					{
+						WriteDialogClickLogFmt("HISTORY_CLICK",
+							"Click attempt on unknown window (History open): msg=%s pos=(%d,%d) "
+							"targetHWND=0x%p result=false "
+							"reason=\"click targets unrelated window\"",
+							szMsgName, xPos, yPos, (void*)msg.hwnd);
+					}
+				}
+
 				if (!m_cHistoryDlg.IsDialogMessage(&msg))
 				{
 					TranslateMessage(&msg);
@@ -1848,7 +1965,13 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 
 				// Release game capture if re-acquired during dispatch
 				if (::GetCapture() == m_hWnd)
+				{
+					WriteDialogClickLogFmt("HISTORY_CLICK",
+						"Game re-acquired mouse capture after dispatch, releasing. "
+						"Future clicks would have result=false "
+						"reason=\"game SetCapture redirects mouse input\"");
 					::ReleaseCapture();
+				}
 			}
 			else
 			{

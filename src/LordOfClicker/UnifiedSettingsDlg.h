@@ -6,8 +6,10 @@
 #include "resource.h"
 #include <atlhost.h>
 #include <commctrl.h>
+#include <windowsx.h>
 #include "Settings.h"
 #include "MuTheme.h"
+#include "ClickerLogger.h"
 #include "DarkLordSettings.h"
 #include "EElfSettings.h"
 #include "AElfSettings.h"
@@ -67,18 +69,34 @@ protected:
 	LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnShowWindow(UINT, WPARAM wParam, LPARAM, BOOL&);
 	LRESULT OnSetCursor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	LRESULT OnLButtonDown(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bLButtonDown = TRUE;
 		UpdateCursorForLMBState();
 		bHandled = FALSE; // Let controls process the click
+
+		int xPos = GET_X_LPARAM(lParam);
+		int yPos = GET_Y_LPARAM(lParam);
+		WriteDialogClickLogFmt("SETTINGS_CLICK",
+			"LButtonDown received by Settings dialog: pos=(%d,%d) result=true "
+			"(click delivered to dialog controls)",
+			xPos, yPos);
+
 		return 0;
 	}
-	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM, BOOL& bHandled)
+	LRESULT OnLButtonUp(UINT, WPARAM, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bLButtonDown = FALSE;
 		UpdateCursorForLMBState();
 		bHandled = FALSE; // Let controls process the click
+
+		int xPos = GET_X_LPARAM(lParam);
+		int yPos = GET_Y_LPARAM(lParam);
+		WriteDialogClickLogFmt("SETTINGS_CLICK",
+			"LButtonUp received by Settings dialog: pos=(%d,%d) result=true "
+			"(click released on dialog controls)",
+			xPos, yPos);
+
 		return 0;
 	}
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&)

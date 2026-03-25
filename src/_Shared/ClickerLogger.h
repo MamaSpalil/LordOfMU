@@ -270,4 +270,102 @@ static void WriteDebugLog(const char* szFormat, ...)
 }
 
 
+/**
+ * \brief Gets the path to the DialogClickLog.txt file in the game root folder.
+ *        This file is used exclusively for mouse click logging inside
+ *        the Menu (F9) and History Action (Shift+F9) dialog windows.
+ */
+static void GetDialogClickLogPath(char* szPath, size_t nMaxLen)
+{
+	GetModuleFileNameA(NULL, szPath, (DWORD)nMaxLen);
+
+	int i;
+	for (i = (int)strlen(szPath) - 1; i >= 0 && szPath[i] != '\\'; --i);
+	szPath[i + 1] = '\0';
+
+	size_t nPathLen = strlen(szPath);
+	strncat(szPath, "DialogClickLog.txt", nMaxLen - nPathLen - 1);
+}
+
+
+/**
+ * \brief Returns the shared mutex handle for dialog click log serialization.
+ */
+static HANDLE GetDialogClickLogMutex()
+{
+	static HANDLE s_hMutex = NULL;
+	if (!s_hMutex)
+	{
+		HANDLE hNew = CreateMutexA(NULL, FALSE, "LordOfMU_DialogClickLog_Mutex");
+		if (InterlockedCompareExchangePointer((PVOID*)&s_hMutex, hNew, NULL) != NULL)
+		{
+			CloseHandle(hNew);
+		}
+	}
+	return s_hMutex;
+}
+
+
+/**
+ * \brief Writes a formatted dialog click log entry to DialogClickLog.txt.
+ *        Used for logging mouse click attempts and results inside
+ *        the Menu (F9) and History Action (Shift+F9) dialog windows.
+ *
+ *        Log categories:
+ *        [SETTINGS_CLICK] - Mouse clicks in the Menu (F9) dialog
+ *        [HISTORY_CLICK]  - Mouse clicks in the History Action (Shift+F9) dialog
+ */
+static void WriteDialogClickLogFmt(const char* szCategory, const char* szFormat, ...)
+{
+	HANDLE hMutex = GetDialogClickLogMutex();
+	if (!hMutex)
+	{
+		OutputDebugStringA("DialogClickLogger: Failed to obtain mutex\n");
+		return;
+	}
+
+	WaitForSingleObject(hMutex, INFINITE);
+
+	char szPath[MAX_PATH + 1] = {0};
+	GetDialogClickLogPath(szPath, MAX_PATH);
+
+	time_t t = time(NULL);
+	struct tm tm_storage = {0};
+	localtime_s(&tm_storage, &t);
+	char szTime[32] = {0};
+	strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", &tm_storage);
+
+	char szMessage[1024] = {0};
+	va_list args;
+	va_start(args, szFormat);
+	_vsnprintf(szMessage, sizeof(szMessage) - 1, szFormat, args);
+	szMessage[sizeof(szMessage) - 1] = '\0';
+	va_end(args);
+
+	FILE* f = fopen(szPath, "a");
+	if (f)
+	{
+		fprintf(f, "[%s] [%s] %s\n", szTime, szCategory, szMessage);
+		fclose(f);
+	}
+
+	if (CDebugMode::IsEnabled())
+	{
+		printf("[%s] [%s] %s\n", szTime, szCategory, szMessage);
+		fflush(stdout);
+	}
+
+	ReleaseMutex(hMutex);
+}
+
+
+/**
+ * \brief Writes a simple dialog click log entry to DialogClickLog.txt.
+ */
+static void WriteDialogClickLog(const char* szCategory, const char* szMessage)
+{
+	WriteDialogClickLogFmt(szCategory, "%s", szMessage);
+}
+
+
 #endif //__ClickerLogger_H
