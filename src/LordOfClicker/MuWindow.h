@@ -155,6 +155,7 @@ protected:
 	BOOL m_fBlockInput;
 	BOOL m_fGuiActive;     // TRUE when ImGui overlay is showing a dialog
 	bool m_fShiftWasDown;  // BUG-4 fix: Shift state captured on F9 KEYDOWN
+	bool m_fF9Pending;     // BUG-A/B/E fix: TRUE between F9 KEYDOWN and KEYUP (dedup guard)
 	BOOL m_fWasLastActiveInstance;
 
 	int m_iInstanceNumber;
