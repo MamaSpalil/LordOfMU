@@ -14,10 +14,13 @@ typedef BOOL (WINAPI* FnSwapBuffers)(HDC);
 // ---------------------------------------------------------------------------
 namespace
 {
+	// Size of the hook (5-byte JMP rel32).
+	static const int HOOK_SIZE       = 5;
+
 	// Original SwapBuffers via trampoline.
 	FnSwapBuffers g_pOrigSwapBuffers = NULL;
 
-	// Address of the real SwapBuffers entry point in gdi32.dll.
+	// Address of the real SwapBuffers entry point (after resolving JMP stubs).
 	BYTE*         g_pSwapBuffersAddr = NULL;
 
 	// Trampoline: saved original bytes + JMP back.
@@ -25,7 +28,6 @@ namespace
 
 	// Saved original bytes (for Uninstall).
 	BYTE          g_SavedBytes[HOOK_SIZE] = {};
-	static const int HOOK_SIZE       = 5;  // 5-byte JMP rel32
 
 	// User callback.
 	FnOnSwapBuffers g_pfnOnSwapBuffers = NULL;
@@ -36,6 +38,48 @@ namespace
 	// Installed / fired flags.
 	bool g_bInstalled = false;
 	bool g_bFired     = false;
+}
+
+// ---------------------------------------------------------------------------
+// ResolveFunction - follow JMP relay stubs to reach the real function body.
+//
+// On modern Windows (10/11), many gdi32.dll exports begin with a relative
+// JMP (E9) or an indirect JMP (FF 25) that forwards to the actual
+// implementation in another module.  Copying such a relative JMP into a
+// trampoline at a different address corrupts the target offset, causing an
+// ACCESS_VIOLATION when the trampoline executes.
+//
+// This helper walks the JMP chain (up to 5 hops) and returns a pointer to
+// the real function body whose prologue is safe to copy verbatim.
+// ---------------------------------------------------------------------------
+static const int MAX_JMP_CHAIN_DEPTH = 5;
+
+static BYTE* ResolveFunction(BYTE* pFunc)
+{
+	for (int i = 0; i < MAX_JMP_CHAIN_DEPTH; ++i)
+	{
+		if (pFunc[0] == 0xE9)  // JMP rel32
+		{
+			INT32 offset;
+			memcpy(&offset, pFunc + 1, sizeof(INT32));
+			pFunc = pFunc + 5 + offset;
+			continue;
+		}
+		if (pFunc[0] == 0xFF && pFunc[1] == 0x25)  // JMP [addr32] (x86 only)
+		{
+			DWORD dwAddr;
+			memcpy(&dwAddr, pFunc + 2, sizeof(DWORD));
+			// Validate that the pointer table entry is readable before
+			// dereferencing.  IsBadReadPtr is deprecated but lightweight
+			// and acceptable for a one-shot init path on x86.
+			if (IsBadReadPtr((const void*)(ULONG_PTR)dwAddr, sizeof(BYTE*)))
+				break;
+			pFunc = *(BYTE**)(ULONG_PTR)dwAddr;
+			continue;
+		}
+		break;
+	}
+	return pFunc;
 }
 
 // ---------------------------------------------------------------------------
@@ -75,14 +119,26 @@ BOOL OpenGLHook::Install()
 		return FALSE;
 	}
 
-	g_pSwapBuffersAddr = (BYTE*)GetProcAddress(hGdi32, "SwapBuffers");
-	if (!g_pSwapBuffersAddr)
+	BYTE* pExport = (BYTE*)GetProcAddress(hGdi32, "SwapBuffers");
+	if (!pExport)
 	{
 		WriteClickerLogFmt("GLHOOK", "SwapBuffers not found in gdi32.dll");
 		return FALSE;
 	}
 
-	WriteClickerLogFmt("GLHOOK", "SwapBuffers found at 0x%p", g_pSwapBuffersAddr);
+	WriteClickerLogFmt("GLHOOK", "SwapBuffers found at 0x%p", pExport);
+
+	// -----------------------------------------------------------------------
+	// Step 1b: Resolve JMP relay stubs (E9 / FF 25) that modern Windows
+	// places at the export entry point.  We need to hook the real function
+	// body so that copied prologue bytes don't contain stale relative offsets.
+	// -----------------------------------------------------------------------
+	g_pSwapBuffersAddr = ResolveFunction(pExport);
+	if (g_pSwapBuffersAddr != pExport)
+	{
+		WriteClickerLogFmt("GLHOOK", "SwapBuffers resolved to 0x%p (was 0x%p)",
+			g_pSwapBuffersAddr, pExport);
+	}
 
 	// -----------------------------------------------------------------------
 	// Step 2: Allocate executable trampoline memory.
@@ -102,6 +158,25 @@ BOOL OpenGLHook::Install()
 
 	// Copy original prologue to trampoline.
 	memcpy(g_pTrampoline, g_pSwapBuffersAddr, HOOK_SIZE);
+
+	// -----------------------------------------------------------------------
+	// Step 2b: Fix up any remaining relative JMP/CALL in the copied prologue.
+	// If the first instruction is E9 (JMP rel32) or E8 (CALL rel32), the
+	// 4-byte offset must be recalculated for the trampoline's address.
+	// -----------------------------------------------------------------------
+	if (g_pTrampoline[0] == 0xE9 || g_pTrampoline[0] == 0xE8)
+	{
+		INT32 origOffset;
+		memcpy(&origOffset, g_pTrampoline + 1, sizeof(INT32));
+		// Original target: source + 5 + offset
+		BYTE* pOrigTarget = g_pSwapBuffersAddr + HOOK_SIZE + origOffset;
+		// New offset from trampoline location
+		INT32 newOffset = (INT32)(pOrigTarget - (g_pTrampoline + HOOK_SIZE));
+		memcpy(g_pTrampoline + 1, &newOffset, sizeof(INT32));
+
+		WriteClickerLogFmt("GLHOOK", "Trampoline: fixed relative %s at offset 0 (target=0x%p)",
+			(g_pTrampoline[0] == 0xE9 ? "JMP" : "CALL"), pOrigTarget);
+	}
 
 	// Append JMP back to (original + HOOK_SIZE).
 	g_pTrampoline[HOOK_SIZE] = 0xE9;  // JMP rel32
