@@ -102,6 +102,12 @@ LRESULT Controller::Keyboard(int Code, WPARAM wParam, LPARAM lParam)
 	
 	if(Code == HC_ACTION)
 	{
+		// F5-F12 keys are managed by LordOfMU AutoClicker's WH_KEYBOARD_LL hook.
+		// Pass them through immediately to avoid interference with F9 (Settings),
+		// Shift+F9 (History), F5 (Start/Stop), F8 (Stop), etc.
+		if (wParam >= VK_F5 && wParam <= VK_F12)
+			return CallNextHookEx(gController.KeyboardHook, Code, wParam, lParam);
+
 		if(((DWORD)lParam & (1 << 30)) != 0 && ((DWORD)lParam & (1 << 31)) != 0 && GetForegroundWindow() == *(HWND*)(MAIN_WINDOW))
 		{
 

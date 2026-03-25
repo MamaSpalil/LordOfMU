@@ -41,6 +41,7 @@ CMuWindow::CMuWindow()
 
 	m_fGuiActive = FALSE;
 	m_fShiftWasDown = false;
+	m_fF9Pending = false;
 	m_iInstanceNumber = 0;
 	m_pClicker = NULL;
 
@@ -280,6 +281,15 @@ LRESULT CALLBACK CMuWindow::KeyboardProcLL(int code, WPARAM wParam, LPARAM lPara
 		if (pThis->OnKeyboardEvent(kbd->vkCode, (UINT)wParam, FALSE))
 			return 0;
 	}
+	else if (kbd->vkCode == VK_F9)
+	{
+		// BUG-A fix: When the game IS foreground, the LL hook was previously
+		// skipping F9 entirely, relying on 100ms timer polling which is too
+		// slow and races with the Client's WH_KEYBOARD hook.  Now F9 is
+		// always dispatched through the LL hook for immediate response.
+		if (pThis->OnKeyboardEvent(kbd->vkCode, (UINT)wParam, FALSE))
+			return 0;
+	}
 
 	return CallNextHookEx(pThis->m_hKbdHook, code, wParam, lParam);
 }
@@ -376,14 +386,21 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 	// BUG-4 fix: Record Shift state when F9 is pressed (KEYDOWN), not
 	// when it is released (KEYUP).  Timer-based polling runs every 100ms,
 	// so by the time KEYUP arrives, the user may have already released Shift.
+	// BUG-A/B/E fix: F9 can now arrive from LL hook, WndProc, or Timer.
+	// Use m_fF9Pending to prevent duplicate processing.
 	if (vkCode == VK_F9 && uMsg == WM_KEYDOWN)
 	{
+		if (m_fF9Pending)
+			return TRUE;  // Already captured — ignore duplicate KEYDOWN
 		m_fShiftWasDown = (CMuWindow::GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+		m_fF9Pending = true;
 		return TRUE;
 	}
 
 	if (vkCode == VK_F9 && uMsg == WM_KEYUP)
 	{
+		if (!m_fF9Pending)
+			return TRUE;  // No matching KEYDOWN — ignore stale KEYUP
 		if (m_fShiftWasDown)
 		{
 			PostMessage(WM_SHOW_HISTORY, 0, 0);
@@ -393,6 +410,7 @@ BOOL CMuWindow::OnKeyboardEvent(UINT vkCode, UINT uMsg, BOOL fCheckFgWnd)
 			PostMessage(WM_SHOW_SETTINGS_GUI, 0, 0);
 		}
 		m_fShiftWasDown = false;
+		m_fF9Pending = false;
 		return TRUE;
 	}
 
@@ -482,6 +500,17 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
  */
 LRESULT CMuWindow::OnKeyboardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	// BUG-B fix: Direct F9 handling through WndProc as a backup path.
+	// The LL hook (Fix #1) is the primary path, but if it misses (e.g. hook
+	// chain issues), the WndProc receives the WM_KEYDOWN/WM_KEYUP directly.
+	// OnKeyboardEvent has dedup logic (m_fF9Pending) to prevent double fire.
+	if (wParam == VK_F9 && (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP))
+	{
+		OnKeyboardEvent((UINT)wParam, uMsg == WM_KEYDOWN ? WM_KEYDOWN : WM_KEYUP, FALSE);
+		bHandled = TRUE;
+		return 0;
+	}
+
 	// Forward keyboard messages to ImGui overlay.  If ImGui wants the
 	// keyboard (an overlay text field is focused), block the game from
 	// processing the keystroke.
@@ -605,16 +634,15 @@ LRESULT CMuWindow::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
  */
 LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 {
-	// BUG-2 fix: If the autoclicker is running, stop it and beep but do NOT
-	// re-post WM_SHOW_SETTINGS_GUI.  The old code would re-post itself in a
-	// loop while m_pClicker was still non-NULL (async stop), causing an
-	// avalanche of toggle calls that flip-flopped the dialog open/closed.
-	// The user can press F9 again once the clicker has stopped.
+	// BUG-K fix: If the autoclicker is running, stop it AND open the settings
+	// overlay in one action.  Previously this would only stop the clicker and
+	// require a second F9 press.  The clicker stop is async (OnClickerJobFinished
+	// clears m_pClicker), but this does not affect the ImGui overlay — it simply
+	// shows the settings window while the clicker winds down.
 	if (m_pClicker != NULL)
 	{
 		PostMessage(WM_STOP_CLICKER, 0, 0);
 		MessageBeep(MB_ICONINFORMATION);
-		return 0;
 	}
 
 	// Toggle settings overlay in ImGui
