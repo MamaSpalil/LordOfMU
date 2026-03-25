@@ -390,14 +390,11 @@ void CImGuiOverlay::RenderSettingsWindow()
 	if (!m_pSettings)
 		return;
 
-	ImGui::SetNextWindowSize(ImVec2(480, 420), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(480, 460), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(100, 50), ImGuiCond_FirstUseEver);
 
-	char szTitle[128];
-	sprintf_s(szTitle, "MU AutoClicker Settings  [%s]###Settings", __SOFTWARE_VERSION_STR);
-
 	bool bOpen = m_bShowSettings;
-	if (ImGui::Begin(szTitle, &bOpen, ImGuiWindowFlags_NoSavedSettings))
+	if (ImGui::Begin("MU AutoClicker Settings###Settings", &bOpen, ImGuiWindowFlags_NoSavedSettings))
 	{
 		// Tab bar
 		if (ImGui::BeginTabBar("##SettingsTabs"))
@@ -448,6 +445,16 @@ void CImGuiOverlay::RenderSettingsWindow()
 		{
 			m_bShowSettings = false;
 		}
+
+		// Version footer (matches old dialog: "LordOfMU AutoClicker v2.x (AVANTA+ELITE)")
+		ImGui::Spacing();
+		ImGui::Separator();
+		{
+			const char* szFooter = __SOFTWARE_PRODUCT_NAME " v" __SOFTWARE_VERSION_STR;
+			float footerW = ImGui::CalcTextSize(szFooter).x;
+			ImGui::SetCursorPosX((ImGui::GetWindowWidth() - footerW) * 0.5f);
+			ImGui::TextDisabled("%s", szFooter);
+		}
 	}
 	ImGui::End();
 
@@ -465,82 +472,102 @@ void CImGuiOverlay::RenderTabGeneral()
 	ClickerSettings* s = (*m_pSettings);
 
 	ImGui::Spacing();
-	ImGui::TextColored(ImVec4(0.82f, 0.71f, 0.27f, 1.0f), "Autoclicker Timing");
+	ImGui::TextColored(ImVec4(0.82f, 0.71f, 0.27f, 1.0f), "Auto Functions");
 	ImGui::Separator();
 
-	// Auto Heal
-	bool bAutoHeal = (s->all.fAutoLife != FALSE);
-	if (ImGui::Checkbox("Auto Heal", &bAutoHeal))
-		s->all.fAutoLife = bAutoHeal ? TRUE : FALSE;
-
-	if (bAutoHeal)
-	{
-		ImGui::SameLine(200);
-		int healTime = (int)s->all.dwHealTime;
-		ImGui::SetNextItemWidth(100);
-		if (ImGui::InputInt("##HealTime", &healTime, 500, 1000))
-		{
-			if (healTime < 500) healTime = 500;
-			if (healTime > 60000) healTime = 60000;
-			s->all.dwHealTime = (DWORD)healTime;
-		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("ms");
-	}
-
-	// Auto Pick
+	// Enable auto-pick-up (press 'SPACE')
 	bool bAutoPick = (s->all.fAutoPick != FALSE);
-	if (ImGui::Checkbox("Auto Pick", &bAutoPick))
+	if (ImGui::Checkbox("Enable auto-pick-up (press 'SPACE')", &bAutoPick))
 		s->all.fAutoPick = bAutoPick ? TRUE : FALSE;
 
-	if (bAutoPick)
-	{
-		ImGui::SameLine(200);
-		int pickTime = (int)s->all.dwPickTime;
-		ImGui::SetNextItemWidth(100);
-		if (ImGui::InputInt("##PickTime", &pickTime, 200, 500))
-		{
-			if (pickTime < 200) pickTime = 200;
-			if (pickTime > 30000) pickTime = 30000;
-			s->all.dwPickTime = (DWORD)pickTime;
-		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("ms");
-	}
-
-	// Auto Repair
+	// Enable auto-repair
 	bool bAutoRepair = (s->all.fAutoRepair != FALSE);
-	if (ImGui::Checkbox("Auto Repair", &bAutoRepair))
+	if (ImGui::Checkbox("Enable auto-repair", &bAutoRepair))
 		s->all.fAutoRepair = bAutoRepair ? TRUE : FALSE;
 
-	if (bAutoRepair)
+	// Enable auto-heal (press 'Q')
+	bool bAutoHeal = (s->all.fAutoLife != FALSE);
+	if (ImGui::Checkbox("Enable auto-heal (press 'Q')", &bAutoHeal))
+		s->all.fAutoLife = bAutoHeal ? TRUE : FALSE;
+
+	// Auto-heal time
+	if (bAutoHeal)
 	{
-		ImGui::SameLine(200);
-		int repairTime = (int)s->all.dwRepairTime;
-		ImGui::SetNextItemWidth(100);
-		if (ImGui::InputInt("##RepairTime", &repairTime, 10000, 60000))
+		ImGui::Indent(28.0f);
+		// Preset heal times matching old dialog combobox (0,1,3,5,7,10,15 seconds)
+		static const int s_nHealPresets[] = { 0, 1000, 3000, 5000, 7000, 10000, 15000 };
+		static const char* s_szHealLabels[] = { "0 sec.", "1 sec.", "3 sec.", "5 sec.", "7 sec.", "10 sec.", "15 sec." };
+		static const int s_nHealPresetCount = sizeof(s_nHealPresets) / sizeof(s_nHealPresets[0]);
+
+		int iSelected = 5; // default: 10 sec.
+		for (int i = 0; i < s_nHealPresetCount; ++i)
 		{
-			if (repairTime < 10000) repairTime = 10000;
-			if (repairTime > 600000) repairTime = 600000;
-			s->all.dwRepairTime = (DWORD)repairTime;
+			if ((int)s->all.dwHealTime == s_nHealPresets[i])
+			{
+				iSelected = i;
+				break;
+			}
 		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("ms");
+
+		ImGui::SetNextItemWidth(100);
+		if (ImGui::Combo("Auto-heal time", &iSelected, s_szHealLabels, s_nHealPresetCount))
+		{
+			s->all.dwHealTime = (DWORD)s_nHealPresets[iSelected];
+		}
+		ImGui::Unindent(28.0f);
 	}
 
 	// Stop picking when inventory full
 	bool bAutoReOff = (s->all.fAutoReOff != FALSE);
-	if (ImGui::Checkbox("Stop Pick on Inventory Full", &bAutoReOff))
+	if (ImGui::Checkbox("Stop pick on inventory full", &bAutoReOff))
 		s->all.fAutoReOff = bAutoReOff ? TRUE : FALSE;
 
+	// Exit game at level 400
+	bool bExitAtLvl = (s->all.fExitAtLvl400 != FALSE);
+	if (ImGui::Checkbox("Exit game at level 400", &bExitAtLvl))
+		s->all.fExitAtLvl400 = bExitAtLvl ? TRUE : FALSE;
+
 	ImGui::Spacing();
-	ImGui::TextColored(ImVec4(0.82f, 0.71f, 0.27f, 1.0f), "Miscellaneous");
+	ImGui::TextColored(ImVec4(0.82f, 0.71f, 0.27f, 1.0f), "Stealth Options (if s.o. approaches your character)");
 	ImGui::Separator();
 
-	// Anti-AFK
-	int antiAFK = s->all.fAntiAFKProtect;
-	if (ImGui::Checkbox("Anti-AFK Protection", (bool*)&antiAFK))
-		s->all.fAntiAFKProtect = antiAFK;
+	// Anti-AFK / Stealth sub-options stored as bit flags in fAntiAFKProtect:
+	//   bit 0 (1) = Auto-speak
+	//   bit 1 (2) = Stop zen pick-up
+	//   bit 2 (4) = Stop move-to-pick
+	//   bit 3 (8) = Stop all pick-up
+	int afk = s->all.fAntiAFKProtect;
+
+	bool bAutoSpeak = (afk & 1) != 0;
+	bool bStopZen   = (afk & 2) != 0;
+	bool bStopMove  = (afk & 4) != 0;
+	bool bStopAll   = (afk & 8) != 0;
+
+	// When "Stop all pick-up" is ON, the sub-options are disabled (greyed out)
+	// — matching old dialog behavior at UnifiedSettingsDlg.cpp:713-715.
+	if (ImGui::Checkbox("Auto-speak", &bAutoSpeak))
+	{
+		afk = (afk & ~1) | (bAutoSpeak ? 1 : 0);
+		s->all.fAntiAFKProtect = afk;
+	}
+	ImGui::SameLine(260);
+	if (ImGui::Checkbox("Stop zen pick-up", &bStopZen))
+	{
+		afk = (afk & ~2) | (bStopZen ? 2 : 0);
+		s->all.fAntiAFKProtect = afk;
+	}
+
+	if (ImGui::Checkbox("Stop move-to-pick", &bStopMove))
+	{
+		afk = (afk & ~4) | (bStopMove ? 4 : 0);
+		s->all.fAntiAFKProtect = afk;
+	}
+	ImGui::SameLine(260);
+	if (ImGui::Checkbox("Stop all pick-up", &bStopAll))
+	{
+		afk = (afk & ~8) | (bStopAll ? 8 : 0);
+		s->all.fAntiAFKProtect = afk;
+	}
 }
 
 // ============================================================================
