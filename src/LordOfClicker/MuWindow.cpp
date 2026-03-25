@@ -506,7 +506,7 @@ LRESULT CMuWindow::OnKeyboardMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	// OnKeyboardEvent has dedup logic (m_fF9Pending) to prevent double fire.
 	if (wParam == VK_F9 && (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP))
 	{
-		OnKeyboardEvent((UINT)wParam, uMsg == WM_KEYDOWN ? WM_KEYDOWN : WM_KEYUP, FALSE);
+		OnKeyboardEvent((UINT)wParam, uMsg, FALSE);
 		bHandled = TRUE;
 		return 0;
 	}
