@@ -650,6 +650,20 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		BOOL fOldBlockInput = m_fBlockInput;
 		m_fBlockInput = FALSE;
 
+		// Track whether the dialog has received WM_LBUTTONDOWN for the
+		// current mouse press.  The game's original WndProc internally
+		// calls PeekMessage to drain mouse input (e.g. from timer
+		// callbacks invoked by PeekMessage itself during sent-message
+		// dispatch).  This steals WM_LBUTTONDOWN from the queue before
+		// our loop can retrieve it, while WM_LBUTTONUP survives because
+		// it's posted later when the user releases the button.  Without
+		// the matching WM_LBUTTONDOWN, dialog controls never enter the
+		// "pressed" state and ignore WM_LBUTTONUP — making clicks
+		// non-functional.  When we detect WM_LBUTTONUP without a
+		// preceding WM_LBUTTONDOWN, we synthesise the missing down
+		// event so the control receives a complete down+up pair.
+		BOOL bDialogGotLButtonDown = FALSE;
+
 		MSG msg = {0};
 		// Loop while the dialog is either visible OR temporarily hidden
 		// by ALT+TAB (m_bSettingsWasVisible is TRUE while hidden).
@@ -658,6 +672,15 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		while (m_cUnifiedSettingsDlg.IsWindow()
 			&& (m_cUnifiedSettingsDlg.IsWindowVisible() || m_bSettingsWasVisible))
 		{
+			// Proactive capture release: the game may re-acquire capture
+			// between loop iterations through timer callbacks or sent
+			// messages dispatched internally by PeekMessage.  If the
+			// game holds capture when the user presses the mouse button,
+			// WM_LBUTTONDOWN is redirected to the game window instead
+			// of the dialog and blocked by OnMouseMessage.
+			if (::GetCapture() == m_hWnd)
+				::ReleaseCapture();
+
 			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 			{
 				if (msg.message == WM_QUIT)
@@ -687,6 +710,32 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 							"Click attempt on Settings dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
 							"result=true",
 							szMsgName, xPos, yPos, (void*)msg.hwnd);
+
+						// Track WM_LBUTTONDOWN for click-pair synthesis
+						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
+							bDialogGotLButtonDown = TRUE;
+
+						// Synthesise missing WM_LBUTTONDOWN when only
+						// WM_LBUTTONUP arrives.  The game's WndProc may
+						// have drained WM_LBUTTONDOWN from the queue via
+						// internal PeekMessage calls (timer callbacks).
+						// Without the down event, controls ignore the up
+						// event because they were never put into "pressed"
+						// state.  Sending a synchronous WM_LBUTTONDOWN
+						// immediately before dispatch creates a complete
+						// down+up pair that triggers the control's click.
+						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
+						{
+							WriteDialogClickLogFmt("SETTINGS_CLICK",
+								"Synthesising WM_LBUTTONDOWN for dialog control "
+								"targetHWND=0x%p pos=(%d,%d) "
+								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
+								(void*)msg.hwnd, xPos, yPos);
+							::SendMessage(msg.hwnd, WM_LBUTTONDOWN, msg.wParam, msg.lParam);
+						}
+
+						if (msg.message == WM_LBUTTONUP)
+							bDialogGotLButtonDown = FALSE;
 					}
 					else if (bIsGameWnd)
 					{
@@ -759,6 +808,14 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 		}
 
 		m_fBlockInput = fOldBlockInput;
+
+		// Reset the game's internal mouse state.  If the game's WndProc
+		// consumed a WM_LBUTTONDOWN (via internal PeekMessage) but the
+		// matching WM_LBUTTONUP went to the dialog, the game is stuck
+		// in a "mouse button held" state.  Sending a synthetic
+		// WM_LBUTTONUP resets this state so the game doesn't freeze
+		// (continuous click-hold processing) after the dialog closes.
+		::PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELPARAM(-1, -1));
 
 		// Clean up GUI-active state after the dialog has been dismissed.
 		m_bSettingsWasVisible = FALSE;
@@ -1949,10 +2006,18 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 		BOOL fOldBlockInput = m_fBlockInput;
 		m_fBlockInput = FALSE;
 
+		// Track WM_LBUTTONDOWN for click-pair synthesis (same rationale
+		// as the Settings dialog loop — see detailed comment there).
+		BOOL bDialogGotLButtonDown = FALSE;
+
 		MSG msg = {0};
 		while (m_cHistoryDlg.IsWindow()
 			&& (m_cHistoryDlg.IsWindowVisible() || m_bHistoryWasVisible))
 		{
+			// Proactive capture release (same rationale as Settings loop).
+			if (::GetCapture() == m_hWnd)
+				::ReleaseCapture();
+
 			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 			{
 				if (msg.message == WM_QUIT)
@@ -1982,6 +2047,24 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 							"Click attempt on History dialog: msg=%s pos=(%d,%d) targetHWND=0x%p "
 							"result=true",
 							szMsgName, xPos, yPos, (void*)msg.hwnd);
+
+						// Track WM_LBUTTONDOWN for click-pair synthesis
+						if (msg.message == WM_LBUTTONDOWN || msg.message == WM_LBUTTONDBLCLK)
+							bDialogGotLButtonDown = TRUE;
+
+						// Synthesise missing WM_LBUTTONDOWN (same as Settings loop).
+						if (msg.message == WM_LBUTTONUP && !bDialogGotLButtonDown)
+						{
+							WriteDialogClickLogFmt("HISTORY_CLICK",
+								"Synthesising WM_LBUTTONDOWN for dialog control "
+								"targetHWND=0x%p pos=(%d,%d) "
+								"reason=\"WM_LBUTTONDOWN was lost (drained by game WndProc)\"",
+								(void*)msg.hwnd, xPos, yPos);
+							::SendMessage(msg.hwnd, WM_LBUTTONDOWN, msg.wParam, msg.lParam);
+						}
+
+						if (msg.message == WM_LBUTTONUP)
+							bDialogGotLButtonDown = FALSE;
 					}
 					else if (bIsGameWnd)
 					{
@@ -2042,6 +2125,9 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 		}
 
 		m_fBlockInput = fOldBlockInput;
+
+		// Reset the game's internal mouse state (same as Settings loop).
+		::PostMessage(m_hWnd, WM_LBUTTONUP, 0, MAKELPARAM(-1, -1));
 
 		// Clean up GUI-active state
 		m_bHistoryWasVisible = FALSE;
