@@ -25,6 +25,7 @@
 #define WM_SET_GAME_VERSION     (WM_APP + 509)
 #define WM_CHAR_SELECTED        (WM_APP + 510)
 #define WM_CHAR_DESELECTED      (WM_APP + 511)
+#define WM_SHOW_HISTORY         (WM_APP + 512)
 
 
 /**
@@ -80,6 +81,7 @@ protected:
 		MESSAGE_HANDLER(WM_CHAR_SELECTED, OnCharSelected)
 		MESSAGE_HANDLER(WM_CHAR_DESELECTED, OnCharDeselected)
 		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+		MESSAGE_HANDLER(WM_SHOW_HISTORY, OnShowHistory)
 	END_MSG_MAP()
 
 protected:
@@ -138,6 +140,7 @@ protected:
 	LRESULT OnCharSelected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCharDeselected(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnMouseActivate(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnShowHistory(UINT, WPARAM, LPARAM, BOOL&);
 
 	void HidePopupDialogs();
 	void RestorePopupDialogs();
