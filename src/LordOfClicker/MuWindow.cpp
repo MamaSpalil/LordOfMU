@@ -605,6 +605,32 @@ LRESULT CMuWindow::OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 
 /**
+ * \brief  Forward WM_SETCURSOR to the ImGui overlay so that the correct game
+ *         cursor is displayed when the mouse hovers over overlay windows
+ *         (Settings, History, HUD buttons).
+ *
+ *         WM_SETCURSOR (0x0020) is NOT in the WM_MOUSEFIRST..WM_MOUSELAST
+ *         range (0x0200..0x020E), so it is not caught by OnMouseMessage and
+ *         needs its own explicit MESSAGE_HANDLER.
+ */
+LRESULT CMuWindow::OnSetCursor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if (m_cOverlay.IsInitialized())
+	{
+		if (m_cOverlay.WndProcHandler(m_hWnd, uMsg, wParam, lParam))
+		{
+			bHandled = TRUE;
+			return TRUE;
+		}
+	}
+
+	// Let the game's original WndProc handle cursor for non-overlay areas.
+	bHandled = FALSE;
+	return 0;
+}
+
+
+/**
  * \brief  BUG-3 fix: Forward keyboard messages (WM_KEYDOWN, WM_KEYUP, WM_CHAR,
  *         WM_SYSKEYDOWN, WM_SYSKEYUP) to the ImGui overlay so that keyboard
  *         navigation and text input work inside overlay windows.

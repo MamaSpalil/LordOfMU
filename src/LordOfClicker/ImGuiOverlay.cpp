@@ -142,8 +142,12 @@ void CImGuiOverlay::Render()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	// HUD bar is always visible (if character selected + game active).
-	if (m_bCharSelected && m_bGameActive)
+	// HUD bar is always visible when the game window is active.
+	// Note: m_bCharSelected is not checked here because the packet-based
+	// detection (WM_CHAR_SELECTED) may not fire if the DLL is loaded after
+	// the character was already selected.  The overlay itself is only
+	// initialized during SwapBuffers, so the game is already rendering.
+	if (m_bGameActive)
 		RenderHUD();
 
 	// Popup windows.
