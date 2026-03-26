@@ -134,6 +134,7 @@ private:
 	DWORD m_dwLastZen;
 	bool m_fZenTracked;
 	bool m_fZenPickupPending;
+	std::deque<DWORD> m_zenAmountQueue;
 
 	static const BYTE CHAR_CLASS_UNSET = 0xFF;
 
