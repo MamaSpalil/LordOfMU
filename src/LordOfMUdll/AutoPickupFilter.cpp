@@ -260,7 +260,16 @@ BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen)
 			return FALSE;
 		}
 
-		DWORD dwZen = *(DWORD*)(dwCharBase + ZEN_MONEY_OFFSET);
+		// Validate that the money offset is within readable memory
+		DWORD* pdwMoney = (DWORD*)(dwCharBase + ZEN_MONEY_OFFSET);
+		if (IsBadReadPtr(pdwMoney, sizeof(DWORD)))
+		{
+			WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: bad read ptr at 0x%08X (base=0x%08X + %d)",
+				(DWORD)pdwMoney, dwCharBase, ZEN_MONEY_OFFSET);
+			return FALSE;
+		}
+
+		DWORD dwZen = *pdwMoney;
 
 		// Sanity check: Zen should not exceed MAX_ZEN
 		if (dwZen > MAX_ZEN)
@@ -606,8 +615,10 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			DWORD dwMemZen = 0;
 			if (ReadZenFromMemory(&dwMemZen) && dwMemZen > 0)
 			{
-				// Use the memory value as baseline if it is <= the packet value
-				// (packet is always the authoritative current value).
+				// Use the memory value as baseline if it is <= the packet value.
+				// Equality is valid (no zen gained between memory read and packet).
+				// If memory > packet, it's stale/inconsistent so skip it and
+				// let the packet value become the baseline via m_dwLastZen below.
 				if (dwMemZen <= dwNewZen)
 				{
 					m_dwLastZen = dwMemZen;
@@ -808,7 +819,7 @@ bool CAutoPickupFilter::GetParam(const char* pszParam, void* pData)
 {
 	if (_stricmp(pszParam, "zen_memory") == 0 && pData)
 	{
-		return ReadZenFromMemory((DWORD*)pData) ? true : false;
+		return ReadZenFromMemory((DWORD*)pData) != FALSE;
 	}
 	if (_stricmp(pszParam, "zen_last") == 0 && pData)
 	{
