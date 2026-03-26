@@ -2046,10 +2046,10 @@ void CMuWindow::QueryPickupHistory()
 
 	if (s_pfnGetHistory)
 	{
-		char szBuffer[32768] = {0};
+		char szBuffer[65536] = {0};
 		s_pfnGetHistory(szBuffer, sizeof(szBuffer));
 
-		// Parse "HH:MM:SS|ItemName\n" entries
+		// Parse "HH:MM:SS|category|ItemName\n" entries
 		char* pLine = szBuffer;
 		char* pBufEnd = szBuffer + sizeof(szBuffer);
 		while (pLine && pLine < pBufEnd && *pLine)
@@ -2057,14 +2057,32 @@ void CMuWindow::QueryPickupHistory()
 			char* pEnd = strchr(pLine, '\n');
 			if (pEnd) *pEnd = '\0';
 
-			char* pSep = strchr(pLine, '|');
-			if (pSep)
+			// First separator: time|rest
+			char* pSep1 = strchr(pLine, '|');
+			if (pSep1)
 			{
-				*pSep = '\0';
-				CImGuiOverlay::HistoryEntry entry;
-				entry.sTime = pLine;
-				entry.sItem = pSep + 1;
-				vHistory.push_back(entry);
+				*pSep1 = '\0';
+
+				// Second separator: category|itemName
+				char* pSep2 = strchr(pSep1 + 1, '|');
+				if (pSep2)
+				{
+					*pSep2 = '\0';
+					CImGuiOverlay::HistoryEntry entry;
+					entry.sTime = pLine;
+					entry.nCategory = atoi(pSep1 + 1);
+					entry.sItem = pSep2 + 1;
+					vHistory.push_back(entry);
+				}
+				else
+				{
+					// Fallback: old format "time|item" (no category)
+					CImGuiOverlay::HistoryEntry entry;
+					entry.sTime = pLine;
+					entry.nCategory = 0;
+					entry.sItem = pSep1 + 1;
+					vHistory.push_back(entry);
+				}
 			}
 
 			if (!pEnd) break;

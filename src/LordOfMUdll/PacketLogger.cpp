@@ -4,6 +4,10 @@
 #include "DebugOut.h"
 #include "BufferUtil.h"
 #include "ClickerLogger.h"
+#include "HistoryCategory.h"
+
+// Defined in AutoPickupFilter.cpp — adds an entry to the shared pickup history buffer.
+extern void AddPickupHistoryEntry(const char* pszItemName, int nCategory);
 
 /**
  * \brief Check if a recv packet is relevant to the AVANTA+ELITE autoclicker
@@ -195,6 +199,15 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					   pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 
+	// Record to history for the Debug Console (Server category)
+	{
+		char szEntry[192];
+		_snprintf(szEntry, sizeof(szEntry) - 1, "S: %s (Len=%d)",
+			pkt.GetType().GetDescription(), pkt.GetDecryptedLen());
+		szEntry[sizeof(szEntry) - 1] = '\0';
+		AddPickupHistoryEntry(szEntry, HISTORY_CAT_SERVER);
+	}
+
 	return 0;
 }
 
@@ -239,6 +252,15 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 
 		WritePacketLog("CLIENT -> SERVER", pkt.GetType().GetDescription(),
 					   pkt.GetDecryptedLen(), (const char*)szHex);
+	}
+
+	// Record to history for the Debug Console (Client category)
+	{
+		char szEntry[192];
+		_snprintf(szEntry, sizeof(szEntry) - 1, "C: %s (Len=%d)",
+			pkt.GetType().GetDescription(), pkt.GetDecryptedLen());
+		szEntry[sizeof(szEntry) - 1] = '\0';
+		AddPickupHistoryEntry(szEntry, HISTORY_CAT_CLIENT);
 	}
 
 	return 0;
