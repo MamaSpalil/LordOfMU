@@ -2108,6 +2108,8 @@ void CMuWindow::QuerySessionStats()
 					stats.nItemCount = atoi(pVal);
 				else if (_stricmp(pKey, "zen") == 0)
 					stats.ullZenTotal = _strtoui64(pVal, NULL, 10);
+				else if (_stricmp(pKey, "zencount") == 0)
+					stats.nZenPickupCount = atoi(pVal);
 				else if (_stricmp(pKey, "exp") == 0)
 					stats.ullExpGained = _strtoui64(pVal, NULL, 10);
 				else if (_stricmp(pKey, "runtime") == 0)
