@@ -5,7 +5,6 @@
 
 #include "Settings.h"
 #include "resource.h"
-#include "HistoryCategory.h"
 #include <windows.h>
 #include <vector>
 #include <string>
@@ -65,7 +64,6 @@ public:
 	{
 		std::string sTime;
 		std::string sItem;
-		int         nCategory;  // HistoryCategory enum value
 	};
 	void SetHistory(const std::vector<HistoryEntry>& vHistory);
 
@@ -159,7 +157,6 @@ private:
 	// History dialog state
 	int m_nHistoryTab;     // 0 = Items, 1 = Kill Count
 	int m_nHistoryPage;    // current page (0-based) for Items tab
-	unsigned int m_dwHistoryFilter; // bitmask of enabled HistoryCategory values
 
 	// Callbacks
 	FnCallback m_pfnOnSettings;   void* m_pSettingsData;

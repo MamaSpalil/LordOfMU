@@ -218,9 +218,6 @@
     <ClInclude Include="..\_Shared\HandshakeGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\_Shared\HistoryCategory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="InventoryManagerFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
