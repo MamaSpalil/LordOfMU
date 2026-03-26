@@ -64,7 +64,7 @@ static void AddPickupHistoryEntry(const char* pszItemName)
 	strncpy(entry.szItem, pszItemName, sizeof(entry.szItem) - 1);
 	entry.szItem[sizeof(entry.szItem) - 1] = '\0';
 
-	g_nHistoryHead= (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
+	g_nHistoryHead = (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
 	if (g_nHistoryCount < MAX_HISTORY_ENTRIES)
 		g_nHistoryCount++;
 
@@ -387,7 +387,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			wType &= 0x0FFF;
 
-			int xdiff= abs((int)bPlX - (int)x);
+			int xdiff = abs((int)bPlX - (int)x);
 			int ydiff = abs((int)bPlY - (int)y);
 
 			std::map<WORD, WORD>::iterator it = m_vItemList.find(wType);
