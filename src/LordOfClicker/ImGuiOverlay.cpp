@@ -42,6 +42,8 @@ CImGuiOverlay::CImGuiOverlay()
 	, m_hLinkCursor(NULL)
 	, m_hBusyCursor(NULL)
 	, m_hWibCursor(NULL)
+	, m_bCursorForced(false)
+	, m_nSavedCursorCount(0)
 	, m_bShowSettings(false)
 	, m_bShowHistory(false)
 	, m_bClickerRunning(false)
@@ -118,6 +120,14 @@ void CImGuiOverlay::Shutdown()
 	if (!m_bInitialized)
 		return;
 
+	// Restore hardware cursor display count if we forced it visible.
+	if (m_bCursorForced)
+	{
+		while (::ShowCursor(FALSE) > m_nSavedCursorCount)
+			;
+		m_bCursorForced = false;
+	}
+
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -157,6 +167,11 @@ void CImGuiOverlay::Render()
 	if (m_bShowHistory)
 		RenderHistoryWindow();
 
+	// Manage hardware cursor visibility.  Must be called after all
+	// ImGui windows are submitted so that io.WantCaptureMouse reflects
+	// the current hover state, but before EndFrame.
+	UpdateCursorVisibility();
+
 	// Finalize and submit draw data.
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -183,6 +198,14 @@ BOOL CImGuiOverlay::WndProcHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		ImGuiIO& io = ImGui::GetIO();
 		if (io.WantCaptureMouse)
 		{
+			// Ensure the cursor display counter is non-negative so the
+			// hardware cursor is visible.  MU Online calls ShowCursor(FALSE)
+			// which can decrement the global counter below zero, hiding the
+			// cursor even when a valid shape is set via SetCursor.
+			int nCount = ::ShowCursor(TRUE);   // probe: returns count after increment
+			if (nCount > 1)
+				::ShowCursor(FALSE);           // already visible, undo the probe
+
 			ApplyGameCursor();
 			return TRUE;
 		}
@@ -286,6 +309,63 @@ void CImGuiOverlay::ApplyGameCursor()
 		::SetCursor(hCur);
 	else
 		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+}
+
+
+// ============================================================================
+// Cursor visibility management
+// ============================================================================
+
+/**
+ * \brief Manage the hardware cursor display counter around ImGui mouse capture.
+ *
+ *        MU Online hides the hardware cursor via ShowCursor(FALSE) and
+ *        renders its own cursor through OpenGL.  When the ImGui overlay
+ *        captures the mouse (io.WantCaptureMouse) the game's software
+ *        cursor is drawn behind our overlay, making it invisible.
+ *
+ *        On transition to captured:
+ *          - Snapshot the current ShowCursor display count.
+ *          - Force the count to >= 0 (visible) so the hardware cursor set
+ *            by ApplyGameCursor() is actually shown.
+ *
+ *        On transition to released:
+ *          - Restore the display count to the snapshotted value so the
+ *            game's own cursor management is not disrupted.
+ *
+ *        This follows the same pattern used by CHistoryDialog and
+ *        CUnifiedSettingsDlg (ShowCursor force-visible / restore loops).
+ */
+void CImGuiOverlay::UpdateCursorVisibility()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	bool bNeedVisible = io.WantCaptureMouse;
+
+	if (bNeedVisible && !m_bCursorForced)
+	{
+		// Snapshot the current ShowCursor display count.
+		// ShowCursor(TRUE) returns the count AFTER the increment, so
+		// (return - 1) gives the count before the probe.
+		int nProbe = ::ShowCursor(TRUE);
+		::ShowCursor(FALSE);               // undo the probe
+		m_nSavedCursorCount = nProbe - 1;  // count before our intervention
+
+		// Force cursor visible (display count >= 0).
+		// The loop exits when ShowCursor(TRUE) returns >= 1, meaning the
+		// count after increment is at least 1 — cursor is visible.
+		while (::ShowCursor(TRUE) < 1)
+			;
+
+		m_bCursorForced = true;
+	}
+	else if (!bNeedVisible && m_bCursorForced)
+	{
+		// Restore the display count to the saved value.
+		while (::ShowCursor(FALSE) > m_nSavedCursorCount)
+			;
+
+		m_bCursorForced = false;
+	}
 }
 
 // ============================================================================

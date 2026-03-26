@@ -114,6 +114,12 @@ private:
 	// Cursor helpers — map ImGui cursor type to MU Online game cursor
 	void ApplyGameCursor();
 
+	// Manage hardware cursor visibility.  MU Online hides the hardware
+	// cursor via ShowCursor(FALSE) and draws its own via OpenGL.
+	// When the ImGui overlay has mouse capture we need the hardware
+	// cursor visible; when released we restore the original count.
+	void UpdateCursorVisibility();
+
 	// ----- State -----
 	bool m_bInitialized;
 	HWND m_hwndGame;
@@ -125,6 +131,10 @@ private:
 	HCURSOR m_hLinkCursor;     // Hand / clickable (link select)
 	HCURSOR m_hBusyCursor;     // Busy / hourglass
 	HCURSOR m_hWibCursor;      // Resize / misc
+
+	// Hardware cursor visibility management
+	bool m_bCursorForced;          // Have we forced the hardware cursor visible?
+	int  m_nSavedCursorCount;      // ShowCursor display count before we forced it
 
 	// Visibility
 	bool m_bShowSettings;
