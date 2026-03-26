@@ -26,14 +26,16 @@ static BOOL g_bHistoryInit = FALSE;
 // ---- Session Statistics (global, thread-safe via g_csHistory) ----
 
 // Key names used in GetSessionStats text format (must match consumer in MuWindow.cpp)
-static const char* STAT_KEY_KILLS   = "kills";
-static const char* STAT_KEY_ITEMS   = "items";
-static const char* STAT_KEY_ZEN     = "zen";
-static const char* STAT_KEY_EXP     = "exp";
-static const char* STAT_KEY_RUNTIME = "runtime";
+static const char* STAT_KEY_KILLS      = "kills";
+static const char* STAT_KEY_ITEMS      = "items";
+static const char* STAT_KEY_ZEN        = "zen";
+static const char* STAT_KEY_ZENCOUNT   = "zencount";
+static const char* STAT_KEY_EXP        = "exp";
+static const char* STAT_KEY_RUNTIME    = "runtime";
 
 static int g_nSessionKillCount = 0;
 static int g_nSessionItemCount = 0;
+static int g_nSessionZenPickupCount = 0;
 static unsigned __int64 g_ullSessionZenTotal = 0;
 static unsigned __int64 g_ullSessionExpGained = 0;
 static DWORD g_dwSessionStartTick = 0;
@@ -134,10 +136,11 @@ extern "C" __declspec(dllexport) int GetSessionStats(char* pszBuffer, int nBufSi
 		dwRuntime = (GetTickCount() - g_dwSessionStartTick) / 1000;
 
 	_snprintf(pszBuffer, nBufSize - 1,
-		"%s=%d\n%s=%d\n%s=%I64u\n%s=%I64u\n%s=%lu\n",
+		"%s=%d\n%s=%d\n%s=%I64u\n%s=%d\n%s=%I64u\n%s=%lu\n",
 		STAT_KEY_KILLS, g_nSessionKillCount,
 		STAT_KEY_ITEMS, g_nSessionItemCount,
 		STAT_KEY_ZEN, g_ullSessionZenTotal,
+		STAT_KEY_ZENCOUNT, g_nSessionZenPickupCount,
 		STAT_KEY_EXP, g_ullSessionExpGained,
 		STAT_KEY_RUNTIME, (unsigned long)dwRuntime);
 	pszBuffer[nBufSize - 1] = '\0';
@@ -158,6 +161,7 @@ extern "C" __declspec(dllexport) void ResetSessionStats()
 
 	g_nSessionKillCount = 0;
 	g_nSessionItemCount = 0;
+	g_nSessionZenPickupCount = 0;
 	g_ullSessionZenTotal = 0;
 	g_ullSessionExpGained = 0;
 	g_dwSessionStartTick = GetTickCount();
@@ -496,8 +500,13 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			if (m_fSuspended && m_fSuspPick)
 				return 0;
 
-			// Skip notification for Zen items - handled by CZenUpdatePacket with amount
-			if (wType != TYPE_ZEN)
+			// Zen pickup: identified by item type OR inventory slot=254
+			// (Zen has its own vault, it does not occupy normal inventory slots).
+			// Amount notification is deferred to the CZenUpdatePacket handler
+			// which calculates the exact delta.
+			bool bIsZen = (wType == TYPE_ZEN) || (bPos == INVENTORY_SLOT_ZEN);
+
+			if (!bIsZen)
 			{
 				// Display "[PICKUP] - ItemName Obtained" notification
 				const char* pszName = GetItemDisplayName(wType);
@@ -551,10 +560,11 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory);
 
-			// Accumulate session zen total
+			// Accumulate session zen total and pickup count
 			InitHistoryCS();
 			EnterCriticalSection(&g_csHistory);
 			g_ullSessionZenTotal += (unsigned __int64)dwDelta;
+			g_nSessionZenPickupCount++;
 			LeaveCriticalSection(&g_csHistory);
 		}
 

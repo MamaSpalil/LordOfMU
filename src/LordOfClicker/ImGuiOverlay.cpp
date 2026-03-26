@@ -1111,7 +1111,7 @@ void CImGuiOverlay::RenderHistoryWindow()
 			{
 				m_nHistoryTab = 0;
 
-				// ---- Zen summary at the top ----
+				// ---- Zen Obtained: show both pickup count and total amount ----
 				{
 					// Format zen total with suffix (k, m, b)
 					char szZen[64];
@@ -1125,25 +1125,22 @@ void CImGuiOverlay::RenderHistoryWindow()
 						_snprintf(szZen, sizeof(szZen), "%I64u", m_sessionStats.ullZenTotal);
 					szZen[sizeof(szZen) - 1] = '\0';
 
-					// Right-align zen display
-					char szLabel[80];
-					_snprintf(szLabel, sizeof(szLabel), "Zen: %s", szZen);
-					szLabel[sizeof(szLabel) - 1] = '\0';
-					float textWidth = ImGui::CalcTextSize(szLabel).x;
-					ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textWidth - ImGui::GetStyle().WindowPadding.x);
-					ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", szLabel);
+					// Zen Obtained: show both count and total amount
+					ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "Zen Obtained:");
+					ImGui::SameLine();
+					ImGui::Text("%d", m_sessionStats.nZenPickupCount);
+					ImGui::SameLine();
+					ImGui::TextDisabled("(Total: %s)", szZen);
 				}
 
 				ImGui::Separator();
 
-				// ---- Build filtered item list (exclude Zen entries) ----
+				// ---- Build item list (all items including Zen entries) ----
 				// Items are displayed newest first
 				std::vector<int> vItemIndices;
 				for (int i = (int)m_vHistory.size() - 1; i >= 0; --i)
 				{
-					// Zen entries start with "Zen '"
-					if (m_vHistory[i].sItem.compare(0, ZEN_ENTRY_PREFIX_LEN, ZEN_ENTRY_PREFIX) != 0)
-						vItemIndices.push_back(i);
+					vItemIndices.push_back(i);
 				}
 
 				int nTotalItems = (int)vItemIndices.size();
@@ -1173,11 +1170,18 @@ void CImGuiOverlay::RenderHistoryWindow()
 						for (int i = nStart; i < nEnd; ++i)
 						{
 							int idx = vItemIndices[i];
+							bool bIsZen = (m_vHistory[idx].sItem.compare(0, ZEN_ENTRY_PREFIX_LEN, ZEN_ENTRY_PREFIX) == 0);
+
 							ImGui::TableNextRow();
 							ImGui::TableNextColumn();
-							ImGui::TextUnformatted(m_vHistory[idx].sItem.c_str());
 
-							// Hover tooltip: show item name (image placeholder)
+							// Zen entries display in gold, regular items in default color
+							if (bIsZen)
+								ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", m_vHistory[idx].sItem.c_str());
+							else
+								ImGui::TextUnformatted(m_vHistory[idx].sItem.c_str());
+
+							// Hover tooltip: show item name and timestamp
 							if (ImGui::IsItemHovered())
 							{
 								ImGui::BeginTooltip();
@@ -1277,6 +1281,13 @@ void CImGuiOverlay::RenderHistoryWindow()
 				ImGui::Text("Item Obtained:");
 				ImGui::SameLine();
 				ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "%d", m_sessionStats.nItemCount);
+
+				ImGui::Spacing();
+
+				// ---- Zen Obtained (count + total) ----
+				ImGui::Text("Zen Obtained:");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%d", m_sessionStats.nZenPickupCount);
 
 				ImGui::Spacing();
 

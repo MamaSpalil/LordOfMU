@@ -78,6 +78,10 @@ void ImGui_ImplOpenGL2_NewFrame()
 // -----------------------------------------------------------------------
 
 // Backup/restore helper to avoid affecting the game's GL state.
+// MU Online uses various GL states (fog, alpha test, texture env, color
+// material, shade model) that must be saved before ImGui rendering and
+// restored afterward, otherwise the overlay's vertex colors (buttons,
+// text, cursors) are not applied correctly.
 struct GLStateBackup
 {
     GLint   LastTexture;
@@ -92,6 +96,12 @@ struct GLStateBackup
     GLboolean LastEnableLighting;
     GLboolean LastEnableScissorTest;
     GLboolean LastEnableTexture2D;
+    GLboolean LastEnableAlphaTest;
+    GLboolean LastEnableFog;
+    GLboolean LastEnableColorMaterial;
+    GLboolean LastEnableStencilTest;
+    GLint   LastShadeModel;
+    GLint   LastTexEnvMode;
     GLint   LastMatrixMode;
 };
 
@@ -103,12 +113,18 @@ static void BackupGLState(GLStateBackup& s)
     glGetIntegerv(GL_SCISSOR_BOX, s.LastScissorBox);
     glGetIntegerv(GL_BLEND_SRC, &s.LastBlendSrc);
     glGetIntegerv(GL_BLEND_DST, &s.LastBlendDst);
-    s.LastEnableBlend       = glIsEnabled(GL_BLEND);
-    s.LastEnableCullFace    = glIsEnabled(GL_CULL_FACE);
-    s.LastEnableDepthTest   = glIsEnabled(GL_DEPTH_TEST);
-    s.LastEnableLighting    = glIsEnabled(GL_LIGHTING);
-    s.LastEnableScissorTest = glIsEnabled(GL_SCISSOR_TEST);
-    s.LastEnableTexture2D   = glIsEnabled(GL_TEXTURE_2D);
+    s.LastEnableBlend         = glIsEnabled(GL_BLEND);
+    s.LastEnableCullFace      = glIsEnabled(GL_CULL_FACE);
+    s.LastEnableDepthTest     = glIsEnabled(GL_DEPTH_TEST);
+    s.LastEnableLighting      = glIsEnabled(GL_LIGHTING);
+    s.LastEnableScissorTest   = glIsEnabled(GL_SCISSOR_TEST);
+    s.LastEnableTexture2D     = glIsEnabled(GL_TEXTURE_2D);
+    s.LastEnableAlphaTest     = glIsEnabled(GL_ALPHA_TEST);
+    s.LastEnableFog           = glIsEnabled(GL_FOG);
+    s.LastEnableColorMaterial = glIsEnabled(GL_COLOR_MATERIAL);
+    s.LastEnableStencilTest   = glIsEnabled(GL_STENCIL_TEST);
+    glGetIntegerv(GL_SHADE_MODEL, &s.LastShadeModel);
+    glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &s.LastTexEnvMode);
     glGetIntegerv(GL_MATRIX_MODE, &s.LastMatrixMode);
 }
 
@@ -121,12 +137,18 @@ static void RestoreGLState(const GLStateBackup& s)
     glScissor(s.LastScissorBox[0], s.LastScissorBox[1],
         (GLsizei)s.LastScissorBox[2], (GLsizei)s.LastScissorBox[3]);
     glBlendFunc((GLenum)s.LastBlendSrc, (GLenum)s.LastBlendDst);
-    if (s.LastEnableBlend)       glEnable(GL_BLEND);       else glDisable(GL_BLEND);
-    if (s.LastEnableCullFace)    glEnable(GL_CULL_FACE);   else glDisable(GL_CULL_FACE);
-    if (s.LastEnableDepthTest)   glEnable(GL_DEPTH_TEST);  else glDisable(GL_DEPTH_TEST);
-    if (s.LastEnableLighting)    glEnable(GL_LIGHTING);    else glDisable(GL_LIGHTING);
-    if (s.LastEnableScissorTest) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
-    if (s.LastEnableTexture2D)   glEnable(GL_TEXTURE_2D);  else glDisable(GL_TEXTURE_2D);
+    if (s.LastEnableBlend)         glEnable(GL_BLEND);         else glDisable(GL_BLEND);
+    if (s.LastEnableCullFace)      glEnable(GL_CULL_FACE);     else glDisable(GL_CULL_FACE);
+    if (s.LastEnableDepthTest)     glEnable(GL_DEPTH_TEST);    else glDisable(GL_DEPTH_TEST);
+    if (s.LastEnableLighting)      glEnable(GL_LIGHTING);      else glDisable(GL_LIGHTING);
+    if (s.LastEnableScissorTest)   glEnable(GL_SCISSOR_TEST);  else glDisable(GL_SCISSOR_TEST);
+    if (s.LastEnableTexture2D)     glEnable(GL_TEXTURE_2D);    else glDisable(GL_TEXTURE_2D);
+    if (s.LastEnableAlphaTest)     glEnable(GL_ALPHA_TEST);    else glDisable(GL_ALPHA_TEST);
+    if (s.LastEnableFog)           glEnable(GL_FOG);           else glDisable(GL_FOG);
+    if (s.LastEnableColorMaterial) glEnable(GL_COLOR_MATERIAL); else glDisable(GL_COLOR_MATERIAL);
+    if (s.LastEnableStencilTest)   glEnable(GL_STENCIL_TEST);  else glDisable(GL_STENCIL_TEST);
+    glShadeModel((GLenum)s.LastShadeModel);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, s.LastTexEnvMode);
     glMatrixMode(s.LastMatrixMode);
 }
 
@@ -144,14 +166,24 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
 
     // Setup render state: alpha-blending enabled, no face culling,
     // no depth testing, scissor enabled, vertex/texcoord/color arrays.
+    // Critical: set GL_TEXTURE_ENV_MODE to GL_MODULATE so vertex colors
+    // (buttons, text, cursors) are multiplied with the font atlas texture.
+    // Without this, MU Online's texture env settings can make ImGui
+    // content invisible.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
     glDisable(GL_LIGHTING);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_FOG);
+    glDisable(GL_COLOR_MATERIAL);
     glEnable(GL_SCISSOR_TEST);
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glShadeModel(GL_SMOOTH);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);

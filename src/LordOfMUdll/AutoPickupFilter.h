@@ -143,6 +143,10 @@ private:
 
 	static const DWORD MAX_ZEN = 2000000000;
 
+	// Zen pickup uses a special inventory slot (254) since Zen doesn't
+	// occupy normal inventory positions.
+	static const BYTE INVENTORY_SLOT_ZEN = 254;
+
 private:
 	HANDLE m_hThread;
 	HANDLE m_hPickEvent;

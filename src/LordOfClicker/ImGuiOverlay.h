@@ -72,6 +72,7 @@ public:
 	{
 		int nKillCount;
 		int nItemCount;
+		int nZenPickupCount;
 		unsigned __int64 ullZenTotal;
 		unsigned __int64 ullExpGained;
 		unsigned long ulRuntimeSeconds;
