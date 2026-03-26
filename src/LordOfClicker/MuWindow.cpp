@@ -782,7 +782,7 @@ LRESULT CMuWindow::OnShowSettingsGUI(UINT, WPARAM, LPARAM, BOOL&)
 	{
 		WriteClickerLogFmt("KEYDBG", ">>> OnShowSettingsGUI: Overlay not initialized -> force-initializing with HWND 0x%p",
 			m_hWnd);
-		m_cOverlay.Initialize(m_hWnd);
+		m_cOverlay.Initialize(m_hWnd, _AtlBaseModule.GetModuleInstance());
 	}
 
 	// Toggle settings overlay in ImGui.
@@ -1808,7 +1808,7 @@ LRESULT CMuWindow::OnShowHistory(UINT, WPARAM, LPARAM, BOOL&)
 	{
 		WriteClickerLogFmt("KEYDBG", ">>> OnShowHistory: Overlay not initialized -> force-initializing with HWND 0x%p",
 			m_hWnd);
-		m_cOverlay.Initialize(m_hWnd);
+		m_cOverlay.Initialize(m_hWnd, _AtlBaseModule.GetModuleInstance());
 	}
 
 	// Toggle history overlay in ImGui.
@@ -1867,7 +1867,7 @@ void CMuWindow::OnSwapBuffersCallback(HDC hdc)
 	// Lazy-initialize ImGui on the first SwapBuffers call.
 	if (!pThis->m_cOverlay.IsInitialized())
 	{
-		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd))
+		if (!pThis->m_cOverlay.Initialize(pThis->m_hWnd, _AtlBaseModule.GetModuleInstance()))
 			return;
 
 		// Sync m_fGuiActive with overlay state.  The user may have pressed
