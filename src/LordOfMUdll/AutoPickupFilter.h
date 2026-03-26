@@ -85,6 +85,10 @@ private:
 
 	static const char* GetItemDisplayName(WORD wType);
 
+	// Read current Zen from game memory using known offset.
+	// Returns TRUE and fills *pdwZen if the read succeeded.
+	static BOOL ReadZenFromMemory(DWORD* pdwZen);
+
 private:
 	std::map<WORD, WORD> m_vItemList;
 	std::map<WORD, WORD> m_vDropList;
@@ -146,6 +150,12 @@ private:
 	// Zen pickup uses a special inventory slot (254) since Zen doesn't
 	// occupy normal inventory positions.
 	static const BYTE INVENTORY_SLOT_ZEN = 254;
+
+	// Game memory offsets for reading the player's current Zen amount.
+	// ObjectCharacter pointer: *(DWORD*)0x077A8FD8  (oUserObjectStruct)
+	// MoneyInventory field at offset +5956 within ObjectCharacter struct.
+	static const DWORD ZEN_CHAR_STRUCT_PTR = 0x077A8FD8;
+	static const DWORD ZEN_MONEY_OFFSET    = 5956;
 
 private:
 	HANDLE m_hThread;
