@@ -599,44 +599,29 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				return 0;
 
 			// Zen pickup: identified by item type, inventory slot=254, OR
-			// MoneyDropped byte pattern (ItemData[0]==0x0F && ItemData[5]==0x0E).
-			// MoneyDropped packets encode the group byte as raw 0x0E instead of
-			// the standard (Group<<4)=0xE0, causing GetItemType() to produce a
-			// wrong type code.  Check the raw bytes to detect Zen reliably.
+			// MoneyDropped byte pattern.  MoneyDropped packets encode the
+			// group byte as raw 0x0E instead of the standard (Group<<4)=0xE0,
+			// causing GetItemType() to produce a wrong type code.
+			BYTE* pItemData = pkt2.GetItemData();
 			bool bIsZen = (wType == TYPE_ZEN) || (bPos == INVENTORY_SLOT_ZEN);
 
-			DWORD dwZenAmount = 0;
-			if (!bIsZen)
+			if (!bIsZen && pItemData
+				&& pItemData[0] == 0x0F && pItemData[5] == 0x0E)
 			{
-				BYTE* pItemData = pkt2.GetItemData();
-				if (pItemData && pItemData[0] == 0x0F && pItemData[5] == 0x0E)
-				{
-					bIsZen = true;
-					dwZenAmount = (DWORD)pItemData[1] |
-						((DWORD)pItemData[2] << 8) |
-						((DWORD)pItemData[3] << 16) |
-						((DWORD)pItemData[4] << 24);
-
-					WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: MoneyDropped detected via byte pattern, zen amount=%lu",
-						(unsigned long)dwZenAmount);
-				}
+				bIsZen = true;
+				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: MoneyDropped detected via byte pattern");
 			}
 
 			if (bIsZen)
 			{
-				// Display Zen pickup notification with the exact amount
-				// extracted from the packet data.
-				if (dwZenAmount == 0)
+				// Extract the exact Zen amount from ItemData[1..4] (LE).
+				DWORD dwZenAmount = 0;
+				if (pItemData)
 				{
-					// Fallback: extract amount from raw bytes if not yet parsed
-					BYTE* pItemData = pkt2.GetItemData();
-					if (pItemData)
-					{
-						dwZenAmount = (DWORD)pItemData[1] |
-							((DWORD)pItemData[2] << 8) |
-							((DWORD)pItemData[3] << 16) |
-							((DWORD)pItemData[4] << 24);
-					}
+					dwZenAmount = (DWORD)pItemData[1] |
+						((DWORD)pItemData[2] << 8) |
+						((DWORD)pItemData[3] << 16) |
+						((DWORD)pItemData[4] << 24);
 				}
 
 				if (dwZenAmount > 0)
