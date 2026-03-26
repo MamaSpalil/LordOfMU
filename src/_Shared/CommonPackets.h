@@ -330,6 +330,7 @@ public:
 	WORD GetItemType(int idx);
 	WORD GetItemId(int idx);
 	bool GetItemPos(int idx, BYTE& x, BYTE& y);
+	BYTE GetItemLevel(int idx);
 
 public:
 	BEGIN_COMMON_PACKET_DECL(CMeetItemPacket)
@@ -357,10 +358,25 @@ public:
 		PACKET_DESCR("Put inventory")
 	END_COMMON_PACKET_DECL()
 
+	// ItemData byte layout (starts at pPacket[5]):
+	//   [0] = ItemNumber (index within group)
+	//   [1] = (Level<<3) | (Luck<<2) | (Skill<<7) | (Option & 3)
+	//   [2] = Durability
+	//   [3] = ExcByte | (Number>=256 flag at bit7) | (Option bit2 << 6)
+	//   [4] = AncientByte
+	//   [5] = (Group<<4) | GuardianFlag
+
 	WORD GetItemType()
 	{
 		BYTE* pPacket = AnyBuffer();
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[10] << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[10] & 0xF0) << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
+	}
+
+	BYTE GetItemLevel()
+	{
+		// Level is stored in bits 3-6 of ItemData[1] (pPacket[6])
+		BYTE* pPacket = AnyBuffer();
+		return (pPacket == 0) ? 0 : (pPacket[6] >> 3) & 0x0F;
 	}
 
 	BYTE GetInvPos()
@@ -399,8 +415,9 @@ public:
 	{
 		// Same extraction as CPutInventoryPacket: byte[5] = index,
 		// byte[6] bits 3-6 and byte[10] = group/category.
+		// Mask upper nibble of group byte to avoid flag contamination.
 		BYTE* pPacket = AnyBuffer();
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[10] << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[10] & 0xF0) << 4) | ((WORD)(pPacket[6] & 0x78) << 9) | pPacket[5];
 	}
 };
 
@@ -425,7 +442,7 @@ public:
 	WORD GetItemType()
 	{
 		BYTE* pPacket = AnyBuffer();
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[11] << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[11] & 0xF0) << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
 	}
 
 	BYTE GetInvPos()
@@ -462,7 +479,7 @@ public:
 	WORD GetItemType()
 	{
 		BYTE* pPacket = AnyBuffer();
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[11] << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[11] & 0xF0) << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
 	}
 
 	BYTE GetInvPos()
@@ -508,7 +525,7 @@ public:
 	WORD GetItemType()
 	{
 		BYTE* pPacket = AnyBuffer();
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[11] << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[11] & 0xF0) << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
 	}
 
 	BYTE GetInvPos()
@@ -1160,7 +1177,7 @@ public:
 	WORD GetItemType(int idx)
 	{
 		BYTE* pPacket = GetItemData(idx);
-		return (pPacket == 0) ? 0 : ((WORD)pPacket[5] << 4) | ((WORD)(pPacket[1] & 0x78) << 9) | pPacket[0];
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[5] & 0xF0) << 4) | ((WORD)(pPacket[1] & 0x78) << 9) | pPacket[0];
 	}
 
 };

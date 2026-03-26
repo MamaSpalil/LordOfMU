@@ -83,7 +83,7 @@ private:
 	void ProcessDropQueue();
 	void ProcessNoMovePickupQueue();
 
-	static const char* GetItemDisplayName(WORD wType);
+	static const char* GetItemDisplayName(WORD wType, BYTE bLevel = 0);
 
 	// Read current Zen from game memory using known offset.
 	// Returns TRUE and fills *pdwZen if the read succeeded.

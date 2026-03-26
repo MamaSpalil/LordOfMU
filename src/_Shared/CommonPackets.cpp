@@ -274,7 +274,7 @@ WORD CMeetItemPacket::GetItemType(int idx)
 
 	BYTE* pItemCode = buf + 4;
 
-	return ((WORD)pItemCode[5] << 4) | ((WORD)(pItemCode[1] & 0x78) << 9) | pItemCode[0];
+	return ((WORD)(pItemCode[5] & 0xF0) << 4) | ((WORD)(pItemCode[1] & 0x78) << 9) | pItemCode[0];
 }
 
 /**
@@ -304,6 +304,23 @@ bool CMeetItemPacket::GetItemPos(int idx, BYTE& x, BYTE& y)
 	x = buf[2];
 	y = buf[3];
 	return true;
+}
+
+
+/**
+ * \brief Extract item level from dropped item data.
+ *        Level is stored in bits 3-6 of ItemData[1] (pItemCode[1]).
+ */
+BYTE CMeetItemPacket::GetItemLevel(int idx)
+{
+	BYTE* buf = GetItemData(idx);
+
+	if (!buf)
+		return 0;
+
+	BYTE* pItemCode = buf + 4;
+
+	return (pItemCode[1] >> 3) & 0x0F;
 }
 
 
