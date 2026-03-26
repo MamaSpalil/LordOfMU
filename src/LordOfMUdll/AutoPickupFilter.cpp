@@ -606,27 +606,39 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			if (!bIsZen)
 			{
-				// Display "[PICKUP] - ItemName+Level Obtained" notification
-				const char* pszName = GetItemDisplayName(wType);
+				// Display "[PICKUP] - ItemName Obtained" notification
+				// Some items have completely different names per level
+				// (e.g., Box of Luck at level 1 = "Star of Sacred Birth").
+				// For those, use the level-specific name directly.
+				// For items where the name is the same at all levels,
+				// append "+N" as a suffix.
+				const char* pszBaseName = GetItemDisplayName(wType, 0);
+				const char* pszLevelName = GetItemDisplayName(wType, bLevel);
 
-				if (bLevel > 0)
+				bool bLevelSpecificName = (bLevel > 0 && strcmp(pszBaseName, pszLevelName) != 0);
+
+				if (bLevelSpecificName)
 				{
-					CServerMessagePacket pktObtained("[PICKUP] - %s+%d Obtained", pszName, (int)bLevel);
+					// Level-specific name already describes the item fully
+					CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszLevelName);
+					GetProxy()->recv_direct(pktObtained);
+					AddPickupHistoryEntry(pszLevelName);
+				}
+				else if (bLevel > 0)
+				{
+					CServerMessagePacket pktObtained("[PICKUP] - %s+%d Obtained", pszBaseName, (int)bLevel);
 					GetProxy()->recv_direct(pktObtained);
 
-					// Record to pickup history for the History dialog with level
 					char szHistory[192];
-					_snprintf(szHistory, sizeof(szHistory) - 1, "%s+%d", pszName, (int)bLevel);
+					_snprintf(szHistory, sizeof(szHistory) - 1, "%s+%d", pszBaseName, (int)bLevel);
 					szHistory[sizeof(szHistory) - 1] = '\0';
 					AddPickupHistoryEntry(szHistory);
 				}
 				else
 				{
-					CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
+					CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszBaseName);
 					GetProxy()->recv_direct(pktObtained);
-
-					// Record to pickup history for the History dialog
-					AddPickupHistoryEntry(pszName);
+					AddPickupHistoryEntry(pszBaseName);
 				}
 
 				// Increment session item count (only non-Zen items)
@@ -1550,9 +1562,10 @@ void CAutoPickupFilter::ProcessNoMovePickupQueue()
  * \brief Returns a human-readable display name for a MU Online item type code.
  *
  * Item type encoding: bits 0-7 = item index, bits 8-11 = item group (0-15).
- * Item database covers MU Online Season 3 Episode 1 items.
+ * Some items (Group 14) have level-specific names where the same group+index
+ * maps to different items depending on the item level (e.g., Box of Luck).
  */
-const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
+const char* CAutoPickupFilter::GetItemDisplayName(WORD wType, BYTE bLevel)
 {
 	BYTE bGroup = (wType >> 8) & 0x0F;
 	BYTE bIndex = wType & 0xFF;
@@ -1565,6 +1578,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 	case 0:
 		switch (bIndex)
 		{
+		case 0x00: return "Kris";
 		case 0x01: return "Short Sword";
 		case 0x02: return "Rapier";
 		case 0x03: return "Katana";
@@ -1590,19 +1604,8 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x17: return "Explosion Blade";
 		case 0x18: return "Daybreak";
 		case 0x19: return "Sword Dancer";
-		case 0x1A: return "Flameberge";
-		case 0x1B: return "Sword Breaker";
-		case 0x1C: return "Rune Bastard Sword";
-		case 0x1D: return "Sonic Blade";
-		case 0x1E: return "Asura";
+		case 0x1A: return "Archon Guardian Blade";
 		case 0x1F: return "Rune Blade";
-		case 0x20: return "Sacred Glove";
-		case 0x21: return "Holy Storm Claw";
-		case 0x22: return "Piercing Blade Glove";
-		case 0x23: return "Phoenix Soul Star";
-		case 0x24: return "Cyclone Sword";
-		case 0x25: return "Blast Break";
-		case 0x26: return "Prickle Glove";
 		}
 		return "Sword";
 
@@ -1644,13 +1647,9 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0B: return "Lord Scepter";
 		case 0x0C: return "Great Lord Scepter";
 		case 0x0D: return "Divine Scepter of Archangel";
-		case 0x0E: return "Soleil Scepter";
+		case 0x0E: return "Solay Scepter";
 		case 0x0F: return "Shining Scepter";
-		case 0x10: return "Frost Mace";
-		case 0x11: return "Absolute Scepter";
-		case 0x12: return "Striker Scepter";
-		case 0x13: return "Thunderbolt";
-		case 0x14: return "Horn of Steel";
+		case 0x10: return "Mace of King";
 		}
 		return "Mace";
 
@@ -1671,8 +1670,6 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x08: return "Great Scythe";
 		case 0x09: return "Bill of Balrog";
 		case 0x0A: return "Dragon Spear";
-		case 0x0B: return "Brova";
-		case 0x0C: return "Magmus Peer";
 		}
 		return "Spear";
 
@@ -1689,7 +1686,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x04: return "Tiger Bow";
 		case 0x05: return "Silver Bow";
 		case 0x06: return "Chaos Nature Bow";
-		case 0x07: return "Bolt";
+		case 0x07: return "Bolts";
 		case 0x08: return "Crossbow";
 		case 0x09: return "Golden Crossbow";
 		case 0x0A: return "Arquebus";
@@ -1697,7 +1694,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0C: return "Serpent Crossbow";
 		case 0x0D: return "Bluewing Crossbow";
 		case 0x0E: return "Aquagold Crossbow";
-		case 0x0F: return "Arrow";
+		case 0x0F: return "Arrows";
 		case 0x10: return "Saint Crossbow";
 		case 0x11: return "Celestial Bow";
 		case 0x12: return "Divine Crossbow of Archangel";
@@ -1705,15 +1702,11 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x14: return "Arrow Viper Bow";
 		case 0x15: return "Sylph Wind Bow";
 		case 0x16: return "Albatross Bow";
-		case 0x17: return "Dark Stinger";
-		case 0x18: return "Aileen Bow";
-		case 0x19: return "Angelic Bow";
-		case 0x1A: return "Devil Crossbow";
 		}
 		return "Bow";
 
 	// ---------------------------------------------------------------
-	// Group 5 - Staffs & Sticks & Books
+	// Group 5 - Staffs
 	// ---------------------------------------------------------------
 	case 5:
 		switch (bIndex)
@@ -1725,31 +1718,13 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x04: return "Gorgon Staff";
 		case 0x05: return "Legendary Staff";
 		case 0x06: return "Staff of Resurrection";
-		case 0x07: return "Chaos Lighting Staff";
+		case 0x07: return "Chaos Lightning Staff";
 		case 0x08: return "Staff of Destruction";
 		case 0x09: return "Dragon Soul Staff";
 		case 0x0A: return "Divine Staff of Archangel";
 		case 0x0B: return "Staff of Kundun";
 		case 0x0C: return "Grand Viper Staff";
-		case 0x0D: return "Platina Staff";
-		case 0x0E: return "Mystery Stick";
-		case 0x0F: return "Violent Wind Stick";
-		case 0x10: return "Red Wing Stick";
-		case 0x11: return "Ancient Stick";
-		case 0x12: return "Demonic Stick";
-		case 0x13: return "Storm Blitz Stick";
-		case 0x14: return "Eternal Wing Stick";
-		case 0x15: return "Book of Samut";
-		case 0x16: return "Book of Neil";
-		case 0x17: return "Book of Lagle";
-		case 0x1E: return "Deadly Staff";
-		case 0x1F: return "Imperial Staff";
-		case 0x20: return "Summon Spirit Stick";
-		case 0x21: return "Chrome Staff";
-		case 0x22: return "Raven Stick";
-		case 0x23: return "Miracle Staff";
-		case 0x24: return "Divine Stick of Archangel";
-		case 0x25: return "Spite Staff";
+		case 0x0D: return "Platina Wing Staff";
 		}
 		return "Staff";
 
@@ -1772,20 +1747,10 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0A: return "Large Round Shield";
 		case 0x0B: return "Serpent Shield";
 		case 0x0C: return "Bronze Shield";
-		case 0x0D: return "Dragon Shield";
+		case 0x0D: return "Chaos Dragon Shield";
 		case 0x0E: return "Legendary Shield";
 		case 0x0F: return "Grand Soul Shield";
 		case 0x10: return "Elemental Shield";
-		case 0x11: return "Crimson Glory";
-		case 0x12: return "Salamander Shield";
-		case 0x13: return "Frost Barrier";
-		case 0x14: return "Guardian Shield";
-		case 0x15: return "Cross Shield";
-		case 0x16: return "Lazy Wind Shield";
-		case 0x17: return "Light Lord Shield";
-		case 0x18: return "Dark Devil Shield";
-		case 0x19: return "Magic Knight Shield";
-		case 0x1A: return "Ambition Shield";
 		}
 		return "Shield";
 
@@ -1802,7 +1767,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x04: return "Bone Helm";
 		case 0x05: return "Leather Helm";
 		case 0x06: return "Scale Helm";
-		case 0x07: return "Sphinx Mask";
+		case 0x07: return "Sphinx Helm";
 		case 0x08: return "Brass Helm";
 		case 0x09: return "Plate Helm";
 		case 0x0A: return "Vine Helm";
@@ -1813,39 +1778,23 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x10: return "Black Dragon Helm";
 		case 0x11: return "Dark Phoenix Helm";
 		case 0x12: return "Grand Soul Helm";
-		case 0x13: return "Holy Spirit Helm";
+		case 0x13: return "Divine Helm";
 		case 0x15: return "Great Dragon Helm";
 		case 0x16: return "Dark Soul Helm";
 		case 0x18: return "Red Spirit Helm";
-		case 0x19: return "Light Plate Mask";
-		case 0x1A: return "Adamantine Mask";
-		case 0x1B: return "Dark Steel Mask";
-		case 0x1C: return "Dark Master Mask";
+		case 0x19: return "Light Plate Helm";
+		case 0x1A: return "Adamantine Helm";
+		case 0x1B: return "Dark Steel Helm";
+		case 0x1C: return "Dark Master Helm";
 		case 0x1D: return "Dragon Knight Helm";
 		case 0x1E: return "Venom Mist Helm";
 		case 0x1F: return "Sylphid Ray Helm";
-		case 0x21: return "Sunlight Mask";
+		case 0x21: return "Sunlight Helm";
 		case 0x22: return "Ashcrow Helm";
 		case 0x23: return "Eclipse Helm";
 		case 0x24: return "Iris Helm";
-		case 0x26: return "Glorious Mask";
-		case 0x27: return "Violent Wind Helm";
-		case 0x28: return "Red Wing Helm";
-		case 0x29: return "Ancient Helm";
-		case 0x2A: return "Demonic Helm";
-		case 0x2B: return "Storm Blitz Helm";
-		case 0x2C: return "Eternal Wing Helm";
-		case 0x2D: return "Titan Helm";
-		case 0x2E: return "Brave Helm";
-		case 0x31: return "Seraphim Helm";
-		case 0x32: return "Divine Helm";
-		case 0x33: return "Royal Mask";
-		case 0x34: return "Hades Helm";
-		case 0x35: return "Succubus Helm";
-		case 0x3B: return "Sacred Fire Helm";
-		case 0x3C: return "Storm Jahad Helm";
-		case 0x3D: return "Piercing Helm";
-		case 0x49: return "Phoenix Soul Helmet";
+		case 0x26: return "Glorious Helm";
+		case 0x27: return "Archon Guardian Helm";
 		}
 		return "Helm";
 
@@ -1874,7 +1823,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x10: return "Black Dragon Armor";
 		case 0x11: return "Dark Phoenix Armor";
 		case 0x12: return "Grand Soul Armor";
-		case 0x13: return "Holy Spirit Armor";
+		case 0x13: return "Divine Armor";
 		case 0x14: return "Thunder Hawk Armor";
 		case 0x15: return "Great Dragon Armor";
 		case 0x16: return "Dark Soul Armor";
@@ -1894,25 +1843,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x24: return "Iris Armor";
 		case 0x25: return "Valiant Armor";
 		case 0x26: return "Glorious Armor";
-		case 0x27: return "Violent Wind Armor";
-		case 0x28: return "Red Wing Armor";
-		case 0x29: return "Ancient Armor";
-		case 0x2A: return "Demonic Armor";
-		case 0x2B: return "Storm Blitz Armor";
-		case 0x2C: return "Eternal Wing Armor";
-		case 0x2D: return "Titan Armor";
-		case 0x2E: return "Brave Armor";
-		case 0x2F: return "Phantom Armor";
-		case 0x30: return "Destroy Armor";
-		case 0x31: return "Seraphim Armor";
-		case 0x32: return "Divine Armor";
-		case 0x33: return "Royal Armor";
-		case 0x34: return "Hades Armor";
-		case 0x35: return "Succubus Armor";
-		case 0x3B: return "Sacred Fire Armor";
-		case 0x3C: return "Storm Jahad Armor";
-		case 0x3D: return "Piercing Armor";
-		case 0x49: return "Phoenix Soul Armor";
+		case 0x27: return "Archon Guardian Armor";
 		}
 		return "Armor";
 
@@ -1941,7 +1872,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x10: return "Black Dragon Pants";
 		case 0x11: return "Dark Phoenix Pants";
 		case 0x12: return "Grand Soul Pants";
-		case 0x13: return "Holy Spirit Pants";
+		case 0x13: return "Divine Pants";
 		case 0x14: return "Thunder Hawk Pants";
 		case 0x15: return "Great Dragon Pants";
 		case 0x16: return "Dark Soul Pants";
@@ -1961,25 +1892,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x24: return "Iris Pants";
 		case 0x25: return "Valiant Pants";
 		case 0x26: return "Glorious Pants";
-		case 0x27: return "Violent Wind Pants";
-		case 0x28: return "Red Wing Pants";
-		case 0x29: return "Ancient Pants";
-		case 0x2A: return "Demonic Pants";
-		case 0x2B: return "Storm Blitz Pants";
-		case 0x2C: return "Eternal Wing Pants";
-		case 0x2D: return "Titan Pants";
-		case 0x2E: return "Brave Pants";
-		case 0x2F: return "Phantom Pants";
-		case 0x30: return "Destroy Pants";
-		case 0x31: return "Seraphim Pants";
-		case 0x32: return "Divine Pants";
-		case 0x33: return "Royal Pants";
-		case 0x34: return "Hades Pants";
-		case 0x35: return "Succubus Pants";
-		case 0x3B: return "Sacred Fire Pants";
-		case 0x3C: return "Storm Jahad Pants";
-		case 0x3D: return "Piercing Pants";
-		case 0x49: return "Phoenix Soul Pants";
+		case 0x27: return "Archon Guardian Pants";
 		}
 		return "Pants";
 
@@ -2008,7 +1921,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x10: return "Black Dragon Gloves";
 		case 0x11: return "Dark Phoenix Gloves";
 		case 0x12: return "Grand Soul Gloves";
-		case 0x13: return "Holy Spirit Gloves";
+		case 0x13: return "Divine Gloves";
 		case 0x14: return "Thunder Hawk Gloves";
 		case 0x15: return "Great Dragon Gloves";
 		case 0x16: return "Dark Soul Gloves";
@@ -2028,21 +1941,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x24: return "Iris Gloves";
 		case 0x25: return "Valiant Gloves";
 		case 0x26: return "Glorious Gloves";
-		case 0x27: return "Violent Wind Gloves";
-		case 0x28: return "Red Wing Gloves";
-		case 0x29: return "Ancient Gloves";
-		case 0x2A: return "Demonic Gloves";
-		case 0x2B: return "Storm Blitz Gloves";
-		case 0x2C: return "Eternal Wing Gloves";
-		case 0x2D: return "Titan Gloves";
-		case 0x2E: return "Brave Gloves";
-		case 0x2F: return "Phantom Gloves";
-		case 0x30: return "Destroy Gloves";
-		case 0x31: return "Seraphim Gloves";
-		case 0x32: return "Divine Gloves";
-		case 0x33: return "Royal Gloves";
-		case 0x34: return "Hades Gloves";
-		case 0x35: return "Succubus Gloves";
+		case 0x27: return "Archon Guardian Gloves";
 		}
 		return "Gloves";
 
@@ -2071,7 +1970,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x10: return "Black Dragon Boots";
 		case 0x11: return "Dark Phoenix Boots";
 		case 0x12: return "Grand Soul Boots";
-		case 0x13: return "Holy Spirit Boots";
+		case 0x13: return "Divine Boots";
 		case 0x14: return "Thunder Hawk Boots";
 		case 0x15: return "Great Dragon Boots";
 		case 0x16: return "Dark Soul Boots";
@@ -2091,30 +1990,12 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x24: return "Iris Boots";
 		case 0x25: return "Valiant Boots";
 		case 0x26: return "Glorious Boots";
-		case 0x27: return "Violent Wind Boots";
-		case 0x28: return "Red Wing Boots";
-		case 0x29: return "Ancient Boots";
-		case 0x2A: return "Demonic Boots";
-		case 0x2B: return "Storm Blitz Boots";
-		case 0x2C: return "Eternal Wing Boots";
-		case 0x2D: return "Titan Boots";
-		case 0x2E: return "Brave Boots";
-		case 0x2F: return "Phantom Boots";
-		case 0x30: return "Destroy Boots";
-		case 0x31: return "Seraphim Boots";
-		case 0x32: return "Divine Boots";
-		case 0x33: return "Royal Boots";
-		case 0x34: return "Hades Boots";
-		case 0x35: return "Succubus Boots";
-		case 0x3B: return "Sacred Fire Boots";
-		case 0x3C: return "Storm Jahad Boots";
-		case 0x3D: return "Piercing Boots";
-		case 0x49: return "Phoenix Soul Boots";
+		case 0x27: return "Archon Guardian Boots";
 		}
 		return "Boots";
 
 	// ---------------------------------------------------------------
-	// Group 12 - Wings / Capes / Orbs / Special
+	// Group 12 - Wings / Orbs / Scrolls / Special
 	// ---------------------------------------------------------------
 	case 12:
 		switch (bIndex)
@@ -2126,14 +2007,14 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x04: return "Wings of Soul";
 		case 0x05: return "Wings of Dragon";
 		case 0x06: return "Wings of Darkness";
-		case 0x07: return "Cape of Lord";
+		case 0x07: return "Orb of Twisting Slash";
 		case 0x08: return "Healing Orb";
-		case 0x09: return "Orb of Greater Fortitude";
-		case 0x0A: return "Dinorant";
-		case 0x0B: return "Dark Horse";
-		case 0x0C: return "Dark Raven";
-		case 0x0D: return "Horn of Uniria";
-		case 0x0E: return "Spirit of Guardian";
+		case 0x09: return "Orb of Greater Defense";
+		case 0x0A: return "Orb of Greater Damage";
+		case 0x0B: return "Orb of Summoning";
+		case 0x0C: return "Orb of Rageful Blow";
+		case 0x0D: return "Orb of Impale";
+		case 0x0E: return "Orb of Greater Fortitude";
 		case 0x0F: return "Jewel of Chaos";
 		case 0x10: return "Orb of Fire Slash";
 		case 0x11: return "Orb of Penetration";
@@ -2144,27 +2025,22 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x17: return "Scroll of Critical Damage";
 		case 0x18: return "Scroll of Electric Spark";
 		case 0x1A: return "Gem of Secret";
-		case 0x1E: return "Bundle of Jewel of Bless";
-		case 0x1F: return "Bundle of Jewel of Soul";
+		case 0x1E: return "Bundled Jewel of Bless";
+		case 0x1F: return "Bundled Jewel of Soul";
+		case 0x20: return "Chaos Castle Box";
+		case 0x21: return "Illusion Temple Box";
+		case 0x22: return "Blood Castle Box";
 		case 0x23: return "Scroll of Fire Scream";
 		case 0x24: return "Wings of Storm";
-		case 0x25: return "Wings of Eternal";
+		case 0x25: return "Wings of Space-Time";
 		case 0x26: return "Wings of Illusion";
-		case 0x27: return "Wings of Ruin";
-		case 0x28: return "Cape of Emperor";
-		case 0x29: return "Wings of Dimension";
-		case 0x2A: return "Cape of Fighter";
-		case 0x2B: return "Wing of Curse";
-		case 0x2C: return "Crystal of Destruction";
-		case 0x2D: return "Crystal of Multi-Shot";
-		case 0x2E: return "Crystal of Recovery";
-		case 0x2F: return "Crystal of Flame Strike";
-		case 0x30: return "Small Cape of Lord";
-		case 0x31: return "Small Wings of Mystery";
-		case 0x32: return "Small Wings of Elf";
-		case 0x33: return "Small Wings of Heaven";
-		case 0x34: return "Small Wings of Satan";
-		case 0x35: return "Little Warrior's Cloak";
+		case 0x27: return "Wings of Doom";
+		case 0x28: return "Mantle of Monarch";
+		case 0x29: return "Wings of Angel";
+		case 0x2A: return "Wings of Power";
+		case 0x2B: return "Wings of Butterfly";
+		case 0x2C: return "Wings of Dream";
+		case 0x2D: return "Mantle of Darkness";
 		}
 		return "Wings";
 
@@ -2180,19 +2056,19 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x03: return "Horn of Dinorant";
 		case 0x04: return "Dark Horse";
 		case 0x05: return "Dark Raven";
-		case 0x07: return "Contract of Summon";
+		case 0x07: return "Contract (Summon)";
 		case 0x08: return "Ring of Ice";
 		case 0x09: return "Ring of Poison";
 		case 0x0A: return "Transformation Ring";
-		case 0x0B: return "Order of Guardian/Life Stone";
+		case 0x0B: return "Order (Guardian/Life Stone)";
 		case 0x0C: return "Pendant of Lightning";
 		case 0x0D: return "Pendant of Fire";
 		case 0x0E: return "Loch's Feather";
-		case 0x0F: return "Fruits";
+		case 0x0F: return "Fruit";
 		case 0x10: return "Scroll of Archangel";
 		case 0x11: return "Blood Bone";
-		case 0x12: return "Invisibility Cloak";
-		case 0x13: return "Weapon of Archangel";
+		case 0x12: return "Cloak of Invisibility";
+		case 0x13: return "Divine Weapon of Archangel";
 		case 0x14: return "Wizards Ring";
 		case 0x15: return "Ring of Fire";
 		case 0x16: return "Ring of Earth";
@@ -2211,25 +2087,35 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x23: return "Fragment of Horn";
 		case 0x24: return "Broken Horn";
 		case 0x25: return "Horn of Fenrir";
-		case 0x26: return "Moonstone Pendant";
-		case 0x2E: return "Devil Square Ticket";
-		case 0x2F: return "Blood Castle Ticket";
-		case 0x30: return "Kalima Ticket";
+		case 0x26: return "Moonstone Ring";
+		case 0x27: return "Skeleton Warrior Ring";
+		case 0x28: return "Jack O'Lantern Ring";
+		case 0x29: return "Santa Girl Ring";
+		case 0x2A: return "GameMaster Ring";
+		case 0x2B: return "Seal of Ascension";
+		case 0x2C: return "Seal of Wealth";
+		case 0x2D: return "Seal of Sustenance";
+		case 0x2E: return "Blessed Devil Invasion";
+		case 0x2F: return "Blessed invisibility Cloak";
+		case 0x30: return "Blessed Lost Map";
 		case 0x31: return "Old Scroll";
 		case 0x32: return "Illusion Sorcerer Covenant";
 		case 0x33: return "Scroll of Blood";
-		case 0x34: return "Condor Flame";
-		case 0x35: return "Condor Feather";
-		case 0x40: return "Demon";
-		case 0x41: return "Spirit of Guardian";
-		case 0x43: return "Pet Rudolf";
-		case 0x45: return "Talisman of Resurrection";
-		case 0x50: return "Pet Panda";
+		case 0x34: return "Flame of Condor";
+		case 0x35: return "Feather of Condor";
+		case 0x36: return "Reset Fruit Strength";
+		case 0x37: return "Reset Fruit Agility";
+		case 0x38: return "Reset Fruit Vitality";
+		case 0x39: return "Reset Fruit Energy";
+		case 0x3A: return "Reset Fruit Command";
+		case 0x3B: return "Seal of Mobility";
+		case 0x3D: return "Illusion Temple Ticket";
 		}
 		return "Misc";
 
 	// ---------------------------------------------------------------
 	// Group 14 - Consumables & Jewels
+	// Items with level-specific names are handled via bLevel parameter.
 	// ---------------------------------------------------------------
 	case 14:
 		switch (bIndex)
@@ -2245,70 +2131,193 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x08: return "Antidote";
 		case 0x09: return "Ale";
 		case 0x0A: return "Town Portal Scroll";
-		case 0x0B: return "Armor of Guardsman";
-		case 0x0C: return "Wizards Ring";
+		case 0x0B: // Box of Luck - level-specific names
+			switch (bLevel)
+			{
+			case 0:  return "Box of Luck";
+			case 1:  return "Star of Sacred Birth";
+			case 2:  return "Firecracker";
+			case 3:  return "Heart Of Love";
+			case 5:  return "Silver Medal";
+			case 6:  return "Gold Medal";
+			case 7:  return "Bok of Heaven";
+			case 8:  return "Bok of Kundun+1";
+			case 9:  return "Bok of Kundun+2";
+			case 10: return "Bok of Kundun+3";
+			case 11: return "Bok of Kundun+4";
+			case 12: return "Bok of Kundun+5";
+			case 13: return "Heart of Dark Lord";
+			}
+			return "Box of Luck";
+		case 0x0C: return "Heart";
 		case 0x0D: return "Jewel of Bless";
 		case 0x0E: return "Jewel of Soul";
 		case 0x0F: return "Zen";
 		case 0x10: return "Jewel of Life";
-		case 0x11: return "Scroll of Archangel";
-		case 0x12: return "Box of Kundun +1";
-		case 0x13: return "Box of Kundun +2";
-		case 0x14: return "Box of Kundun +3";
-		case 0x15: return "Box of Kundun +4";
+		case 0x11: // Devil Eye - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Devil Eye 1";
+			case 2: return "Devil Eye 2";
+			case 3: return "Devil Eye 3";
+			case 4: return "Devil Eye 4";
+			case 5: return "Devil Eye 5";
+			case 6: return "Devil Eye 6";
+			case 7: return "Devil Eye 7";
+			}
+			return "Devil Eye";
+		case 0x12: // Devil's Key - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Devil Key 1";
+			case 2: return "Devil Key 2";
+			case 3: return "Devil Key 3";
+			case 4: return "Devil Key 4";
+			case 5: return "Devil Key 5";
+			case 6: return "Devil Key 6";
+			case 7: return "Devil Key 7";
+			}
+			return "Devil's Key";
+		case 0x13: // Devil's Invitation - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Devil Invitation 1";
+			case 2: return "Devil Invitation 2";
+			case 3: return "Devil Invitation 3";
+			case 4: return "Devil Invitation 4";
+			case 5: return "Devil Invitation 5";
+			case 6: return "Devil Invitation 6";
+			case 7: return "Devil Invitation 7";
+			}
+			return "Devil's Invitation";
+		case 0x14: return "Remedy of Love";
+		case 0x15: // Rena - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Stone";
+			case 3: return "Sing Of Lord";
+			}
+			return "Rena";
 		case 0x16: return "Jewel of Creation";
-		case 0x17: return "Box of Kundun +5";
-		case 0x18: return "Broken Sword";
+		case 0x17: // Scroll of Emperor - level-specific names
+			if (bLevel == 1) return "Ring Of Honor";
+			return "Scroll of Emperor";
+		case 0x18: // Broken Sword - level-specific names
+			if (bLevel == 1) return "Dark Stone";
+			return "Broken Sword";
 		case 0x19: return "Tear of Elf";
-		case 0x1A: return "Symbol of Kundun";
-		case 0x1B: return "Lost Map";
-		case 0x1C: return "Loch's Feather";
-		case 0x1D: return "Gemstone";
-		case 0x1E: return "Jewel of Harmony";
+		case 0x1A: return "Soul Shard of Wizard";
+		case 0x1C: // Lost Map - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Lost Map 1";
+			case 2: return "Lost Map 2";
+			case 3: return "Lost Map 3";
+			case 4: return "Lost Map 4";
+			case 5: return "Lost Map 5";
+			case 6: return "Lost Map 6";
+			case 7: return "Lost Map 7";
+			}
+			return "Lost Map";
+		case 0x1D: // Symbol of Kundun - level-specific names
+			switch (bLevel)
+			{
+			case 1: return "Symbol of Kundun 1";
+			case 2: return "Symbol of Kundun 2";
+			case 3: return "Symbol of Kundun 3";
+			case 4: return "Symbol of Kundun 4";
+			case 5: return "Symbol of Kundun 5";
+			case 6: return "Symbol of Kundun 6";
+			case 7: return "Symbol of Kundun 7";
+			}
+			return "Symbol of Kundun";
 		case 0x1F: return "Jewel of Guardian";
-		case 0x20: return "Crest of Monarch";
-		case 0x21: return "Rena";
-		case 0x22: return "Fruits";
-		case 0x23: return "Blue Chocolate Box";
-		case 0x24: return "Pink Chocolate Box";
-		case 0x25: return "Red Chocolate Box";
-		case 0x26: return "Firecracker";
-		case 0x27: return "Small SD Potion";
-		case 0x28: return "SD Potion";
-		case 0x29: return "Large SD Potion";
-		case 0x2A: return "Cherry Blossom Wine";
-		case 0x2B: return "Cherry Blossom Rice Cake";
-		case 0x2C: return "Cherry Blossom Flower Petal";
-		case 0x2D: return "Summoner Card";
-		case 0x2E: return "Scroll of Emperor";
-		case 0x2F: return "Lower Refining Stone";
-		case 0x30: return "Higher Refining Stone";
-		case 0x31: return "Old Scroll";
-		case 0x32: return "Illusion Sorcerer Covenant";
-		case 0x33: return "Scroll of Blood";
-		case 0x35: return "Condor Feather";
-		case 0x36: return "Condor Flame";
-		case 0x37: return "Horn of Fenrir";
-		case 0x38: return "Broken Horn";
-		case 0x39: return "Jewel of Chaos";
-		case 0x3A: return "Small Complex Potion";
-		case 0x3B: return "Complex Potion";
-		case 0x3C: return "Large Complex Potion";
-		case 0x46: return "Elite Healing Potion";
-		case 0x47: return "Elite Mana Potion";
-		case 0x4E: return "Scroll of Quickness";
-		case 0x4F: return "Scroll of Defense";
-		case 0x50: return "Scroll of Wrath";
-		case 0x51: return "Scroll of Wizardry";
-		case 0x52: return "Scroll of Health";
-		case 0x53: return "Scroll of Mana";
-		case 0x64: return "Lucky Coin";
-		case 0x6E: return "Sign of Dimensions";
-		case 0x6F: return "Mirror of Dimensions";
-		case 0x85: return "Elite SD Potion";
-		case 0x8C: return "Scroll of Healing";
-		case 0xA0: return "Jewel of Extension";
-		case 0xA1: return "Jewel of Elevation";
+		case 0x20: // Pink Chocolate Box - level-specific names
+			if (bLevel == 1) return "Lilac Chocolate Box";
+			return "Pink Chocolate Box";
+		case 0x21: // Red Chocolate Box - level-specific names
+			if (bLevel == 1) return "Orange Chocolate Box";
+			return "Red Chocolate Box";
+		case 0x22: // Blue Chocolate Box - level-specific names
+			if (bLevel == 1) return "Navy Chocolate Box";
+			return "Blue Chocolate Box";
+		case 0x23: return "Small SD Potion";
+		case 0x24: return "Medium SD Potion";
+		case 0x25: return "Large SD Potion";
+		case 0x26: return "Small AG Potion";
+		case 0x27: return "Medium AG Potion";
+		case 0x28: return "Large AG Potion";
+		case 0x29: return "Gemstone";
+		case 0x2A: return "Jewel of Harmony";
+		case 0x2B: return "Lower Refining Stone";
+		case 0x2C: return "Higher Refining Stone";
+		case 0x2D: return "Halloween Pumpkin";
+		case 0x2E: return "Jack O'Lantern Bless Scroll";
+		case 0x2F: return "Jack O'Lantern Rage Scroll";
+		case 0x30: return "Jack O'Lantern Scream Scroll";
+		case 0x31: return "Jack O'Lantern Food Scroll";
+		case 0x32: return "Jack O'Lantern Drink Scroll";
+		case 0x33: return "Star";
+		case 0x34: return "GameMaster Box";
+		case 0x35: return "Symbol of luck";
+		case 0x36: return "Chaos Card";
+		case 0x37: return "Green Chaos Box";
+		case 0x38: return "Pink Chaos Box";
+		case 0x39: return "Purple Chaos Box";
+		case 0x3A: return "Rare item Ticket 1";
+		case 0x3B: return "Rare item Ticket 2";
+		case 0x3C: return "Rare item Ticket 3";
+		case 0x3D: return "Rare item Ticket 4";
+		case 0x3E: return "Rare item Ticket 5";
+		case 0x3F: return "Firecracker";
+		case 0x40: return "Cursed Castle Water";
+		case 0x41: return "Flame of Death Beam Knight";
+		case 0x42: return "Horn of Hell Maine";
+		case 0x43: return "Feather of Phoenix of Darkness";
+		case 0x46: return "Enhanced Healing Potion";
+		case 0x47: return "Enhanced Mana Potion";
+		case 0x48: return "Scroll of Quickness";
+		case 0x49: return "Scroll of Shield";
+		case 0x4A: return "Scroll of Might";
+		case 0x4B: return "Scroll of Empower";
+		case 0x4C: return "Scroll of Bless the Body";
+		case 0x4D: return "Scroll of Bless the Soul";
+		case 0x4E: return "Potion: increasing Strength";
+		case 0x4F: return "Potion: increasing Agility";
+		case 0x50: return "Potion: increasing Vitality";
+		case 0x51: return "Potion: increasing Energy";
+		case 0x52: return "Potion: increasing Command";
+		case 0x53: return "Rare Item Ticket 6";
+		case 0x54: return "Moss The Merchant Item 1";
+		case 0x55: return "Moss The Merchant Item 2";
+		case 0x56: return "Moss The Merchant Item 3";
+		case 0x57: return "Moss The Merchant Item 4";
+		case 0x58: return "Moss The Merchant Item 5";
+		case 0x59: return "Scorpion Mobility";
+		case 0x5A: return "Jewel Of Exellent";
+		case 0x5B: return "Jewel Of Wings";
+		case 0x5C: return "Jewel Of Luck";
+		case 0x5D: return "Jewel Of Skill";
+		case 0x5F: return "Jewel Of Evalution";
+		case 0x60: return "Jewel Of Ancent";
+		case 0x61: return "Jewel Of Option";
+		case 0x62: return "Jewel Of PvP";
+		case 0x63: return "Jewel Of Mistic";
+		case 0x64: return "Jewel Of Level";
+		case 0x66: return "Coin 100kk";
+		case 0x67: return "Coin 500kk";
+		case 0x68: return "Coin 1kkk";
+		case 0x69: return "BC Box";
+		case 0x6A: return "CC Box";
+		case 0x6B: return "DS Box";
+		case 0x93: return "Test";
+		case 0x96: return "Amulet";
+		case 0x97: return "Amulet";
+		case 0x98: return "Amulet";
+		case 0x99: return "Amulet";
+		case 0x9A: return "Amulet";
+		case 0x9B: return "Amulet";
+		case 0x9C: return "Amulet";
 		}
 		return "Item";
 
@@ -2320,7 +2329,7 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		{
 		case 0x00: return "Scroll of Poison";
 		case 0x01: return "Scroll of Meteorite";
-		case 0x02: return "Scroll of Lightning";
+		case 0x02: return "Scroll of Lighting";
 		case 0x03: return "Scroll of Fire Ball";
 		case 0x04: return "Scroll of Flame";
 		case 0x05: return "Scroll of Teleport";
@@ -2332,28 +2341,11 @@ const char* CAutoPickupFilter::GetItemDisplayName(WORD wType)
 		case 0x0B: return "Scroll of Aqua Beam";
 		case 0x0C: return "Scroll of Cometfall";
 		case 0x0D: return "Scroll of Inferno";
-		case 0x0E: return "Scroll of Teleport Ally";
+		case 0x0E: return "Scroll of Teleport";
 		case 0x0F: return "Scroll of Soul Barrier";
 		case 0x10: return "Scroll of Decay";
 		case 0x11: return "Scroll of Ice Storm";
 		case 0x12: return "Scroll of Nova";
-		case 0x13: return "Chain Lightning Parchment";
-		case 0x14: return "Drain Life Parchment";
-		case 0x15: return "Lightning Shock Parchment";
-		case 0x16: return "Damage Reflection Parchment";
-		case 0x17: return "Berserker Parchment";
-		case 0x18: return "Sleep Parchment";
-		case 0x1A: return "Weakness Parchment";
-		case 0x1B: return "Innovation Parchment";
-		case 0x1C: return "Scroll of Wizardry Enhance";
-		case 0x1D: return "Scroll of Gigantic Storm";
-		case 0x1E: return "Chain Drive Parchment";
-		case 0x1F: return "Dark Side Parchment";
-		case 0x20: return "Dragon Roar Parchment";
-		case 0x21: return "Dragon Slasher Parchment";
-		case 0x22: return "Ignore Defense Parchment";
-		case 0x23: return "Increase Health Parchment";
-		case 0x24: return "Increase Block Parchment";
 		}
 		return "Scroll";
 
