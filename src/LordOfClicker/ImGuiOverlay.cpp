@@ -202,6 +202,9 @@ BOOL CImGuiOverlay::WndProcHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			// hardware cursor is visible.  MU Online calls ShowCursor(FALSE)
 			// which can decrement the global counter below zero, hiding the
 			// cursor even when a valid shape is set via SetCursor.
+			// Note: UpdateCursorVisibility() handles the initial force-visible
+			// on state transition; this probe handles the game re-hiding the
+			// cursor between frames (single decrement).
 			int nCount = ::ShowCursor(TRUE);   // probe: returns count after increment
 			if (nCount > 1)
 				::ShowCursor(FALSE);           // already visible, undo the probe
