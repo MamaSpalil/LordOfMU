@@ -10,8 +10,6 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // History dialog constants
-static const char* ZEN_ENTRY_PREFIX = "Zen '";
-static const size_t ZEN_ENTRY_PREFIX_LEN = 5;
 static const int ITEMS_PER_PAGE = 10;
 static const int MAX_PAGE_BUTTONS = 10;
 

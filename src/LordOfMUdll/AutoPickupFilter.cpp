@@ -669,18 +669,18 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// Display "[PICKUP] - Zen 'amount' Obtained" notification
+			// Display "[PICKUP] - 'amount' Zen Obtained" notification
 			// only when autopickup is enabled (the notification prefix is
 			// "[PICKUP]" which implies the autopickup feature is active).
 			if (m_fEnabled)
 			{
-				CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
+				CServerMessagePacket pktMsg("[PICKUP] - '%lu' Zen Obtained", (unsigned long)dwDelta);
 				GetProxy()->recv_direct(pktMsg);
 			}
 
 			// Record to pickup history for the History dialog
 			char szHistory[64];
-			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
+			sprintf_s(szHistory, sizeof(szHistory), "'%lu' Zen", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory, HISTORY_CAT_ZEN_PICK);
 
 			// Accumulate session zen total and pickup count when session
