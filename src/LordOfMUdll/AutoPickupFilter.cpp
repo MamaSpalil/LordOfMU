@@ -219,6 +219,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 
 	m_dwLastZen = 0;
 	m_fZenTracked = false;
+	m_fZenPickupPending = false;
 
 	// Try to initialize Zen from game memory so that session tracking
 	// starts with the correct baseline even before the first packet.
@@ -614,38 +615,12 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			if (bIsZen)
 			{
-				// Extract the exact Zen amount from ItemData[1..4] (LE).
-				DWORD dwZenAmount = 0;
-				if (pItemData)
-				{
-					dwZenAmount = (DWORD)pItemData[1] |
-						((DWORD)pItemData[2] << 8) |
-						((DWORD)pItemData[3] << 16) |
-						((DWORD)pItemData[4] << 24);
-				}
-
-				if (dwZenAmount > 0)
-				{
-					CServerMessagePacket pktObtained("Zen +%lu Obtained", (unsigned long)dwZenAmount);
-					GetProxy()->recv_direct(pktObtained);
-
-					char szHistory[64];
-					sprintf_s(szHistory, sizeof(szHistory), "Zen +%lu", (unsigned long)dwZenAmount);
-					AddPickupHistoryEntry(szHistory);
-				}
-
-				// Accumulate session zen stats when session is active
-				if (dwZenAmount > 0)
-				{
-					InitHistoryCS();
-					EnterCriticalSection(&g_csHistory);
-					if (g_bSessionActive)
-					{
-						g_ullSessionZenTotal += (unsigned __int64)dwZenAmount;
-						g_nSessionZenPickupCount++;
-					}
-					LeaveCriticalSection(&g_csHistory);
-				}
+				// CPutInventoryPacket for Zen does NOT carry the actual amount
+				// in ItemData[1..4] (those bytes contain standard item metadata).
+				// Set a pending flag so the CZenUpdatePacket handler can display
+				// the correct amount derived from the Zen total delta.
+				m_fZenPickupPending = true;
+				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount");
 			}
 			else
 			{
@@ -741,10 +716,31 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// NOTE: The "[PICKUP] - Zen +N Obtained" display and history entry
-			// are handled in the CPutInventoryPacket handler which has the exact
-			// amount from the packet data.  CZenUpdatePacket is used only for
-			// baseline tracking (m_dwLastZen) to keep delta calculations accurate.
+			// Display "Zen +N Obtained" notification and update session stats
+			// when a Zen pickup was confirmed by the CPutInventoryPacket handler.
+			// The actual amount comes from the CZenUpdatePacket delta, because
+			// CPutInventoryPacket ItemData does not carry the Zen amount.
+			if (m_fZenPickupPending && m_fEnabled)
+			{
+				m_fZenPickupPending = false;
+
+				CServerMessagePacket pktObtained("Zen +%lu Obtained", (unsigned long)dwDelta);
+				GetProxy()->recv_direct(pktObtained);
+
+				char szHistory[64];
+				sprintf_s(szHistory, sizeof(szHistory), "Zen +%lu", (unsigned long)dwDelta);
+				AddPickupHistoryEntry(szHistory);
+
+				// Accumulate session zen stats when session is active
+				InitHistoryCS();
+				EnterCriticalSection(&g_csHistory);
+				if (g_bSessionActive)
+				{
+					g_ullSessionZenTotal += (unsigned __int64)dwDelta;
+					g_nSessionZenPickupCount++;
+				}
+				LeaveCriticalSection(&g_csHistory);
+			}
 		}
 
 		m_dwLastZen = dwNewZen;
