@@ -2070,7 +2070,8 @@ void CMuWindow::QueryPickupHistory()
 					*pSep2 = '\0';
 					CImGuiOverlay::HistoryEntry entry;
 					entry.sTime = pLine;
-					entry.nCategory = atoi(pSep1 + 1);
+					int nCat = atoi(pSep1 + 1);
+					entry.nCategory = (nCat >= 0 && nCat < HISTORY_CAT_COUNT) ? nCat : HISTORY_CAT_ITEMS_PICK;
 					entry.sItem = pSep2 + 1;
 					vHistory.push_back(entry);
 				}

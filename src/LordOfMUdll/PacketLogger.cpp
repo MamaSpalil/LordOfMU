@@ -202,9 +202,8 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	// Record to history for the Debug Console (Server category)
 	{
 		char szEntry[192];
-		_snprintf(szEntry, sizeof(szEntry) - 1, "S: %s (Len=%d)",
+		sprintf_s(szEntry, sizeof(szEntry), "S: %s (Len=%d)",
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen());
-		szEntry[sizeof(szEntry) - 1] = '\0';
 		AddPickupHistoryEntry(szEntry, HISTORY_CAT_SERVER);
 	}
 
@@ -257,9 +256,8 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 	// Record to history for the Debug Console (Client category)
 	{
 		char szEntry[192];
-		_snprintf(szEntry, sizeof(szEntry) - 1, "C: %s (Len=%d)",
+		sprintf_s(szEntry, sizeof(szEntry), "C: %s (Len=%d)",
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen());
-		szEntry[sizeof(szEntry) - 1] = '\0';
 		AddPickupHistoryEntry(szEntry, HISTORY_CAT_CLIENT);
 	}
 
