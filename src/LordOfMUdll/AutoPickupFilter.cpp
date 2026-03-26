@@ -390,19 +390,20 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			//   ItemData[5] = MoneyGroup = 14 (0x0E, raw value, NOT Group<<4)
 			// The standard GetItemType() formula expects ItemData[5] = Group<<4,
 			// so it produces a wrong type for money. Detect money explicitly.
+			static const BYTE MONEY_NUMBER = 0x0F;
+			static const BYTE MONEY_GROUP  = 0x0E;
+
 			BYTE* pItemRaw = pktMItem.GetItemData(i);
 			BYTE* pItemCode = pItemRaw ? pItemRaw + 4 : 0;
 
 			WORD wType;
 			WORD wMask;
-			bool bIsMoney = false;
 
-			if (pItemCode && pItemCode[0] == 0x0F && pItemCode[5] == 0x0E)
+			if (pItemCode && pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP)
 			{
 				// MoneyDropped: force type to TYPE_ZEN
 				wType = TYPE_ZEN;
 				wMask = 1;
-				bIsMoney = true;
 
 				DWORD dwAmount = (DWORD)pItemCode[1] |
 					((DWORD)pItemCode[2] << 8) |
@@ -615,7 +616,8 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 					// Record to pickup history for the History dialog with level
 					char szHistory[192];
-					sprintf_s(szHistory, sizeof(szHistory), "%s+%d", pszName, (int)bLevel);
+					_snprintf(szHistory, sizeof(szHistory) - 1, "%s+%d", pszName, (int)bLevel);
+					szHistory[sizeof(szHistory) - 1] = '\0';
 					AddPickupHistoryEntry(szHistory);
 				}
 				else

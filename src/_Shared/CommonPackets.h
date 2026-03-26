@@ -358,6 +358,14 @@ public:
 		PACKET_DESCR("Put inventory")
 	END_COMMON_PACKET_DECL()
 
+	// ItemData byte layout (starts at pPacket[5]):
+	//   [0] = ItemNumber (index within group)
+	//   [1] = (Level<<3) | (Luck<<2) | (Skill<<7) | (Option & 3)
+	//   [2] = Durability
+	//   [3] = ExcByte | (Number>=256 flag at bit7) | (Option bit2 << 6)
+	//   [4] = AncientByte
+	//   [5] = (Group<<4) | GuardianFlag
+
 	WORD GetItemType()
 	{
 		BYTE* pPacket = AnyBuffer();
@@ -366,6 +374,7 @@ public:
 
 	BYTE GetItemLevel()
 	{
+		// Level is stored in bits 3-6 of ItemData[1] (pPacket[6])
 		BYTE* pPacket = AnyBuffer();
 		return (pPacket == 0) ? 0 : (pPacket[6] >> 3) & 0x0F;
 	}
