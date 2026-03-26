@@ -381,11 +381,43 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			BYTE x = 0, y = 0;
 			pktMItem.GetItemPos(i, x, y);
 
-			WORD wType = pktMItem.GetItemType(i);
-			WORD wMask = 1 << (wType >> 12);
 			WORD wId = pktMItem.GetItemId(i);
 
-			wType &= 0x0FFF;
+			// Detect MoneyDropped entries within the C2 0x20 packet.
+			// MoneyDropped has a different data layout than ItemsDropped:
+			//   ItemData[0] = MoneyNumber = 15 (0x0F, fixed)
+			//   ItemData[1..4] = Amount (4 bytes, LittleEndian)
+			//   ItemData[5] = MoneyGroup = 14 (0x0E, raw value, NOT Group<<4)
+			// The standard GetItemType() formula expects ItemData[5] = Group<<4,
+			// so it produces a wrong type for money. Detect money explicitly.
+			BYTE* pItemRaw = pktMItem.GetItemData(i);
+			BYTE* pItemCode = pItemRaw ? pItemRaw + 4 : 0;
+
+			WORD wType;
+			WORD wMask;
+			bool bIsMoney = false;
+
+			if (pItemCode && pItemCode[0] == 0x0F && pItemCode[5] == 0x0E)
+			{
+				// MoneyDropped: force type to TYPE_ZEN
+				wType = TYPE_ZEN;
+				wMask = 1;
+				bIsMoney = true;
+
+				DWORD dwAmount = (DWORD)pItemCode[1] |
+					((DWORD)pItemCode[2] << 8) |
+					((DWORD)pItemCode[3] << 16) |
+					((DWORD)pItemCode[4] << 24);
+
+				WriteClickerLogFmt("PICKUP", "Item %d: MoneyDropped detected (id=0x%04X) at (%d,%d) amount=%lu",
+					i, wId, (int)x, (int)y, (unsigned long)dwAmount);
+			}
+			else
+			{
+				wType = pktMItem.GetItemType(i);
+				wMask = 1 << (wType >> 12);
+				wType &= 0x0FFF;
+			}
 
 			int xdiff = abs((int)bPlX - (int)x);
 			int ydiff = abs((int)bPlY - (int)y);
@@ -453,8 +485,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					}
 				}
 
-
-				BYTE* pItemCode = pktMItem.GetItemData(i) + 4;
+				// pItemCode already set above from GetItemData(i) + 4
 
 				if (!fFound && (m_ulExlFlags & 1)
 						&& ((pItemCode[3] & 0x3F) || (pItemCode[4] & 0x01)))
@@ -548,17 +579,18 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		CPutInventoryPacket& pkt2 = (CPutInventoryPacket&)pkt;
 
-		WORD wType = pkt2.GetItemType();
-		WORD wMask = 1 << (wType >> 12);
+		WORD wTypeRaw = pkt2.GetItemType();
+		BYTE bLevel = (wTypeRaw >> 12) & 0x0F;
+		WORD wMask = 1 << (wTypeRaw >> 12);
 		BYTE bPos = pkt2.GetInvPos();
 
-		wType &= 0x0FFF;
+		WORD wType = wTypeRaw & 0x0FFF;
 
 		CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
-		WriteClickerLogFmt("PICKUP", "RECV CPutInventoryPacket: item type=0x%04X placed in inventory slot=%d | Len=%d | %s",
-			wType, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
-		CDebugOut::PrintAlways("[PICKUP] RECV CPutInventoryPacket: type=0x%04X slot=%d | Len=%d | %s",
-			wType, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
+		WriteClickerLogFmt("PICKUP", "RECV CPutInventoryPacket: item type=0x%04X level=%d placed in inventory slot=%d | Len=%d | %s",
+			wType, (int)bLevel, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
+		CDebugOut::PrintAlways("[PICKUP] RECV CPutInventoryPacket: type=0x%04X level=%d slot=%d | Len=%d | %s",
+			wType, (int)bLevel, (int)bPos, pkt.GetDecryptedLen(), (const char*)szHex);
 
 		if (m_fEnabled)
 		{
@@ -573,13 +605,27 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			if (!bIsZen)
 			{
-				// Display "[PICKUP] - ItemName Obtained" notification
+				// Display "[PICKUP] - ItemName+Level Obtained" notification
 				const char* pszName = GetItemDisplayName(wType);
-				CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
-				GetProxy()->recv_direct(pktObtained);
 
-				// Record to pickup history for the History dialog
-				AddPickupHistoryEntry(pszName);
+				if (bLevel > 0)
+				{
+					CServerMessagePacket pktObtained("[PICKUP] - %s+%d Obtained", pszName, (int)bLevel);
+					GetProxy()->recv_direct(pktObtained);
+
+					// Record to pickup history for the History dialog with level
+					char szHistory[192];
+					sprintf_s(szHistory, sizeof(szHistory), "%s+%d", pszName, (int)bLevel);
+					AddPickupHistoryEntry(szHistory);
+				}
+				else
+				{
+					CServerMessagePacket pktObtained("[PICKUP] - %s Obtained", pszName);
+					GetProxy()->recv_direct(pktObtained);
+
+					// Record to pickup history for the History dialog
+					AddPickupHistoryEntry(pszName);
+				}
 
 				// Increment session item count (only non-Zen items)
 				InitHistoryCS();
@@ -595,7 +641,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		}
 		else if (m_fDisplayCode)
 		{
-			CServerMessagePacket pktMsg(">> Item code: %d %d %d", HIBYTE(wType) & 0x0F, LOBYTE(wType), HIBYTE(wType) >> 4);
+			CServerMessagePacket pktMsg(">> Item code: %d %d %d", (wType >> 8) & 0x0F, wType & 0xFF, (int)bLevel);
 			GetProxy()->recv_direct(pktMsg);
 		}
 	}
@@ -688,10 +734,12 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		CMoveToInventoryPacket& pkt2 = (CMoveToInventoryPacket&)pkt;
 
-		WORD wType = pkt2.GetItemType();
+		WORD wTypeRaw = pkt2.GetItemType();
+		BYTE bMoveLevel = (wTypeRaw >> 12) & 0x0F;
+		WORD wType = wTypeRaw & 0x0FFF;
 		BYTE bPos = pkt2.GetInvPos();
 
-		CServerMessagePacket pktMsg(">> Item code: %d %d %d", HIBYTE(wType) & 0x0F, LOBYTE(wType), HIBYTE(wType) >> 4);
+		CServerMessagePacket pktMsg(">> Item code: %d %d %d", (wType >> 8) & 0x0F, wType & 0xFF, (int)bMoveLevel);
 		GetProxy()->recv_direct(pktMsg);
 	}
 	else if (pkt == CForgetItemPacket::Type())
