@@ -10,8 +10,6 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // History dialog constants
-static const char* ZEN_ENTRY_PREFIX = "Zen '";
-static const size_t ZEN_ENTRY_PREFIX_LEN = 5;
 static const int ITEMS_PER_PAGE = 10;
 static const int MAX_PAGE_BUTTONS = 10;
 
@@ -57,6 +55,7 @@ CImGuiOverlay::CImGuiOverlay()
 	, m_nSettingsTab(0)
 	, m_nHistoryTab(0)
 	, m_nHistoryPage(0)
+	, m_dwHistoryFilter(HISTORY_FILTER_ALL)
 {
 	memset(&m_sessionStats, 0, sizeof(m_sessionStats));
 }
@@ -1189,8 +1188,63 @@ void CImGuiOverlay::RenderHistoryWindow()
 	ImGui::SetNextWindowPos(ImVec2(120, 70), ImGuiCond_FirstUseEver);
 
 	bool bOpen = m_bShowHistory;
-	if (ImGui::Begin("History Action###History", &bOpen, ImGuiWindowFlags_NoSavedSettings))
+	if (ImGui::Begin("History Action###History", &bOpen,
+		ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar))
 	{
+		// ---- Menu bar: File > Settings (filter checkboxes) ----
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::BeginMenu("Settings"))
+				{
+					// Human-readable names for each filter category
+					static const char* s_szFilterNames[HISTORY_CAT_COUNT] =
+					{
+						"ItemsPick",      // HISTORY_CAT_ITEMS_PICK
+						"ItemsDrop",      // HISTORY_CAT_ITEMS_DROP
+						"ZenPick",        // HISTORY_CAT_ZEN_PICK
+						"ZenDrop",        // HISTORY_CAT_ZEN_DROP
+						"KillMonster",    // HISTORY_CAT_KILL_MONSTER
+						"Server",         // HISTORY_CAT_SERVER
+						"Client",         // HISTORY_CAT_CLIENT
+					};
+
+					for (int i = 0; i < HISTORY_CAT_COUNT; ++i)
+					{
+						bool bChecked = (m_dwHistoryFilter & (1u << i)) != 0;
+						if (ImGui::MenuItem(s_szFilterNames[i], NULL, &bChecked))
+						{
+							if (bChecked)
+								m_dwHistoryFilter |= (1u << i);
+							else
+								m_dwHistoryFilter &= ~(1u << i);
+
+							// Reset pagination when filter changes
+							m_nHistoryPage = 0;
+						}
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Select All"))
+					{
+						m_dwHistoryFilter = HISTORY_FILTER_ALL;
+						m_nHistoryPage = 0;
+					}
+					if (ImGui::MenuItem("Clear All"))
+					{
+						m_dwHistoryFilter = 0;
+						m_nHistoryPage = 0;
+					}
+
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
 		// Tab bar: Items | Kill Count
 		if (ImGui::BeginTabBar("##HistoryTabs"))
 		{
@@ -1222,12 +1276,14 @@ void CImGuiOverlay::RenderHistoryWindow()
 
 				ImGui::Separator();
 
-				// ---- Build item list (all items including Zen entries) ----
+				// ---- Build item list (filtered by enabled categories) ----
 				// Items are displayed newest first
 				std::vector<int> vItemIndices;
 				for (int i = (int)m_vHistory.size() - 1; i >= 0; --i)
 				{
-					vItemIndices.push_back(i);
+					int cat = m_vHistory[i].nCategory;
+					if (cat >= 0 && cat < HISTORY_CAT_COUNT && (m_dwHistoryFilter & (1u << cat)))
+						vItemIndices.push_back(i);
 				}
 
 				int nTotalItems = (int)vItemIndices.size();
@@ -1238,7 +1294,10 @@ void CImGuiOverlay::RenderHistoryWindow()
 
 				if (nTotalItems == 0)
 				{
-					ImGui::TextDisabled("No items picked up yet.");
+					if (m_dwHistoryFilter == 0)
+						ImGui::TextDisabled("All filters are disabled. Use File > Settings to enable.");
+					else
+						ImGui::TextDisabled("No matching entries yet.");
 				}
 				else
 				{
@@ -1257,22 +1316,43 @@ void CImGuiOverlay::RenderHistoryWindow()
 						for (int i = nStart; i < nEnd; ++i)
 						{
 							int idx = vItemIndices[i];
-							bool bIsZen = (m_vHistory[idx].sItem.compare(0, ZEN_ENTRY_PREFIX_LEN, ZEN_ENTRY_PREFIX) == 0);
+							int nCat = m_vHistory[idx].nCategory;
 
 							ImGui::TableNextRow();
 							ImGui::TableNextColumn();
 
-							// Zen entries display in gold, regular items in default color
-							if (bIsZen)
-								ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", m_vHistory[idx].sItem.c_str());
-							else
-								ImGui::TextUnformatted(m_vHistory[idx].sItem.c_str());
+							// Color entries by category
+							ImVec4 color;
+							switch (nCat)
+							{
+							case HISTORY_CAT_ZEN_PICK:
+							case HISTORY_CAT_ZEN_DROP:
+								color = ImVec4(1.0f, 0.84f, 0.0f, 1.0f);  // Gold
+								break;
+							case HISTORY_CAT_KILL_MONSTER:
+								color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);   // Red
+								break;
+							case HISTORY_CAT_ITEMS_DROP:
+								color = ImVec4(0.4f, 0.8f, 1.0f, 1.0f);   // Light blue
+								break;
+							case HISTORY_CAT_SERVER:
+								color = ImVec4(0.6f, 0.6f, 0.6f, 1.0f);   // Gray
+								break;
+							case HISTORY_CAT_CLIENT:
+								color = ImVec4(0.7f, 0.7f, 0.7f, 1.0f);   // Light gray
+								break;
+							default: // HISTORY_CAT_ITEMS_PICK and others
+								color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);   // White (default)
+								break;
+							}
+
+							ImGui::TextColored(color, "%s", m_vHistory[idx].sItem.c_str());
 
 							// Hover tooltip: show item name and timestamp
 							if (ImGui::IsItemHovered())
 							{
 								ImGui::BeginTooltip();
-								ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "%s", m_vHistory[idx].sItem.c_str());
+								ImGui::TextColored(color, "%s", m_vHistory[idx].sItem.c_str());
 								ImGui::TextDisabled("Time: %s", m_vHistory[idx].sTime.c_str());
 								ImGui::EndTooltip();
 							}
