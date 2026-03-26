@@ -333,7 +333,6 @@
     <ClInclude Include="..\_Shared\CommonPacketsMacros.h" />
     <ClInclude Include="..\_Shared\DebugOut.h" />
     <ClInclude Include="..\_Shared\Disasm.h" />
-    <ClInclude Include="..\_Shared\HistoryCategory.h" />
     <ClInclude Include="..\_Shared\MuWindowUtil.h" />
     <ClInclude Include="..\_Shared\PEUtil.h" />
     <ClInclude Include="..\_Shared\version.h" />

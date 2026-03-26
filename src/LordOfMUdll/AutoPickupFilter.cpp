@@ -4,19 +4,17 @@
 #include "DebugOut.h"
 #include "ClickerLogger.h"
 #include "BufferUtil.h"
-#include "HistoryCategory.h"
 #include <math.h>
 #include <time.h>
 
 // ---- Pickup History tracking (global, thread-safe) ----
 
-static const int MAX_HISTORY_ENTRIES = 500;
+static const int MAX_HISTORY_ENTRIES = 200;
 
 struct PickupHistoryEntry
 {
 	char szTime[20];   // "HH:MM:SS"
 	char szItem[128];  // Item display name
-	int  nCategory;    // HistoryCategory enum value
 };
 
 static PickupHistoryEntry g_vPickupHistory[MAX_HISTORY_ENTRIES];
@@ -52,7 +50,7 @@ static void InitHistoryCS()
 	}
 }
 
-void AddPickupHistoryEntry(const char* pszItemName, int nCategory)
+static void AddPickupHistoryEntry(const char* pszItemName)
 {
 	InitHistoryCS();
 	EnterCriticalSection(&g_csHistory);
@@ -65,9 +63,8 @@ void AddPickupHistoryEntry(const char* pszItemName, int nCategory)
 	strftime(entry.szTime, sizeof(entry.szTime), "%H:%M:%S", &tm_storage);
 	strncpy(entry.szItem, pszItemName, sizeof(entry.szItem) - 1);
 	entry.szItem[sizeof(entry.szItem) - 1] = '\0';
-	entry.nCategory = nCategory;
 
-	g_nHistoryHead = (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
+	g_nHistoryHead= (g_nHistoryHead + 1) % MAX_HISTORY_ENTRIES;
 	if (g_nHistoryCount < MAX_HISTORY_ENTRIES)
 		g_nHistoryCount++;
 
@@ -77,8 +74,8 @@ void AddPickupHistoryEntry(const char* pszItemName, int nCategory)
 /**
  * \brief Exported function: copies pickup history entries to caller buffer.
  *        Returns number of entries copied.
- *        Each entry is "HH:MM:SS|category|ItemName\n" format.
- *        Buffer should be large enough (e.g., 64KB).
+ *        Each entry is "HH:MM:SS|ItemName\n" format.
+ *        Buffer should be large enough (e.g., 32KB).
  */
 extern "C" __declspec(dllexport) int GetPickupHistory(char* pszBuffer, int nBufSize)
 {
@@ -102,12 +99,12 @@ extern "C" __declspec(dllexport) int GetPickupHistory(char* pszBuffer, int nBufS
 		int idx = (nStart + i) % MAX_HISTORY_ENTRIES;
 		const PickupHistoryEntry& entry = g_vPickupHistory[idx];
 
-		int nNeeded = (int)strlen(entry.szTime) + 1 + 2 + 1 + (int)strlen(entry.szItem) + 1; // "time|cat|item\n"
+		int nNeeded = (int)strlen(entry.szTime) + 1 + (int)strlen(entry.szItem) + 1; // "time|item\n"
 		if (nPos + nNeeded >= nBufSize - 1)
 			break;
 
 		int nRet = _snprintf(pszBuffer + nPos, nBufSize - nPos - 1,
-			"%s|%d|%s\n", entry.szTime, entry.nCategory, entry.szItem);
+			"%s|%s\n", entry.szTime, entry.szItem);
 		if (nRet < 0)
 			break;
 		nPos += nRet;
@@ -390,35 +387,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			wType &= 0x0FFF;
 
-			// Record item/zen drop to history for the Debug Console
-			{
-				bool bIsZenDrop = (wType == TYPE_ZEN);
-				if (bIsZenDrop)
-				{
-					AddPickupHistoryEntry("Zen dropped", HISTORY_CAT_ZEN_DROP);
-				}
-				else
-				{
-					// Look up the item name from the pickup map
-					const char* pszDropName = NULL;
-					for (int j = 0; j < sizeof(_map)/sizeof(_map[0]); j++)
-					{
-						if (wType == _map[j].wType)
-						{
-							pszDropName = _map[j].pszName;
-							break;
-						}
-					}
-					char szDrop[128];
-					if (pszDropName)
-						sprintf_s(szDrop, sizeof(szDrop), "%s dropped", pszDropName);
-					else
-						sprintf_s(szDrop, sizeof(szDrop), "Item 0x%04X dropped", wType);
-					AddPickupHistoryEntry(szDrop, HISTORY_CAT_ITEMS_DROP);
-				}
-			}
-
-			int xdiff = abs((int)bPlX - (int)x);
+			int xdiff= abs((int)bPlX - (int)x);
 			int ydiff = abs((int)bPlY - (int)y);
 
 			std::map<WORD, WORD>::iterator it = m_vItemList.find(wType);
@@ -610,7 +579,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				GetProxy()->recv_direct(pktObtained);
 
 				// Record to pickup history for the History dialog
-				AddPickupHistoryEntry(pszName, HISTORY_CAT_ITEMS_PICK);
+				AddPickupHistoryEntry(pszName);
 
 				// Increment session item count (only non-Zen items)
 				InitHistoryCS();
@@ -669,19 +638,19 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// Display "[PICKUP] - 'amount' Zen Obtained" notification
-			// only when autopickup is enabled (the notification prefix is
-			// "[PICKUP]" which implies the autopickup feature is active).
-			if (m_fEnabled)
+			// Display "[PICKUP] - Zen 'amount' Obtained" notification
+			// Show when autopickup is enabled OR when the clicker session
+			// is active, so the player always sees Zen pickup feedback.
+			if (m_fEnabled || g_bSessionActive)
 			{
-				CServerMessagePacket pktMsg("[PICKUP] - '%lu' Zen Obtained", (unsigned long)dwDelta);
+				CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
 				GetProxy()->recv_direct(pktMsg);
 			}
 
 			// Record to pickup history for the History dialog
 			char szHistory[64];
-			sprintf_s(szHistory, sizeof(szHistory), "'%lu' Zen", (unsigned long)dwDelta);
-			AddPickupHistoryEntry(szHistory, HISTORY_CAT_ZEN_PICK);
+			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
+			AddPickupHistoryEntry(szHistory);
 
 			// Accumulate session zen total and pickup count when session
 			// (clicker F5) is active, regardless of autopickup state.
@@ -705,13 +674,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		// Only count when the clicker session is active (clicker F5 running).
 		CKillExpPacket& pktKill = (CKillExpPacket&)pkt;
 		DWORD dwExp = pktKill.GetExperience();
-
-		// Record kill to history for the Debug Console
-		{
-			char szKill[64];
-			sprintf_s(szKill, sizeof(szKill), "Kill +%lu exp", (unsigned long)dwExp);
-			AddPickupHistoryEntry(szKill, HISTORY_CAT_KILL_MONSTER);
-		}
 
 		InitHistoryCS();
 		EnterCriticalSection(&g_csHistory);

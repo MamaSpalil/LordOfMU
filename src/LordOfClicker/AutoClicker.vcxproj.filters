@@ -105,9 +105,6 @@
     <ClInclude Include="..\_Shared\Disasm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\_Shared\HistoryCategory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EElfClickerJob.h">
       <Filter>Header Files</Filter>
     </ClInclude>

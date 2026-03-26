@@ -366,7 +366,6 @@
     <ClInclude Include="..\_Shared\FileChecksum.h" />
     <ClInclude Include="..\_Shared\FileTransfer.h" />
     <ClInclude Include="..\_Shared\HandshakeGenerator.h" />
-    <ClInclude Include="..\_Shared\HistoryCategory.h" />
     <ClInclude Include="..\_Shared\KillUtil.h" />
     <ClInclude Include="..\_Shared\MD5.h" />
     <ClInclude Include="..\_Shared\Packet.h" />
