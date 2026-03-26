@@ -450,6 +450,43 @@ public:
 		BYTE* pPacket = AnyBuffer();
 		return (pPacket == 0) ? 0 : pPacket[5];
 	}
+
+	BYTE* GetItemData()
+	{
+		BYTE* pPacket = AnyBuffer();
+		return (pPacket == 0) ? 0 : pPacket + 6;
+	}
+};
+
+
+/**  
+ * \brief 
+ * C3 16 1A 24 02 0C 22 13 4A 00 00 A0 00 FF FF FF FF FF 00 00 00 00 
+ *                 ^  ^----------------^   ---- Some junk here ----
+ *                 |      Item code
+ *           Inventory Place
+ */
+class CMoveToVaultPacket
+	: public CPacket
+{
+public:
+	BEGIN_COMMON_PACKET_DECL(CMoveToVaultPacket)
+		PACKET_PATT5(0xC3, 0x00, 0x00, 0x24, 0x02)
+		PACKET_MASK5(0xFF, 0x00, 0x00, 0xFF, 0xFF)
+		PACKET_DESCR("Move to vault")
+	END_COMMON_PACKET_DECL()
+
+	WORD GetItemType()
+	{
+		BYTE* pPacket = AnyBuffer();
+		return (pPacket == 0) ? 0 : ((WORD)(pPacket[11] & 0xF0) << 4) | ((WORD)(pPacket[7] & 0x78) << 9) | pPacket[6];
+	}
+
+	BYTE GetInvPos()
+	{
+		BYTE* pPacket = AnyBuffer();
+		return (pPacket == 0) ? 0 : pPacket[5];
+	}
 };
 
 
