@@ -598,13 +598,71 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			if (m_fSuspended && m_fSuspPick)
 				return 0;
 
-			// Zen pickup: identified by item type OR inventory slot=254
-			// (Zen has its own vault, it does not occupy normal inventory slots).
-			// Amount notification is deferred to the CZenUpdatePacket handler
-			// which calculates the exact delta.
+			// Zen pickup: identified by item type, inventory slot=254, OR
+			// MoneyDropped byte pattern (ItemData[0]==0x0F && ItemData[5]==0x0E).
+			// MoneyDropped packets encode the group byte as raw 0x0E instead of
+			// the standard (Group<<4)=0xE0, causing GetItemType() to produce a
+			// wrong type code.  Check the raw bytes to detect Zen reliably.
 			bool bIsZen = (wType == TYPE_ZEN) || (bPos == INVENTORY_SLOT_ZEN);
 
+			DWORD dwZenAmount = 0;
 			if (!bIsZen)
+			{
+				BYTE* pItemData = pkt2.GetItemData();
+				if (pItemData && pItemData[0] == 0x0F && pItemData[5] == 0x0E)
+				{
+					bIsZen = true;
+					dwZenAmount = (DWORD)pItemData[1] |
+						((DWORD)pItemData[2] << 8) |
+						((DWORD)pItemData[3] << 16) |
+						((DWORD)pItemData[4] << 24);
+
+					WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: MoneyDropped detected via byte pattern, zen amount=%lu",
+						(unsigned long)dwZenAmount);
+				}
+			}
+
+			if (bIsZen)
+			{
+				// Display Zen pickup notification with the exact amount
+				// extracted from the packet data.
+				if (dwZenAmount == 0)
+				{
+					// Fallback: extract amount from raw bytes if not yet parsed
+					BYTE* pItemData = pkt2.GetItemData();
+					if (pItemData)
+					{
+						dwZenAmount = (DWORD)pItemData[1] |
+							((DWORD)pItemData[2] << 8) |
+							((DWORD)pItemData[3] << 16) |
+							((DWORD)pItemData[4] << 24);
+					}
+				}
+
+				if (dwZenAmount > 0)
+				{
+					CServerMessagePacket pktObtained("Zen +%lu Obtained", (unsigned long)dwZenAmount);
+					GetProxy()->recv_direct(pktObtained);
+
+					char szHistory[64];
+					sprintf_s(szHistory, sizeof(szHistory), "Zen +%lu", (unsigned long)dwZenAmount);
+					AddPickupHistoryEntry(szHistory);
+				}
+
+				// Accumulate session zen stats when session is active
+				if (dwZenAmount > 0)
+				{
+					InitHistoryCS();
+					EnterCriticalSection(&g_csHistory);
+					if (g_bSessionActive)
+					{
+						g_ullSessionZenTotal += (unsigned __int64)dwZenAmount;
+						g_nSessionZenPickupCount++;
+					}
+					LeaveCriticalSection(&g_csHistory);
+				}
+			}
+			else
 			{
 				// Display "[PICKUP] - ItemName Obtained" notification
 				// Some items have completely different names per level
@@ -698,30 +756,10 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// Display "[PICKUP] - Zen 'amount' Obtained" notification
-			// Show when autopickup is enabled OR when the clicker session
-			// is active, so the player always sees Zen pickup feedback.
-			if (m_fEnabled || g_bSessionActive)
-			{
-				CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
-				GetProxy()->recv_direct(pktMsg);
-			}
-
-			// Record to pickup history for the History dialog
-			char szHistory[64];
-			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
-			AddPickupHistoryEntry(szHistory);
-
-			// Accumulate session zen total and pickup count when session
-			// (clicker F5) is active, regardless of autopickup state.
-			InitHistoryCS();
-			EnterCriticalSection(&g_csHistory);
-			if (g_bSessionActive)
-			{
-				g_ullSessionZenTotal += (unsigned __int64)dwDelta;
-				g_nSessionZenPickupCount++;
-			}
-			LeaveCriticalSection(&g_csHistory);
+			// NOTE: The "[PICKUP] - Zen +N Obtained" display and history entry
+			// are handled in the CPutInventoryPacket handler which has the exact
+			// amount from the packet data.  CZenUpdatePacket is used only for
+			// baseline tracking (m_dwLastZen) to keep delta calculations accurate.
 		}
 
 		m_dwLastZen = dwNewZen;
