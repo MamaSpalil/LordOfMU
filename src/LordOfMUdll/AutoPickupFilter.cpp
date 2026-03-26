@@ -220,11 +220,67 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_dwLastZen = 0;
 	m_fZenTracked = false;
 
+	// Try to initialize Zen from game memory so that session tracking
+	// starts with the correct baseline even before the first packet.
+	{
+		DWORD dwMemZen = 0;
+		if (ReadZenFromMemory(&dwMemZen))
+		{
+			m_dwLastZen = dwMemZen;
+			m_fZenTracked = true;
+			WriteClickerLogFmt("PICKUP", "Constructor: initialized m_dwLastZen=%lu from game memory",
+				(unsigned long)m_dwLastZen);
+		}
+	}
+
 	InitializeCriticalSection(&m_csQueue);
 
 	m_hPickEvent = CreateEvent(0, 1, 0, 0);
 	m_hStopEvent = CreateEvent(0, 1, 0, 0);
 	m_hThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)PickThreadProc, this, 0, 0);
+}
+
+
+/**
+ * \brief Read current Zen from game memory using the known ObjectCharacter offset.
+ *        Returns TRUE if the value was read successfully.
+ */
+BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen)
+{
+	if (!pdwZen)
+		return FALSE;
+
+	__try
+	{
+		DWORD dwCharBase = *(DWORD*)ZEN_CHAR_STRUCT_PTR;
+		if (dwCharBase == 0)
+		{
+			WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: char struct pointer is NULL (0x%08X)",
+				ZEN_CHAR_STRUCT_PTR);
+			return FALSE;
+		}
+
+		DWORD dwZen = *(DWORD*)(dwCharBase + ZEN_MONEY_OFFSET);
+
+		// Sanity check: Zen should not exceed MAX_ZEN
+		if (dwZen > MAX_ZEN)
+		{
+			WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: value %lu exceeds MAX_ZEN, ignoring",
+				(unsigned long)dwZen);
+			return FALSE;
+		}
+
+		*pdwZen = dwZen;
+		WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: read zen=%lu from [0x%08X]+%d (base=0x%08X)",
+			(unsigned long)dwZen, ZEN_CHAR_STRUCT_PTR, ZEN_MONEY_OFFSET, dwCharBase);
+		return TRUE;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: exception reading memory (0x%08X+%d)",
+			ZEN_CHAR_STRUCT_PTR, ZEN_MONEY_OFFSET);
+		return FALSE;
+	}
 }
 
 
@@ -542,6 +598,26 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		WriteClickerLogFmt("PICKUP", "RECV CZenUpdatePacket: zen=%lu (prev=%lu, tracked=%d)",
 			(unsigned long)dwNewZen, (unsigned long)m_dwLastZen, (int)m_fZenTracked);
 
+		// If Zen is not yet tracked, try to initialize baseline from game memory.
+		// This handles the case where the DLL was loaded after character selection
+		// and the first CZenUpdatePacket arrives before we have a baseline.
+		if (!m_fZenTracked)
+		{
+			DWORD dwMemZen = 0;
+			if (ReadZenFromMemory(&dwMemZen) && dwMemZen > 0)
+			{
+				// Use the memory value as baseline if it is <= the packet value
+				// (packet is always the authoritative current value).
+				if (dwMemZen <= dwNewZen)
+				{
+					m_dwLastZen = dwMemZen;
+					m_fZenTracked = true;
+					WriteClickerLogFmt("PICKUP", "First CZenUpdatePacket: baseline set from memory zen=%lu",
+						(unsigned long)dwMemZen);
+				}
+			}
+		}
+
 		if (m_fEnabled && m_fZenTracked && dwNewZen > m_dwLastZen)
 		{
 			DWORD dwDelta = dwNewZen - m_dwLastZen;
@@ -730,6 +806,15 @@ int CAutoPickupFilter::FilterSendPacket(CPacket& pkt, CFilterContext& context)
  */
 bool CAutoPickupFilter::GetParam(const char* pszParam, void* pData)
 {
+	if (_stricmp(pszParam, "zen_memory") == 0 && pData)
+	{
+		return ReadZenFromMemory((DWORD*)pData) ? true : false;
+	}
+	if (_stricmp(pszParam, "zen_last") == 0 && pData)
+	{
+		*((DWORD*)pData) = m_dwLastZen;
+		return m_fZenTracked;
+	}
 	return false;
 }
 
@@ -773,6 +858,20 @@ bool CAutoPickupFilter::SetParam(const char* pszParam, void* pData)
 
 		WriteClickerLogFmt("PICKUP", "SetParam: autopick %s (m_fEnabled=%d)",
 			m_fEnabled ? "ENABLED" : "DISABLED", (int)m_fEnabled);
+
+		// When autopick is enabled, refresh Zen baseline from game memory
+		// so that session tracking starts with the correct value.
+		if (m_fEnabled)
+		{
+			DWORD dwMemZen = 0;
+			if (ReadZenFromMemory(&dwMemZen))
+			{
+				m_dwLastZen = dwMemZen;
+				m_fZenTracked = true;
+				WriteClickerLogFmt("PICKUP", "SetParam: autopick ON -> refreshed m_dwLastZen=%lu from game memory",
+					(unsigned long)m_dwLastZen);
+			}
+		}
 	}
 	else if (_stricmp(pszParam, "pick") == 0)
 	{
