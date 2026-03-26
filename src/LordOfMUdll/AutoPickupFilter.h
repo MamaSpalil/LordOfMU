@@ -134,6 +134,9 @@ private:
 	DWORD m_dwLastZen;
 	bool m_fZenTracked;
 	bool m_fZenPickupPending;
+	// Queue of Zen amounts from CMeetItemPacket ground drops awaiting
+	// CPutInventoryPacket confirmation.  Accessed only from the recv
+	// filter thread (FilterRecvPacket), so no additional locking needed.
 	std::deque<DWORD> m_zenAmountQueue;
 
 	static const BYTE CHAR_CLASS_UNSET = 0xFF;
