@@ -504,7 +504,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			// (Zen has its own vault, it does not occupy normal inventory slots).
 			// Amount notification is deferred to the CZenUpdatePacket handler
 			// which calculates the exact delta.
-			bool bIsZen = (wType == TYPE_ZEN) || (bPos == 254);
+			bool bIsZen = (wType == TYPE_ZEN) || (bPos == INVENTORY_SLOT_ZEN);
 
 			if (!bIsZen)
 			{

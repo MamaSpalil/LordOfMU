@@ -1111,7 +1111,7 @@ void CImGuiOverlay::RenderHistoryWindow()
 			{
 				m_nHistoryTab = 0;
 
-				// ---- Zen summary at the top: count + total ----
+				// ---- Zen Obtained: show both pickup count and total amount ----
 				{
 					// Format zen total with suffix (k, m, b)
 					char szZen[64];
@@ -1125,7 +1125,7 @@ void CImGuiOverlay::RenderHistoryWindow()
 						_snprintf(szZen, sizeof(szZen), "%I64u", m_sessionStats.ullZenTotal);
 					szZen[sizeof(szZen) - 1] = '\0';
 
-					// "Count" Zen Obtained: show both count and total amount
+					// Zen Obtained: show both count and total amount
 					ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "Zen Obtained:");
 					ImGui::SameLine();
 					ImGui::Text("%d", m_sessionStats.nZenPickupCount);
