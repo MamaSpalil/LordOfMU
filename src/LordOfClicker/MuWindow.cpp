@@ -1781,6 +1781,19 @@ LRESULT CMuWindow::OnTimer(UINT, WPARAM wParam, LPARAM, BOOL& bHandled)
 				}
 			}
 		}
+
+		// Periodically refresh history and session stats while the
+		// History window is visible so that counters update in real time.
+		{
+			static DWORD s_dwLastStatRefresh = 0;
+			DWORD dwNow = GetTickCount();
+			if (m_cOverlay.IsHistoryVisible() && (dwNow - s_dwLastStatRefresh >= 1000))
+			{
+				QueryPickupHistory();
+				QuerySessionStats();
+				s_dwLastStatRefresh = dwNow;
+			}
+		}
 	}
 
 	return 0;
@@ -1988,7 +2001,7 @@ void CMuWindow::QueryPickupHistory()
 	static GetPickupHistoryPtr s_pfnGetHistory = NULL;
 	static bool s_bLookupDone = false;
 
-	if (!s_bLookupDone)
+	if (!s_bLookupDone || !s_pfnGetHistory)
 	{
 		HMODULE hMod = NULL;
 
@@ -2023,7 +2036,10 @@ void CMuWindow::QueryPickupHistory()
 			WriteClickerLogFmt("CLICKER", "GetPickupHistory export found at 0x%p", s_pfnGetHistory);
 		}
 
-		s_bLookupDone = true;
+		// Only mark lookup done when the function was actually found;
+		// retry on subsequent calls if the DLL is not yet loaded.
+		if (s_pfnGetHistory)
+			s_bLookupDone = true;
 	}
 
 	std::vector<CImGuiOverlay::HistoryEntry> vHistory;
@@ -2074,7 +2090,7 @@ void CMuWindow::QuerySessionStats()
 	static GetSessionStatsPtr s_pfnGetStats = NULL;
 	static bool s_bLookupDone = false;
 
-	if (!s_bLookupDone)
+	if (!s_bLookupDone || !s_pfnGetStats)
 	{
 		HMODULE hMod = NULL;
 
@@ -2103,7 +2119,10 @@ void CMuWindow::QuerySessionStats()
 		if (hMod)
 			s_pfnGetStats = (GetSessionStatsPtr)GetProcAddress(hMod, "GetSessionStats");
 
-		s_bLookupDone = true;
+		// Only mark lookup done when the function was actually found;
+		// retry on subsequent calls if the DLL is not yet loaded.
+		if (s_pfnGetStats)
+			s_bLookupDone = true;
 	}
 
 	CImGuiOverlay::SessionStats stats;
@@ -2160,7 +2179,7 @@ void CMuWindow::ResetSessionStatsCall()
 	static ResetSessionStatsPtr s_pfn = NULL;
 	static bool s_bDone = false;
 
-	if (!s_bDone)
+	if (!s_bDone || !s_pfn)
 	{
 		HMODULE hMod = NULL;
 
@@ -2189,7 +2208,8 @@ void CMuWindow::ResetSessionStatsCall()
 		if (hMod)
 			s_pfn = (ResetSessionStatsPtr)GetProcAddress(hMod, "ResetSessionStats");
 
-		s_bDone = true;
+		if (s_pfn)
+			s_bDone = true;
 	}
 
 	if (s_pfn)
@@ -2206,7 +2226,7 @@ void CMuWindow::StopSessionCall()
 	static StopSessionPtr s_pfn = NULL;
 	static bool s_bDone = false;
 
-	if (!s_bDone)
+	if (!s_bDone || !s_pfn)
 	{
 		HMODULE hMod = NULL;
 
@@ -2235,7 +2255,8 @@ void CMuWindow::StopSessionCall()
 		if (hMod)
 			s_pfn = (StopSessionPtr)GetProcAddress(hMod, "StopSession");
 
-		s_bDone = true;
+		if (s_pfn)
+			s_bDone = true;
 	}
 
 	if (s_pfn)

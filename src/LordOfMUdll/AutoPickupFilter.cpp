@@ -629,7 +629,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			}
 		}
 
-		if (m_fEnabled && m_fZenTracked && dwNewZen > m_dwLastZen)
+		if (m_fZenTracked && dwNewZen > m_dwLastZen)
 		{
 			DWORD dwDelta = dwNewZen - m_dwLastZen;
 
@@ -639,19 +639,28 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
 			// Display "[PICKUP] - Zen 'amount' Obtained" notification
-			CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
-			GetProxy()->recv_direct(pktMsg);
+			// only when autopickup is enabled (the notification prefix is
+			// "[PICKUP]" which implies the autopickup feature is active).
+			if (m_fEnabled)
+			{
+				CServerMessagePacket pktMsg("[PICKUP] - Zen '%lu' Obtained", (unsigned long)dwDelta);
+				GetProxy()->recv_direct(pktMsg);
+			}
 
-			// Record to pickup history
+			// Record to pickup history for the History dialog
 			char szHistory[64];
 			sprintf_s(szHistory, sizeof(szHistory), "Zen '%lu'", (unsigned long)dwDelta);
 			AddPickupHistoryEntry(szHistory);
 
-			// Accumulate session zen total and pickup count
+			// Accumulate session zen total and pickup count when session
+			// (clicker F5) is active, regardless of autopickup state.
 			InitHistoryCS();
 			EnterCriticalSection(&g_csHistory);
-			g_ullSessionZenTotal += (unsigned __int64)dwDelta;
-			g_nSessionZenPickupCount++;
+			if (g_bSessionActive)
+			{
+				g_ullSessionZenTotal += (unsigned __int64)dwDelta;
+				g_nSessionZenPickupCount++;
+			}
 			LeaveCriticalSection(&g_csHistory);
 		}
 
@@ -662,13 +671,17 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		// Track kills and experience gained for session statistics.
 		// CKillExpPacket (C1:16) is sent when the player kills a monster.
+		// Only count when the clicker session is active (F5 running).
 		CKillExpPacket& pktKill = (CKillExpPacket&)pkt;
 		DWORD dwExp = pktKill.GetExperience();
 
 		InitHistoryCS();
 		EnterCriticalSection(&g_csHistory);
-		g_nSessionKillCount++;
-		g_ullSessionExpGained += (unsigned __int64)dwExp;
+		if (g_bSessionActive)
+		{
+			g_nSessionKillCount++;
+			g_ullSessionExpGained += (unsigned __int64)dwExp;
+		}
 		LeaveCriticalSection(&g_csHistory);
 	}
 	else if (m_fDisplayCode && pkt == CMoveToInventoryPacket::Type())
