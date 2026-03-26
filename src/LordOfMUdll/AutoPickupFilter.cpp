@@ -671,7 +671,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	{
 		// Track kills and experience gained for session statistics.
 		// CKillExpPacket (C1:16) is sent when the player kills a monster.
-		// Only count when the clicker session is active (F5 running).
+		// Only count when the clicker session is active (clicker F5 running).
 		CKillExpPacket& pktKill = (CKillExpPacket&)pkt;
 		DWORD dwExp = pktKill.GetExperience();
 
