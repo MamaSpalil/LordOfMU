@@ -44,11 +44,17 @@ inline void PushMainSendOffset(DWORD dwOffset)
  * \brief Pop a main.exe offset from the ring buffer.
  *        Called from the proxy thread when processing a CLIENT->SERVER packet.
  *        Returns 0 if no entries are available.
+ *
+ *        Thread safety: SPSC (single-producer, single-consumer) on x86.
+ *        InterlockedIncrement on the producer side provides a full memory
+ *        barrier ensuring the entry is visible before writeIdx advances.
+ *        We read writeIdx with InterlockedCompareExchange(0) for explicit
+ *        atomic load semantics.
  */
 inline DWORD PopMainSendOffset()
 {
 	LONG readIdx = g_sendOffsetRing.readIdx;
-	LONG writeIdx = g_sendOffsetRing.writeIdx;
+	LONG writeIdx = InterlockedCompareExchange(&g_sendOffsetRing.writeIdx, 0, 0);
 
 	if (readIdx >= writeIdx)
 		return 0;

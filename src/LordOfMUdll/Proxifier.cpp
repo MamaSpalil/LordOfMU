@@ -499,31 +499,39 @@ int WSAAPI CProxifier::send2(SOCKET s, const char* buf, int len, int flags)
 {
 	if (buf && len > 0)
 	{
-		// Lazily cache main.exe module base and size
+		// main.exe module range for return address identification.
+		// Initialized once via InterlockedCompareExchange for thread safety.
+		static volatile LONG s_fInitDone = 0;
 		static DWORD s_dwMainBase = 0;
 		static DWORD s_dwMainEnd  = 0;
+		static const DWORD FALLBACK_IMAGE_SIZE = 0x00800000;  // 8MB
 
-		if (s_dwMainBase == 0)
+		if (!s_fInitDone)
 		{
 			HMODULE hExe = GetModuleHandle(NULL);
 			if (hExe)
 			{
-				s_dwMainBase = (DWORD)(DWORD_PTR)hExe;
+				DWORD dwBase = (DWORD)(DWORD_PTR)hExe;
+				DWORD dwEnd  = dwBase + FALLBACK_IMAGE_SIZE;
 
 				__try
 				{
 					IMAGE_DOS_HEADER* pDos = (IMAGE_DOS_HEADER*)hExe;
 					IMAGE_NT_HEADERS* pNt  = (IMAGE_NT_HEADERS*)((BYTE*)hExe + pDos->e_lfanew);
-					s_dwMainEnd = s_dwMainBase + pNt->OptionalHeader.SizeOfImage;
+					dwEnd = dwBase + pNt->OptionalHeader.SizeOfImage;
 				}
 				__except(EXCEPTION_EXECUTE_HANDLER)
 				{
-					s_dwMainEnd = s_dwMainBase + 0x00800000;  // fallback 8MB
+					// keep fallback
 				}
+
+				s_dwMainBase = dwBase;
+				s_dwMainEnd  = dwEnd;
+				InterlockedExchange(&s_fInitDone, 1);
 			}
 		}
 
-		if (s_dwMainBase != 0)
+		if (s_fInitDone)
 		{
 			// Walk the call stack to find the first frame inside main.exe
 			void* frames[16];

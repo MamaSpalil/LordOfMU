@@ -229,7 +229,6 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	if (pkt == CMeetItemPacket::Type())
 	{
 		static const int  ITEM_CODE_OFFSET = 4;   // item code starts after 2-byte ID + 2-byte pos
-		static const int  ITEM_CODE_MIN_LEN = 6;  // need at least bytes [0..5] for money check
 		static const BYTE MONEY_NUMBER = 0x0F;
 		static const BYTE MONEY_GROUP  = 0x0E;
 
