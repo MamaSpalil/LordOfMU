@@ -440,9 +440,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 					SetEvent(m_hPickEvent);
 
-					if (wType == TYPE_ZEN && dwZenGroundAmount > 0)
-						m_zenAmountQueue.push_back(dwZenGroundAmount);
-
 					WriteClickerLogFmt("PICKUP", "Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
 						wType, wId, (int)x, (int)y, xdiff, ydiff);
 
@@ -455,9 +452,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					// Immediate pickup: item is within range and pickup enabled
 					WriteClickerLogFmt("PICKUP", "Custom item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) picking up immediately",
 						wType, wId, (int)x, (int)y, xdiff, ydiff);
-
-					if (wType == TYPE_ZEN && dwZenGroundAmount > 0)
-						m_zenAmountQueue.push_back(dwZenGroundAmount);
 
 					PickItem(wId);
 
@@ -515,9 +509,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 							m_vPickQueue.insert((ULONG)wId | (ULONG)x << 16 | (ULONG)y << 24);
 							SetEvent(m_hPickEvent);
 
-							if (wType == TYPE_ZEN && dwZenGroundAmount > 0)
-								m_zenAmountQueue.push_back(dwZenGroundAmount);
-
 							WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for Move To pickup",
 								pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
 
@@ -534,9 +525,6 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					else if (xdiff <= m_iDist && ydiff <= m_iDist)
 					{
 						m_vNoMovePickQueue.push_back(CPickInfo(wId));
-
-						if (wType == TYPE_ZEN && dwZenGroundAmount > 0)
-							m_zenAmountQueue.push_back(dwZenGroundAmount);
 
 						WriteClickerLogFmt("PICKUP", "%s item 0x%04X (id=0x%04X) at (%d,%d) dist=(%d,%d) queued for no-move pickup",
 							pszItemName, wType, wId, (int)x, (int)y, xdiff, ydiff);
@@ -574,11 +562,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		{
 			if (wFailType == TYPE_ZEN)
 			{
-				// Zen has its own separate vault (max 2,000,000,000) and does
-				// not occupy inventory slots.  Do NOT show "Inventory is Full"
-				// for Zen.  Discard any queued ground amount for this failed pickup.
-				if (!m_zenAmountQueue.empty())
-					m_zenAmountQueue.pop_front();
+				// Zen has its own vault; do NOT show "Inventory is Full" for Zen.
 				WriteClickerLogFmt("PICKUP", "RECV CPickItemResultFailPacket for Zen (type=0x%04X): skipping inventory full notification", wFailType);
 			}
 			else
@@ -629,44 +613,12 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			if (bIsZen)
 			{
-				// Use the Zen amount tracked from CMeetItemPacket ground drops.
-				// This is the actual amount that was visible on the ground.
-				DWORD dwZenAmount = 0;
-				if (!m_zenAmountQueue.empty())
-				{
-					dwZenAmount = m_zenAmountQueue.front();
-					m_zenAmountQueue.pop_front();
-				}
-
-				if (dwZenAmount > 0)
-				{
-					WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup confirmed, ground amount=%lu",
-						(unsigned long)dwZenAmount);
-
-					CServerMessagePacket pktObtained("[PICKUP] - +%lu Zen Obtained", (unsigned long)dwZenAmount);
-					GetProxy()->recv_direct(pktObtained);
-
-					char szHistory[64];
-					sprintf_s(szHistory, sizeof(szHistory), "+%lu Zen", (unsigned long)dwZenAmount);
-					AddPickupHistoryEntry(szHistory);
-
-					// Accumulate session zen stats when session is active
-					InitHistoryCS();
-					EnterCriticalSection(&g_csHistory);
-					if (g_bSessionActive)
-					{
-						g_ullSessionZenTotal += (unsigned __int64)dwZenAmount;
-						g_nSessionZenPickupCount++;
-					}
-					LeaveCriticalSection(&g_csHistory);
-				}
-				else
-				{
-					// Fallback: no ground amount available (e.g. manual pickup).
-					// Set pending flag so CZenUpdatePacket can display the delta.
-					m_fZenPickupPending = true;
-					WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup detected, no ground amount - pending CZenUpdatePacket for amount");
-				}
+				// Zen pickup confirmed.  The actual picked-up amount is not
+				// reliably available in the packet data; set a pending flag
+				// so CZenUpdatePacket (which carries the authoritative new
+				// total) can compute the delta and display it.
+				m_fZenPickupPending = true;
+				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount");
 			}
 			else
 			{
@@ -762,8 +714,8 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			CDebugOut::PrintAlways("[PICKUP] Zen increased by %lu (total: %lu)",
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
-			// Fallback display for manual pickups where ground amount was not
-			// tracked.  Uses CZenUpdatePacket delta as the amount.
+			// Display Zen pickup amount using the authoritative server delta.
+			// Computes (newTotal - prevTotal) to get the exact picked-up amount.
 			if (m_fZenPickupPending && m_fEnabled)
 			{
 				m_fZenPickupPending = false;
