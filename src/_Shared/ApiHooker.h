@@ -885,7 +885,7 @@ private:
 
 
 /**
- * \brief 
+ * \brief Simple send() function pointer (no hook, just stores original).
  */
 class CSendPtr
 	: public CApiHooker
@@ -907,6 +907,43 @@ public:
 
 private:
 	SendPtr m_pfn;
+};
+
+
+/**
+ * \brief Trampoline-based inline hook for ws2_32!send.
+ *        Allows intercepting all send() calls from main.exe to capture
+ *        the return address (main.exe offset) for packet logging.
+ *        The proxy calls through operator() which uses the DLL mirror
+ *        or trampoline to bypass the hook.
+ */
+class CSendTramp
+	: public CApiHooker
+{
+public:
+	typedef int (WSAAPI* SendPtr)(SOCKET s, const char* buf, int len, int flags);
+
+public:
+	bool Patch(SendPtr pfnHookProc){ return PatchFunction("ws2_32.dll", "send", PtrToUlong(pfnHookProc)); }
+	bool Patch(SendPtr pfnHookProc, CApiDllMirror& dllMirror)
+	{ 
+		m_pfnApi = dllMirror.GetProcAddress("send");
+		return PatchFunction("ws2_32.dll", "send", PtrToUlong(pfnHookProc)); 
+	}
+
+	bool UnPatch(){ return UnPatchFunction("ws2_32.dll", "send"); }
+
+	int operator()(SOCKET s, const char* buf, int len, int flags)
+	{
+		if (m_pfnApi)
+			return ((SendPtr)m_pfnApi)(s, buf, len, flags);
+
+		if (m_abTrampBuff[0] == 0)
+			return SOCKET_ERROR;
+
+		SendPtr pfn = (SendPtr)(void*)m_abTrampBuff;
+		return pfn(s, buf, len, flags);
+	}
 };
 
 

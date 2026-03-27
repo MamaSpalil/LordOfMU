@@ -118,6 +118,34 @@ static bool IsThrottled(ThrottleCategory cat, DWORD* pLastLogTime, DWORD* pSkipC
 
 
 /**
+ * \brief Extract the sub-protocol command byte from a MU Online packet.
+ *        The command byte position depends on the packet header type:
+ *        - C1: byte 2 (C1 LEN CMD)
+ *        - C2: byte 3 (C2 LEN_HI LEN_LO CMD)
+ *        - C3: byte 3 (C3 LEN SERIAL CMD)
+ *        - C4: byte 4 (C4 LEN_HI LEN_LO SERIAL CMD)
+ *        Returns the command byte value, or -1 if not extractable.
+ */
+static int GetProtocolOffset(const BYTE* pBuf, int nLen)
+{
+	if (!pBuf || nLen < 3)
+		return -1;
+
+	int nCmdPos = -1;
+	switch (pBuf[0])
+	{
+		case 0xC1: nCmdPos = 2; break;
+		case 0xC2: nCmdPos = 3; break;
+		case 0xC3: nCmdPos = 3; break;
+		case 0xC4: nCmdPos = 4; break;
+		default:   return -1;
+	}
+
+	return (nLen > nCmdPos) ? (int)pBuf[nCmdPos] : -1;
+}
+
+
+/**
  *
  */
 CPacketLogger::CPacketLogger(CProxy* pProxy)
@@ -195,6 +223,42 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					   pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 
+	// Detect Zen (money) drops on ground within CMeetItemPacket.
+	// MoneyDropped layout within item record (starting at ITEM_CODE_OFFSET):
+	//   [0] = MoneyNumber (0x0F), [1..4] = Amount (LE), [5] = MoneyGroup (0x0E)
+	if (pkt == CMeetItemPacket::Type())
+	{
+		static const int  ITEM_CODE_OFFSET = 4;   // item code starts after 2-byte ID + 2-byte pos
+		static const BYTE MONEY_NUMBER = 0x0F;
+		static const BYTE MONEY_GROUP  = 0x0E;
+
+		CMeetItemPacket& pktMeet = (CMeetItemPacket&)pkt;
+		int nProto = GetProtocolOffset(pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+		int nCount = pktMeet.GetItemCount();
+
+		for (int i = 0; i < nCount; i++)
+		{
+			BYTE* pItemRaw = pktMeet.GetItemData(i);
+			if (!pItemRaw)
+				continue;
+
+			BYTE* pItemCode = pItemRaw + ITEM_CODE_OFFSET;
+
+			if (pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP)
+			{
+				DWORD dwAmount = (DWORD)pItemCode[1] |
+					((DWORD)pItemCode[2] << 8) |
+					((DWORD)pItemCode[3] << 16) |
+					((DWORD)pItemCode[4] << 24);
+
+				CDebugOut::PrintAlways("[OFFSET] - Zen Dropped on Ground %lu this is offset 0x%02X",
+					(unsigned long)dwAmount, nProto >= 0 ? nProto : 0);
+				WriteClickerLogFmt("OFFSET", "Zen Dropped on Ground %lu this is offset 0x%02X",
+					(unsigned long)dwAmount, nProto >= 0 ? nProto : 0);
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -203,6 +267,8 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
  *        High-frequency non-pickup packet types are rate-limited to prevent
  *        log flood that causes I/O bottleneck and server disconnection.
  *        Pickup-related packets (PickItem, CharacterSay, etc.) are always logged.
+ *        Displays both the protocol command byte [0xNN] and the main.exe
+ *        return address offset [main.exe+0xNNNNNNNN] for each packet.
  */
 int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
@@ -219,26 +285,36 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 		return 0;
 
 	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	int nProtoOffset = GetProtocolOffset(pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	DWORD dwMainOffset = context.dwMainOffset;
 
 	if (dwSkipped > 0)
 	{
-		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
+					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
 					(const char*)szHex, dwSkipped);
 
-		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | %s | Len=%d | %s (throttled: %d similar packets skipped)",
+		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
+			nProtoOffset >= 0 ? nProtoOffset : 0,
+			dwMainOffset,
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex, dwSkipped);
 	}
 	else
 	{
-		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | %s | Len=%d | %s", 
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s", 
+					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
 					(const char*)szHex);
 
-		WritePacketLog("CLIENT -> SERVER", pkt.GetType().GetDescription(),
-					   pkt.GetDecryptedLen(), (const char*)szHex);
+		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s",
+					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
+					pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 
 	return 0;
