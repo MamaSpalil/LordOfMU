@@ -246,7 +246,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
  * \brief Read current Zen from game memory using the known ObjectCharacter offset.
  *        Returns TRUE if the value was read successfully.
  */
-BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen)
+BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen, BOOL bSilent)
 {
 	if (!pdwZen)
 		return FALSE;

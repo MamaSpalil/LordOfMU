@@ -87,7 +87,8 @@ private:
 
 	// Read current Zen from game memory using known offset.
 	// Returns TRUE and fills *pdwZen if the read succeeded.
-	static BOOL ReadZenFromMemory(DWORD* pdwZen);
+	// If bSilent is TRUE, suppresses success logging (used for polling).
+	static BOOL ReadZenFromMemory(DWORD* pdwZen, BOOL bSilent = FALSE);
 
 private:
 	std::map<WORD, WORD> m_vItemList;
