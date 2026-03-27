@@ -6,6 +6,7 @@
 #include "PEUtil.h"
 #include "Psapi.h"
 #include "ClickerLogger.h"
+#include "SendOffsetTracker.h"
 #include <ws2tcpip.h>
 
 
@@ -231,7 +232,7 @@ CProxifier* CProxifier::m_sInstance = 0;
  */
 CAcceptPtr CProxifier::accept;
 
-CSendPtr CProxifier::send;
+CSendTramp CProxifier::send;
 CRecvPtr CProxifier::recv;
 CSocketConnectTramp CProxifier::connect;
 CCloseSocketPtr CProxifier::closesocket;
@@ -346,10 +347,24 @@ bool CProxifier::InternalInit()
 	}
 	CDebugOut::PrintAlways("ws2_32!connect hook installed successfully.");
 
+	// Hook send() to capture main.exe return addresses for packet logging.
+	// The trampoline/mirror is used by the proxy to call the original send(),
+	// so the proxy's own sends bypass this hook.
+	if (!send.Patch(&send2, m_cWinsockApi))
+	{
+		CDebugOut::PrintAlways("[WARNING] Failed to patch ws2_32!send - main.exe offsets will not be available");
+		WriteHookLog("WARNING: Failed to patch ws2_32!send for offset tracking");
+		// Non-fatal: continue without offset tracking
+	}
+	else
+	{
+		CDebugOut::PrintAlways("ws2_32!send hook installed successfully (main.exe offset tracking).");
+		WriteHookLog("ws2_32!send hook installed for main.exe offset tracking");
+	}
+
 	accept.Init();
 	bind.Init();
 	closesocket.Init();
-	send.Init();
 	recv.Init();
 	select.Init();
 	listen.Init();
@@ -391,6 +406,7 @@ void CProxifier::InternalClean()
 	WriteHookLog("Proxifier cleanup started - removing hooks");
 	StopPatchMonitor();
 
+	send.UnPatch();
 	connect.UnPatch();
 	WriteHookLog("Proxifier cleanup complete - all hooks removed");
 }
@@ -472,6 +488,71 @@ int WINAPI CProxifier::connect2(SOCKET s, const struct sockaddr* addr, int len)
 }
 
 
+/**
+ * \brief Hook for ws2_32!send that captures the return address within main.exe.
+ *        When main.exe sends a CLIENT->SERVER packet, this hook walks the call
+ *        stack to find the first return address inside main.exe's image range,
+ *        computes the offset (address - base), and pushes it to the ring buffer
+ *        for the packet logger to display.
+ */
+int WSAAPI CProxifier::send2(SOCKET s, const char* buf, int len, int flags)
+{
+	if (buf && len > 0)
+	{
+		// Lazily cache main.exe module base and size
+		static DWORD s_dwMainBase = 0;
+		static DWORD s_dwMainEnd  = 0;
+
+		if (s_dwMainBase == 0)
+		{
+			HMODULE hExe = GetModuleHandle(NULL);
+			if (hExe)
+			{
+				s_dwMainBase = (DWORD)(DWORD_PTR)hExe;
+
+				__try
+				{
+					IMAGE_DOS_HEADER* pDos = (IMAGE_DOS_HEADER*)hExe;
+					IMAGE_NT_HEADERS* pNt  = (IMAGE_NT_HEADERS*)((BYTE*)hExe + pDos->e_lfanew);
+					s_dwMainEnd = s_dwMainBase + pNt->OptionalHeader.SizeOfImage;
+				}
+				__except(EXCEPTION_EXECUTE_HANDLER)
+				{
+					s_dwMainEnd = s_dwMainBase + 0x00800000;  // fallback 8MB
+				}
+			}
+		}
+
+		if (s_dwMainBase != 0)
+		{
+			// Walk the call stack to find the first frame inside main.exe
+			void* frames[16];
+			WORD nFrames = CaptureStackBackTrace(1, 16, frames, NULL);
+
+			DWORD dwOffset = 0;
+			for (WORD i = 0; i < nFrames; i++)
+			{
+				DWORD dwAddr = (DWORD)(DWORD_PTR)frames[i];
+				if (dwAddr >= s_dwMainBase && dwAddr < s_dwMainEnd)
+				{
+					dwOffset = dwAddr - s_dwMainBase;
+					break;
+				}
+			}
+
+			PushMainSendOffset(dwOffset);
+		}
+		else
+		{
+			PushMainSendOffset(0);
+		}
+	}
+
+	// Forward to original send via trampoline (bypasses the hook)
+	return CProxifier::send(s, buf, len, flags);
+}
+
+
 /**  
  * \brief 
  */
@@ -547,8 +628,8 @@ void CProxifier::StopPatchMonitor()
 void CProxifier::CheckPatches()
 {
 	CheckMyPatch("ws2_32.dll", "connect", (DWORD_PTR)connect2);
+	CheckMyPatch("ws2_32.dll", "send", (DWORD_PTR)send2);
 	CheckNotPatched("ws2_32.dll", "recv");
-	CheckNotPatched("ws2_32.dll", "send");
 	CheckNotPatched("ws2_32.dll", "closesocket");
 	CheckNotPatched("ws2_32.dll", "WSAAsyncSelect");
 	CheckNotPatched("kernel32.dll", "GetTickCount");

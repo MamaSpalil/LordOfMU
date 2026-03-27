@@ -268,6 +268,8 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
  *        High-frequency non-pickup packet types are rate-limited to prevent
  *        log flood that causes I/O bottleneck and server disconnection.
  *        Pickup-related packets (PickItem, CharacterSay, etc.) are always logged.
+ *        Displays both the protocol command byte [0xNN] and the main.exe
+ *        return address offset [main.exe+0xNNNNNNNN] for each packet.
  */
 int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 {
@@ -285,29 +287,34 @@ int CPacketLogger::FilterSendPacket(CPacket& pkt, CFilterContext& context)
 
 	CStringA szHex = CBufferUtil::BufferToHex((char*)pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 	int nProtoOffset = GetProtocolOffset(pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
+	DWORD dwMainOffset = context.dwMainOffset;
 
 	if (dwSkipped > 0)
 	{
-		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
 					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
 					(const char*)szHex, dwSkipped);
 
-		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
+		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s (throttled: %d similar packets skipped)",
 			nProtoOffset >= 0 ? nProtoOffset : 0,
+			dwMainOffset,
 			pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex, dwSkipped);
 	}
 	else
 	{
-		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] %s | Len=%d | %s", 
+		CDebugOut::PrintAlways("[PACKET] CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s", 
 					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
 					pkt.GetType().GetDescription(),
 					pkt.GetDecryptedLen(),
 					(const char*)szHex);
 
-		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] %s | Len=%d | %s",
+		WriteClickerLogFmt("PACKET", "CLIENT -> SERVER | [0x%02X] and [main.exe+0x%08X] %s | Len=%d | %s",
 					nProtoOffset >= 0 ? nProtoOffset : 0,
+					dwMainOffset,
 					pkt.GetType().GetDescription(), pkt.GetDecryptedLen(), (const char*)szHex);
 	}
 

@@ -6,6 +6,7 @@
 #include "BufferUtil.h"
 #include "CommonPackets.h"
 #include "ClickerLogger.h"
+#include "SendOffsetTracker.h"
 
 
 /**
@@ -337,6 +338,11 @@ bool CGameProxy::FilterSendPacket(CPacket& pkt)
 	int iLvl = INT_MAX;
 
 	CFilterContext context;
+
+	// For non-injected packets (from main.exe), pop the main.exe return
+	// address offset that was captured by the send() hook.
+	if (!pkt.GetInjected())
+		context.dwMainOffset = PopMainSendOffset();
 
 	for (int i=0; i < iCount; ++i)
 	{

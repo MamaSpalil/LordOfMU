@@ -29,6 +29,7 @@ public:
 
 public:	
 	static int WINAPI connect2(SOCKET, const struct sockaddr*, int);
+	static int WSAAPI send2(SOCKET, const char*, int, int);
 
 public:
 	static CAcceptPtr accept;
@@ -37,7 +38,7 @@ public:
 	static CCloseSocketPtr closesocket;
 
 	static CShutdownPtr shutdown;
-	static CSendPtr send;
+	static CSendTramp send;
 	static CRecvPtr recv;
 	static CSocketConnectTramp connect;
 	static CSelectPtr select;
