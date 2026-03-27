@@ -715,7 +715,7 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				(unsigned long)dwDelta, (unsigned long)dwNewZen);
 
 			// Display Zen pickup amount using the authoritative server delta.
-			// computes (newTotal - prevTotal) to get the exact picked-up amount.
+			// Computes (newTotal - prevTotal) to get the exact picked-up amount.
 			if (m_fZenPickupPending && m_fEnabled)
 			{
 				m_fZenPickupPending = false;
