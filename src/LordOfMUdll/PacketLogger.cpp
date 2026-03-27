@@ -224,9 +224,15 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	}
 
 	// Detect Zen (money) drops on ground within CMeetItemPacket.
-	// MoneyDropped: ItemData[0]=0x0F (MoneyNumber), ItemData[5]=0x0E (MoneyGroup).
+	// MoneyDropped layout within item record (starting at ITEM_CODE_OFFSET):
+	//   [0] = MoneyNumber (0x0F), [1..4] = Amount (LE), [5] = MoneyGroup (0x0E)
 	if (pkt == CMeetItemPacket::Type())
 	{
+		static const int  ITEM_CODE_OFFSET = 4;   // item code starts after 2-byte ID + 2-byte pos
+		static const int  ITEM_CODE_MIN_LEN = 6;  // need at least bytes [0..5] for money check
+		static const BYTE MONEY_NUMBER = 0x0F;
+		static const BYTE MONEY_GROUP  = 0x0E;
+
 		CMeetItemPacket& pktMeet = (CMeetItemPacket&)pkt;
 		int nProto = GetProtocolOffset(pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
 		int nCount = pktMeet.GetItemCount();
@@ -234,9 +240,12 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 		for (int i = 0; i < nCount; i++)
 		{
 			BYTE* pItemRaw = pktMeet.GetItemData(i);
-			BYTE* pItemCode = pItemRaw ? pItemRaw + 4 : 0;
+			if (!pItemRaw)
+				continue;
 
-			if (pItemCode && pItemCode[0] == 0x0F && pItemCode[5] == 0x0E)
+			BYTE* pItemCode = pItemRaw + ITEM_CODE_OFFSET;
+
+			if (pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP)
 			{
 				DWORD dwAmount = (DWORD)pItemCode[1] |
 					((DWORD)pItemCode[2] << 8) |
