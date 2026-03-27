@@ -1,45 +1,1106 @@
-[2026-03-26 01:05:54] [CLICKER] EnsureLordOfMUDllLoaded: Loading MUEliteClicker.dll from 'D:\1WOM\MUEliteClicker.dll'
-[2026-03-26 01:05:54] [CLICKER] EnsureLordOfMUDllLoaded: Loaded at 0x7C000000 - initializing proxy hooks
-[2026-03-26 01:05:54] [DEBUG] LordOfMU DLL initializing (InternalInit)
-[2026-03-26 01:05:54] [DEBUG] Debug mode handler installed
-[2026-03-26 01:05:54] [HOOK] Crash handler installed for main.exe process
-[2026-03-26 01:05:54] [HOOK] DLL hook presence check passed - no duplicate DLL detected
-[2026-03-26 01:05:54] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x8B at 0x75AB5710)
-[2026-03-26 01:05:54] [HOOK] Applying DLL hooks for the first time (InterlockedCompareExchange 0->1)
-[2026-03-26 01:05:54] [HOOK] Proxifier initialization started
-[2026-03-26 01:05:54] [HOOK] All Winsock API hooks installed successfully
-[2026-03-26 01:05:54] [HOOK] Proxifier initialization completed successfully
-[2026-03-26 01:05:54] [HOOK] DLL hooks applied successfully - proxy system active
-[2026-03-26 01:05:54] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x90 at 0x75AB5710)
-[2026-03-26 01:05:54] [DEBUG] LordOfMU DLL initialization complete
-[2026-03-26 01:05:54] [CLICKER] EnsureLordOfMUDllLoaded: DllGetClassObject called, root='D:\1WOM\'
-[2026-03-26 01:05:54] [CLICKER] EnsureLordOfMUDllLoaded: env var __LordOfMU_HMODULE__ set to '0x7C000000'
-[2026-03-26 01:05:57] [GLHOOK] SwapBuffers found at 0x76548460
-[2026-03-26 01:05:57] [GLHOOK] SwapBuffers hook installed (trampoline=0x0B1E0000, hook=0x7C0B7F60)
-[2026-03-26 01:05:57] [GLHOOK] OpenGL SwapBuffers hook installed, ImGui overlay ready (DisplayMode=Windowed, hWnd=0x00C80FC8)
-[2026-03-26 01:05:57] [CLICKER] DLL successfully hooked into main.exe, clicker initialized
-[2026-03-26 01:05:57] [SOCKET] IP override from Connect.ini: 192.168.0.105
-[2026-03-26 01:05:57] [SOCKET] connect() socket=2172 IP=192.168.0.105 port=44405
-[2026-03-26 01:05:58] [DEBUG] ========== CRASH DETECTED ==========
-[2026-03-26 01:05:58] [DEBUG] Exception: ACCESS_VIOLATION (0xC0000005)
-[2026-03-26 01:05:58] [DEBUG] Address: 0x0B1E0000
-[2026-03-26 01:05:58] [DEBUG] Module: <unknown>
-[2026-03-26 01:05:58] [CRASH] CRASH DETECTED: ACCESS_VIOLATION (0xC0000005) at 0x0B1E0000 in <unknown>
-[2026-03-26 01:05:58] [DEBUG] Access violation reading address 0xE955F13C
-[2026-03-26 01:05:58] [CRASH] Access violation reading address 0xE955F13C
-[2026-03-26 01:05:58] [DEBUG] Registers: EAX=0x0F807464 EBX=0x00000007 ECX=0xADAEB322 EDX=0x00000000
-[2026-03-26 01:05:58] [DEBUG]            ESI=0x0019D403 EDI=0x0019D332 EBP=0x0019D43C ESP=0x0019D020
-[2026-03-26 01:05:58] [DEBUG]            EIP=0x0B1E0000 EFLAGS=0x00010202
-[2026-03-26 01:05:58] [CRASH] Registers: EAX=0x0F807464 EBX=0x00000007 ECX=0xADAEB322 EDX=0x00000000 ESI=0x0019D403 EDI=0x0019D332 EBP=0x0019D43C ESP=0x0019D020 EIP=0x0B1E0000
-[2026-03-26 01:05:58] [DEBUG] Minidump saved to: D:\1WOM\CrashDump.dmp
-[2026-03-26 01:05:58] [DEBUG] ========== END CRASH REPORT ==========
-[2026-03-26 01:05:58] [HOOK] DLL_PROCESS_DETACH - main.exe unloading LordOfMU DLL, removing hooks
-[2026-03-26 01:05:58] [DEBUG] LordOfMU DLL shutting down (OnExit)
-[2026-03-26 01:05:58] [HOOK] DLL shutdown initiated - starting hook removal from main.exe
-[2026-03-26 01:05:58] [DEBUG] Debug mode handler uninstalled
-[2026-03-26 01:05:58] [HOOK] Crash handler uninstalled
-[2026-03-26 01:05:58] [HOOK] Starting DLL hook cleanup from main.exe process
-[2026-03-26 01:05:58] [HOOK] Proxifier cleanup started - removing hooks
-[2026-03-26 01:05:58] [HOOK] Proxifier cleanup complete - all hooks removed
-[2026-03-26 01:05:58] [HOOK] DLL hook cleanup complete - all hooks removed, g_lHookApplied reset to 0
-[2026-03-26 01:05:58] [DEBUG] LordOfMU DLL cleanup complete - all resources released
+[2026-03-27 04:11:25] [CLICKER] EnsureLordOfMUDllLoaded: Loading MUEliteClicker.dll from 'D:\1WOM\MUEliteClicker.dll'
+[2026-03-27 04:11:25] [CLICKER] EnsureLordOfMUDllLoaded: Loaded at 0x78BB0000 - initializing proxy hooks
+[2026-03-27 04:11:25] [DEBUG] LordOfMU DLL initializing (InternalInit)
+[2026-03-27 04:11:25] [DEBUG] Debug mode handler installed
+[2026-03-27 04:11:25] [HOOK] Crash handler installed for main.exe process
+[2026-03-27 04:11:25] [HOOK] DLL hook presence check passed - no duplicate DLL detected
+[2026-03-27 04:11:25] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x8B at 0x75AB5710)
+[2026-03-27 04:11:25] [HOOK] Applying DLL hooks for the first time (InterlockedCompareExchange 0->1)
+[2026-03-27 04:11:25] [HOOK] Proxifier initialization started
+[2026-03-27 04:11:25] [HOOK] ws2_32!send hook installed for main.exe offset tracking
+[2026-03-27 04:11:25] [HOOK] All Winsock API hooks installed successfully
+[2026-03-27 04:11:25] [HOOK] Proxifier initialization completed successfully
+[2026-03-27 04:11:25] [HOOK] DLL hooks applied successfully - proxy system active
+[2026-03-27 04:11:25] [HOOK] Hook integrity WARNING: ws2_32!connect NOT hooked (byte=0x90 at 0x75AB5710)
+[2026-03-27 04:11:25] [DEBUG] LordOfMU DLL initialization complete
+[2026-03-27 04:11:25] [CLICKER] EnsureLordOfMUDllLoaded: DllGetClassObject called, root='D:\1WOM\'
+[2026-03-27 04:11:25] [CLICKER] EnsureLordOfMUDllLoaded: env var __LordOfMU_HMODULE__ set to '0x78BB0000'
+[2026-03-27 04:11:40] [GLHOOK] SwapBuffers found at 0x76548460
+[2026-03-27 04:11:40] [GLHOOK] SwapBuffers resolved to 0x76600760 (was 0x76548460)
+[2026-03-27 04:11:40] [GLHOOK] SwapBuffers hook installed (trampoline=0x15280000, hook=0x78AD7F60)
+[2026-03-27 04:11:40] [GLHOOK] OpenGL SwapBuffers hook installed, ImGui overlay ready (DisplayMode=Windowed, hWnd=0x0136050A)
+[2026-03-27 04:11:40] [CLICKER] DLL successfully hooked into main.exe, clicker initialized
+[2026-03-27 04:11:41] [SOCKET] IP override from Connect.ini: 192.168.0.105
+[2026-03-27 04:11:41] [SOCKET] connect() socket=2208 IP=192.168.0.105 port=44405
+[2026-03-27 04:11:43] [SOCKET] IP override from Connect.ini: 192.168.0.105
+[2026-03-27 04:11:43] [SOCKET] connect() socket=2208 IP=192.168.0.105 port=55901
+[2026-03-27 04:11:43] [PACKET] Packet logger filter initialized - AVANTA+ELITE relevant packets only
+[2026-03-27 04:11:43] [PICKUP] ReadZenFromMemory: read zen=0 from [0x077A8FD8]+5956 (base=0x0BF54230)
+[2026-03-27 04:11:43] [PICKUP] Constructor: initialized m_dwLastZen=0 from game memory
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Server message | Len=56 | C1 38 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 57 65 6C 6C 63 6F 6D 65 20 74 6F 20 50 68 6F 65 6E 69 78 20 56 69 70 20 41 44 4D 49 4E 00 00 00 00 
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 00 00 00 00 5B 50 68 6F 65 6E 69 78 5D 20 50 6C 61 79 65 72 73 20 4F 6E 6C 69 6E 65 3A 20 33 39 2F 33 30 30 00 20 41 44 
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Server message | Len=49 | C1 31 0D 01 00 00 00 00 00 5B 50 68 6F 5B 50 68 6F 65 6E 69 78 5D 20 48 6F 6D 65 20 50 61 67 65 3A 20 50 68 6F 65 6E 69 78 2E 63 6F 6D 00 49 4E 00 
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Character stats | Len=81 | C3 51 00 F3 03 EE EB 02 00 F0 59 D1 E3 90 05 FF E7 BE 02 FF 7F FF 7F FF 7F FF 7F D8 16 D8 16 55 07 EF 20 2C 8C 2C 8C 99 39 32 73 19 00 8A B6 B2 1D 03 20 69 F7 59 00 00 00 00 00 59 00 05 00 00 00 0A 04 00 00 00 00 00 00 00 00 00 00 0C 5D 74 00 
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Zen/money update | Len=5 | C1 05 B8 01 00 
+[2026-03-27 04:11:50] [PICKUP] RECV CZenUpdatePacket: zen=0 (prev=0, tracked=1)
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Server message | Len=69 | C1 45 0D 01 70 0A 82 00 44 06 00 00 3C 5B 4C 75 63 6B 79 20 57 68 65 65 6C 5D 3A 20 44 6F 6E 27 74 20 66 6F 72 67 65 74 20 79 6F 75 20 6E 65 65 64 20 73 70 61 63 65 20 66 6F 72 20 69 74 65 6D 73 00 19 00 00 
+[2026-03-27 04:11:50] [PACKET] SERVER -> CLIENT | Character setup | Len=19 | C1 13 F3 30 00 38 00 00 00 00 00 00 00 00 09 00 04 08 04 
+[2026-03-27 04:11:54] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x002CEF16] Update position CTS | Len=6 | C1 06 1D EE EB 20 
+[2026-03-27 04:11:54] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x00109F72] Massive skill | Len=17 | C3 11 04 1E 38 EE EB 1F 97 9F FF FF 00 0C 84 39 5D 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:54] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:11:55] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 4F 96 EA 6B 90 EE 19 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 78 00 
+[2026-03-27 04:11:56] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=60 | C2 00 3C 20 05 80 2A ED EA 0F 00 37 00 06 E0 00 80 2B EE EC 0F 00 4D 00 6B E0 00 80 2C F0 EA 1D 08 01 00 00 E0 00 80 2D EE EA 1D 08 01 00 00 E0 00 80 2E EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:11:56] [PICKUP] RECV CMeetItemPacket: 5 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:11:58] [KEYDBG] Timer: F5 PRESSED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-27 04:11:58] [KEYDBG] Timer: F5 RELEASED detected via GetAsyncKeyState polling (100ms) -> dispatching to OnKeyboardEvent
+[2026-03-27 04:11:58] [KEYDBG] [F5] KEYUP -> OK: Toggle AutoClicker Start/Stop | Clicker is STOPPED -> Sending WM_START_CLICKER
+[2026-03-27 04:11:58] [CLICKER] Clicker started
+[2026-03-27 04:11:58] [CLICKER] === Auto-clicker starting ===
+[2026-03-27 04:11:58] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
+[2026-03-27 04:11:58] [CLICKER] Clicker Debug Mode auto-enabled on autoclicker start
+[2026-03-27 04:11:58] [CLICKER] Debug mode active - propagating to DLL
+[2026-03-27 04:11:58] [CLICKER] SayToServer: DLL found at 0x78BB0000 via env var (after 1 attempts)
+[2026-03-27 04:11:58] [CLICKER] Settings: fAutoPick=0 fAutoRepair=1 fAutoLife=1 fAutoReOff=0
+[2026-03-27 04:11:58] [CLICKER] Settings: dwPickTime=1000 dwRepairTime=300000 dwHealTime=10000 dwClass=5
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 64 65 62 75 67 6D 6F 64 65 20 6F 6E 00 
+[2026-03-27 04:11:58] [CLICKER] Settings: fAdvAutoPick=1 fExitAtLvl400=0 fAntiAFKProtect=0 fPickRunMode=1
+[2026-03-27 04:11:58] [CLICKER] Settings: fAdvPickBless=1 fAdvPickSoul=1 fAdvPickChaos=1 fAdvPickLife=1
+[2026-03-27 04:11:58] [DEBUG] Debug mode ENABLED - verbose logging active, console window opened
+[2026-03-27 04:11:58] [CLICKER] Settings: fAdvPickCreation=1 fAdvPickGuardian=1 fAdvPickExl=1 fAdvPickZen=1
+[2026-03-27 04:11:58] [DEBUG] Debug mode ENABLED in DLL context via //debugmode command
+[2026-03-27 04:11:58] [CLICKER] Settings: fAdvPickCustom=1 fAdvPickCustomMove=1 wPickCustomCode=0x33DD
+[2026-03-27 04:11:58] [PACKET] DIRECT>CLIENT | Server message | Len=39 | C1 27 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 44 65 62 75 67 20 6D 6F 64 65 20 6F 6E 20 5B 4F...
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [CLICKER] Advanced auto-pickup enabled - setting options
+[2026-03-27 04:11:58] [CLICKER] SetAdvancedAutopickOptions: sending all pickup options to DLL
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt bless on on
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt soul on on
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 73 61 79 20 6F 66 66 00 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 73 61 79 20 6F 66 66 20 5B 4F 4B 5D...
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt chaos on on
+[2026-03-27 04:11:58] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=49 | C1 31 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 7A 65 6E 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt jol on on
+[2026-03-27 04:11:58] [PICKUP] SetParam: susp_zen_pick=0
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [DEBUG] Command //set_stealth_opt: opt=susp_zen_pick value=off
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt joc on on
+[2026-03-27 04:11:58] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=50 | C1 32 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 6D 6F 76 65 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt jog on on
+[2026-03-27 04:11:58] [PICKUP] SetParam: susp_move_pick=0
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [DEBUG] Command //set_stealth_opt: opt=susp_move_pick value=off
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt exl on on
+[2026-03-27 04:11:58] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=45 | C1 2D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 73 74 65 61 6C 74 68 5F 6F 70 74 20 73 75 73 70 5F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt zen on on
+[2026-03-27 04:11:58] [PICKUP] SetParam: susp_pick=0
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [DEBUG] Command //set_stealth_opt: opt=susp_pick value=off
+[2026-03-27 04:11:58] [CLICKER] Sending to DLL: //set_pick_opt custom on on
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [CLICKER] Sending //pick clear to DLL
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [CLICKER] Sending custom pick command: //pick 51 221
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [CLICKER] SetAdvancedAutopickOptions: all pickup options sent
+[2026-03-27 04:11:58] [CLICKER] Sending //autopick on to DLL
+[2026-03-27 04:11:58] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 62 6C 65 73 73 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:58] [CLICKER] Sending //pickclass 5 to DLL
+[2026-03-27 04:11:58] [PICKUP] SetParam: bless flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:58] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:58] [PICKUP] Command //set_pick_opt: item=bless pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:58] [CLICKER] Auto run mode enabled (boots level detection)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=39 | C1 27 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 73 6F 75 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [CLICKER] Sending //pdist 7 to DLL
+[2026-03-27 04:11:59] [PICKUP] SetParam: soul flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=soul pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [CLICKER] Pick-up run mode enabled
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=40 | C1 28 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 68 61 6F 73 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [CLICKER] Pick-up debug logging enabled
+[2026-03-27 04:11:59] [PICKUP] SetParam: chaos flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=chaos pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [CLICKER] === AVANTA+ELITE mode active features ===
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [CLICKER]   AVANTA: AutoPick(SPACE)=off AutoHeal=ON AutoRepair=ON AutoReqOff=off
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [CLICKER]   ELITE:  AdvPick(DLL)=ON Exit400=off AntiAFK=0x0 PickRun=ON Class=5
+[2026-03-27 04:11:59] [PICKUP] SetParam: jol flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [CLICKER] === Auto-clicker initialization complete ===
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=jol pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 63 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: joc flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=joc pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 6A 6F 67 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: jog flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=jog pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 65 78 6C 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: exl flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=exl pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=38 | C1 26 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 7A 65 6E 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: zen flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=zen pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=41 | C1 29 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 73 65 74 5F 70 69 63 6B 5F 6F 70 74 20 63 75 73 74 6F 6D 20 6F 6E 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: custom flags 0x00 -> 0x03 (pick=1, moveTo=1)
+[2026-03-27 04:11:59] [PICKUP] Command //set_pick_opt: item=custom pick=on moveTo=on (flags=0x03)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=26 | C1 1A 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 63 6C 65 61 72 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: pick list cleared (was 0 items)
+[2026-03-27 04:11:59] [PICKUP] Command //pick clear: pick list cleared
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=36 | C1 24 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 63 6C 65 61 72 20 5B 4F 4B 5D 2E...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 35 31 20 32 32 31 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 20 35 31 20 32 32 31 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: pick item code=0x33DD mask=0xFFFF (total pick items=1)
+[2026-03-27 04:11:59] [PICKUP] Command //pick: code=0x33DD mask=0xFFFF (args: 51 221 )
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 70 69 63 6B 20 35 31 20 32 32 31 20 5B 4F 4B 5D...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D9DF5] Massive skill | Len=17 | C3 11 0F 1E 38 EE EB 57 99 D7 FF FF 00 B0 36 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D9DF5] Massive skill | Len=17 | C3 11 0F 1E 38 EE EB 57 99 D7 FF FF 00 B0 36 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: autopick ENABLED (m_fEnabled=1)
+[2026-03-27 04:11:59] [PICKUP] ReadZenFromMemory: read zen=0 from [0x077A8FD8]+5956 (base=0x0BF54230)
+[2026-03-27 04:11:59] [PICKUP] SetParam: autopick ON -> refreshed m_dwLastZen=0 from game memory
+[2026-03-27 04:11:59] [PICKUP] Command //autopick: on (fCmd=1)
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=37 | C1 25 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 6E 20 5B 4F 4B 5D...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=27 | C1 1B 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 63 6C 61 73 73 20 35 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: charclass=5
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=53 | C1 35 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 63 68 61 72 20 63 6C 61...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=34 | C1 22 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 61 75 74 6F 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: autorunmode=1
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=50 | C1 32 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 61 75 74 6F 20 72 75 6E...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 37 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=23 | C1 17 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 64 69 73 74 20 37 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: pdist=7
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=51 | C1 33 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 69 73 74 61 6E 63 65...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=30 | C1 1E 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 72 75 6E 6D 6F 64 65 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: pickrunmode=1
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=45 | C1 2D 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 72 75 6E 20 6D 6F 64 65...
+[2026-03-27 04:11:59] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
+[2026-03-27 04:11:59] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 6E 00 
+[2026-03-27 04:11:59] [PICKUP] SetParam: pickdebug=1
+[2026-03-27 04:11:59] [PACKET] DIRECT>CLIENT | Server message | Len=47 | C1 2F 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
+[2026-03-27 04:12:00] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:00] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:00] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:00] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 1C 1E 38 EE EB 2C 98 AB FF FF 00 21 A1 39 5D  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:00] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 1C 1E 38 EE EB 2C 98 AB FF FF 00 21 A1 39 5D  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:01] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:01] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:01] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:01] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 26 1E 38 EE EB 12 87 91 FF FF 00 76 ED 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:01] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 26 1E 38 EE EB 12 87 91 FF FF 00 76 ED 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:02] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:02] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 8 similar packets skipped)
+[2026-03-27 04:12:02] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 8 similar packets skipped)
+[2026-03-27 04:12:02] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 2F 1E 38 EE EB DF 88 5F FF FF 00 E7 70 39 5D  (throttled: 8 similar packets skipped)
+[2026-03-27 04:12:02] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 2F 1E 38 EE EB DF 88 5F FF FF 00 E7 70 39 5D  (throttled: 8 similar packets skipped)
+[2026-03-27 04:12:03] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:03] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:03] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:03] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 3A 1E 38 EE EB AC 78 2C FF FF 00 4D 2A 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:03] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 3A 1E 38 EE EB AC 78 2C FF FF 00 4D 2A 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:04] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:04] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:04] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:04] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 46 1E 38 EE EB 93 89 12 FF FF 00 5B CC 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:04] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 46 1E 38 EE EB 93 89 12 FF FF 00 5B CC 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:05] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:05] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:05] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:05] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 52 1E 38 EE EB 5F 88 DE FF FF 00 BD 2B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:05] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 52 1E 38 EE EB 5F 88 DE FF FF 00 BD 2B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:06] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:06] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:06] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:06] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D9DF5] Massive skill | Len=17 | C3 11 5F 1E 38 EE EB 2C 98 AB FF FF 00 DE 5E 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:06] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D9DF5] Massive skill | Len=17 | C3 11 5F 1E 38 EE EB 2C 98 AB FF FF 00 DE 5E 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:07] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:07] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:07] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:07] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 6A 1E 38 EE EB 12 87 91 FF FF 00 67 FC 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:07] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 6A 1E 38 EE EB 12 87 91 FF FF 00 67 FC 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:07] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DE 00 38 39 6E  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:07] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DE 00 38 39 6E  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:07] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:07] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:08] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:08] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:08] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 75 1E 38 EE EB DF 88 5F FF FF 00 96 01 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:08] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 75 1E 38 EE EB DF 88 5F FF FF 00 96 01 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:09] [CLICKER] Auto-heal triggered (interval=10000 ms)
+[2026-03-27 04:12:09] [CLICKER] Auto-heal triggered
+[2026-03-27 04:12:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:09] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:09] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:09] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:09] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 81 1E 38 EE EB AC 78 2C FF FF 00 9F F8 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:09] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 81 1E 38 EE EB AC 78 2C FF FF 00 9F F8 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 2F F0 EA 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:09] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 2F F0 EA 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:09] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped on ground | Len=16 | C2 00 10 20 01 80 2F F0 EA 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:09] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) | Len=16 | C2 00 10 20 01 80 2F F0 EA 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:09] [GAMEDBG] [MOVETO-DBG] Processing 1 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:09] [GAMEDBG] [MOVETO-DBG] Item 0x0E1D (id=0x002F) at (240,234) not in any pickup list, ignored
+[2026-03-27 04:12:10] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 E0 00 38 39 6E 
+[2026-03-27 04:12:10] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 E0 00 38 39 6E 
+[2026-03-27 04:12:10] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:10] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:10] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:10] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:10] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:10] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 8C 1E 38 EE EB 93 89 12 FF FF 00 7D EA 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:10] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 8C 1E 38 EE EB 93 89 12 FF FF 00 7D EA 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:11] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:11] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:11] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:11] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:11] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:11] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:11] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 97 1E 38 EE EB 5F 88 DE FF FF 00 F9 6F 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:11] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 97 1E 38 EE EB 5F 88 DE FF FF 00 F9 6F 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:12] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:12] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 A2 1E 38 EE EB 2C 98 AB FF FF 00 D6 56 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:12] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 A2 1E 38 EE EB 2C 98 AB FF FF 00 D6 56 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 30 EF EC 0F 00 3E 00 10 E0 00 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 30 EF EC 0F 00 3E 00 10 E0 00 
+[2026-03-27 04:12:12] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped on ground | Len=16 | C2 00 10 20 01 80 30 EF EC 0F 00 3E 00 10 E0 00 
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) | Len=16 | C2 00 10 20 01 80 30 EF EC 0F 00 3E 00 10 E0 00 
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] Processing 1 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:12] [PICKUP] Zen item 0x0E0F (id=0x0030) at (239,236) dist=(1,1) queued for Move To pickup
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] Zen item 0x0E0F (id=0x0030) at (239,236) dist=(1,1) queued for Move To pickup
+[2026-03-27 04:12:12] [PICKUP] GoPickNextItem: dequeued item 0x0030 at (239,236), suspended=0, suspMove=0
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: dequeued item 0x0030 at (239,236), suspended=0, suspMove=0
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: player at (238,235) id=0x396E, target item at (239,236)
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:12] [GAMEDBG] [AUTOPICK] Running to item at (239,236) from (238,235), item=0x0030
+[2026-03-27 04:12:12] [PICKUP] GoPickNextItem: RUNNING to item 0x0030 at (239,236) from (238,235)
+[2026-03-27 04:12:12] [PICKUP] RunTo: from (238,235) to (239,236), playerId=0x396E
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] RunTo: from (238,235) to (239,236), playerId=0x396E
+[2026-03-27 04:12:12] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:12] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:12] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EC  | SEND CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EC  | CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EC 
+[2026-03-27 04:12:12] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EC 
+[2026-03-27 04:12:12] [PICKUP] RunTo: completed in 1 steps (50 ms)
+[2026-03-27 04:12:12] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 1 steps (50 ms)
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:12] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:12] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] SEND CPickItemPacket: picking up item ID=0x0030 (walking=1) | Len=7 | C3 07 00 22 00 30 A5 
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] SEND CPickItemPacket: ID=0x0030 walking=1 | Len=7 | C3 07 00 22 00 30 A5 
+[2026-03-27 04:12:13] [PACKET] QUEUE>SERVER | Pick item | Len=0 | 
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 30 A5 
+[2026-03-27 04:12:13] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 30 A5 
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Pick item during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:13] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:13] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] RECV CPutInventoryPacket: item type=0x001D level=6 placed in inventory slot=254 | Len=10 | C3 0A AC 22 FE 1D B2 F4 9A 4C 
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x001D level=6 slot=254 | Len=10 | C3 0A AC 22 FE 1D B2 F4 9A 4C 
+[2026-03-27 04:12:13] [PICKUP] CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:13] [GAMEDBG] [AUTOPICK] Running back to original position (238,235)
+[2026-03-27 04:12:13] [PICKUP] GoPickNextItem: RUNNING back to original position (238,235)
+[2026-03-27 04:12:13] [PICKUP] RunTo: from (239,236) to (238,235), playerId=0x396E
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] RunTo: from (239,236) to (238,235), playerId=0x396E
+[2026-03-27 04:12:13] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:13] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:13] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EE EB  | SEND CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EE EB  | CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] RunTo: completed in 1 steps (50 ms)
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 1 steps (50 ms)
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: walk complete, m_fWalking=false, resuming filters
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 30 
+[2026-03-27 04:12:13] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 30 
+[2026-03-27 04:12:13] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 30 
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 30 
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 31 F0 EA 0F 00 48 00 F1 E0 00 80 32 F0 EA 08 00 00 00 00 F0 00 
+[2026-03-27 04:12:13] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 31 F0 EA 0F 00 48 00 F1 E0 00 80 32 F0 EA 08 00 00 00 00 F0 00 
+[2026-03-27 04:12:13] [PICKUP] RECV CMeetItemPacket: 2 item(s) dropped on ground | Len=27 | C2 00 1B 20 02 80 31 F0 EA 0F 00 48 00 F1 E0 00 80 32 F0 EA 08 00 00 00 00 F0 00 
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 2 item(s) | Len=27 | C2 00 1B 20 02 80 31 F0 EA 0F 00 48 00 F1 E0 00 80 32 F0 EA 08 00 00 00 00 F0 00 
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] Processing 2 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] Item 0x0F08 (id=0x0032) at (240,234) not in any pickup list, ignored
+[2026-03-27 04:12:13] [PICKUP] Zen item 0x0E0F (id=0x0031) at (240,234) dist=(2,1) queued for Move To pickup
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] Zen item 0x0E0F (id=0x0031) at (240,234) dist=(2,1) queued for Move To pickup
+[2026-03-27 04:12:13] [PICKUP] GoPickNextItem: dequeued item 0x0031 at (240,234), suspended=0, suspMove=0
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: dequeued item 0x0031 at (240,234), suspended=0, suspMove=0
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: player at (238,235) id=0x396E, target item at (240,234)
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 13 similar packets skipped)
+[2026-03-27 04:12:13] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 13 similar packets skipped)
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 AE 1E 38 EE EB 12 97 91 FF FF 00 A4 2F 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:13] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 AE 1E 38 EE EB 12 97 91 FF FF 00 A4 2F 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [GAMEDBG] [AUTOPICK] Running to item at (240,234) from (238,235), item=0x0031
+[2026-03-27 04:12:13] [PICKUP] GoPickNextItem: RUNNING to item 0x0031 at (240,234) from (238,235)
+[2026-03-27 04:12:13] [PICKUP] RunTo: from (238,235) to (240,234), playerId=0x396E
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] RunTo: from (238,235) to (240,234), playerId=0x396E
+[2026-03-27 04:12:13] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:13] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:13] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EA  | SEND CTS | C1 06 1D EF EA 00  | pos=(239,234)
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EA  | CTS | C1 06 1D EF EA 00  | pos=(239,234)
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:13] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:13] [PICKUP] RunTo step 2: RECV STC | C1 07 D6 39 6E F0 EA  | SEND CTS | C1 06 1D F0 EA 00  | pos=(240,234)
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] RunTo step 2: STC | C1 07 D6 39 6E F0 EA  | CTS | C1 06 1D F0 EA 00  | pos=(240,234)
+[2026-03-27 04:12:13] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:13] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:13] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E F0 EA  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:13] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E F0 EA  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:14] [PICKUP] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [PICKUP] SEND CPickItemPacket: picking up item ID=0x0031 (walking=1) | Len=7 | C3 07 00 22 00 31 DB 
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] SEND CPickItemPacket: ID=0x0031 walking=1 | Len=7 | C3 07 00 22 00 31 DB 
+[2026-03-27 04:12:14] [PACKET] QUEUE>SERVER | Pick item | Len=0 | 
+[2026-03-27 04:12:14] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 31 DB 
+[2026-03-27 04:12:14] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 31 DB 
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Pick item during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [PICKUP] RECV CPutInventoryPacket: item type=0x001D level=6 placed in inventory slot=254 | Len=10 | C3 0A AE 22 FE 1D B3 3D 8B 4C 
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x001D level=6 slot=254 | Len=10 | C3 0A AE 22 FE 1D B3 3D 8B 4C 
+[2026-03-27 04:12:14] [PICKUP] CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:14] [GAMEDBG] [AUTOPICK] Running back to original position (238,235)
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [PICKUP] GoPickNextItem: RUNNING back to original position (238,235)
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] RunTo: from (240,234) to (238,235), playerId=0x396E
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] RunTo: from (240,234) to (238,235), playerId=0x396E
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:14] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:14] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EB  | SEND CTS | C1 06 1D EF EB 00  | pos=(239,235)
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EB  | CTS | C1 06 1D EF EB 00  | pos=(239,235)
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:14] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:14] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:14] [PICKUP] RunTo step 2: RECV STC | C1 07 D6 39 6E EE EB  | SEND CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] RunTo step 2: STC | C1 07 D6 39 6E EE EB  | CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:14] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:14] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 31 
+[2026-03-27 04:12:14] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 31 
+[2026-03-27 04:12:14] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 31 
+[2026-03-27 04:12:14] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 31 
+[2026-03-27 04:12:14] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: walk complete, m_fWalking=false, resuming filters
+[2026-03-27 04:12:14] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 16 similar packets skipped)
+[2026-03-27 04:12:14] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 16 similar packets skipped)
+[2026-03-27 04:12:14] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 BB 1E 38 EE EB E5 87 64 FF FF 00 16 8F 39 5D  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:14] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 BB 1E 38 EE EB E5 87 64 FF FF 00 16 8F 39 5D  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:15] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:15] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:15] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:15] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 C5 1E 38 EE EB AC 78 2C FF FF 00 89 EE 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:15] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 C5 1E 38 EE EB AC 78 2C FF FF 00 89 EE 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:16] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:16] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:16] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:16] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 CF 1E 38 EE EB 93 89 12 FF FF 00 BB 2C 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:16] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 CF 1E 38 EE EB 93 89 12 FF FF 00 BB 2C 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:17] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:18] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:18] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:18] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 D9 1E 38 EE EB 5F 88 DE FF FF 00 83 15 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:18] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 D9 1E 38 EE EB 5F 88 DE FF FF 00 83 15 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:18] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:19] [CLICKER] Auto-heal triggered (interval=10000 ms)
+[2026-03-27 04:12:19] [CLICKER] Auto-heal triggered
+[2026-03-27 04:12:19] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:19] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:19] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 E5 1E 38 EE EB 2C 98 AB FF FF 00 74 F4 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:19] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 E5 1E 38 EE EB 2C 98 AB FF FF 00 74 F4 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:19] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:20] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:20] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:20] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 EF 1E 38 EE EB 12 87 91 FF FF 00 47 DC 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:20] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 EF 1E 38 EE EB 12 87 91 FF FF 00 47 DC 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:20] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:21] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:21] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 FB 1E 38 EE EB DF 88 5F FF FF 00 9F 08 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:21] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 FB 1E 38 EE EB DF 88 5F FF FF 00 9F 08 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:21] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:22] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:22] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 07 1E 38 EE EB AC 78 2C FF FF 00 FC 9B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:22] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 07 1E 38 EE EB AC 78 2C FF FF 00 FC 9B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:22] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:22] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DE 00 38 39 6E  (throttled: 3 similar packets skipped)
+[2026-03-27 04:12:22] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DE 00 38 39 6E  (throttled: 3 similar packets skipped)
+[2026-03-27 04:12:22] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:22] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:23] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:23] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:23] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 13 1E 38 EE EB 93 89 12 FF FF 00 D7 40 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:23] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 13 1E 38 EE EB 93 89 12 FF FF 00 D7 40 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:23] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:23] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:23] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:23] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:23] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:23] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:23] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:24] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:24] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:24] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 1E 1E 38 EE EB 5F 88 DE FF FF 00 16 80 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:24] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 1E 1E 38 EE EB 5F 88 DE FF FF 00 16 80 39 5D  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:24] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 33 F1 EA 0F 00 41 00 43 E0 00 
+[2026-03-27 04:12:24] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 33 F1 EA 0F 00 41 00 43 E0 00 
+[2026-03-27 04:12:24] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped on ground | Len=16 | C2 00 10 20 01 80 33 F1 EA 0F 00 41 00 43 E0 00 
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) | Len=16 | C2 00 10 20 01 80 33 F1 EA 0F 00 41 00 43 E0 00 
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] Processing 1 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:24] [PICKUP] Zen item 0x0E0F (id=0x0033) at (241,234) dist=(3,1) queued for Move To pickup
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] Zen item 0x0E0F (id=0x0033) at (241,234) dist=(3,1) queued for Move To pickup
+[2026-03-27 04:12:24] [PICKUP] GoPickNextItem: dequeued item 0x0033 at (241,234), suspended=0, suspMove=0
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: dequeued item 0x0033 at (241,234), suspended=0, suspMove=0
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: player at (238,235) id=0x396E, target item at (241,234)
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:24] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [AUTOPICK] Running to item at (241,234) from (238,235), item=0x0033
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:24] [PICKUP] GoPickNextItem: RUNNING to item 0x0033 at (241,234) from (238,235)
+[2026-03-27 04:12:24] [PICKUP] RunTo: from (238,235) to (241,234), playerId=0x396E
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] RunTo: from (238,235) to (241,234), playerId=0x396E
+[2026-03-27 04:12:24] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:24] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:24] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EA  | SEND CTS | C1 06 1D EF EA 00  | pos=(239,234)
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EA  | CTS | C1 06 1D EF EA 00  | pos=(239,234)
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:24] [GAMEDBG] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EA  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:24] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EA  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:24] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:24] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:24] [PICKUP] RunTo step 2: pos=(240,234)
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:24] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:24] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:24] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:24] [PICKUP] RunTo step 3: RECV STC | C1 07 D6 39 6E F1 EA  | SEND CTS | C1 06 1D F1 EA 00  | pos=(241,234)
+[2026-03-27 04:12:24] [GAMEDBG] [PICKUP] RunTo step 3: STC | C1 07 D6 39 6E F1 EA  | CTS | C1 06 1D F1 EA 00  | pos=(241,234)
+[2026-03-27 04:12:24] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] RunTo: completed in 3 steps (150 ms)
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 3 steps (150 ms)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:25] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 4F 96 EA 6B 90 EE 19 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 78 00 
+[2026-03-27 04:12:25] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 4F 96 EA 6B 90 EE 19 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 78 00 
+[2026-03-27 04:12:25] [PICKUP] SEND CPickItemPacket: picking up item ID=0x0033 (walking=1) | Len=7 | C3 07 00 22 00 33 02 
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] SEND CPickItemPacket: ID=0x0033 walking=1 | Len=7 | C3 07 00 22 00 33 02 
+[2026-03-27 04:12:25] [PACKET] QUEUE>SERVER | Pick item | Len=0 | 
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED Unknown packet during walk (not in block list)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 33 02 
+[2026-03-27 04:12:25] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 33 02 
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Pick item during walk
+[2026-03-27 04:12:25] [PICKUP] RECV CPutInventoryPacket: item type=0x031D level=6 placed in inventory slot=254 | Len=10 | C3 0A 1A 22 FE 1D B3 7E CE 4C 
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x031D level=6 slot=254 | Len=10 | C3 0A 1A 22 FE 1D B3 7E CE 4C 
+[2026-03-27 04:12:25] [PICKUP] CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D F1 EA 20  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:25] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D F1 EA 20  (throttled: 12 similar packets skipped)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [AUTOPICK] Running back to original position (238,235)
+[2026-03-27 04:12:25] [PICKUP] GoPickNextItem: RUNNING back to original position (238,235)
+[2026-03-27 04:12:25] [PICKUP] RunTo: from (241,234) to (238,235), playerId=0x396E
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] RunTo: from (241,234) to (238,235), playerId=0x396E
+[2026-03-27 04:12:25] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:25] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:25] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E F0 EB  | SEND CTS | C1 06 1D F0 EB 00  | pos=(240,235)
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E F0 EB  | CTS | C1 06 1D F0 EB 00  | pos=(240,235)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:25] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:25] [PICKUP] RunTo step 2: pos=(239,235)
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:25] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:25] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:25] [PICKUP] RunTo step 3: RECV STC | C1 07 D6 39 6E EE EB  | SEND CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RunTo step 3: STC | C1 07 D6 39 6E EE EB  | CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 2A 1E 38 EF EB 2C A7 AB FF FF 00 7D C3 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:25] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 2A 1E 38 EF EB 2C A7 AB FF FF 00 7D C3 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:25] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] RunTo: completed in 3 steps (150 ms)
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 3 steps (150 ms)
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 33 
+[2026-03-27 04:12:25] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 33 
+[2026-03-27 04:12:25] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 33 
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 33 
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 34 F0 ED 0F 00 41 00 43 E0 00 80 35 F0 EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:25] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 34 F0 ED 0F 00 41 00 43 E0 00 80 35 F0 EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:25] [PICKUP] RECV CMeetItemPacket: 2 item(s) dropped on ground | Len=27 | C2 00 1B 20 02 80 34 F0 ED 0F 00 41 00 43 E0 00 80 35 F0 EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 2 item(s) | Len=27 | C2 00 1B 20 02 80 34 F0 ED 0F 00 41 00 43 E0 00 80 35 F0 EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] Processing 2 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] Item 0x0E1D (id=0x0035) at (240,235) not in any pickup list, ignored
+[2026-03-27 04:12:25] [PICKUP] Zen item 0x0E0F (id=0x0034) at (240,237) dist=(2,2) queued for Move To pickup
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] Zen item 0x0E0F (id=0x0034) at (240,237) dist=(2,2) queued for Move To pickup
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: walk complete, m_fWalking=false, resuming filters
+[2026-03-27 04:12:25] [PICKUP] GoPickNextItem: dequeued item 0x0034 at (240,237), suspended=0, suspMove=0
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: dequeued item 0x0034 at (240,237), suspended=0, suspMove=0
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: player at (238,235) id=0x396E, target item at (240,237)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:25] [GAMEDBG] [AUTOPICK] Running to item at (240,237) from (238,235), item=0x0034
+[2026-03-27 04:12:25] [PICKUP] GoPickNextItem: RUNNING to item 0x0034 at (240,237) from (238,235)
+[2026-03-27 04:12:25] [PICKUP] RunTo: from (238,235) to (240,237), playerId=0x396E
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] RunTo: from (238,235) to (240,237), playerId=0x396E
+[2026-03-27 04:12:25] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:25] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:25] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EC  | SEND CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EC  | CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:25] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:25] [GAMEDBG] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EC  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:25] [PACKET] SERVER -> CLIENT | Update position STC | Len=7 | C1 07 D6 39 6E EF EC  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:25] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:25] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:26] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:26] [PICKUP] RunTo step 2: RECV STC | C1 07 D6 39 6E F0 ED  | SEND CTS | C1 06 1D F0 ED 00  | pos=(240,237)
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] RunTo step 2: STC | C1 07 D6 39 6E F0 ED  | CTS | C1 06 1D F0 ED 00  | pos=(240,237)
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [PICKUP] SEND CPickItemPacket: picking up item ID=0x0034 (walking=1) | Len=7 | C3 07 00 22 00 34 FA 
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] SEND CPickItemPacket: ID=0x0034 walking=1 | Len=7 | C3 07 00 22 00 34 FA 
+[2026-03-27 04:12:26] [PACKET] QUEUE>SERVER | Pick item | Len=0 | 
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 34 FA 
+[2026-03-27 04:12:26] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x00000000] Pick item | Len=7 | C3 07 00 22 00 34 FA 
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Pick item during walk
+[2026-03-27 04:12:26] [PICKUP] RECV CPutInventoryPacket: item type=0x0C1D level=6 placed in inventory slot=254 | Len=10 | C3 0A 1B 22 FE 1D B3 C0 11 4C 
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x0C1D level=6 slot=254 | Len=10 | C3 0A 1B 22 FE 1D B3 C0 11 4C 
+[2026-03-27 04:12:26] [PICKUP] CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED Client Ping during walk (not in block list)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D F0 ED 10  (throttled: 17 similar packets skipped)
+[2026-03-27 04:12:26] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Update position CTS | Len=6 | C1 06 1D F0 ED 10  (throttled: 17 similar packets skipped)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [GAMEDBG] [AUTOPICK] Running back to original position (238,235)
+[2026-03-27 04:12:26] [PICKUP] GoPickNextItem: RUNNING back to original position (238,235)
+[2026-03-27 04:12:26] [PICKUP] RunTo: from (240,237) to (238,235), playerId=0x396E
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] RunTo: from (240,237) to (238,235), playerId=0x396E
+[2026-03-27 04:12:26] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:26] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:26] [PICKUP] RunTo step 1: RECV STC | C1 07 D6 39 6E EF EC  | SEND CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] RunTo step 1: STC | C1 07 D6 39 6E EF EC  | CTS | C1 06 1D EF EC 00  | pos=(239,236)
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [PACKET] QUEUE>CLIENT | Update position STC | Len=0 | 
+[2026-03-27 04:12:26] [PACKET] QUEUE>SERVER | Update position CTS | Len=0 | 
+[2026-03-27 04:12:26] [PICKUP] RunTo step 2: RECV STC | C1 07 D6 39 6E EE EB  | SEND CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] RunTo step 2: STC | C1 07 D6 39 6E EE EB  | CTS | C1 06 1D EE EB 00  | pos=(238,235)
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] FilterSendPacket: ALLOWED injected Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] RunTo: completed in 2 steps (100 ms)
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 37 1E 38 EE EB 16 A8 96 FF FF 00 8F 38 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:26] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 37 1E 38 EE EB 16 A8 96 FF FF 00 8F 38 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=17 | C2 00 11 21 06 00 2A 00 2B 00 2C 00 2D 00 2E 00 34 
+[2026-03-27 04:12:26] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=17 | C2 00 11 21 06 00 2A 00 2B 00 2C 00 2D 00 2E 00 34 
+[2026-03-27 04:12:26] [PICKUP] RECV CForgetItemPacket: 6 item(s) disappeared from ground | Len=17 | C2 00 11 21 06 00 2A 00 2B 00 2C 00 2D 00 2E 00 34 
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 6 item(s) disappeared | Len=17 | C2 00 11 21 06 00 2A 00 2B 00 2C 00 2D 00 2E 00 34 
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Update position CTS during walk
+[2026-03-27 04:12:26] [PICKUP] FilterSendPacket: BLOCKED Massive skill during auto-pickup walk
+[2026-03-27 04:12:26] [GAMEDBG] [PICKUP] FilterSendPacket: BLOCKED Massive skill during walk
+[2026-03-27 04:12:26] [GAMEDBG] [MOVETO-DBG] GoPickNextItem: walk complete, m_fWalking=false, resuming filters
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DB 00 38 39 6E  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:26] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DB 00 38 39 6E  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:26] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:26] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:27] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 13 similar packets skipped)
+[2026-03-27 04:12:27] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 00  (throttled: 13 similar packets skipped)
+[2026-03-27 04:12:27] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 43 1E 38 EE EB DF 88 5F FF FF 00 F1 66 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:27] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 43 1E 38 EE EB DF 88 5F FF FF 00 F1 66 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:27] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:27] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:27] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:28] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:28] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:28] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 4D 1E 38 EE EB AC 78 2C FF FF 00 D9 BE 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:28] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 4D 1E 38 EE EB AC 78 2C FF FF 00 D9 BE 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:28] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:28] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 36 F0 E9 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:28] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 36 F0 E9 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:28] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped on ground | Len=16 | C2 00 10 20 01 80 36 F0 E9 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:28] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) | Len=16 | C2 00 10 20 01 80 36 F0 E9 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:28] [GAMEDBG] [MOVETO-DBG] Processing 1 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:28] [GAMEDBG] [MOVETO-DBG] Item 0x0E1D (id=0x0036) at (240,233) not in any pickup list, ignored
+[2026-03-27 04:12:29] [CLICKER] Auto-heal triggered (interval=10000 ms)
+[2026-03-27 04:12:29] [CLICKER] Auto-heal triggered
+[2026-03-27 04:12:29] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:29] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 60  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:29] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 59 1E 38 EE EB 93 89 12 FF FF 00 0F 98 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:29] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 59 1E 38 EE EB 93 89 12 FF FF 00 0F 98 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:29] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:30] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E 
+[2026-03-27 04:12:30] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E 
+[2026-03-27 04:12:30] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:30] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:30] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:30] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:30] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:30] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 63 1E 38 EE EB 3E 98 BD FF FF 00 F4 70 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:30] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 63 1E 38 EE EB 3E 98 BD FF FF 00 F4 70 39 5D  (throttled: 9 similar packets skipped)
+[2026-03-27 04:12:31] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:31] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:12:31] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 37 EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:31] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 37 EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:31] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped on ground | Len=16 | C2 00 10 20 01 80 37 EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:31] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) | Len=16 | C2 00 10 20 01 80 37 EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:12:31] [GAMEDBG] [MOVETO-DBG] Processing 1 item(s), player at (238,235), pdist=7
+[2026-03-27 04:12:31] [GAMEDBG] [MOVETO-DBG] Item 0x0E1D (id=0x0037) at (239,235) not in any pickup list, ignored
+[2026-03-27 04:12:31] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:31] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 10 similar packets skipped)
+[2026-03-27 04:12:31] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:31] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 6F 1E 38 EE EB 1F 97 9F FF FF 00 DB 53 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:31] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 6F 1E 38 EE EB 1F 97 9F FF FF 00 DB 53 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:32] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:32] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 20  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:32] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:32] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 7B 1E 38 EE EB FE 87 7E FF FF 00 CE 56 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:32] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 7B 1E 38 EE EB FE 87 7E FF FF 00 CE 56 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:33] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 00 00 00 00 00 00 00 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 00 
+[2026-03-27 04:12:33] [PACKET] SERVER -> CLIENT | Server anouncement / GM message | Len=41 | C1 29 0D 00 00 00 00 00 00 00 00 00 00 54 68 69 73 20 4D 65 73 73 61 67 65 20 45 76 65 72 79 20 31 20 6D 69 6E 00 00 00 00 
+[2026-03-27 04:12:33] [CLICKER] Attack: right-click at (400,256)
+[2026-03-27 04:12:33] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EE EB 70  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:33] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EE EB 70  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:33] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 87 1E 38 EE EB BF 78 3F FF FF 00 7C 1B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:33] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 87 1E 38 EE EB BF 78 3F FF FF 00 7C 1B 39 5D  (throttled: 11 similar packets skipped)
+[2026-03-27 04:12:34] [KEYDBG] LL-Hook: F5 KEYDOWN | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
+[2026-03-27 04:12:34] [KEYDBG] LL-Hook: F5 KEYUP | GameForeground=NO | Action=DispatchToOnKeyboardEvent (game background)
+[2026-03-27 04:12:34] [KEYDBG] [F5] KEYUP -> OK: Toggle AutoClicker Start/Stop | Clicker is RUNNING -> Sending WM_STOP_CLICKER
+[2026-03-27 04:12:34] [CLICKER] Clicker stop requested
+[2026-03-27 04:12:34] [CLICKER] === Auto-clicker stopping ===
+[2026-03-27 04:12:34] [CLICKER] Advanced auto-pickup disabled
+[2026-03-27 04:12:34] [CLICKER] Sending //pickdebug off and //autopick off to DLL
+[2026-03-27 04:12:34] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:12:34] [PACKET] QUEUE>SERVER | Character speak | Len=0 | 
+[2026-03-27 04:12:34] [CLICKER] Debug mode remains active in DLL after clicker stop
+[2026-03-27 04:12:34] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
+[2026-03-27 04:12:34] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=29 | C1 1D 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 70 69 63 6B 64 65 62 75 67 20 6F 66 66 00 
+[2026-03-27 04:12:34] [PICKUP] SetParam: pickdebug=0
+[2026-03-27 04:12:34] [PACKET] DIRECT>CLIENT | Server message | Len=48 | C1 30 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 50 69 63 6B 2D 75 70 20 64 65 62 75 67 20 6D 6F...
+[2026-03-27 04:12:34] [CLICKER] === Auto-clicker stopped ===
+[2026-03-27 04:12:34] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:12:34] [PACKET] CLIENT -> SERVER | [0x00] and [main.exe+0x00000000] Character speak | Len=28 | C1 1C 00 41 44 4D 49 4E 00 00 00 00 00 2F 2F 61 75 74 6F 70 69 63 6B 20 6F 66 66 00 
+[2026-03-27 04:12:34] [PICKUP] SetParam: autopick DISABLED (m_fEnabled=0)
+[2026-03-27 04:12:34] [CLICKER] Clicker stopped
+[2026-03-27 04:12:34] [PICKUP] Command //autopick: off (fCmd=0)
+[2026-03-27 04:12:34] [PACKET] DIRECT>CLIENT | Server message | Len=38 | C1 26 0D 01 00 00 00 00 00 00 00 00 00 3E 3E 20 61 75 74 6F 70 69 63 6B 20 6F 66 66 20 5B 4F 4B...
+[2026-03-27 04:12:36] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 4 similar packets skipped)
+[2026-03-27 04:12:36] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 40  (throttled: 4 similar packets skipped)
+[2026-03-27 04:12:36] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 8A 1E 38 EE EB 6D AC ED FF FF 00 ED 5E 39 5D  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:36] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 8A 1E 38 EE EB 6D AC ED FF FF 00 ED 5E 39 5D  (throttled: 2 similar packets skipped)
+[2026-03-27 04:12:36] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:36] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 38 39 6E 
+[2026-03-27 04:12:36] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:36] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:38] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:38] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:39] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EE EB 10 
+[2026-03-27 04:12:39] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EE EB 10 
+[2026-03-27 04:12:39] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001F3350] Massive skill | Len=17 | C3 11 8B 1E 38 EE EB FC 86 7B FF FF 00 F4 6A 39 5D 
+[2026-03-27 04:12:39] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001F3350] Massive skill | Len=17 | C3 11 8B 1E 38 EE EB FC 86 7B FF FF 00 F4 6A 39 5D 
+[2026-03-27 04:12:39] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DD 00 38 39 6E 
+[2026-03-27 04:12:39] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DD 00 38 39 6E 
+[2026-03-27 04:12:39] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:39] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 10 C1 59 38 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:39] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:39] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:40] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:40] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:40] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:40] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:40] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 2F 
+[2026-03-27 04:12:40] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 2F 
+[2026-03-27 04:12:40] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 2F 
+[2026-03-27 04:12:40] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 2F 
+[2026-03-27 04:12:40] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:40] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:40] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:40] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 58 1F 7A 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:41] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:41] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:41] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:12:41] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:12:41] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=49 | C2 00 31 20 04 80 38 EF EB 0F 00 37 00 AA E0 00 80 39 F0 EB 0F 00 38 00 F2 E0 00 80 3A EE EC 1D 08 01 00 00 E0 00 80 3B ED EB 08 08 2D 00 00 A0 00 
+[2026-03-27 04:12:41] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=49 | C2 00 31 20 04 80 38 EF EB 0F 00 37 00 AA E0 00 80 39 F0 EB 0F 00 38 00 F2 E0 00 80 3A EE EC 1D 08 01 00 00 E0 00 80 3B ED EB 08 08 2D 00 00 A0 00 
+[2026-03-27 04:12:41] [PICKUP] RECV CMeetItemPacket: 4 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:12:41] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 4 item(s) but autopick DISABLED - items ignored
+[2026-03-27 04:12:43] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 30  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:43] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Update position CTS | Len=6 | C1 06 1D EE EB 30  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:43] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 91 1E 38 EE EB 3E A8 BE FF FF 00 DD 6A 39 5D  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:43] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001D8FF6] Massive skill | Len=17 | C3 11 91 1E 38 EE EB 3E A8 BE FF FF 00 DD 6A 39 5D  (throttled: 5 similar packets skipped)
+[2026-03-27 04:12:43] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E  (throttled: 3 similar packets skipped)
+[2026-03-27 04:12:43] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E  (throttled: 3 similar packets skipped)
+[2026-03-27 04:12:43] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:43] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 00 00 00 00 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:12:44] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 32 
+[2026-03-27 04:12:44] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 32 
+[2026-03-27 04:12:44] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 32 
+[2026-03-27 04:12:44] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 32 
+[2026-03-27 04:12:44] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:44] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:12:44] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=32 | C1 20 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 4C 65 76 65 6C 3A 20 37 37 36 00 4F 62 74 
+[2026-03-27 04:12:44] [PACKET] SERVER -> CLIENT | Server message | Len=32 | C1 20 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 4C 65 76 65 6C 3A 20 37 37 36 00 4F 62 74 
+[2026-03-27 04:12:46] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Char Move CTS | Len=7 | C1 07 1D EE EB 31 30 
+[2026-03-27 04:12:46] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D9DF5] Char Move CTS | Len=7 | C1 07 1D EE EB 31 30 
+[2026-03-27 04:12:46] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D8FF6] Pick item | Len=7 | C3 07 96 22 00 37 3A 
+[2026-03-27 04:12:46] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D8FF6] Pick item | Len=7 | C3 07 96 22 00 37 3A 
+[2026-03-27 04:12:46] [PICKUP] RECV CPutInventoryPacket: item type=0x0C03 level=0 placed in inventory slot=253 | Len=16 | C3 10 7F 22 FD 03 00 00 00 4C CA 59 38 00 00 00 
+[2026-03-27 04:12:46] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x0C03 level=0 slot=253 | Len=16 | C3 10 7F 22 FD 03 00 00 00 4C CA 59 38 00 00 00 
+[2026-03-27 04:12:46] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 37 
+[2026-03-27 04:12:46] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 37 
+[2026-03-27 04:12:46] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 37 
+[2026-03-27 04:12:46] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 37 
+[2026-03-27 04:12:56] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 35 
+[2026-03-27 04:12:56] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 35 
+[2026-03-27 04:12:56] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 35 
+[2026-03-27 04:12:56] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 35 
+[2026-03-27 04:12:58] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 36 
+[2026-03-27 04:12:58] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 36 
+[2026-03-27 04:12:58] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 36 
+[2026-03-27 04:12:58] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 36 
+[2026-03-27 04:13:00] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x00003D60] Update position CTS | Len=6 | C1 06 1D EF EB 20  (throttled: 3 similar packets skipped)
+[2026-03-27 04:13:00] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x00003D60] Update position CTS | Len=6 | C1 06 1D EF EB 20  (throttled: 3 similar packets skipped)
+[2026-03-27 04:13:00] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001BA511] Massive skill | Len=17 | C3 11 97 1E 38 EF EB 26 C5 A5 FF FF 00 D4 0C 39 5D  (throttled: 3 similar packets skipped)
+[2026-03-27 04:13:00] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x001BA511] Massive skill | Len=17 | C3 11 97 1E 38 EF EB 26 C5 A5 FF FF 00 D4 0C 39 5D  (throttled: 3 similar packets skipped)
+[2026-03-27 04:13:00] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DD 00 38 39 6E 
+[2026-03-27 04:13:00] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DD 00 38 39 6E 
+[2026-03-27 04:13:00] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 00 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 BB 7C 
+[2026-03-27 04:13:00] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 00 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 BB 7C 
+[2026-03-27 04:13:00] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 00 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 BB 7C 
+[2026-03-27 04:13:00] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 00 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 BB 7C 
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:01] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:13:01] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 5D 5B 30 5D 5B 30 5D 5B 30 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 30 5D 00 
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EF EB 40 
+[2026-03-27 04:13:01] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D EF EB 40 
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0xDC] and [main.exe+0x001F3350] Normal attack | Len=7 | C1 07 DC 02 DC 78 04 
+[2026-03-27 04:13:01] [PACKET] CLIENT -> SERVER | [0xDC] and [main.exe+0x001F3350] Normal attack | Len=7 | C1 07 DC 02 DC 78 04 
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 00 39 6E  (throttled: 1 similar packets skipped)
+[2026-03-27 04:13:01] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DC 00 00 39 6E  (throttled: 1 similar packets skipped)
+[2026-03-27 04:13:01] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 48 93 50 04 54 BF 59 38 D3 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 38 69 BE 
+[2026-03-27 04:13:01] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 48 93 50 04 54 BF 59 38 D3 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 38 69 BE 
+[2026-03-27 04:13:02] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 3C EF EB 0F 00 43 00 D2 E0 00 80 3D EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:13:02] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 3C EF EB 0F 00 43 00 D2 E0 00 80 3D EF EB 1D 08 01 00 00 E0 00 
+[2026-03-27 04:13:02] [PICKUP] RECV CMeetItemPacket: 2 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:13:02] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 2 item(s) but autopick DISABLED - items ignored
+[2026-03-27 04:13:02] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:02] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:02] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Char Move CTS | Len=7 | C1 07 1D EF EB 31 30 
+[2026-03-27 04:13:02] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Char Move CTS | Len=7 | C1 07 1D EF EB 31 30 
+[2026-03-27 04:13:03] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001B3B77] Pick item | Len=7 | C3 07 98 22 00 39 03 
+[2026-03-27 04:13:03] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001B3B77] Pick item | Len=7 | C3 07 98 22 00 39 03 
+[2026-03-27 04:13:03] [PICKUP] RECV CPutInventoryPacket: item type=0x061D level=6 placed in inventory slot=254 | Len=10 | C3 0A 83 22 FE 1D B3 F9 03 4C 
+[2026-03-27 04:13:03] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x061D level=6 slot=254 | Len=10 | C3 0A 83 22 FE 1D B3 F9 03 4C 
+[2026-03-27 04:13:03] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 39 
+[2026-03-27 04:13:03] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 39 
+[2026-03-27 04:13:03] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 39 
+[2026-03-27 04:13:03] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 39 
+[2026-03-27 04:13:03] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 3E F0 EC 1D 08 01 00 00 E0 00 
+[2026-03-27 04:13:03] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 3E F0 EC 1D 08 01 00 00 E0 00 
+[2026-03-27 04:13:03] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:13:03] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) but autopick DISABLED - items ignored
+[2026-03-27 04:13:06] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001BA511] Char Move CTS | Len=7 | C1 07 1D F0 EB 51 50 
+[2026-03-27 04:13:06] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001BA511] Char Move CTS | Len=7 | C1 07 1D F0 EB 51 50 
+[2026-03-27 04:13:07] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001B4C7F] Pick item | Len=7 | C3 07 9A 22 00 3E 48 
+[2026-03-27 04:13:07] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001B4C7F] Pick item | Len=7 | C3 07 9A 22 00 3E 48 
+[2026-03-27 04:13:07] [PICKUP] RECV CPutInventoryPacket: item type=0x0C03 level=0 placed in inventory slot=253 | Len=16 | C3 10 84 22 FD 03 00 00 00 4C CA 45 38 00 00 00 
+[2026-03-27 04:13:07] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x0C03 level=0 slot=253 | Len=16 | C3 10 84 22 FD 03 00 00 00 4C CA 45 38 00 00 00 
+[2026-03-27 04:13:07] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3E 
+[2026-03-27 04:13:07] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3E 
+[2026-03-27 04:13:07] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 3E 
+[2026-03-27 04:13:07] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 3E 
+[2026-03-27 04:13:07] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D F0 EC 10  (throttled: 1 similar packets skipped)
+[2026-03-27 04:13:07] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001F3350] Update position CTS | Len=6 | C1 06 1D F0 EC 10  (throttled: 1 similar packets skipped)
+[2026-03-27 04:13:07] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x00003D60] Massive skill | Len=17 | C3 11 9B 1E 38 F0 EC F7 86 77 FF FF 00 D2 52 39 5D 
+[2026-03-27 04:13:07] [PACKET] CLIENT -> SERVER | [0x1E] and [main.exe+0x00003D60] Massive skill | Len=17 | C3 11 9B 1E 38 F0 EC F7 86 77 FF FF 00 D2 52 39 5D 
+[2026-03-27 04:13:08] [GAMEDBG] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E 
+[2026-03-27 04:13:08] [PACKET] SERVER -> CLIENT | Object death | Len=9 | C1 09 17 02 DF 00 38 39 6E 
+[2026-03-27 04:13:08] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:08] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:08] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:08] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:08] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:08] [PACKET] SERVER -> CLIENT | Server message | Len=30 | C1 1E 0D 01 90 1A E1 1E 00 00 00 00 A0 4D 61 78 69 6D 75 6D 20 4C 65 76 65 6C 00 00 00 00 
+[2026-03-27 04:13:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:13:09] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 81 69 CE FC 00 E3 3E 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 76 00 00 
+[2026-03-27 04:13:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:09] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 3F EF EB 0F 00 38 00 4E E0 00 80 40 EF EA 03 31 24 00 00 10 00 
+[2026-03-27 04:13:09] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=27 | C2 00 1B 20 02 80 3F EF EB 0F 00 38 00 4E E0 00 80 40 EF EA 03 31 24 00 00 10 00 
+[2026-03-27 04:13:09] [PICKUP] RECV CMeetItemPacket: 2 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:13:09] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 2 item(s) but autopick DISABLED - items ignored
+[2026-03-27 04:13:09] [GAMEDBG] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:09] [PACKET] SERVER -> CLIENT | Server message | Len=42 | C1 2A 0D 01 00 00 00 00 00 00 00 00 00 52 61 67 65 20 45 78 70 3A 20 31 38 30 30 30 20 4F 62 74 61 69 6E 64 65 64 00 00 00 00 
+[2026-03-27 04:13:10] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Char Move CTS | Len=7 | C1 07 1D F0 EC 01 00 
+[2026-03-27 04:13:10] [PACKET] CLIENT -> SERVER | [0x1D] and [main.exe+0x001D8FF6] Char Move CTS | Len=7 | C1 07 1D F0 EC 01 00 
+[2026-03-27 04:13:10] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D9DF5] Pick item | Len=7 | C3 07 A4 22 00 38 55 
+[2026-03-27 04:13:10] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D9DF5] Pick item | Len=7 | C3 07 A4 22 00 38 55 
+[2026-03-27 04:13:10] [PICKUP] RECV CPutInventoryPacket: item type=0x021D level=6 placed in inventory slot=254 | Len=10 | C3 0A 91 22 FE 1D B4 30 AD 4C 
+[2026-03-27 04:13:10] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x021D level=6 slot=254 | Len=10 | C3 0A 91 22 FE 1D B4 30 AD 4C 
+[2026-03-27 04:13:10] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 38 
+[2026-03-27 04:13:10] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 38 
+[2026-03-27 04:13:10] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 38 
+[2026-03-27 04:13:10] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 38 
+[2026-03-27 04:13:10] [GAMEDBG] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 41 EF EC 05 10 26 00 00 10 00 
+[2026-03-27 04:13:10] [PACKET] SERVER -> CLIENT | Meet item(s) | Len=16 | C2 00 10 20 01 80 41 EF EC 05 10 26 00 00 10 00 
+[2026-03-27 04:13:10] [PICKUP] RECV CMeetItemPacket: 1 item(s) dropped but autopick DISABLED (m_fEnabled=0) - items ignored
+[2026-03-27 04:13:10] [GAMEDBG] [PICKUP] RECV CMeetItemPacket: 1 item(s) but autopick DISABLED - items ignored
+[2026-03-27 04:13:11] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D8FF6] Pick item | Len=7 | C3 07 A5 22 00 3C 69 
+[2026-03-27 04:13:11] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001D8FF6] Pick item | Len=7 | C3 07 A5 22 00 3C 69 
+[2026-03-27 04:13:11] [PICKUP] RECV CPutInventoryPacket: item type=0x011D level=6 placed in inventory slot=254 | Len=10 | C3 0A 92 22 FE 1D B4 74 7F 4C 
+[2026-03-27 04:13:11] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x011D level=6 slot=254 | Len=10 | C3 0A 92 22 FE 1D B4 74 7F 4C 
+[2026-03-27 04:13:11] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3C 
+[2026-03-27 04:13:11] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3C 
+[2026-03-27 04:13:11] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 3C 
+[2026-03-27 04:13:11] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 3C 
+[2026-03-27 04:13:12] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001F3350] Pick item | Len=7 | C3 07 A6 22 00 3D 84 
+[2026-03-27 04:13:12] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001F3350] Pick item | Len=7 | C3 07 A6 22 00 3D 84 
+[2026-03-27 04:13:12] [PICKUP] RECV CPutInventoryPacket: item type=0x0C03 level=0 placed in inventory slot=253 | Len=16 | C3 10 93 22 FD 03 00 00 00 4C CA 45 38 00 00 00 
+[2026-03-27 04:13:12] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x0C03 level=0 slot=253 | Len=16 | C3 10 93 22 FD 03 00 00 00 4C CA 45 38 00 00 00 
+[2026-03-27 04:13:12] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=11 | C2 00 0B 21 03 00 3A 00 3B 00 3D 
+[2026-03-27 04:13:12] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=11 | C2 00 0B 21 03 00 3A 00 3B 00 3D 
+[2026-03-27 04:13:12] [PICKUP] RECV CForgetItemPacket: 3 item(s) disappeared from ground | Len=11 | C2 00 0B 21 03 00 3A 00 3B 00 3D 
+[2026-03-27 04:13:12] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 3 item(s) disappeared | Len=11 | C2 00 0B 21 03 00 3A 00 3B 00 3D 
+[2026-03-27 04:13:13] [GAMEDBG] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001BA511] Pick item | Len=7 | C3 07 A7 22 00 3F EB 
+[2026-03-27 04:13:13] [PACKET] CLIENT -> SERVER | [0x22] and [main.exe+0x001BA511] Pick item | Len=7 | C3 07 A7 22 00 3F EB 
+[2026-03-27 04:13:13] [PICKUP] RECV CPutInventoryPacket: item type=0x0E1D level=6 placed in inventory slot=254 | Len=10 | C3 0A 94 22 FE 1D B4 AC CD 4C 
+[2026-03-27 04:13:13] [GAMEDBG] [PICKUP] RECV CPutInventoryPacket: type=0x0E1D level=6 slot=254 | Len=10 | C3 0A 94 22 FE 1D B4 AC CD 4C 
+[2026-03-27 04:13:13] [GAMEDBG] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3F 
+[2026-03-27 04:13:13] [PACKET] SERVER -> CLIENT | Forget item(s) | Len=7 | C2 00 07 21 01 00 3F 
+[2026-03-27 04:13:13] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared from ground | Len=7 | C2 00 07 21 01 00 3F 
+[2026-03-27 04:13:13] [GAMEDBG] [PICKUP] RECV CForgetItemPacket: 1 item(s) disappeared | Len=7 | C2 00 07 21 01 00 3F 
+[2026-03-27 04:13:14] [GAMEDBG] Disconnected from server.
+[2026-03-27 04:13:14] [GAMEDBG] [DLL] DLL_PROCESS_DETACH - game process unloading DLL.
+[2026-03-27 04:13:14] [HOOK] DLL_PROCESS_DETACH - main.exe unloading LordOfMU DLL, removing hooks
+[2026-03-27 04:13:14] [GAMEDBG] === LordOfMU DLL shutting down (OnExit) ===
+[2026-03-27 04:13:14] [DEBUG] LordOfMU DLL shutting down (OnExit)
+[2026-03-27 04:13:14] [HOOK] DLL shutdown initiated - starting hook removal from main.exe
+[2026-03-27 04:13:14] [DEBUG] Debug mode handler uninstalled
+[2026-03-27 04:13:14] [HOOK] Crash handler uninstalled
+[2026-03-27 04:13:14] [GAMEDBG] [HOOK_CLEANUP] Cleaning up DLL hooks from main.exe process...
+[2026-03-27 04:13:14] [HOOK] Starting DLL hook cleanup from main.exe process
+[2026-03-27 04:13:14] [HOOK] Proxifier cleanup started - removing hooks
+[2026-03-27 04:13:14] [HOOK] Proxifier cleanup complete - all hooks removed
+[2026-03-27 04:13:14] [GAMEDBG] [HOOK_CLEANUP] DLL hook cleanup complete. All hooks removed.
+[2026-03-27 04:13:14] [HOOK] DLL hook cleanup complete - all hooks removed, g_lHookApplied reset to 0
+[2026-03-27 04:13:14] [GAMEDBG] === LordOfMU DLL cleanup complete ===
+[2026-03-27 04:13:14] [DEBUG] LordOfMU DLL cleanup complete - all resources released
