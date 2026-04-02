@@ -226,11 +226,13 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 	// Detect Zen (money) drops on ground within CMeetItemPacket.
 	// MoneyDropped layout within item record (starting at ITEM_CODE_OFFSET):
 	//   [0] = MoneyNumber (0x0F), [1..4] = Amount (LE), [5] = MoneyGroup (0x0E)
+	// Some servers use the standard Group<<4 format (0xE0) instead of raw 0x0E.
 	if (pkt == CMeetItemPacket::Type())
 	{
 		static const int  ITEM_CODE_OFFSET = 4;   // item code starts after 2-byte ID + 2-byte pos
-		static const BYTE MONEY_NUMBER = 0x0F;
-		static const BYTE MONEY_GROUP  = 0x0E;
+		static const BYTE MONEY_NUMBER     = 0x0F;
+		static const BYTE MONEY_GROUP_RAW  = 0x0E;  // raw MoneyGroup byte
+		static const BYTE MONEY_GROUP_STD  = 0xE0;  // Group 14 << 4
 
 		CMeetItemPacket& pktMeet = (CMeetItemPacket&)pkt;
 		int nProto = GetProtocolOffset(pkt.GetDecryptedPacket(), pkt.GetDecryptedLen());
@@ -244,8 +246,9 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 			BYTE* pItemCode = pItemRaw + ITEM_CODE_OFFSET;
 
-			if (pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP)
+			if (pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP_RAW)
 			{
+				// Raw MoneyDropped format: amount in bytes [1..4] LE
 				DWORD dwAmount = (DWORD)pItemCode[1] |
 					((DWORD)pItemCode[2] << 8) |
 					((DWORD)pItemCode[3] << 16) |
@@ -255,6 +258,15 @@ int CPacketLogger::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 					(unsigned long)dwAmount, nProto >= 0 ? nProto : 0);
 				WriteClickerLogFmt("OFFSET", "Zen Dropped on Ground %lu this is offset 0x%02X",
 					(unsigned long)dwAmount, nProto >= 0 ? nProto : 0);
+			}
+			else if (pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP_STD)
+			{
+				// Standard Group<<4 format: bytes [1..4] are item metadata,
+				// not the Zen amount.  Log detection without amount.
+				CDebugOut::PrintAlways("[OFFSET] - Zen Dropped on Ground (amount in memory) this is offset 0x%02X",
+					nProto >= 0 ? nProto : 0);
+				WriteClickerLogFmt("OFFSET", "Zen Dropped on Ground (0xE0 format, amount via memory) this is offset 0x%02X",
+					nProto >= 0 ? nProto : 0);
 			}
 		}
 	}

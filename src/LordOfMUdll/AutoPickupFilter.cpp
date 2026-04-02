@@ -220,6 +220,8 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
 	m_dwLastZen = 0;
 	m_fZenTracked = false;
 	m_fZenPickupPending = false;
+	m_dwZenPendingTick = 0;
+	m_dwZenBeforePickup = 0;
 
 	// Try to initialize Zen from game memory so that session tracking
 	// starts with the correct baseline even before the first packet.
@@ -246,7 +248,7 @@ CAutoPickupFilter::CAutoPickupFilter(CProxy* pProxy)
  * \brief Read current Zen from game memory using the known ObjectCharacter offset.
  *        Returns TRUE if the value was read successfully.
  */
-BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen)
+BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen, BOOL bSilent)
 {
 	if (!pdwZen)
 		return FALSE;
@@ -281,8 +283,11 @@ BOOL CAutoPickupFilter::ReadZenFromMemory(DWORD* pdwZen)
 		}
 
 		*pdwZen = dwZen;
-		WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: read zen=%lu from [0x%08X]+%d (base=0x%08X)",
-			(unsigned long)dwZen, ZEN_CHAR_STRUCT_PTR, ZEN_MONEY_OFFSET, dwCharBase);
+		if (!bSilent)
+		{
+			WriteClickerLogFmt("PICKUP", "ReadZenFromMemory: read zen=%lu from [0x%08X]+%d (base=0x%08X)",
+				(unsigned long)dwZen, ZEN_CHAR_STRUCT_PTR, ZEN_MONEY_OFFSET, dwCharBase);
+		}
 		return TRUE;
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
@@ -322,6 +327,67 @@ CAutoPickupFilter::~CAutoPickupFilter()
  */
 int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 {
+	// ===== Fallback: memory-based Zen delta when CZenUpdatePacket is missing =====
+	// Some servers do not send CZenUpdatePacket (C1 B8) after a Zen pickup.
+	// When the pending flag has been set but no update packet arrives within
+	// the timeout, we poll game memory for the new Zen total and compute the
+	// delta ourselves.  This ensures the HUD display, history, and session
+	// statistics are always updated.
+	if (m_fZenPickupPending && m_fEnabled)
+	{
+		DWORD dwElapsed = GetTickCount() - m_dwZenPendingTick;
+		if (dwElapsed >= ZEN_PENDING_TIMEOUT_MS)
+		{
+			DWORD dwCurrentZen = 0;
+			if (ReadZenFromMemory(&dwCurrentZen, TRUE) && dwCurrentZen > m_dwZenBeforePickup)
+			{
+				DWORD dwDelta = dwCurrentZen - m_dwZenBeforePickup;
+
+				WriteClickerLogFmt("PICKUP", "Zen fallback (memory): delta=%lu (before=%lu, now=%lu, elapsed=%lu ms)",
+					(unsigned long)dwDelta, (unsigned long)m_dwZenBeforePickup,
+					(unsigned long)dwCurrentZen, (unsigned long)dwElapsed);
+				CDebugOut::PrintAlways("[PICKUP] Zen fallback (memory): +%lu (total: %lu)",
+					(unsigned long)dwDelta, (unsigned long)dwCurrentZen);
+
+				m_fZenPickupPending = false;
+
+				CServerMessagePacket pktObtained("[PICKUP] - +%lu Zen Obtained", (unsigned long)dwDelta);
+				GetProxy()->recv_direct(pktObtained);
+
+				char szHistory[64];
+				sprintf_s(szHistory, sizeof(szHistory), "+%lu Zen", (unsigned long)dwDelta);
+				AddPickupHistoryEntry(szHistory);
+
+				InitHistoryCS();
+				EnterCriticalSection(&g_csHistory);
+				if (g_bSessionActive)
+				{
+					g_ullSessionZenTotal += (unsigned __int64)dwDelta;
+					g_nSessionZenPickupCount++;
+				}
+				LeaveCriticalSection(&g_csHistory);
+
+				m_dwLastZen = dwCurrentZen;
+				m_fZenTracked = true;
+			}
+			else if (dwElapsed >= ZEN_PENDING_MAX_MS)
+			{
+				// Hard timeout: give up to avoid stuck pending state.
+				WriteClickerLogFmt("PICKUP", "Zen fallback: timeout (%lu ms) with no delta detected, clearing pending",
+					(unsigned long)dwElapsed);
+				m_fZenPickupPending = false;
+
+				// Still update baseline from memory if possible
+				DWORD dwMem = 0;
+				if (ReadZenFromMemory(&dwMem, TRUE))
+				{
+					m_dwLastZen = dwMem;
+					m_fZenTracked = true;
+				}
+			}
+		}
+	}
+
 	if (pkt == CMeetItemPacket::Type())
 	{
 		CMeetItemPacket& pktMItem = (CMeetItemPacket&)pkt;
@@ -389,10 +455,13 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			//   ItemData[0] = MoneyNumber = 15 (0x0F, fixed)
 			//   ItemData[1..4] = Amount (4 bytes, LittleEndian)
 			//   ItemData[5] = MoneyGroup = 14 (0x0E, raw value, NOT Group<<4)
-			// The standard GetItemType() formula expects ItemData[5] = Group<<4,
-			// so it produces a wrong type for money. Detect money explicitly.
-			static const BYTE MONEY_NUMBER = 0x0F;
-			static const BYTE MONEY_GROUP  = 0x0E;
+			// Some servers use the standard Group<<4 format (0xE0) instead of
+			// raw 0x0E.  Both are detected as Zen, but the amount can only be
+			// extracted from the raw (0x0E) variant where bytes [1..4] carry
+			// the LE money amount.
+			static const BYTE MONEY_NUMBER     = 0x0F;
+			static const BYTE MONEY_GROUP_RAW  = 0x0E;  // raw MoneyGroup byte
+			static const BYTE MONEY_GROUP_STD  = 0xE0;  // Group 14 << 4
 
 			BYTE* pItemRaw = pktMItem.GetItemData(i);
 			BYTE* pItemCode = pItemRaw ? pItemRaw + 4 : 0;
@@ -401,9 +470,9 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 			WORD wMask;
 			DWORD dwZenGroundAmount = 0;
 
-			if (pItemCode && pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP)
+			if (pItemCode && pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP_RAW)
 			{
-				// MoneyDropped: force type to TYPE_ZEN
+				// MoneyDropped (raw format): force type to TYPE_ZEN, extract amount
 				wType = TYPE_ZEN;
 				wMask = 1;
 
@@ -414,6 +483,18 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 
 				WriteClickerLogFmt("PICKUP", "Item %d: MoneyDropped detected (id=0x%04X) at (%d,%d) amount=%lu",
 					i, wId, (int)x, (int)y, (unsigned long)dwZenGroundAmount);
+			}
+			else if (pItemCode && pItemCode[0] == MONEY_NUMBER && pItemCode[5] == MONEY_GROUP_STD)
+			{
+				// MoneyDropped (standard Group<<4 format): bytes [1..4]
+				// contain item metadata, not the Zen amount.  Force type
+				// to TYPE_ZEN; the actual amount will be determined via
+				// CZenUpdatePacket delta or memory fallback.
+				wType = TYPE_ZEN;
+				wMask = 1;
+
+				WriteClickerLogFmt("PICKUP", "Item %d: Zen detected via standard format (id=0x%04X) at (%d,%d) amount=unknown (0xE0 format)",
+					i, wId, (int)x, (int)y);
 			}
 			else
 			{
@@ -598,17 +679,17 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				return 0;
 
 			// Zen pickup: identified by item type, inventory slot=254, OR
-			// MoneyDropped byte pattern.  MoneyDropped packets encode the
-			// group byte as raw 0x0E instead of the standard (Group<<4)=0xE0,
-			// causing GetItemType() to produce a wrong type code.
+			// MoneyDropped byte pattern.  MoneyDropped packets may encode the
+			// group byte as raw 0x0E or as standard (Group<<4)=0xE0.
 			BYTE* pItemData = pkt2.GetItemData();
 			bool bIsZen = (wType == TYPE_ZEN) || (bPos == INVENTORY_SLOT_ZEN);
 
-			if (!bIsZen && pItemData
-				&& pItemData[0] == 0x0F && pItemData[5] == 0x0E)
+			if (!bIsZen && pItemData && pItemData[0] == 0x0F
+				&& (pItemData[5] == 0x0E || pItemData[5] == 0xE0))
 			{
 				bIsZen = true;
-				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: MoneyDropped detected via byte pattern");
+				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: MoneyDropped detected via byte pattern (ItemData[5]=0x%02X)",
+					pItemData[5]);
 			}
 
 			if (bIsZen)
@@ -617,8 +698,24 @@ int CAutoPickupFilter::FilterRecvPacket(CPacket& pkt, CFilterContext& context)
 				// reliably available in the packet data; set a pending flag
 				// so CZenUpdatePacket (which carries the authoritative new
 				// total) can compute the delta and display it.
+				// Save the current Zen baseline so the memory-based fallback
+				// can compute the correct delta if CZenUpdatePacket never arrives.
+				m_dwZenBeforePickup = m_dwLastZen;
+				if (!m_fZenTracked)
+				{
+					// No baseline yet — try to read from game memory now
+					DWORD dwMem = 0;
+					if (ReadZenFromMemory(&dwMem))
+					{
+						m_dwZenBeforePickup = dwMem;
+						m_dwLastZen = dwMem;
+						m_fZenTracked = true;
+					}
+				}
 				m_fZenPickupPending = true;
-				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup detected, pending CZenUpdatePacket for amount");
+				m_dwZenPendingTick = GetTickCount();
+				WriteClickerLogFmt("PICKUP", "CPutInventoryPacket: Zen pickup detected, baseline=%lu, pending CZenUpdatePacket for amount",
+					(unsigned long)m_dwZenBeforePickup);
 			}
 			else
 			{
