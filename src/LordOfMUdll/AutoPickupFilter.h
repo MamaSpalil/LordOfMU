@@ -135,6 +135,14 @@ private:
 	DWORD m_dwLastZen;
 	bool m_fZenTracked;
 	bool m_fZenPickupPending;
+	DWORD m_dwZenPendingTick;      // GetTickCount() when pending was set
+	DWORD m_dwZenBeforePickup;     // Zen value before the pending pickup
+
+	// Timeout for CZenUpdatePacket arrival.  After this period we fall
+	// back to game-memory based delta computation.
+	static const DWORD ZEN_PENDING_TIMEOUT_MS = 500;
+	// Hard limit: clear pending even if memory read fails to avoid stuck state.
+	static const DWORD ZEN_PENDING_MAX_MS = 5000;
 
 	static const BYTE CHAR_CLASS_UNSET = 0xFF;
 
